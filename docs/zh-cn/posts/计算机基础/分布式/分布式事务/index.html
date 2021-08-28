@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>分布式事务 - Razon Yang</title><link rel="apple-touch-icon" href="https://razonyang.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://razonyang.com/images/favicons/manifest.json">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="分布式事务">
+<meta itemprop="description" content="分布式事务 分布式事务顾名思义就是要在分布式系统中实现事务，它其实是由多个本地事务组合而成。对于分布式事务而言几乎满足不了 ACID，其实对于单机事务而言大部分情况下也没有满足 ACID，不然怎么会有四种隔离级别呢？所以更别说分布在不同数据库或者不同应用上的分布式事务了。
+2PC 2PC（Two-phase commit protocol），中文叫二阶段提交。 二阶段提交是一种强一致性设计，2PC 引入一个事务协调者的角色来协调管理各参与者（也可称之为各本地资源）的提交和回滚，二阶段分别指的是准备（投票）和提交两个阶段。
+**准备阶段**协调者会给各参与者发送准备命令，你可以把准备命令理解成除了提交事务之外啥事都做完了。
+同步等待所有资源的响应之后就进入第二阶段即**提交阶段**（注意提交阶段不一定是提交事务，也可能是回滚事务）。
+假如在第一阶段所有参与者都返回准备成功，那么协调者则向所有参与者发送提交事务命令，然后等待所有事务都提交成功之后，返回事务执行成功。
+假如在第一阶段有一个参与者返回失败，那么协调者就会向所有参与者发送回滚事务的请求，即分布式事务执行失败。
+首先 2PC 是一个同步阻塞协议，像第一阶段协调者会等待所有参与者响应才会进行下一步操作，当然第一阶段的协调者有超时机制，假设因为网络原因没有收到某参与者的响应或某参与者挂了，那么超时后就会判断事务失败，向所有参与者发送回滚命令。
+在第二阶段协调者的没法超时，只能不断重试，这里有两种情况：
+第一种是第二阶段执行的是回滚事务操作，那么答案是不断重试，直到所有参与者都回滚了，不然那些在第一阶段准备成功的参与者会一直阻塞着。
+第二种是第二阶段执行的是提交事务操作，那么答案也是不断重试，因为有可能一些参与者的事务已经提交成功了，这个时候只有一条路，就是头铁往前冲，不断的重试，直到提交成功，到最后真的不行只能人工介入处理。
+至此我们已经详细的分析的 2PC 的各种细节，我们来总结一下：
+ 2PC 是一种尽量保证强一致性的分布式事务，因此它是同步阻塞的，而同步阻塞就导致长久的资源锁定问题，总体而言效率低，并且存在单点故障问题，在极端条件下存在数据不一致的风险。
+当然具体的实现可以变形，而且 2PC 也有变种，例如 Tree 2PC、Dynamic 2PC。
+还有一点不知道你们看出来没，2PC 适用于数据库层面的分布式事务场景，而我们业务需求有时候不仅仅关乎数据库，也有可能是上传一张图片或者发送一条短信。
+而且像 Java 中的 JTA 只能解决一个应用下多数据库的分布式事务问题，跨服务了就不能用了。
+简单说下 Java 中 JTA，它是基于XA规范实现的事务接口，这里的 XA 你可以简单理解为基于数据库的 XA 规范来实现的 2PC。
+ 3PC 3PC 的出现是为了解决 2PC 的一些问题，相比于 2PC 它在参与者中也引入了超时机制，并且新增了一个阶段使得参与者可以利用这一个阶段统一各自的状态。
+让我们来详细看一下。
+3PC 包含了三个阶段，分别是**准备阶段、预提交阶段、提交阶段**，对应的英文就是：CanCommit、PreCommit 、 DoCommit。
+看起来是把 2PC 的提交阶段变成了预提交阶段和提交阶段，但是 3PC 的准备阶段协调者只是询问参与者的自身状况，比如你现在还好吗？负载重不重？这类的。
+而预提交阶段就是和 2PC 的准备阶段一样，除了事务的提交该做的都做了。
+提交阶段和 2PC 的一样，让我们来看一下图。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="250"><meta itemprop="image" content="https://razonyang.com/images/center.png">
+<meta itemprop="keywords" content="分布式,CS," /><meta property="og:title" content="分布式事务" />
+<meta property="og:description" content="分布式事务 分布式事务顾名思义就是要在分布式系统中实现事务，它其实是由多个本地事务组合而成。对于分布式事务而言几乎满足不了 ACID，其实对于单机事务而言大部分情况下也没有满足 ACID，不然怎么会有四种隔离级别呢？所以更别说分布在不同数据库或者不同应用上的分布式事务了。
+2PC 2PC（Two-phase commit protocol），中文叫二阶段提交。 二阶段提交是一种强一致性设计，2PC 引入一个事务协调者的角色来协调管理各参与者（也可称之为各本地资源）的提交和回滚，二阶段分别指的是准备（投票）和提交两个阶段。
+**准备阶段**协调者会给各参与者发送准备命令，你可以把准备命令理解成除了提交事务之外啥事都做完了。
+同步等待所有资源的响应之后就进入第二阶段即**提交阶段**（注意提交阶段不一定是提交事务，也可能是回滚事务）。
+假如在第一阶段所有参与者都返回准备成功，那么协调者则向所有参与者发送提交事务命令，然后等待所有事务都提交成功之后，返回事务执行成功。
+假如在第一阶段有一个参与者返回失败，那么协调者就会向所有参与者发送回滚事务的请求，即分布式事务执行失败。
+首先 2PC 是一个同步阻塞协议，像第一阶段协调者会等待所有参与者响应才会进行下一步操作，当然第一阶段的协调者有超时机制，假设因为网络原因没有收到某参与者的响应或某参与者挂了，那么超时后就会判断事务失败，向所有参与者发送回滚命令。
+在第二阶段协调者的没法超时，只能不断重试，这里有两种情况：
+第一种是第二阶段执行的是回滚事务操作，那么答案是不断重试，直到所有参与者都回滚了，不然那些在第一阶段准备成功的参与者会一直阻塞着。
+第二种是第二阶段执行的是提交事务操作，那么答案也是不断重试，因为有可能一些参与者的事务已经提交成功了，这个时候只有一条路，就是头铁往前冲，不断的重试，直到提交成功，到最后真的不行只能人工介入处理。
+至此我们已经详细的分析的 2PC 的各种细节，我们来总结一下：
+ 2PC 是一种尽量保证强一致性的分布式事务，因此它是同步阻塞的，而同步阻塞就导致长久的资源锁定问题，总体而言效率低，并且存在单点故障问题，在极端条件下存在数据不一致的风险。
+当然具体的实现可以变形，而且 2PC 也有变种，例如 Tree 2PC、Dynamic 2PC。
+还有一点不知道你们看出来没，2PC 适用于数据库层面的分布式事务场景，而我们业务需求有时候不仅仅关乎数据库，也有可能是上传一张图片或者发送一条短信。
+而且像 Java 中的 JTA 只能解决一个应用下多数据库的分布式事务问题，跨服务了就不能用了。
+简单说下 Java 中 JTA，它是基于XA规范实现的事务接口，这里的 XA 你可以简单理解为基于数据库的 XA 规范来实现的 2PC。
+ 3PC 3PC 的出现是为了解决 2PC 的一些问题，相比于 2PC 它在参与者中也引入了超时机制，并且新增了一个阶段使得参与者可以利用这一个阶段统一各自的状态。
+让我们来详细看一下。
+3PC 包含了三个阶段，分别是**准备阶段、预提交阶段、提交阶段**，对应的英文就是：CanCommit、PreCommit 、 DoCommit。
+看起来是把 2PC 的提交阶段变成了预提交阶段和提交阶段，但是 3PC 的准备阶段协调者只是询问参与者的自身状况，比如你现在还好吗？负载重不重？这类的。
+而预提交阶段就是和 2PC 的准备阶段一样，除了事务的提交该做的都做了。
+提交阶段和 2PC 的一样，让我们来看一下图。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/" /><meta property="og:image" content="https://razonyang.com/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/aqs/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/async/" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://razonyang.com/images/center.png"/>
+
+<meta name="twitter:title" content="分布式事务"/>
+<meta name="twitter:description" content="分布式事务 分布式事务顾名思义就是要在分布式系统中实现事务，它其实是由多个本地事务组合而成。对于分布式事务而言几乎满足不了 ACID，其实对于单机事务而言大部分情况下也没有满足 ACID，不然怎么会有四种隔离级别呢？所以更别说分布在不同数据库或者不同应用上的分布式事务了。
+2PC 2PC（Two-phase commit protocol），中文叫二阶段提交。 二阶段提交是一种强一致性设计，2PC 引入一个事务协调者的角色来协调管理各参与者（也可称之为各本地资源）的提交和回滚，二阶段分别指的是准备（投票）和提交两个阶段。
+**准备阶段**协调者会给各参与者发送准备命令，你可以把准备命令理解成除了提交事务之外啥事都做完了。
+同步等待所有资源的响应之后就进入第二阶段即**提交阶段**（注意提交阶段不一定是提交事务，也可能是回滚事务）。
+假如在第一阶段所有参与者都返回准备成功，那么协调者则向所有参与者发送提交事务命令，然后等待所有事务都提交成功之后，返回事务执行成功。
+假如在第一阶段有一个参与者返回失败，那么协调者就会向所有参与者发送回滚事务的请求，即分布式事务执行失败。
+首先 2PC 是一个同步阻塞协议，像第一阶段协调者会等待所有参与者响应才会进行下一步操作，当然第一阶段的协调者有超时机制，假设因为网络原因没有收到某参与者的响应或某参与者挂了，那么超时后就会判断事务失败，向所有参与者发送回滚命令。
+在第二阶段协调者的没法超时，只能不断重试，这里有两种情况：
+第一种是第二阶段执行的是回滚事务操作，那么答案是不断重试，直到所有参与者都回滚了，不然那些在第一阶段准备成功的参与者会一直阻塞着。
+第二种是第二阶段执行的是提交事务操作，那么答案也是不断重试，因为有可能一些参与者的事务已经提交成功了，这个时候只有一条路，就是头铁往前冲，不断的重试，直到提交成功，到最后真的不行只能人工介入处理。
+至此我们已经详细的分析的 2PC 的各种细节，我们来总结一下：
+ 2PC 是一种尽量保证强一致性的分布式事务，因此它是同步阻塞的，而同步阻塞就导致长久的资源锁定问题，总体而言效率低，并且存在单点故障问题，在极端条件下存在数据不一致的风险。
+当然具体的实现可以变形，而且 2PC 也有变种，例如 Tree 2PC、Dynamic 2PC。
+还有一点不知道你们看出来没，2PC 适用于数据库层面的分布式事务场景，而我们业务需求有时候不仅仅关乎数据库，也有可能是上传一张图片或者发送一条短信。
+而且像 Java 中的 JTA 只能解决一个应用下多数据库的分布式事务问题，跨服务了就不能用了。
+简单说下 Java 中 JTA，它是基于XA规范实现的事务接口，这里的 XA 你可以简单理解为基于数据库的 XA 规范来实现的 2PC。
+ 3PC 3PC 的出现是为了解决 2PC 的一些问题，相比于 2PC 它在参与者中也引入了超时机制，并且新增了一个阶段使得参与者可以利用这一个阶段统一各自的状态。
+让我们来详细看一下。
+3PC 包含了三个阶段，分别是**准备阶段、预提交阶段、提交阶段**，对应的英文就是：CanCommit、PreCommit 、 DoCommit。
+看起来是把 2PC 的提交阶段变成了预提交阶段和提交阶段，但是 3PC 的准备阶段协调者只是询问参与者的自身状况，比如你现在还好吗？负载重不重？这类的。
+而预提交阶段就是和 2PC 的准备阶段一样，除了事务的提交该做的都做了。
+提交阶段和 2PC 的一样，让我们来看一下图。"/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://razonyang.com/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://razonyang.com/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-97403777-3', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="https://razonyang.com/zh-cn/">
+      <img class="logo" alt="Logo" src="https://razonyang.com/images/logo.webp" loading="lazy">RAZON YANG</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://razonyang.com/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
+  </div>
+</form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-categories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-categories"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/programing">
+                <i class="fas fa-fw fa-code"></i>Programing
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/linux">
+                <i class="fab fa-fw fa-linux"></i>Linux
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/server">
+                <i class="fas fa-fw fa-server"></i>Server
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-tags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/php">
+                <i class="fab fa-fw fa-php"></i>PHP
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/html">
+                <i class="fab fa-fw fa-html5"></i>HTML
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fab fa-fw fa-js"></i>JavaScript
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/css">
+                <i class="fab fa-fw fa-css3"></i>CSS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+  <a class="nav-link" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fas fa-fw fa-language"></i> 简体中文
+  </a>
+  <ul class="dropdown-menu" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://razonyang.com/zh-tw/">繁體中文</a></li><li><a class="dropdown-item" href="https://razonyang.com/en/">English</a></li></ul>
+</li><li class="nav-item">
+  <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button"
+    aria-controls="offcanvasSettings">
+    <i class="fas fa-fw fa-sliders-h"></i> 设置
+  </a>
+</li>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings"
+  aria-labelledby="offcanvasSettingsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" w id="offcanvasSettingsLabel"><i class="fas fa-fw fa-sliders-h"></i> 设置</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <span id="btnPalette" class="btn btn-sm"><i class="fas fa-eye-dropper"></i></span>
+    </div>
+  </form>
+  <div class="container mt-2 visually-hidden" id="palettePicker">
+    <div class="btn-group"><button type="button" id="palette-blue" title="蓝色" 
+          class="btn btn-sm palette bg-blue d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-blue-gray" title="蓝灰色" 
+          class="btn btn-sm palette bg-blue-gray d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-brown" title="棕色" 
+          class="btn btn-sm palette bg-brown d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-cyan" title="青色" 
+          class="btn btn-sm palette bg-cyan d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-green" title="绿色" 
+          class="btn btn-sm palette bg-green d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-indigo" title="靛青色" 
+          class="btn btn-sm palette bg-indigo d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-orange" title="橙色" 
+          class="btn btn-sm palette bg-orange d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-pink" title="粉色" 
+          class="btn btn-sm palette bg-pink d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-purple" title="紫色" 
+          class="btn btn-sm palette bg-purple d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-red" title="红色" 
+          class="btn btn-sm palette bg-red d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-teal" title="蓝绿色" 
+          class="btn btn-sm palette bg-teal d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-yellow" title="黄色" 
+          class="btn btn-sm palette bg-yellow d-flex align-items-center justify-content-center">
+        </button></button>
+    </div>
+  </div>
+</section></div>
+</div></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row" aria-label="breadcrumb">
+  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">分布式事务</li></ol>
+</nav><article class="post row surface"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-alt fa-rotate-45"></i>
+</a>
+  
+    
+
+    
+    
+    
+  </div>
+</div>
+<h1 class="post-title my-3">分布式事务
+</h1><div class="post-meta mb-3">
+  <span class="post-date me-2">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
+  </span>
+  <span class="post-reading-time me-2">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span><a href="https://razonyang.com/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" class="post-taxonomy">#计算机基础</a><a href="https://razonyang.com/zh-cn/series/manual/" class="post-taxonomy">#Manual</a><a href="https://razonyang.com/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="post-taxonomy">#分布式</a><a href="https://razonyang.com/zh-cn/tags/cs/" class="post-taxonomy">#CS</a></div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><h1 id="分布式事务">分布式事务</h1>
+<p>分布式事务顾名思义就是要在分布式系统中实现事务，它其实是由多个本地事务组合而成。对于分布式事务而言几乎满足不了 ACID，其实对于单机事务而言大部分情况下也没有满足 ACID，不然怎么会有四种隔离级别呢？所以更别说分布在不同数据库或者不同应用上的分布式事务了。</p>
+<h2 id="2pc"><strong>2PC</strong></h2>
+<p>2PC（Two-phase commit protocol），中文叫二阶段提交。 <strong>二阶段提交是一种强一致性设计</strong>，2PC 引入一个事务协调者的角色来协调管理各参与者（也可称之为各本地资源）的提交和回滚，二阶段分别指的是准备（投票）和提交两个阶段。</p>
+<p>**<code>准备阶段</code>**协调者会给各参与者发送准备命令，你可以把准备命令理解成除了提交事务之外啥事都做完了。</p>
+<p>同步等待所有资源的响应之后就进入第二阶段即**<code>提交阶段</code>**（注意提交阶段不一定是提交事务，也可能是回滚事务）。</p>
+<p>假如在第一阶段所有参与者都返回准备成功，那么协调者则向所有参与者发送提交事务命令，然后等待所有事务都提交成功之后，返回事务执行成功。</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/v2-880b5e0866906160b663827f961d8360_r.jpg" alt="preview"  loading="lazy" />
+</p>
+<p>假如在第一阶段有一个参与者返回失败，那么协调者就会向所有参与者发送回滚事务的请求，即分布式事务执行失败。</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/v2-83b3f422aeb89558c7c49f25811a2594_r.jpg" alt="preview"  loading="lazy" />
+</p>
+<p>首先 2PC 是一个<strong>同步阻塞协议</strong>，像第一阶段协调者会等待所有参与者响应才会进行下一步操作，当然第一阶段的<strong>协调者有超时机制</strong>，假设因为网络原因没有收到某参与者的响应或某参与者挂了，那么超时后就会判断事务失败，向所有参与者发送回滚命令。</p>
+<p>在第二阶段协调者的没法超时，只能不断重试，这里有两种情况：</p>
+<p>第一种是<strong>第二阶段执行的是回滚事务操作</strong>，那么答案是不断重试，直到所有参与者都回滚了，不然那些在第一阶段准备成功的参与者会一直阻塞着。</p>
+<p>第二种是<strong>第二阶段执行的是提交事务操作</strong>，那么答案也是不断重试，因为有可能一些参与者的事务已经提交成功了，这个时候只有一条路，就是头铁往前冲，不断的重试，直到提交成功，到最后真的不行只能人工介入处理。</p>
+<p>至此我们已经详细的分析的 2PC 的各种细节，我们来总结一下：</p>
+<blockquote>
+<p>2PC 是一种<strong>尽量保证强一致性</strong>的分布式事务，因此它是<strong>同步阻塞</strong>的，而同步阻塞就导致长久的资源锁定问题，<strong>总体而言效率低</strong>，并且存在<strong>单点故障</strong>问题，在极端条件下存在<strong>数据不一致</strong>的风险。</p>
+<p>当然具体的实现可以变形，而且 2PC 也有变种，例如 Tree 2PC、Dynamic 2PC。</p>
+<p>还有一点不知道你们看出来没，2PC 适用于<strong>数据库层面的分布式事务场景</strong>，而我们业务需求有时候不仅仅关乎数据库，也有可能是上传一张图片或者发送一条短信。</p>
+<p>而且像 Java 中的 JTA 只能解决一个应用下多数据库的分布式事务问题，跨服务了就不能用了。</p>
+<p>简单说下 Java 中 JTA，它是基于XA规范实现的事务接口，这里的 XA 你可以简单理解为基于数据库的 XA 规范来实现的 2PC。</p>
+</blockquote>
+<h2 id="3pc"><strong>3PC</strong></h2>
+<p>3PC 的出现是为了解决 2PC 的一些问题，相比于 2PC 它在<strong>参与者中也引入了超时机制</strong>，并且<strong>新增了一个阶段</strong>使得参与者可以利用这一个阶段统一各自的状态。</p>
+<p>让我们来详细看一下。</p>
+<p>3PC 包含了三个阶段，分别是**<code>准备阶段</code>、<code>预提交阶段</code>、<code>提交阶段</code>**，对应的英文就是：<code>CanCommit</code>、<code>PreCommit</code> 、 <code>DoCommit</code>。</p>
+<p>看起来是<strong>把 2PC 的提交阶段变成了预提交阶段和提交阶段</strong>，但是 3PC 的准备阶段协调者只是询问参与者的自身状况，比如你现在还好吗？负载重不重？这类的。</p>
+<p>而预提交阶段就是和 2PC 的准备阶段一样，除了事务的提交该做的都做了。</p>
+<p>提交阶段和 2PC 的一样，让我们来看一下图。</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/v2-885daf4ba34102d6e1047b0b67910652_1440w.jpg" alt="img"  loading="lazy" />
+</p>
+<p>不管哪一个阶段有参与者返回失败都会宣布事务失败，这和 2PC 是一样的（当然到最后的提交阶段和 2PC 一样只要是提交请求就只能不断重试）。</p>
+<p>我们先来看一下 3PC 的阶段变更有什么影响。</p>
+<p>首先<strong>准备阶段的变更成不会直接执行事务</strong>，而是会先去询问此时的参与者是否有条件接这个事务，因此<strong>不会一来就干活直接锁资源</strong>，使得在某些资源不可用的情况下所有参与者都阻塞着。</p>
+<p>而<strong>预提交阶段的引入起到了一个统一状态的作用</strong>，它像一道栅栏，表明在预提交阶段前所有参与者其实还未都回应，在预处理阶段表明所有参与者都已经回应了。</p>
+<p>假如你是一位参与者，你知道自己进入了预提交状态那你就可以推断出来其他参与者也都进入了预提交状态。</p>
+<p>但是多引入一个阶段也多一个交互，因此<strong>性能会差一些</strong>，而且<strong>绝大部分的情况下资源应该都是可用的</strong>，这样等于每次明知可用执行还得询问一次。</p>
+<p>我们再来看下参与者超时能带来什么样的影响。</p>
+<p>我们知道 2PC 是同步阻塞的，上面我们已经分析了协调者挂在了提交请求还未发出去的时候是最伤的，所有参与者都已经锁定资源并且阻塞等待着。</p>
+<p>那么引入了超时机制，参与者就不会傻等了，<strong>如果是等待提交命令超时，那么参与者就会提交事务了</strong>，因为都到了这一阶段了大概率是提交的，<strong>如果是等待预提交命令超时，那该干啥就干啥了，反正本来啥也没干</strong>。</p>
+<p>然而超时机制也会带来数据不一致的问题，比如在等待提交命令时候超时了，参与者默认执行的是提交事务操作，但是<strong>有可能执行的是回滚操作，这样一来数据就不一致了</strong>。</p>
+<p>当然 3PC 协调者超时还是在的，具体不分析了和 2PC 是一样的。</p>
+<p>从维基百科上看，3PC 的引入是为了解决提交阶段 2PC 协调者和某参与者都挂了之后新选举的协调者不知道当前应该提交还是回滚的问题。</p>
+<p>新协调者来的时候发现有一个参与者处于预提交或者提交阶段，那么表明已经经过了所有参与者的确认了，所以此时执行的就是提交命令。</p>
+<p>所以说 3PC 就是通过引入预提交阶段来使得参与者之间的状态得到统一，也就是留了一个阶段让大家同步一下。</p>
+<p>但是这也只能让协调者知道该如果做，但不能保证这样做一定对，这其实和上面 2PC 分析一致，因为挂了的参与者到底有没有执行事务无法断定。</p>
+<p>所以说 3PC 通过预提交阶段可以减少故障恢复时候的复杂性，但是不能保证数据一致，除非挂了的那个参与者恢复。</p>
+<p>让我们总结一下， 3PC 相对于 2PC 做了一定的改进：</p>
+<blockquote>
+<ol>
+<li>
+<p>引入了参与者超时机制</p>
+</li>
+<li>
+<p>准备阶段不执行事务，不锁定资源，只是询问参与者状态，不至于使得在某些参与者资源不可用的情况下所有参与者都阻塞着。</p>
+</li>
+<li>
+<p>增加了预提交阶段使得故障恢复之后协调者的决策复杂度降低</p>
+<p>但整体的交互过程更长了，性能有所下降，并且还是会存在数据不一致问题。</p>
+</li>
+</ol>
+</blockquote>
+<p>所以 2PC 和 3PC 都不能保证数据100%一致，因此一般都需要有定时扫描补偿机制。</p>
+<p>我再说下 3PC 我没有找到具体的实现，所以我认为 3PC 只是纯的理论上的东西，而且可以看到相比于 2PC 它是做了一些努力但是效果甚微，所以只做了解即可。</p>
+<h2 id="tcchttpseataiozh-cndocsdevmodetcc-modehtml"><a href="http://seata.io/zh-cn/docs/dev/mode/tcc-mode.html" target="_blank"><strong>TCC</strong></a>
+</h2>
+<p><strong>2PC 和 3PC 都是数据库层面的，而 TCC 是业务层面的分布式事务</strong>，就像我前面说的分布式事务不仅仅包括数据库的操作，还包括发送短信等，这时候 TCC 就派上用场了！</p>
+<p>TCC 指的是<code>Try</code> - <code>Confirm</code> - <code>Cancel</code>。</p>
+<ul>
+<li>Try 指的是预留，即资源的预留和锁定，<strong>注意是预留</strong>。</li>
+<li>Confirm 指的是确认操作，这一步其实就是真正的执行了。</li>
+<li>Cancel 指的是撤销操作，可以理解为把预留阶段的动作撤销了。</li>
+</ul>
+<p>其实从思想上看和 2PC 差不多，都是先试探性的执行，如果都可以那就真正的执行，如果不行就回滚。</p>
+<p>比如说一个事务要执行A、B、C三个操作，那么先对三个操作执行预留动作。如果都预留成功了那么就执行确认操作，如果有一个预留失败那就都执行撤销动作。</p>
+<p>我们来看下流程，TCC模型还有个事务管理者的角色，用来记录TCC全局事务状态并提交或者回滚事务。</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/v2-90179fa933c0a389ffa6ac04e244a58f_1440w.jpg" alt="img"  loading="lazy" />
+</p>
+<p>可以看到流程还是很简单的，难点在于业务上的定义，对于每一个操作你都需要定义三个动作分别对应<code>Try</code> - <code>Confirm</code> - <code>Cancel</code>。</p>
+<p>因此 <strong>TCC 对业务的侵入较大和业务紧耦合</strong>，需要根据特定的场景和业务逻辑来设计相应的操作。</p>
+<p>还有一点要注意，撤销和确认操作的执行可能需要重试，因此还需要保证<strong>操作的幂等</strong>。</p>
+<p>相对于 2PC、3PC ，TCC 适用的范围更大，但是开发量也更大，毕竟都在业务上实现，而且有时候你会发现这三个方法还真不好写。不过也因为是在业务上实现的，所以<strong>TCC可以跨数据库、跨不同的业务系统来实现事务</strong>。</p>
+<h2 id="本地消息表"><strong>本地消息表</strong></h2>
+<p>本地消息表其实就是利用了 <strong>各系统本地的事务</strong>来实现分布式事务。</p>
+<p>本地消息表顾名思义就是会有一张存放本地消息的表，一般都是放在数据库中，然后在执行业务的时候 <strong>将业务的执行和将消息放入消息表中的操作放在同一个事务中</strong>，这样就能保证消息放入本地表中业务肯定是执行成功的。</p>
+<p>然后再去调用下一个操作，如果下一个操作调用成功了好说，消息表的消息状态可以直接改成已成功。</p>
+<p>如果调用失败也没事，会有 <strong>后台任务定时去读取本地消息表</strong>，筛选出还未成功的消息再调用对应的服务，服务更新成功了再变更消息的状态。</p>
+<p>这时候有可能消息对应的操作不成功，因此也需要重试，重试就得保证对应服务的方法是幂等的，而且一般重试会有最大次数，超过最大次数可以记录下报警让人工处理。</p>
+<p>可以看到本地消息表其实实现的是<strong>最终一致性</strong>，容忍了数据暂时不一致的情况。</p>
+<blockquote>
+<p>本地消息表应用得相当广泛，除了上面的最终一致性方式，本地消息一般还可以这样实现：</p>
+<p>例如保存订单数据的同时需要调用支付接口：</p>
+<ol>
+<li>保存订单的时候将其状态设置为“待生效”</li>
+<li>调用支付成功则更新订单状态 👉 “已生效”，调用失败则提示用户稍后再试</li>
+</ol>
+<p>这个过程需要支付接口具备幂等性</p>
+</blockquote>
+<h2 id="消息事务"><strong>消息事务</strong></h2>
+<p>RocketMQ 就很好的支持了消息事务，让我们来看一下如何通过消息实现事务。</p>
+<p>第一步先给 Broker 发送事务消息即半消息，<strong>半消息不是说一半消息，而是这个消息对消费者来说不可见</strong>，然后<strong>发送成功后发送方再执行本地事务</strong>。</p>
+<p>再根据<strong>本地事务的结果向 Broker 发送 Commit 或者 RollBack 命令</strong>。</p>
+<p>并且 RocketMQ 的发送方会提供一个<strong>反查事务状态接口</strong>，如果一段时间内半消息没有收到任何操作请求，那么 Broker 会通过反查接口得知发送方事务是否执行成功，然后执行 Commit 或者 RollBack 命令。</p>
+<p>如果是 Commit 那么订阅方就能收到这条消息，然后再做对应的操作，做完了之后再消费这条消息即可。</p>
+<p>如果是 RollBack 那么订阅方收不到这条消息，等于事务就没执行过。</p>
+<p>可以看到通过 RocketMQ 还是比较容易实现的，RocketMQ 提供了事务消息的功能，我们只需要定义好事务反查接口即可。</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/v2-72ba7bed684e855606c44ddda185987d_1440w.jpg" alt="img"  loading="lazy" />
+</p>
+<p>可以看到消息事务实现的也是最终一致性。</p>
+<h2 id="最大努力通知"><strong>最大努力通知</strong></h2>
+<p>其实我觉得本地消息表也可以算最大努力，事务消息也可以算最大努力。</p>
+<p>就本地消息表来说会有后台任务定时去查看未完成的消息，然后去调用对应的服务，当一个消息多次调用都失败的时候可以记录下然后引入人工，或者直接舍弃。这其实算是最大努力了。</p>
+<p>事务消息也是一样，当半消息被commit了之后确实就是普通消息了，如果订阅者一直不消费或者消费不了则会一直重试，到最后进入死信队列。其实这也算最大努力。</p>
+<p>所以<strong>最大努力通知其实只是表明了一种柔性事务的思想</strong>：我已经尽力我最大的努力想达成事务的最终一致了。</p>
+<p>适用于对时间不敏感的业务，例如短信通知。</p>
+<h2 id="sagahttpseataiozh-cndocsusersagahtml"><a href="http://seata.io/zh-cn/docs/user/saga.html" target="_blank">Saga</a>
+</h2>
+<p>在Saga模式中，业务流程中每个参与者都提交本地事务，当出现某一个参与者失败则补偿前面已经成功的参与者，一阶段正向服务和二阶段补偿服务都由业务开发实现。</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/TB1Y2kuw7T2gK0jSZFkXXcIQFXa-445-444.png" alt="Saga模式示意图"  loading="lazy" />
+</p>
+<h3 id="适用场景">适用场景：</h3>
+<ul>
+<li>业务流程长、业务流程多</li>
+<li>参与者包含其它公司或遗留系统服务，无法提供 TCC 模式要求的三个接口</li>
+</ul>
+<h3 id="优势">优势：</h3>
+<ul>
+<li>一阶段提交本地事务，无锁，高性能</li>
+<li>事件驱动架构，参与者可异步执行，高吞吐</li>
+<li>补偿服务易于实现</li>
+</ul>
+<h3 id="缺点">缺点：</h3>
+<ul>
+<li>不保证隔离性</li>
+</ul>
+<h2 id="总结"><strong>总结</strong></h2>
+<p>可以看出 2PC 和 3PC 是一种强一致性事务，不过还是有数据不一致，阻塞等风险，而且只能用在数据库层面。</p>
+<p>而 TCC 是一种补偿性事务思想，适用的范围更广，在业务层面实现，因此对业务的侵入性较大，每一个操作都需要实现对应的三个方法。</p>
+<p>本地消息、事务消息和最大努力通知其实都是最终一致性事务，因此适用于一些对时间不敏感的业务。</p>
+<h2 id="参考">参考</h2>
+<p><a href="https://zhuanlan.zhihu.com/p/183753774" target="_blank">面试必问：分布式事务六种解决方案</a>
+</p>
+<p><a href="http://seata.io/zh-cn/docs/overview/what-is-seata.html" target="_blank">Seata</a>
+</p>
+<p><a href="https://juejin.cn/post/6844903647197806605" target="_blank">再有人问你分布式事务，把这篇扔给他</a>
+</p>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-between">
+  <div class="post-nav w-50"><div class="prev-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/%E5%89%91%E6%8C%87-offer-09.-%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/">剑指 Offer 09. 用两个栈实现队列
+</a>
+    </div></div>
+  <div class="post-nav flex-row-reverse"><div class="next-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E5%88%86%E5%B8%83%E5%BC%8Fid%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/">分布式ID生成方式
+</a>
+    </div></div>
+</div><section class="related-posts">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E5%88%86%E5%B8%83%E5%BC%8Fid%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/">分布式ID生成方式
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%BC%93%E5%AD%98%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7/">数据库和缓存双写一致性
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/">5种IO模型
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/cpu%E7%BC%93%E5%AD%98%E8%A1%8C/">CPU缓存行
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/caffeine/">Caffeine
+</a></li></ul>
+  </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label=""
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container"><section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<section class="profile surface row">
+  <div class="col-xl-6 d-flex align-items-center justify-content-center">
+    <img class="profile-avatar img-fluid" src="https://razonyang.com/images/profile.webp" alt="Razon Yang" loading="lazy">
+  </div>
+  <div class="col-xl-6">
+    <h5 class="profile-name my-2">Razon Yang</h5><div class="profile-bio mb-2">Gopher, PHPer, Full Stack Engineer.</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>Null</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>China</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://razonyang.com/zh-cn/about/">关于</a></div></div>
+</section><section class="recent-posts row surface">
+  <h4>最近文章</h4>
+  <ul><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1-k8s%E5%8A%9F%E8%83%BD/k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/">300. 最长递增子序列
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/">400 Bad Request
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/">5种IO模型
+</a></li></ul>
+</section><section class="taxonomy-categories row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/categories">分类</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
+          编程思想 <span class="badge rounded-pill">91</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
+          其他 <span class="badge rounded-pill">21</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机基础">
+          计算机基础 <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构设计">
+          架构设计 <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">2</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
+          区块链 <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-series row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/series">专栏</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
+          Manual <span class="badge rounded-pill">140</span>
+        </a><a href="https://razonyang.com/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-tags row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/tags">标签</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
+          Java <span class="badge rounded-pill">27</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
+          Other <span class="badge rounded-pill">24</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
+          CS <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
+          spring <span class="badge rounded-pill">11</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
+          redis <span class="badge rounded-pill">9</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
+          MySQL <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="剑指offer">
+          剑指offer <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/zk/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ZK">
+          ZK <span class="badge rounded-pill">6</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/nginx/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="nginx">
+          nginx <span class="badge rounded-pill">4</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a></div>
+    </section><section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
+    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a>
+  </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a>
+    </li></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2021 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://razonyang.com/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<a id="btnScrollToTop" class="btn-scroll-to-top">
+  <i class="fas fa-fw fa-chevron-circle-up fa-2x"></i>
+</a>
+<script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script></body>
+</html>

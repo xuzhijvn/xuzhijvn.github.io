@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>maven基础 - Razon Yang</title><link rel="apple-touch-icon" href="https://razonyang.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://razonyang.com/images/favicons/manifest.json">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="maven基础">
+<meta itemprop="description" content="1. 问题 项目开发过程中，经常会遇到jar冲突，然后maven根据自己的规则进行冲突解决，导致项目在运行的过程中报错。
+1、maven自动解决依赖冲突的规则是什么？
+2、如何查看当前项目的maven的依赖树？
+3、如何从依赖树中找到自己预期的版本，是被那个jar给覆盖了？
+4、如何人工进行依赖冲突解决，达到使用目的？
+2. 解决问题 2.1 maven自动解决依赖冲突的规则是什么？ 2.1.1 第一原则：路径最近者优先 项目A有如下的依赖关系：
+A-&gt;B-&gt;C-&gt;X(1.0)
+A-&gt;D-&gt;X(2.0)
+则该例子中，X的版本是2.0
+2.1.2 第二原则：路径相等，先声明者优先 项目A有如下的依赖关系：
+A-&gt;B-&gt;Y(1.0)
+A-&gt;C-&gt;Y(2.0)
+若pom文件中B的依赖坐标先于C进行声明，则最终Y的版本为1.0
+2.2 如何查看当前项目的maven依赖树？ //进入项目的pom.xml文件的目录下，运行如下命令//这个是正常依赖的树mvn dependency:tree//这个命令是查看maven是如何解决依赖冲突的依赖树mvn -Dverbose dependency:tree//如果想将依赖树打印到指定文件中，则命令如下mvn -Dverbose dependency:tree -Doutput=/Users/shangxiaofei/sxfoutput.txt3. 如何从依赖树中找到自己预期的版本，是被那个jar给覆盖了？ 例子：
+递归依赖的关系列的算是比较清楚了，每行都是一个jar包，根据缩进可以看到依赖的关系。
+最后写着compile的就是编译成功的。
+最后写着omitted for duplicate的就是有jar包被重复依赖了，但是jar包的版本是一样的。
+最后写着omitted for conflict with xxxx的，说明和别的jar包版本冲突了，而该行的jar包不会被引入。比如上面有一行最后写着omitted for conflict with 3.4.6，那么该行的zookeeper:jar:3.4.8不会被引入，会引入3.4.6版本
+最后写着version managed from 2.3 ;omitted for duplicate ,表示最终使用commons-pool2最终会使用2.4.2，拒绝使用中声明的2.3版本
+最后写着version managed from 1.16.8 ;表示最终使用lombok:jar:1.16.22版本
+4. 如何人工进行依赖冲突解决，达到使用目的？ 解决重复依赖和冲突的方法："><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="326"><meta itemprop="image" content="https://razonyang.com/images/center.png">
+<meta itemprop="keywords" content="Maven," /><meta property="og:title" content="maven基础" />
+<meta property="og:description" content="1. 问题 项目开发过程中，经常会遇到jar冲突，然后maven根据自己的规则进行冲突解决，导致项目在运行的过程中报错。
+1、maven自动解决依赖冲突的规则是什么？
+2、如何查看当前项目的maven的依赖树？
+3、如何从依赖树中找到自己预期的版本，是被那个jar给覆盖了？
+4、如何人工进行依赖冲突解决，达到使用目的？
+2. 解决问题 2.1 maven自动解决依赖冲突的规则是什么？ 2.1.1 第一原则：路径最近者优先 项目A有如下的依赖关系：
+A-&gt;B-&gt;C-&gt;X(1.0)
+A-&gt;D-&gt;X(2.0)
+则该例子中，X的版本是2.0
+2.1.2 第二原则：路径相等，先声明者优先 项目A有如下的依赖关系：
+A-&gt;B-&gt;Y(1.0)
+A-&gt;C-&gt;Y(2.0)
+若pom文件中B的依赖坐标先于C进行声明，则最终Y的版本为1.0
+2.2 如何查看当前项目的maven依赖树？ //进入项目的pom.xml文件的目录下，运行如下命令//这个是正常依赖的树mvn dependency:tree//这个命令是查看maven是如何解决依赖冲突的依赖树mvn -Dverbose dependency:tree//如果想将依赖树打印到指定文件中，则命令如下mvn -Dverbose dependency:tree -Doutput=/Users/shangxiaofei/sxfoutput.txt3. 如何从依赖树中找到自己预期的版本，是被那个jar给覆盖了？ 例子：
+递归依赖的关系列的算是比较清楚了，每行都是一个jar包，根据缩进可以看到依赖的关系。
+最后写着compile的就是编译成功的。
+最后写着omitted for duplicate的就是有jar包被重复依赖了，但是jar包的版本是一样的。
+最后写着omitted for conflict with xxxx的，说明和别的jar包版本冲突了，而该行的jar包不会被引入。比如上面有一行最后写着omitted for conflict with 3.4.6，那么该行的zookeeper:jar:3.4.8不会被引入，会引入3.4.6版本
+最后写着version managed from 2.3 ;omitted for duplicate ,表示最终使用commons-pool2最终会使用2.4.2，拒绝使用中声明的2.3版本
+最后写着version managed from 1.16.8 ;表示最终使用lombok:jar:1.16.22版本
+4. 如何人工进行依赖冲突解决，达到使用目的？ 解决重复依赖和冲突的方法：" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/maven/maven%E5%9F%BA%E7%A1%80/" /><meta property="og:image" content="https://razonyang.com/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/aqs/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/async/" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://razonyang.com/images/center.png"/>
+
+<meta name="twitter:title" content="maven基础"/>
+<meta name="twitter:description" content="1. 问题 项目开发过程中，经常会遇到jar冲突，然后maven根据自己的规则进行冲突解决，导致项目在运行的过程中报错。
+1、maven自动解决依赖冲突的规则是什么？
+2、如何查看当前项目的maven的依赖树？
+3、如何从依赖树中找到自己预期的版本，是被那个jar给覆盖了？
+4、如何人工进行依赖冲突解决，达到使用目的？
+2. 解决问题 2.1 maven自动解决依赖冲突的规则是什么？ 2.1.1 第一原则：路径最近者优先 项目A有如下的依赖关系：
+A-&gt;B-&gt;C-&gt;X(1.0)
+A-&gt;D-&gt;X(2.0)
+则该例子中，X的版本是2.0
+2.1.2 第二原则：路径相等，先声明者优先 项目A有如下的依赖关系：
+A-&gt;B-&gt;Y(1.0)
+A-&gt;C-&gt;Y(2.0)
+若pom文件中B的依赖坐标先于C进行声明，则最终Y的版本为1.0
+2.2 如何查看当前项目的maven依赖树？ //进入项目的pom.xml文件的目录下，运行如下命令//这个是正常依赖的树mvn dependency:tree//这个命令是查看maven是如何解决依赖冲突的依赖树mvn -Dverbose dependency:tree//如果想将依赖树打印到指定文件中，则命令如下mvn -Dverbose dependency:tree -Doutput=/Users/shangxiaofei/sxfoutput.txt3. 如何从依赖树中找到自己预期的版本，是被那个jar给覆盖了？ 例子：
+递归依赖的关系列的算是比较清楚了，每行都是一个jar包，根据缩进可以看到依赖的关系。
+最后写着compile的就是编译成功的。
+最后写着omitted for duplicate的就是有jar包被重复依赖了，但是jar包的版本是一样的。
+最后写着omitted for conflict with xxxx的，说明和别的jar包版本冲突了，而该行的jar包不会被引入。比如上面有一行最后写着omitted for conflict with 3.4.6，那么该行的zookeeper:jar:3.4.8不会被引入，会引入3.4.6版本
+最后写着version managed from 2.3 ;omitted for duplicate ,表示最终使用commons-pool2最终会使用2.4.2，拒绝使用中声明的2.3版本
+最后写着version managed from 1.16.8 ;表示最终使用lombok:jar:1.16.22版本
+4. 如何人工进行依赖冲突解决，达到使用目的？ 解决重复依赖和冲突的方法："/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://razonyang.com/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://razonyang.com/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-97403777-3', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="https://razonyang.com/zh-cn/">
+      <img class="logo" alt="Logo" src="https://razonyang.com/images/logo.webp" loading="lazy">RAZON YANG</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://razonyang.com/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
+  </div>
+</form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-categories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-categories"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/programing">
+                <i class="fas fa-fw fa-code"></i>Programing
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/linux">
+                <i class="fab fa-fw fa-linux"></i>Linux
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/server">
+                <i class="fas fa-fw fa-server"></i>Server
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-tags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/php">
+                <i class="fab fa-fw fa-php"></i>PHP
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/html">
+                <i class="fab fa-fw fa-html5"></i>HTML
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fab fa-fw fa-js"></i>JavaScript
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/css">
+                <i class="fab fa-fw fa-css3"></i>CSS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+  <a class="nav-link" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fas fa-fw fa-language"></i> 简体中文
+  </a>
+  <ul class="dropdown-menu" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://razonyang.com/zh-tw/">繁體中文</a></li><li><a class="dropdown-item" href="https://razonyang.com/en/">English</a></li></ul>
+</li><li class="nav-item">
+  <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button"
+    aria-controls="offcanvasSettings">
+    <i class="fas fa-fw fa-sliders-h"></i> 设置
+  </a>
+</li>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings"
+  aria-labelledby="offcanvasSettingsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" w id="offcanvasSettingsLabel"><i class="fas fa-fw fa-sliders-h"></i> 设置</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <span id="btnPalette" class="btn btn-sm"><i class="fas fa-eye-dropper"></i></span>
+    </div>
+  </form>
+  <div class="container mt-2 visually-hidden" id="palettePicker">
+    <div class="btn-group"><button type="button" id="palette-blue" title="蓝色" 
+          class="btn btn-sm palette bg-blue d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-blue-gray" title="蓝灰色" 
+          class="btn btn-sm palette bg-blue-gray d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-brown" title="棕色" 
+          class="btn btn-sm palette bg-brown d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-cyan" title="青色" 
+          class="btn btn-sm palette bg-cyan d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-green" title="绿色" 
+          class="btn btn-sm palette bg-green d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-indigo" title="靛青色" 
+          class="btn btn-sm palette bg-indigo d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-orange" title="橙色" 
+          class="btn btn-sm palette bg-orange d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-pink" title="粉色" 
+          class="btn btn-sm palette bg-pink d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-purple" title="紫色" 
+          class="btn btn-sm palette bg-purple d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-red" title="红色" 
+          class="btn btn-sm palette bg-red d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-teal" title="蓝绿色" 
+          class="btn btn-sm palette bg-teal d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-yellow" title="黄色" 
+          class="btn btn-sm palette bg-yellow d-flex align-items-center justify-content-center">
+        </button></button>
+    </div>
+  </div>
+</section></div>
+</div></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row" aria-label="breadcrumb">
+  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">maven基础</li></ol>
+</nav><article class="post row surface"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-alt fa-rotate-45"></i>
+</a>
+  
+    
+
+    
+    
+    <a id="btnTOC" class="fas fa-fw fa-list-alt" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+</a>
+  </div>
+</div>
+<h1 class="post-title my-3">maven基础
+</h1><div class="post-meta mb-3">
+  <span class="post-date me-2">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
+  </span>
+  <span class="post-reading-time me-2">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span><a href="https://razonyang.com/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy">#编程思想</a><a href="https://razonyang.com/zh-cn/series/manual/" class="post-taxonomy">#Manual</a><a href="https://razonyang.com/zh-cn/tags/maven/" class="post-taxonomy">#Maven</a></div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-问题">1. 问题</a></li>
+    <li><a href="#2-解决问题">2. 解决问题</a>
+      <ul>
+        <li><a href="#21-maven自动解决依赖冲突的规则是什么">2.1 maven自动解决依赖冲突的规则是什么？</a></li>
+        <li><a href="#22-如何查看当前项目的maven依赖树">2.2 如何查看当前项目的maven依赖树？</a></li>
+        <li><a href="#3-如何从依赖树中找到自己预期的版本是被那个jar给覆盖了">3. 如何从依赖树中找到自己预期的版本，是被那个jar给覆盖了？</a></li>
+        <li><a href="#4-如何人工进行依赖冲突解决达到使用目的">4. 如何人工进行依赖冲突解决，达到使用目的？</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-深入学习">3. 深入学习</a>
+      <ul>
+        <li><a href="#31-maven的依赖基础">3.1 maven的依赖基础</a></li>
+        <li><a href="#32-maven依赖范围">3.2 maven依赖范围</a></li>
+        <li><a href="#33-maven依赖管理">3.3 maven依赖管理</a></li>
+        <li><a href="#34-可选依赖">3.4 可选依赖</a></li>
+        <li><a href="#35-依赖版本界限">3.5 依赖版本界限</a></li>
+        <li><a href="#36-排除依赖">3.6 排除依赖</a></li>
+        <li><a href="#37-版本冲突仲裁">3.7 版本冲突仲裁</a></li>
+        <li><a href="#38-依赖冲突解决办法">3.8 依赖冲突解决办法</a></li>
+      </ul>
+    </li>
+    <li><a href="#4-fq">4. F&amp;Q</a>
+      <ul>
+        <li><a href="#41-runtime">4.1 runtime</a></li>
+        <li><a href="#42-optional">4.2 optional</a></li>
+        <li><a href="#43-maven-解决单继承">4.3 maven 解决单继承</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><h2 id="1-问题">1. 问题</h2>
+<p>项目开发过程中，经常会遇到jar冲突，然后maven根据自己的规则进行冲突解决，导致项目在运行的过程中报错。</p>
+<p>1、maven自动解决依赖冲突的规则是什么？</p>
+<p>2、如何查看当前项目的maven的依赖树？</p>
+<p>3、如何从依赖树中找到自己预期的版本，是被那个jar给覆盖了？</p>
+<p>4、如何人工进行依赖冲突解决，达到使用目的？</p>
+<h2 id="2-解决问题">2. 解决问题</h2>
+<h3 id="21-maven自动解决依赖冲突的规则是什么">2.1 maven自动解决依赖冲突的规则是什么？</h3>
+<h4 id="211-第一原则路径最近者优先">2.1.1 第一原则：路径最近者优先</h4>
+<p>项目A有如下的依赖关系：</p>
+<p>A-&gt;B-&gt;C-&gt;X(1.0)</p>
+<p>A-&gt;D-&gt;X(2.0)</p>
+<p>则该例子中，X的版本是2.0</p>
+<h4 id="212-第二原则路径相等先声明者优先">2.1.2 第二原则：路径相等，先声明者优先</h4>
+<p>项目A有如下的依赖关系：</p>
+<p>A-&gt;B-&gt;Y(1.0)</p>
+<p>A-&gt;C-&gt;Y(2.0)</p>
+<p>若pom文件中B的依赖坐标先于C进行声明，则最终Y的版本为1.0</p>
+<h3 id="22-如何查看当前项目的maven依赖树">2.2 如何查看当前项目的maven依赖树？</h3>
+<pre><code>//进入项目的pom.xml文件的目录下，运行如下命令
+//这个是正常依赖的树
+mvn dependency:tree
+//这个命令是查看maven是如何解决依赖冲突的依赖树
+mvn -Dverbose dependency:tree
+//如果想将依赖树打印到指定文件中，则命令如下
+mvn -Dverbose  dependency:tree -Doutput=/Users/shangxiaofei/sxfoutput.txt
+</code></pre><h3 id="3-如何从依赖树中找到自己预期的版本是被那个jar给覆盖了">3. 如何从依赖树中找到自己预期的版本，是被那个jar给覆盖了？</h3>
+<p>例子：</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/645085-20190110173328966-1325435360.png" alt="img"  loading="lazy" />
+</p>
+<p><img class="img-fluid" src="https://img2018.cnblogs.com/blog/645085/201901/645085-20190110182627824-965290088.png" alt="img"  loading="lazy" />
+</p>
+<p>递归依赖的关系列的算是比较清楚了，每行都是一个jar包，根据缩进可以看到依赖的关系。</p>
+<p>最后写着compile的就是编译成功的。</p>
+<p>最后写着omitted for duplicate的就是有jar包被重复依赖了，但是jar包的版本是一样的。</p>
+<p>最后写着omitted for conflict with xxxx的，说明和别的jar包版本冲突了，而该行的jar包不会被引入。比如上面有一行最后写着omitted for conflict with 3.4.6，那么该行的zookeeper:jar:3.4.8不会被引入，会引入3.4.6版本</p>
+<p>最后写着version managed from 2.3 ;omitted for duplicate ,表示最终使用commons-pool2最终会使用2.4.2，拒绝使用<!-- raw HTML omitted --><!-- raw HTML omitted -->中声明的2.3版本</p>
+<p>最后写着version managed from 1.16.8 ;表示最终使用lombok:jar:1.16.22版本</p>
+<h3 id="4-如何人工进行依赖冲突解决达到使用目的">4. 如何人工进行依赖冲突解决，达到使用目的？</h3>
+<p>解决重复依赖和冲突的方法：</p>
+<p>1，修改pom文件中两个dependency元素的位置。如果两个dependency都引用了一个jar包，但是版本不同，classloader只会加载jar包在pom文件中出现的第一个版本，以后出现的其他版本的jar包会被忽略。</p>
+<p>不建议使用该方法，因为引用不同版本的jar包本身就是很危险的。</p>
+<p>2，使用<!-- raw HTML omitted -->标签来去掉某个dependency依赖中的某一个jar包或一堆jar包，<!-- raw HTML omitted -->中的jar包或者依赖的相关jar包都会被忽略，从而在两个dependency都依赖某个jar包时，可以保证只使用其中的一个。</p>
+<p>可以这么写：</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+    &lt;artifactId&gt;dubbo&lt;/artifactId&gt;
+    &lt;version&gt;2.8.3.2&lt;/version&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;artifactId&gt;guava&lt;/artifactId&gt;
+            &lt;groupId&gt;com.google.guava&lt;/groupId&gt;
+        &lt;/exclusion&gt;
+        &lt;exclusion&gt;
+            &lt;artifactId&gt;spring&lt;/artifactId&gt;
+            &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+        &lt;/exclusion&gt;    
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;
+</code></pre><h2 id="3-深入学习">3. 深入学习</h2>
+<h3 id="31-maven的依赖基础">3.1 maven的依赖基础</h3>
+<pre><code>&lt;dependency&gt;    
+&lt;groupId&gt;com.alibaba.share&lt;/groupId&gt;    
+&lt;artifactId&gt;test&lt;/artifactId&gt;    
+&lt;version&gt;1.4&lt;/version&gt;    
+&lt;/dependency&gt;    
+    
+依赖库命名规则：    
+${groupId.part1}/${groupId.part2}/${version}    
+例：com/alibaba/share/1.4    
+    
+依赖库文件命名规则：    
+${artifactId}-${version}-${classifier}.${type}    
+例：test-1.4-source.jar    
+    
+注：classfier即分类器，多数的时候是用不到的，不过有写情况需要，例：    
+TestNG强制需要你提供分类器，以区别jdk14和jdk15    
+&lt;dependency&gt;      
+   &lt;groupId&gt;org.testng&lt;/groupId&gt;      
+   &lt;artifactId&gt;testng&lt;/artifactId&gt;      
+   &lt;version&gt;5.7&lt;/version&gt;      
+   &lt;classifier&gt;jdk15&lt;/classifier&gt;      
+&lt;/dependency&gt;    
+</code></pre><h3 id="32-maven依赖范围">3.2 maven依赖范围</h3>
+<pre><code>&lt;dependency&gt;    
+      &lt;groupId&gt;junit&lt;/groupId&gt;    
+      &lt;artifactId&gt;junit&lt;/artifactId&gt;    
+      &lt;version&gt;3.8.1&lt;/version&gt;    
+      &lt;scope&gt;test&lt;/scope&gt;    
+ &lt;/dependency&gt; 
+</code></pre><p>上面的scope即约定依赖范围。 
+compile：默认值，一直可用，最后会被打包 
+provided：编译期间可用，不会被传递依赖，不会被打包。例：依赖于web容器中的提供的一个jar包，在编译的时候需要加入依赖（web容器还没有介入），运行的时候由web容器来提供。 
+test：执行单元测试时可用，不会被打包，不会被传递依赖 
+runtime：运行和测试时需要，但编译时不需要 
+system：不推荐使用</p>
+<h3 id="33-maven依赖管理">3.3 maven依赖管理</h3>
+<p>避免不同子模块中依赖版本冲突 
+在父pom中配置依赖</p>
+<pre><code>&lt;dependencyManagement&gt;      
+    &lt;dependencies&gt;      
+     &lt;dependency&gt;      
+       &lt;groupId&gt;mysql&lt;/groupId&gt;      
+       &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;      
+      &lt;version&gt;5.1.2&lt;/version&gt;      
+     &lt;/dependency&gt;      
+      ...      
+   &lt;dependencies&gt;      
+&lt;/dependencyManagement&gt;    
+</code></pre><p>在子pom中添加依赖</p>
+<pre><code>&lt;dependencies&gt;      
+   &lt;dependency&gt;      
+    &lt;groupId&gt;mysql&lt;/groupId&gt;      
+    &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;      
+   &lt;/dependency&gt;      
+&lt;/dependencies&gt;    
+</code></pre><p>dependencyManagement实际上不会真正引入任何依赖，在子pom中添加之后才会。在父pom中配置了之后，子模块只需使用简单groupId和artifactId就能自动继承相应的父模块依赖配置。如果子pom中定义了version，则覆盖management中的。</p>
+<h3 id="34-可选依赖">3.4 可选依赖</h3>
+<pre><code>&lt;dependency&gt;    
+      &lt;groupId&gt;mysql&lt;/groupId&gt;    
+      &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;    
+      &lt;version&gt;1.5&lt;/version&gt;    
+      &lt;optional&gt;true&lt;/optional&gt;    
+    &lt;/dependency&gt;   
+</code></pre><p><a href="https://developer.aliyun.com/article/659868" target="_blank">maven可选依赖（Optional Dependencies）和依赖排除（Dependency Exclusions）</a>
+</p>
+<h3 id="35-依赖版本界限">3.5 依赖版本界限</h3>
+<p>要求的依赖版本&gt;=3.8且&lt;4.0</p>
+<pre><code>&lt;version&gt;[3.8,4.0)&lt;/version&gt;   
+</code></pre><p>要求的依赖版本&lt;=3.8.1</p>
+<pre><code>&lt;version&gt;[,3.8.1]&lt;/version&gt;    
+</code></pre><p>要求必须是3.8.1版本，如果不是的话会构建失败，提示版本冲突。原来的写法<!-- raw HTML omitted -->3.8.1<!-- raw HTML omitted -->的意思是所有版本都可以，但最好是3.8.1</p>
+<pre><code>&lt;version&gt;[3.8.1]&lt;/version&gt;   
+</code></pre><h3 id="36-排除依赖">3.6 排除依赖</h3>
+<p><em>依赖project-a但是排除掉对project-a中引入的project-b的依赖</em></p>
+<pre><code>&lt;dependency&gt;    
+  &lt;groupId&gt;org.sonatype.mavenbook&lt;/groupId&gt;    
+  &lt;artifactId&gt;project-a&lt;/artifactId&gt;    
+  &lt;version&gt;1.0&lt;/version&gt;    
+  &lt;exclusions&gt;    
+    &lt;exclusion&gt;    
+      &lt;groupId&gt;org.sonatype.mavenbook&lt;/groupId&gt;    
+      &lt;artifactId&gt;project-b&lt;/artifactId&gt;    
+    &lt;/exclusion&gt;    
+  &lt;/exclusions&gt;    
+&lt;/dependency&gt;    
+</code></pre><p>替换依赖 
+直接使用上一步中的排除掉，然后添加要替换进来的依赖就可以了，没有什么特殊的标志来标志这个是替换进来的。</p>
+<h3 id="37-版本冲突仲裁">3.7 版本冲突仲裁</h3>
+<pre><code>版本仲裁规则(在maven 2.2.1版本上测试验证) 
+• 按照项目总POM的DependencyManager版本声明进行仲裁(覆盖),但无警告。 
+• 如无仲裁声明,则按照依赖最短路径确定版本。 
+• 若相同路径,有严格区间限定的版本优先。 
+• 若相同路径,无版本区间,则按照先入为主原则。 
+</code></pre><h3 id="38-依赖冲突解决办法">3.8 依赖冲突解决办法</h3>
+<h4 id="381-定位冲突">3.8.1 定位冲突</h4>
+<p>查看那些jar包依赖了冲突包的命令</p>
+<pre><code>mvn dependency:tree -Dverbose -Dincludes=被依赖的包
+</code></pre><p>刚才吹嘘dependency:tree时，我用到了“无处遁形”，其实有时你会发现简单地用dependency:tree往往并不能查看到所有的传递依赖。不过如果你真的想要看所有的，必须得加一个-Dverbose参数，这时就必定是最全的了。全是全了，但显示出来的东西太多，头晕目眩，有没有好法呢？当然有了，加上Dincludes或者Dexcludes说出你喜欢或讨厌，dependency:tree就会帮你过滤出来：</p>
+<blockquote>
+<p>Dincludes=org.springframework:spring-tx</p>
+<p>过滤串使用groupId:artifactId:version的方式进行过滤，可以不写全啦，如：</p>
+<p>mvn dependency:tree -Dverbose -Dincludes=asm:asm</p>
+</blockquote>
+<p>就会出来asm依赖包的分析信息：</p>
+<pre><code>[INFO] --- maven-dependency-plugin:2.1:tree (default-cli) @ ridge-test ---
+[INFO] com.ridge:ridge-test:jar:1.0.2-SNAPSHOT
+[INFO] +- asm:asm:jar:3.2:compile
+[INFO] \- org.unitils:unitils-dbmaintainer:jar:3.3:compile
+[INFO]    \- org.hibernate:hibernate:jar:3.2.5.ga:compile
+[INFO]       +- cglib:cglib:jar:2.1_3:compile
+[INFO]       |  \- (asm:asm:jar:1.5.3:compile - omitted for conflict with 3.2)
+[INFO]       \- (asm:asm:jar:1.5.3:compile - omitted for conflict with 3.2)
+[INFO] ------------------------------------------------------------------------
+</code></pre><p>对asm有依赖有一个直接的依赖(asm:asm:jar:3.2)还有一个传递进入的依赖(asm:asm:jar:1.5.3)</p>
+<h4 id="382-将不想要的传递依赖剪除掉">3.8.2 将不想要的传递依赖剪除掉</h4>
+<p>承上，假设我们不希望asm:asm:jar:1.5.3出现，根据分析，我们知道它是经由org.unitils:unitils-dbmaintainer:jar:3.3引入的，那么在pom.xml中找到这个依赖，做其它的调整：</p>
+<pre><code>    &lt;dependency&gt;  
+        &lt;groupId&gt;org.unitils&lt;/groupId&gt;  
+        &lt;artifactId&gt;unitils-dbmaintainer&lt;/artifactId&gt;  
+        &lt;version&gt;${unitils.version}&lt;/version&gt;  
+        &lt;exclusions&gt;  
+            &lt;exclusion&gt;  
+                &lt;artifactId&gt;dbunit&lt;/artifactId&gt;  
+                &lt;groupId&gt;org.dbunit&lt;/groupId&gt;  
+            &lt;/exclusion&gt;  
+            &lt;!-- 这个就是我们要加的片断 --&gt;  
+            &lt;exclusion&gt;  
+                &lt;artifactId&gt;asm&lt;/artifactId&gt;  
+                &lt;groupId&gt;asm&lt;/groupId&gt;  
+            &lt;/exclusion&gt;  
+        &lt;/exclusions&gt;  
+    &lt;/dependency&gt;  
+</code></pre><p>再分析一下，你可以看到传递依赖没有了：</p>
+<pre><code>    [INFO]  
+    [INFO] --- maven-dependency-plugin:2.1:tree (default-cli) @ ridge-test ---  
+    [INFO] com.ridge:ridge-test:jar:1.0.2-SNAPSHOT  
+    [INFO] \- asm:asm:jar:3.2:compile  
+    [INFO] ------------------------------------------------------------------------  
+    [INFO] BUILD SUCCESS  
+</code></pre><h2 id="4-fq">4. F&amp;Q</h2>
+<h3 id="41-runtime">4.1 runtime</h3>
+<p>运行时依赖范围。使用该范围的依赖，只对测试和运行的 classpath 有效，但在编译主代码时是无效的。比如 <strong>JDBC 驱动实现类</strong>，就需要在运行测试和运行主代码时候使用，编译的时候，只需 <strong>JDBC 接口</strong>就行。</p>
+<p>简单来说，compile、runtime和provided的区别，需要在执行mvn package命令，且打包格式是war之类（而不是默认的jar）的时候才能看出来。</p>
+<p>通过compile和provided引入的jar包，里面的类，你在项目中可以直接import进来用，编译没问题，<strong>但是runtime引入的jar包中的类，项目代码里不能直接用，用了无法通过编译，只能通过反射之类的方式来用。</strong></p>
+<p>通过compile和runtime引入的jar包，会出现在你的项目war包里，而provided引入的jar包则不会。</p>
+<p><a href="https://www.zhihu.com/question/338722003" target="_blank">maven的scope值runtime是干嘛用的?</a>
+</p>
+<p><a href="http://c.biancheng.net/view/5005.html" target="_blank">Maven依赖配置和依赖范围</a>
+</p>
+<h3 id="42-optional">4.2 optional</h3>
+<p>Hibernate等DAO层框架</p>
+<p><a href="https://segmentfault.com/a/1190000019266080" target="_blank">Maven 中<!-- raw HTML omitted -->true<!-- raw HTML omitted -->和<!-- raw HTML omitted -->provided<!-- raw HTML omitted -->之间的区别</a>
+</p>
+<p><a href="http://c.biancheng.net/view/5005.html" target="_blank">Maven依赖配置和依赖范围</a>
+</p>
+<h3 id="43-maven-解决单继承">4.3 maven 解决单继承</h3>
+<p><a href="https://blog.csdn.net/mn960mn/article/details/50894022" target="_blank">使用import scope解决maven继承（单）问题</a>
+</p>
+<h2 id="参考">参考</h2>
+<p><a href="https://www.cnblogs.com/shangxiaofei/p/10251214.html" target="_blank">maven查看项目依赖并解决依赖冲突的问题</a>
+</p>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-between">
+  <div class="post-nav w-50"><div class="prev-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/%E5%8C%BA%E5%9D%97%E9%93%BE/merkle-patricia-treempt/">Merkle Patricia Tree
+</a>
+    </div></div>
+  <div class="post-nav flex-row-reverse"><div class="next-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/lru%E5%92%8Clfu/">LRU和LFU
+</a>
+    </div></div>
+</div><section class="related-posts">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/maven/dockerfile-maven-plugin%E4%BD%BF%E7%94%A8/">dockerfile-maven-plugin使用
+</a></li></ul>
+  </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label=""
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container"><section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<section class="profile surface row">
+  <div class="col-xl-6 d-flex align-items-center justify-content-center">
+    <img class="profile-avatar img-fluid" src="https://razonyang.com/images/profile.webp" alt="Razon Yang" loading="lazy">
+  </div>
+  <div class="col-xl-6">
+    <h5 class="profile-name my-2">Razon Yang</h5><div class="profile-bio mb-2">Gopher, PHPer, Full Stack Engineer.</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>Null</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>China</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://razonyang.com/zh-cn/about/">关于</a></div></div>
+</section><section class="recent-posts row surface">
+  <h4>最近文章</h4>
+  <ul><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1-k8s%E5%8A%9F%E8%83%BD/k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/">300. 最长递增子序列
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/">400 Bad Request
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/">5种IO模型
+</a></li></ul>
+</section><section class="taxonomy-categories row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/categories">分类</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
+          编程思想 <span class="badge rounded-pill">91</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
+          其他 <span class="badge rounded-pill">21</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机基础">
+          计算机基础 <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构设计">
+          架构设计 <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">2</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
+          区块链 <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-series row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/series">专栏</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
+          Manual <span class="badge rounded-pill">140</span>
+        </a><a href="https://razonyang.com/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-tags row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/tags">标签</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
+          Java <span class="badge rounded-pill">27</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
+          Other <span class="badge rounded-pill">24</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
+          CS <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
+          spring <span class="badge rounded-pill">11</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
+          redis <span class="badge rounded-pill">9</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
+          MySQL <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="剑指offer">
+          剑指offer <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/zk/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ZK">
+          ZK <span class="badge rounded-pill">6</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/nginx/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="nginx">
+          nginx <span class="badge rounded-pill">4</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a></div>
+    </section><section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
+    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a>
+  </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a>
+    </li></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2021 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://razonyang.com/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<a id="btnScrollToTop" class="btn-scroll-to-top">
+  <i class="fas fa-fw fa-chevron-circle-up fa-2x"></i>
+</a>
+<script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script></body>
+</html>

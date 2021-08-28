@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>云原生 on Razon Yang</title>
+    <link>https://razonyang.com/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/</link>
+    <description>Recent content in 云原生 on Razon Yang</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
+    <lastBuildDate>Fri, 27 Aug 2021 11:15:10 +0800</lastBuildDate><atom:link href="https://razonyang.com/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>1.1 一些概念</title>
+      <link>https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/</guid>
+      <description>1.1.1 什么是云原生？ 云原生是一种构建和运行应用程序的方法，是一套技术体系和方法论。云原生（CloudNative）是一个组合词，Cloud+Native。Cloud表示应用程序位于云中，而不是传统的数据中心；Native表示应用程序从设计之初即考虑到云的环境，原生为云而设计，在云上以最佳姿势运行，充分利用和发挥云平台的弹性+分布式优势。
+ 什么是云原生架构？ 采用开源堆栈（K8S+Docker）进行容器化，基于微服务架构提高灵活性和可维护性，借助敏捷方法、DevOps支持持续迭代和运维自动化，利用云平台设施实现弹性伸缩、动态调度、优化资源利用率。
+什么是云原生应用？ 在架构设计、开发方式、部署维护等各个阶段和方面都基于云的特点建设的应用。
+ 1.1.2 什么是容器编排？ 容器编排是指自动化容器的部署、管理、扩展和联网。
+ k8s周边：
+ k3s: 轻量化k8s k9s: kubectl命令的封装 KubeOperator : 国产k8s发行版 Kubesphere : k8s企业级别增强（多云、多集群） kubeedge : 边缘计算 Kubeless : 面向serverless的k8s   1.1.3 什么是服务网格？ 1.1.4 k8s/istio与云原生的关系？ </description>
+    </item>
+    
+    <item>
+      <title>1.2.1 k8s功能</title>
+      <link>https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1-k8s%E5%8A%9F%E8%83%BD/k8s%E5%8A%9F%E8%83%BD/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1-k8s%E5%8A%9F%E8%83%BD/k8s%E5%8A%9F%E8%83%BD/</guid>
+      <description>Kubernetes提供了一个可弹性运行分布式系统的框架。Kubernetes 会满足您的扩展要求、故障转移、部署模式等。具体如下：
+ Service discovery and load balancing，服务发现和负载均衡，通过DNS实现内部解析，service实现负载均衡 Storage orchestration，存储编排，通过plungin的形式支持多种存储，如本地，nfs，ceph，公有云快存储等 Automated rollouts and rollbacks，自动发布与回滚，通过匹配当前状态与目标状态一致，更新失败时可回滚 Automatic bin packing，自动资源调度，可以设置pod调度的所需（requests）资源和限制资源（limits） Self-healing，内置的健康检查策略，自动发现和处理集群内的异常，更换，需重启的pod节点 Secret and configuration management，密钥和配置管理，对于敏感信息如密码，账号的那个通过secret存储，应用的配置文件通过configmap存储，避免将配置文件固定在镜像中，增加容器编排的灵活性 Batch execution，批处理执行，通过job和cronjob提供单次批处理任务和循环计划任务功能的实现 Horizontal scaling，横向扩展功能，包含有HPA和AS，即应用的基于CPU利用率的弹性伸缩和基于平台级的弹性伸缩，如自动增加node和删除nodes节点。   使用kubectl autoscale命令来创建一个 HPA 对象：
+$ kubectl autoscale deployment wordpress --namespace kube-example --cpu-percent=20 --min=3 --max=6 horizontalpodautoscaler.autoscaling/hpa-demo autoscaled $ kubectl get hpa -n kube-example NAME REFERENCE TARGETS MINPODS MAXPODS REPLICAS AGE wordpress Deployment/wordpress &amp;lt;unknown&amp;gt;/20% 3 6 0 13s 此命令创建了一个关联资源 wordpress 的 HPA，最小的 Pod 副本数为3，最大为6。HPA 会根据设定的 cpu 使用率（20%）动态的增加或者减少 Pod 数量。</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>基于Redis的分布式锁实现 - Razon Yang</title><link rel="apple-touch-icon" href="https://razonyang.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://razonyang.com/images/favicons/manifest.json">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="基于Redis的分布式锁实现">
+<meta itemprop="description" content="前言 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
+分布式锁概览 在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
+实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
+比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
+分布式锁的特点 分布式锁一般有如下的特点：
+ 互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒  分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
+ 基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
+Redis的分布式锁实现 1. 利用setnx&#43;expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
+因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx&#43;expire命令的核心代码如下：
+public boolean tryLock(String key,String requset,int timeout) {Long result = jedis.setnx(key, requset);// result = 1时，设置成功，否则设置失败if (result == 1L) {return jedis.expire(key, timeout) == 1L;} else {return false;}}复制代码实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="784"><meta itemprop="image" content="https://razonyang.com/images/center.png">
+<meta itemprop="keywords" content="Redis," /><meta property="og:title" content="基于Redis的分布式锁实现" />
+<meta property="og:description" content="前言 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
+分布式锁概览 在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
+实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
+比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
+分布式锁的特点 分布式锁一般有如下的特点：
+ 互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒  分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
+ 基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
+Redis的分布式锁实现 1. 利用setnx&#43;expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
+因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx&#43;expire命令的核心代码如下：
+public boolean tryLock(String key,String requset,int timeout) {Long result = jedis.setnx(key, requset);// result = 1时，设置成功，否则设置失败if (result == 1L) {return jedis.expire(key, timeout) == 1L;} else {return false;}}复制代码实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/" /><meta property="og:image" content="https://razonyang.com/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/aqs/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/async/" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://razonyang.com/images/center.png"/>
+
+<meta name="twitter:title" content="基于Redis的分布式锁实现"/>
+<meta name="twitter:description" content="前言 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
+分布式锁概览 在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
+实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
+比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
+分布式锁的特点 分布式锁一般有如下的特点：
+ 互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒  分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
+ 基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
+Redis的分布式锁实现 1. 利用setnx&#43;expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
+因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx&#43;expire命令的核心代码如下：
+public boolean tryLock(String key,String requset,int timeout) {Long result = jedis.setnx(key, requset);// result = 1时，设置成功，否则设置失败if (result == 1L) {return jedis.expire(key, timeout) == 1L;} else {return false;}}复制代码实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。"/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://razonyang.com/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://razonyang.com/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-97403777-3', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="https://razonyang.com/zh-cn/">
+      <img class="logo" alt="Logo" src="https://razonyang.com/images/logo.webp" loading="lazy">RAZON YANG</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://razonyang.com/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
+  </div>
+</form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-categories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-categories"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/programing">
+                <i class="fas fa-fw fa-code"></i>Programing
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/linux">
+                <i class="fab fa-fw fa-linux"></i>Linux
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/server">
+                <i class="fas fa-fw fa-server"></i>Server
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-tags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/php">
+                <i class="fab fa-fw fa-php"></i>PHP
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/html">
+                <i class="fab fa-fw fa-html5"></i>HTML
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fab fa-fw fa-js"></i>JavaScript
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/css">
+                <i class="fab fa-fw fa-css3"></i>CSS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+  <a class="nav-link" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fas fa-fw fa-language"></i> 简体中文
+  </a>
+  <ul class="dropdown-menu" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://razonyang.com/zh-tw/">繁體中文</a></li><li><a class="dropdown-item" href="https://razonyang.com/en/">English</a></li></ul>
+</li><li class="nav-item">
+  <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button"
+    aria-controls="offcanvasSettings">
+    <i class="fas fa-fw fa-sliders-h"></i> 设置
+  </a>
+</li>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings"
+  aria-labelledby="offcanvasSettingsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" w id="offcanvasSettingsLabel"><i class="fas fa-fw fa-sliders-h"></i> 设置</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <span id="btnPalette" class="btn btn-sm"><i class="fas fa-eye-dropper"></i></span>
+    </div>
+  </form>
+  <div class="container mt-2 visually-hidden" id="palettePicker">
+    <div class="btn-group"><button type="button" id="palette-blue" title="蓝色" 
+          class="btn btn-sm palette bg-blue d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-blue-gray" title="蓝灰色" 
+          class="btn btn-sm palette bg-blue-gray d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-brown" title="棕色" 
+          class="btn btn-sm palette bg-brown d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-cyan" title="青色" 
+          class="btn btn-sm palette bg-cyan d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-green" title="绿色" 
+          class="btn btn-sm palette bg-green d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-indigo" title="靛青色" 
+          class="btn btn-sm palette bg-indigo d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-orange" title="橙色" 
+          class="btn btn-sm palette bg-orange d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-pink" title="粉色" 
+          class="btn btn-sm palette bg-pink d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-purple" title="紫色" 
+          class="btn btn-sm palette bg-purple d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-red" title="红色" 
+          class="btn btn-sm palette bg-red d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-teal" title="蓝绿色" 
+          class="btn btn-sm palette bg-teal d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-yellow" title="黄色" 
+          class="btn btn-sm palette bg-yellow d-flex align-items-center justify-content-center">
+        </button></button>
+    </div>
+  </div>
+</section></div>
+</div></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row" aria-label="breadcrumb">
+  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">基于Redis的分布式锁实现</li></ol>
+</nav><article class="post row surface"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-alt fa-rotate-45"></i>
+</a>
+  
+    
+
+    
+    
+    <a id="btnTOC" class="fas fa-fw fa-list-alt" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+</a>
+  </div>
+</div>
+<h1 class="post-title my-3">基于Redis的分布式锁实现
+</h1><div class="post-meta mb-3">
+  <span class="post-date me-2">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
+  </span>
+  <span class="post-reading-time me-2">
+    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
+  </span><a href="https://razonyang.com/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy">#编程思想</a><a href="https://razonyang.com/zh-cn/series/manual/" class="post-taxonomy">#Manual</a><a href="https://razonyang.com/zh-cn/tags/redis/" class="post-taxonomy">#redis</a></div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#前言">前言</a></li>
+    <li><a href="#分布式锁概览">分布式锁概览</a>
+      <ul>
+        <li><a href="#分布式锁的特点">分布式锁的特点</a></li>
+        <li><a href="#分布式锁的实现方式">分布式锁的实现方式</a></li>
+      </ul>
+    </li>
+    <li><a href="#redis的分布式锁实现">Redis的分布式锁实现</a>
+      <ul>
+        <li><a href="#1-利用setnxexpire命令-错误的做法">1. 利用setnx+expire命令 (错误的做法)</a></li>
+        <li><a href="#2-使用lua脚本包含setnx和expire两条指令">2. 使用Lua脚本（包含setnx和expire两条指令）</a></li>
+        <li><a href="#3-使用-set-key-value-ex-secondspx-millisecondsnxxx-命令-正确做法">3. 使用 set key value [EX seconds][PX milliseconds][NX|XX] 命令 (正确做法)</a></li>
+        <li><a href="#4-redlock算法-与-redisson-实现">4. Redlock算法 与 Redisson 实现</a></li>
+      </ul>
+    </li>
+    <li><a href="#redis实现的分布式锁轮子">Redis实现的分布式锁轮子</a>
+      <ul>
+        <li><a href="#1-自定义注解">1. 自定义注解</a></li>
+        <li><a href="#2-aop拦截器实现">2. AOP拦截器实现</a></li>
+        <li><a href="#3-redis实现分布式锁核心类">3. Redis实现分布式锁核心类</a></li>
+        <li><a href="#4-controller层控制">4. Controller层控制</a></li>
+      </ul>
+    </li>
+    <li><a href="#小结">小结</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><h2 id="前言">前言</h2>
+<p>本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结</p>
+<h2 id="分布式锁概览">分布式锁概览</h2>
+<p>在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？</p>
+<p>实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间<strong>互斥访问共享资源</strong>的一种方式。</p>
+<p>比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/16a53749547937bb~tplv-t2oaga2asx-watermark.awebp" alt="分布式锁"  loading="lazy" />
+</p>
+<h3 id="分布式锁的特点">分布式锁的特点</h3>
+<p>分布式锁一般有如下的特点：</p>
+<ul>
+<li>互斥性： 同一时刻只能有一个线程持有锁</li>
+<li>可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁</li>
+<li>锁超时：和J.U.C中的锁一样支持锁超时，防止死锁</li>
+<li>高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效</li>
+<li>具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒</li>
+</ul>
+<h3 id="分布式锁的实现方式">分布式锁的实现方式</h3>
+<p>我们一般实现分布式锁有以下几种方式：</p>
+<ul>
+<li>基于数据库</li>
+<li>基于Redis</li>
+<li>基于zookeeper</li>
+</ul>
+<p>本篇文章主要介绍基于Redis如何实现分布式锁</p>
+<h2 id="redis的分布式锁实现">Redis的分布式锁实现</h2>
+<h3 id="1-利用setnxexpire命令-错误的做法">1. 利用setnx+expire命令 (错误的做法)</h3>
+<p>Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写</p>
+<p>因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx+expire命令的核心代码如下：</p>
+<pre><code>public boolean tryLock(String key,String requset,int timeout) {
+    Long result = jedis.setnx(key, requset);
+    // result = 1时，设置成功，否则设置失败
+    if (result == 1L) {
+        return jedis.expire(key, timeout) == 1L;
+    } else {
+        return false;
+    }
+}
+复制代码
+</code></pre><p>实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。</p>
+<p>一种改善方案就是使用Lua脚本来保证原子性（包含setnx和expire两条指令）</p>
+<h3 id="2-使用lua脚本包含setnx和expire两条指令">2. 使用Lua脚本（包含setnx和expire两条指令）</h3>
+<p>代码如下</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">tryLock_with_lua</span><span style="color:#f92672">(</span>String key<span style="color:#f92672">,</span> String UniqueId<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> seconds<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    String lua_scripts <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;if redis.call(&#39;setnx&#39;,KEYS[1],ARGV[1]) == 1 then&#34;</span> <span style="color:#f92672">+</span>
+            <span style="color:#e6db74">&#34;redis.call(&#39;expire&#39;,KEYS[1],ARGV[2]) return 1 else return 0 end&#34;</span><span style="color:#f92672">;</span>
+    List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> keys <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
+    List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> values <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
+    keys<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>key<span style="color:#f92672">);</span>
+    values<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>UniqueId<span style="color:#f92672">);</span>
+    values<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">valueOf</span><span style="color:#f92672">(</span>seconds<span style="color:#f92672">));</span>
+    Object result <span style="color:#f92672">=</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">eval</span><span style="color:#f92672">(</span>lua_scripts<span style="color:#f92672">,</span> keys<span style="color:#f92672">,</span> values<span style="color:#f92672">);</span>
+    <span style="color:#75715e">//判断是否成功
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> result<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>1L<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="3-使用-set-key-value-ex-secondspx-millisecondsnxxx-命令-正确做法">3. 使用 set key value [EX seconds][PX milliseconds][NX|XX] 命令 (正确做法)</h3>
+<p>Redis在 2.6.12 版本开始，为 SET 命令增加一系列选项：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">SET key value<span style="color:#f92672">[</span>EX seconds<span style="color:#f92672">][</span>PX milliseconds<span style="color:#f92672">][</span>NX|XX<span style="color:#f92672">]</span>
+</code></pre></div><ul>
+<li>EX seconds: 设定过期时间，单位为秒</li>
+<li>PX milliseconds: 设定过期时间，单位为毫秒</li>
+<li>NX: 仅当key不存在时设置值</li>
+<li>XX: 仅当key存在时设置值</li>
+</ul>
+<p>set命令的nx选项，就等同于setnx命令，代码过程如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">public boolean <span style="color:#a6e22e">tryLock_with_set</span>(String key, String UniqueId, <span style="color:#66d9ef">int</span> seconds) {
+    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;OK&#34;</span>.equals(jedis.set(key, UniqueId, <span style="color:#e6db74">&#34;NX&#34;</span>, <span style="color:#e6db74">&#34;EX&#34;</span>, seconds));
+}
+</code></pre></div><p>value必须要具有唯一性，我们可以用UUID来做，设置随机字符串保证唯一性，至于为什么要保证唯一性？假如value不是随机字符串，而是一个固定值，那么就可能存在下面的问题：</p>
+<ul>
+<li>1.客户端1获取锁成功</li>
+<li>2.客户端1在某个操作上阻塞了太长时间</li>
+<li>3.设置的key过期了，锁自动释放了</li>
+<li>4.客户端2获取到了对应同一个资源的锁</li>
+<li>5.客户端1从阻塞中恢复过来，因为value值一样，所以执行释放锁操作时就会释放掉客户端2持有的锁，这样就会造成问题</li>
+</ul>
+<p>所以通常来说，在释放锁时，我们需要对value进行验证</p>
+<h4 id="释放锁的实现">释放锁的实现</h4>
+<p>释放锁时需要验证value值，也就是说我们在获取锁的时候需要设置一个value，不能直接用del key这种粗暴的方式，因为直接del key任何客户端都可以进行解锁了，所以<strong>解锁时，我们需要判断锁是否是自己的，基于value值来判断</strong>，代码如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">public boolean <span style="color:#a6e22e">releaseLock_with_lua</span>(String key,String value) {
+    String luaScript <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;if redis.call(&#39;get&#39;,KEYS[1]) == ARGV[1] then &#34;</span> <span style="color:#f92672">+</span>
+            <span style="color:#e6db74">&#34;return redis.call(&#39;del&#39;,KEYS[1]) else return 0 end&#34;</span>;
+    <span style="color:#66d9ef">return</span> jedis.eval(luaScript, Collections.singletonList(key), Collections.singletonList(value)).equals(<span style="color:#ae81ff">1L</span>);
+}
+</code></pre></div><p>这里使用Lua脚本的方式，尽量保证原子性。</p>
+<p>使用 <code>set key value [EX seconds][PX milliseconds][NX|XX]</code> 命令 看上去很OK，实际上在Redis集群的时候也会出现问题，比如说A客户端在Redis的master节点上拿到了锁，但是这个加锁的key还没有同步到slave节点，master故障，发生故障转移，一个slave节点升级为master节点，B客户端也可以获取同个key的锁，但客户端A也已经拿到锁了，这就导致多个客户端都拿到锁。</p>
+<p>所以针对Redis集群这种情况，还有其他方案</p>
+<h3 id="4-redlock算法-与-redisson-实现">4. Redlock算法 与 Redisson 实现</h3>
+<p>Redis作者 antirez基于分布式环境下提出了一种更高级的分布式锁的实现Redlock，原理如下：</p>
+<blockquote>
+<p>下面参考文章<a href="https://link.juejin.cn/?target=https%3A%2F%2Fmp.weixin.qq.com%2Fs%3F__biz%3DMzU5ODUwNzY1Nw%3D%3D%26mid%3D2247484155%26idx%3D1%26sn%3D0c73f45f2f641ba0bf4399f57170ac9b%26scene%3D21%23wechat_redirect" target="_blank">Redlock：Redis分布式锁最牛逼的实现</a>
+ 和 <a href="https://link.juejin.cn/?target=https%3A%2F%2Fredis.io%2Ftopics%2Fdistlock" target="_blank">redis.io/topics/dist…</a>
+</p>
+</blockquote>
+<p>假设有5个独立的Redis节点（<strong>注意这里的节点可以是5个Redis单master实例，也可以是5个Redis Cluster集群，但并不是有5个主节点的cluster集群</strong>）：</p>
+<ul>
+<li>获取当前Unix时间，以毫秒为单位</li>
+<li>依次尝试从5个实例，使用相同的key和具有唯一性的value(例如UUID)获取锁，当向Redis请求获取锁时，客户端应该设置一个网络连接和响应超时时间，这个超时时间应用小于锁的失效时间，例如你的锁自动失效时间为10s，则超时时间应该在5~50毫秒之间，这样可以避免服务器端Redis已经挂掉的情况下，客户端还在死死地等待响应结果。如果服务端没有在规定时间内响应，客户端应该尽快尝试去另外一个Redis实例请求获取锁</li>
+<li>客户端使用当前时间减去开始获取锁时间（步骤1记录的时间）就得到获取锁使用的时间，当且仅当从大多数(N/2+1，这里是3个节点)的Redis节点都取到锁，并且使用的时间小于锁失败时间时，锁才算获取成功。</li>
+<li>如果取到了锁，key的真正有效时间等于有效时间减去获取锁所使用的时间（步骤3计算的结果）</li>
+<li>如果某些原因，获取锁失败（没有在至少N/2+1个Redis实例取到锁或者取锁时间已经超过了有效时间），客户端应该在所有的Redis实例上进行解锁（即便某些Redis实例根本就没有加锁成功，防止某些节点获取到锁但是客户端没有得到响应而导致接下来的一段时间不能被重新获取锁）</li>
+</ul>
+<h4 id="redisson实现简单分布式锁">Redisson实现简单分布式锁</h4>
+<p>对于Java用户而言，我们经常使用Jedis，Jedis是Redis的Java客户端，除了Jedis之外，Redisson也是Java的客户端，Jedis是阻塞式I/O，而Redisson底层使用Netty可以实现非阻塞I/O，该客户端封装了锁的，继承了J.U.C的Lock接口，所以我们可以像使用ReentrantLock一样使用Redisson，具体使用过程如下。</p>
+<ol>
+<li>首先加入POM依赖</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;dependency&gt;</span>
+    <span style="color:#f92672">&lt;groupId&gt;</span>org.redisson<span style="color:#f92672">&lt;/groupId&gt;</span>
+    <span style="color:#f92672">&lt;artifactId&gt;</span>redisson<span style="color:#f92672">&lt;/artifactId&gt;</span>
+    <span style="color:#f92672">&lt;version&gt;</span>3.10.6<span style="color:#f92672">&lt;/version&gt;</span>
+<span style="color:#f92672">&lt;/dependency&gt;</span>
+</code></pre></div><ol>
+<li>使用Redisson，代码如下(与使用ReentrantLock类似）</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 1. 配置文件
+</span><span style="color:#75715e"></span>Config config <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Config<span style="color:#f92672">();</span>
+config<span style="color:#f92672">.</span><span style="color:#a6e22e">useSingleServer</span><span style="color:#f92672">()</span>
+        <span style="color:#f92672">.</span><span style="color:#a6e22e">setAddress</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;redis://127.0.0.1:6379&#34;</span><span style="color:#f92672">)</span>
+        <span style="color:#f92672">.</span><span style="color:#a6e22e">setPassword</span><span style="color:#f92672">(</span>RedisConfig<span style="color:#f92672">.</span><span style="color:#a6e22e">PASSWORD</span><span style="color:#f92672">)</span>
+        <span style="color:#f92672">.</span><span style="color:#a6e22e">setDatabase</span><span style="color:#f92672">(</span>0<span style="color:#f92672">);</span>
+<span style="color:#75715e">//2. 构造RedissonClient
+</span><span style="color:#75715e"></span>RedissonClient redissonClient <span style="color:#f92672">=</span> Redisson<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span>config<span style="color:#f92672">);</span>
+
+<span style="color:#75715e">//3. 设置锁定资源名称
+</span><span style="color:#75715e"></span>RLock lock <span style="color:#f92672">=</span> redissonClient<span style="color:#f92672">.</span><span style="color:#a6e22e">getLock</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;redlock&#34;</span><span style="color:#f92672">);</span>
+lock<span style="color:#f92672">.</span><span style="color:#a6e22e">lock</span><span style="color:#f92672">();</span>
+<span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+    System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;获取锁成功，实现业务逻辑&#34;</span><span style="color:#f92672">);</span>
+    Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">sleep</span><span style="color:#f92672">(</span>10000<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>InterruptedException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+    lock<span style="color:#f92672">.</span><span style="color:#a6e22e">unlock</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>关于Redlock算法的实现，在Redisson中我们可以使用RedissonRedLock来完成，具体使用细节可以参考大佬的文章： <a href="https://link.juejin.cn/?target=https%3A%2F%2Fmp.weixin.qq.com%2Fs%2F8uhYult2h_YUHT7q7YCKYQ" target="_blank">mp.weixin.qq.com/s/8uhYult2h…</a>
+</p>
+<h2 id="redis实现的分布式锁轮子">Redis实现的分布式锁轮子</h2>
+<p>下面利用SpringBoot + Jedis + AOP的组合来实现一个简易的分布式锁。</p>
+<h3 id="1-自定义注解">1. 自定义注解</h3>
+<p>自定义一个注解，被注解的方法会执行获取分布式锁的逻辑</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Target</span><span style="color:#f92672">(</span>ElementType<span style="color:#f92672">.</span><span style="color:#a6e22e">METHOD</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Retention</span><span style="color:#f92672">(</span>RetentionPolicy<span style="color:#f92672">.</span><span style="color:#a6e22e">RUNTIME</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Documented</span>
+<span style="color:#a6e22e">@Inherited</span>
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> RedisLock <span style="color:#f92672">{</span>
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 业务键
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    String <span style="color:#a6e22e">key</span><span style="color:#f92672">();</span>
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 锁的过期秒数,默认是5秒
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">expire</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> 5<span style="color:#f92672">;</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 尝试加锁，最多等待时间
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">waitTime</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> Long<span style="color:#f92672">.</span><span style="color:#a6e22e">MIN_VALUE</span><span style="color:#f92672">;</span>
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 锁的超时时间单位
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    TimeUnit <span style="color:#a6e22e">timeUnit</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> TimeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">SECONDS</span><span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="2-aop拦截器实现">2. AOP拦截器实现</h3>
+<p>在AOP中我们去执行获取分布式锁和释放分布式锁的逻辑，代码如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Aspect</span>
+<span style="color:#a6e22e">@Component</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LockMethodAspect</span> <span style="color:#f92672">{</span>
+    <span style="color:#a6e22e">@Autowired</span>
+    <span style="color:#66d9ef">private</span> RedisLockHelper redisLockHelper<span style="color:#f92672">;</span>
+    <span style="color:#a6e22e">@Autowired</span>
+    <span style="color:#66d9ef">private</span> JedisUtil jedisUtil<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> Logger logger <span style="color:#f92672">=</span> LoggerFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">getLogger</span><span style="color:#f92672">(</span>LockMethodAspect<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+
+    <span style="color:#a6e22e">@Around</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;@annotation(com.redis.lock.annotation.RedisLock)&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">public</span> Object <span style="color:#a6e22e">around</span><span style="color:#f92672">(</span>ProceedingJoinPoint joinPoint<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        Jedis jedis <span style="color:#f92672">=</span> jedisUtil<span style="color:#f92672">.</span><span style="color:#a6e22e">getJedis</span><span style="color:#f92672">();</span>
+        MethodSignature signature <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>MethodSignature<span style="color:#f92672">)</span> joinPoint<span style="color:#f92672">.</span><span style="color:#a6e22e">getSignature</span><span style="color:#f92672">();</span>
+        Method method <span style="color:#f92672">=</span> signature<span style="color:#f92672">.</span><span style="color:#a6e22e">getMethod</span><span style="color:#f92672">();</span>
+
+        RedisLock redisLock <span style="color:#f92672">=</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">getAnnotation</span><span style="color:#f92672">(</span>RedisLock<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        String value <span style="color:#f92672">=</span> UUID<span style="color:#f92672">.</span><span style="color:#a6e22e">randomUUID</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">();</span>
+        String key <span style="color:#f92672">=</span> redisLock<span style="color:#f92672">.</span><span style="color:#a6e22e">key</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">boolean</span> islock <span style="color:#f92672">=</span> redisLockHelper<span style="color:#f92672">.</span><span style="color:#a6e22e">lock</span><span style="color:#f92672">(</span>jedis<span style="color:#f92672">,</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">,</span> redisLock<span style="color:#f92672">.</span><span style="color:#a6e22e">expire</span><span style="color:#f92672">(),</span> redisLock<span style="color:#f92672">.</span><span style="color:#a6e22e">timeUnit</span><span style="color:#f92672">());</span>
+            logger<span style="color:#f92672">.</span><span style="color:#a6e22e">info</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;isLock : {}&#34;</span><span style="color:#f92672">,</span>islock<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>islock<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                logger<span style="color:#f92672">.</span><span style="color:#a6e22e">error</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;获取锁失败&#34;</span><span style="color:#f92672">);</span>
+                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;获取锁失败&#34;</span><span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+            <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">return</span> joinPoint<span style="color:#f92672">.</span><span style="color:#a6e22e">proceed</span><span style="color:#f92672">();</span>
+            <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Throwable throwable<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;系统异常&#34;</span><span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>  <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+            logger<span style="color:#f92672">.</span><span style="color:#a6e22e">info</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;释放锁&#34;</span><span style="color:#f92672">);</span>
+            redisLockHelper<span style="color:#f92672">.</span><span style="color:#a6e22e">unlock</span><span style="color:#f92672">(</span>jedis<span style="color:#f92672">,</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">);</span>
+            jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="3-redis实现分布式锁核心类">3. Redis实现分布式锁核心类</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Component</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RedisLockHelper</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">long</span> sleepTime <span style="color:#f92672">=</span> 100<span style="color:#f92672">;</span>
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 直接使用setnx + expire方式获取分布式锁
+</span><span style="color:#75715e">     * 非原子性
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @param key
+</span><span style="color:#75715e">     * @param value
+</span><span style="color:#75715e">     * @param timeout
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">lock_setnx</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">,</span> String value<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> timeout<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        Long result <span style="color:#f92672">=</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">setnx</span><span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">);</span>
+        <span style="color:#75715e">// result = 1时，设置成功，否则设置失败
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>result <span style="color:#f92672">==</span> 1L<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">expire</span><span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> timeout<span style="color:#f92672">)</span> <span style="color:#f92672">==</span> 1L<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 使用Lua脚本，脚本中使用setnex+expire命令进行加锁操作
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @param jedis
+</span><span style="color:#75715e">     * @param key
+</span><span style="color:#75715e">     * @param UniqueId
+</span><span style="color:#75715e">     * @param seconds
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">Lock_with_lua</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">,</span> String UniqueId<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> seconds<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        String lua_scripts <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;if redis.call(&#39;setnx&#39;,KEYS[1],ARGV[1]) == 1 then&#34;</span> <span style="color:#f92672">+</span>
+                <span style="color:#e6db74">&#34;redis.call(&#39;expire&#39;,KEYS[1],ARGV[2]) return 1 else return 0 end&#34;</span><span style="color:#f92672">;</span>
+        List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> keys <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
+        List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> values <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
+        keys<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>key<span style="color:#f92672">);</span>
+        values<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>UniqueId<span style="color:#f92672">);</span>
+        values<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">valueOf</span><span style="color:#f92672">(</span>seconds<span style="color:#f92672">));</span>
+        Object result <span style="color:#f92672">=</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">eval</span><span style="color:#f92672">(</span>lua_scripts<span style="color:#f92672">,</span> keys<span style="color:#f92672">,</span> values<span style="color:#f92672">);</span>
+        <span style="color:#75715e">//判断是否成功
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> result<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>1L<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 在Redis的2.6.12及以后中,使用 set key value [NX] [EX] 命令
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @param key
+</span><span style="color:#75715e">     * @param value
+</span><span style="color:#75715e">     * @param timeout
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">lock</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">,</span> String value<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> timeout<span style="color:#f92672">,</span> TimeUnit timeUnit<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">long</span> seconds <span style="color:#f92672">=</span> timeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">toSeconds</span><span style="color:#f92672">(</span>timeout<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;OK&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;NX&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;EX&#34;</span><span style="color:#f92672">,</span> seconds<span style="color:#f92672">));</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 自定义获取锁的超时时间
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @param jedis
+</span><span style="color:#75715e">     * @param key
+</span><span style="color:#75715e">     * @param value
+</span><span style="color:#75715e">     * @param timeout
+</span><span style="color:#75715e">     * @param waitTime
+</span><span style="color:#75715e">     * @param timeUnit
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     * @throws InterruptedException
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">lock_with_waitTime</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">,</span> String value<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> timeout<span style="color:#f92672">,</span> <span style="color:#66d9ef">long</span> waitTime<span style="color:#f92672">,</span>TimeUnit timeUnit<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> InterruptedException <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">long</span> seconds <span style="color:#f92672">=</span> timeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">toSeconds</span><span style="color:#f92672">(</span>timeout<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>waitTime <span style="color:#f92672">&gt;=</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            String result <span style="color:#f92672">=</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;nx&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;ex&#34;</span><span style="color:#f92672">,</span> seconds<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;OK&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>result<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+            <span style="color:#f92672">}</span>
+            waitTime <span style="color:#f92672">-=</span> sleepTime<span style="color:#f92672">;</span>
+            Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">sleep</span><span style="color:#f92672">(</span>sleepTime<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 错误的解锁方法—直接删除key
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @param key
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">unlock_with_del</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">del</span><span style="color:#f92672">(</span>key<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 使用Lua脚本进行解锁操纵，解锁的时候验证value值
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @param jedis
+</span><span style="color:#75715e">     * @param key
+</span><span style="color:#75715e">     * @param value
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">unlock</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">,</span>String value<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        String luaScript <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;if redis.call(&#39;get&#39;,KEYS[1]) == ARGV[1] then &#34;</span> <span style="color:#f92672">+</span>
+                <span style="color:#e6db74">&#34;return redis.call(&#39;del&#39;,KEYS[1]) else return 0 end&#34;</span><span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">return</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">eval</span><span style="color:#f92672">(</span>luaScript<span style="color:#f92672">,</span> Collections<span style="color:#f92672">.</span><span style="color:#a6e22e">singletonList</span><span style="color:#f92672">(</span>key<span style="color:#f92672">),</span> Collections<span style="color:#f92672">.</span><span style="color:#a6e22e">singletonList</span><span style="color:#f92672">(</span>value<span style="color:#f92672">)).</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>1L<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="4-controller层控制">4. Controller层控制</h3>
+<p>定义一个TestController来测试我们实现的分布式锁</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@RestController</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TestController</span> <span style="color:#f92672">{</span>
+    <span style="color:#a6e22e">@RedisLock</span><span style="color:#f92672">(</span>key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;redis_lock&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#a6e22e">@GetMapping</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/index&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">index</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;index&#34;</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h2 id="小结">小结</h2>
+<p>分布式锁重点在于互斥性，在任意一个时刻，只有一个客户端获取了锁。在实际的生产环境中，分布式锁的实现可能会更复杂，而我这里的讲述主要针对的是单机环境下的基于Redis的分布式锁实现，至于Redis集群环境并没有过多涉及，有兴趣的朋友可以查阅相关资料。</p>
+<p>项目源码地址：<a href="https://link.juejin.cn/?target=https%3A%2F%2Fgithub.com%2Fpjmike%2Fredis-distributed-lock" target="_blank">github.com/pjmike/redi…</a>
+</p>
+<h2 id="参考">参考</h2>
+<p><a href="https://juejin.cn/post/6844903830442737671" target="_blank">基于Redis的分布式锁实现</a>
+</p>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-between">
+  <div class="post-nav w-50"><div class="prev-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mysql/%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3mysql%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E7%9A%84%E5%BB%B6%E6%97%B6%E9%97%AE%E9%A2%98/">如何解决MySQL主从同步的延时问题
+</a>
+    </div></div>
+  <div class="post-nav flex-row-reverse"><div class="next-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/%E5%9F%BA%E4%BA%8Easpect%E5%AE%9E%E7%8E%B0%E6%B3%A8%E8%A7%A3/">基于aspect实现注解
+</a>
+    </div></div>
+</div><section class="related-posts">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/redisson%E5%8E%9F%E7%90%86/">Redisson原理
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/redis%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/">Redis配置指南
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/zookeeper/redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8Czk%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AF%B9%E6%AF%94/">redis分布式锁和zk分布式锁的对比
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/%E8%BD%ACredis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/">【转】redis主从复制
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">底层数据结构
+</a></li></ul>
+  </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label=""
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container"><section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<section class="profile surface row">
+  <div class="col-xl-6 d-flex align-items-center justify-content-center">
+    <img class="profile-avatar img-fluid" src="https://razonyang.com/images/profile.webp" alt="Razon Yang" loading="lazy">
+  </div>
+  <div class="col-xl-6">
+    <h5 class="profile-name my-2">Razon Yang</h5><div class="profile-bio mb-2">Gopher, PHPer, Full Stack Engineer.</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>Null</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>China</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://razonyang.com/zh-cn/about/">关于</a></div></div>
+</section><section class="recent-posts row surface">
+  <h4>最近文章</h4>
+  <ul><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1-k8s%E5%8A%9F%E8%83%BD/k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/">300. 最长递增子序列
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/">400 Bad Request
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/">5种IO模型
+</a></li></ul>
+</section><section class="taxonomy-categories row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/categories">分类</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
+          编程思想 <span class="badge rounded-pill">91</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
+          其他 <span class="badge rounded-pill">21</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机基础">
+          计算机基础 <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构设计">
+          架构设计 <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">2</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
+          区块链 <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-series row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/series">专栏</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
+          Manual <span class="badge rounded-pill">140</span>
+        </a><a href="https://razonyang.com/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-tags row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/tags">标签</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
+          Java <span class="badge rounded-pill">27</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
+          Other <span class="badge rounded-pill">24</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
+          CS <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
+          spring <span class="badge rounded-pill">11</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
+          redis <span class="badge rounded-pill">9</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
+          MySQL <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="剑指offer">
+          剑指offer <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/zk/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ZK">
+          ZK <span class="badge rounded-pill">6</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/nginx/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="nginx">
+          nginx <span class="badge rounded-pill">4</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a></div>
+    </section><section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
+    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a>
+  </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a>
+    </li></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2021 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://razonyang.com/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<a id="btnScrollToTop" class="btn-scroll-to-top">
+  <i class="fas fa-fw fa-chevron-circle-up fa-2x"></i>
+</a>
+<script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script></body>
+</html>

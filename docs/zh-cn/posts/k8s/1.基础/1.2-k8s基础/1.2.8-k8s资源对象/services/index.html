@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> - Razon Yang</title><link rel="apple-touch-icon" href="https://razonyang.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://razonyang.com/images/favicons/manifest.json">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="">
+<meta itemprop="description" content="Services
+名词解释 Services Overview（概述） Kubernetes Pod是平凡的，它门会被创建，也会死掉（生老病死），并且他们是不可复活的。 ReplicationControllers动态的创建和销毁Pods(比如规模扩大或者缩小，或者执行动态更新)。每个pod都由自己的ip，这些IP也随着时间的变化也不能持续依赖。这样就引发了一个问题：如果一些Pods（让我们叫它作后台，后端）提供了一些功能供其它的Pod使用（让我们叫作前台），在kubernete集群中是如何实现让这些前台能够持续的追踪到这些后台的？
+答案是：Service
+Kubernete Service 是一个定义了一组Pod的策略的抽象，我们也有时候叫做宏观服务。这些被服务标记的Pod都是（一般）通过label Selector决定的（下面我们会讲到我们为什么需要一个没有label selector的服务）
+举个例子，我们假设后台是一个图形处理的后台，并且由3个副本。这些副本是可以相互替代的，并且前台并需要关心使用的哪一个后台Pod，当这个承载前台请求的pod发生变化时，前台并不需要直到这些变化，或者追踪后台的这些副本，服务是这些去耦
+对于Kubernete原生的应用，Kubernete提供了一个简单的Endpoints API，这个Endpoints api的作用就是当一个服务中的pod发生变化时，Endpoints API随之变化，对于哪些不是原生的程序，Kubernetes提供了一个基于虚拟IP的网桥的服务，这个服务会将请求转发到对应的后台pod
+Defining a service(定义一个服务) 一个Kubernete服务是一个最小的对象，类似pod,和其它的终端对象一样，我们可以朝paiserver发送请求来创建一个新的实例，比如，假设你拥有一些Pod,每个pod都开放了9376端口，并且均带有一个标签app=MyApp
+{ &#34;“kind”&#34;: &#34;“Service”&#34;, &#34;“apiVersion”&#34;: &#34;“v1”&#34;, &#34;“metadata”&#34;: { &#34;“name”&#34;: &#34;“my-service”&#34; }, &#34;“spec”&#34;: { &#34;“selector”&#34;: { &#34;“app”&#34;: &#34;“MyApp”&#34; }, &#34;“ports”&#34;: [ { &#34;“protocol”&#34;: &#34;“TCP”&#34;, &#34;“port”&#34;: 80, &#34;“targetPort”&#34;: 9376 } ] } } 这段代码会创建一个新的服务对象，名称为：my-service，并且会连接目标端口9376，并且带有label app=MyApp的pod,这个服务会被分配一个ip地址，这个ip是给服务代理使用的（下面我们会看到），服务的选择器会持续的评估，并且结果会被发送到一个Endpoints 对象，这个Endpoints的对象的名字也叫“my-service”.
+服务可以将一个“入端口”转发到任何“目标端口”，默认情况下targetPort的值会和port的值相同，更有趣的是，targetPort可以是字符串，可以指定到一个name,这个name是pod的一个端口。并且实际指派给这个name的端口可以是不同在不同的后台pod中，这样让我们能更加灵活的部署我们的服务，比如；我们可以在下一个更新版本中修改后台pod暴露的端口而不会影响客户的使用（更新过程不会打断）
+ 服务支持tcp和UDP，但是默认的是TCP Services without selectors（没有选择器的服务）  服务总体上抽象了对Pod的访问，但是服务也抽象了其它的内容，比如：
+1：比如你希望有一个额外的数据库云在生产环境中，但是在测试的时候，我们希望使用自己的数据库
+2：我们希望将服务指向其它的服务或者其它命名空间或者其它的云平台上的服务
+3：我们正在向kubernete迁移，并且我们后台并没有在Kubernete中
+如上的情况下，我们可以定义一个服务没有选择器
+{ &#34;“kind”&#34;: &#34;“Service”&#34;, &#34;“apiVersion”&#34;: &#34;“v1″&#34;, &#34;“metadata”&#34;: { &#34;“name”&#34;: &#34;“my-service”&#34; }, &#34;“spec”&#34;: { &#34;“ports”&#34;: [ { &#34;“protocol”&#34;: &#34;“TCP”&#34;, &#34;“port”&#34;: 80, &#34;“targetPort”&#34;: 9376 } ] } } 因为没有选择器，所以相应的Endpoints对象就不会被创建，但是我们手动把我们的服务和Endpoints对应起来">
+
+<meta itemprop="wordCount" content="360">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="" />
+<meta property="og:description" content="Services
+名词解释 Services Overview（概述） Kubernetes Pod是平凡的，它门会被创建，也会死掉（生老病死），并且他们是不可复活的。 ReplicationControllers动态的创建和销毁Pods(比如规模扩大或者缩小，或者执行动态更新)。每个pod都由自己的ip，这些IP也随着时间的变化也不能持续依赖。这样就引发了一个问题：如果一些Pods（让我们叫它作后台，后端）提供了一些功能供其它的Pod使用（让我们叫作前台），在kubernete集群中是如何实现让这些前台能够持续的追踪到这些后台的？
+答案是：Service
+Kubernete Service 是一个定义了一组Pod的策略的抽象，我们也有时候叫做宏观服务。这些被服务标记的Pod都是（一般）通过label Selector决定的（下面我们会讲到我们为什么需要一个没有label selector的服务）
+举个例子，我们假设后台是一个图形处理的后台，并且由3个副本。这些副本是可以相互替代的，并且前台并需要关心使用的哪一个后台Pod，当这个承载前台请求的pod发生变化时，前台并不需要直到这些变化，或者追踪后台的这些副本，服务是这些去耦
+对于Kubernete原生的应用，Kubernete提供了一个简单的Endpoints API，这个Endpoints api的作用就是当一个服务中的pod发生变化时，Endpoints API随之变化，对于哪些不是原生的程序，Kubernetes提供了一个基于虚拟IP的网桥的服务，这个服务会将请求转发到对应的后台pod
+Defining a service(定义一个服务) 一个Kubernete服务是一个最小的对象，类似pod,和其它的终端对象一样，我们可以朝paiserver发送请求来创建一个新的实例，比如，假设你拥有一些Pod,每个pod都开放了9376端口，并且均带有一个标签app=MyApp
+{ &#34;“kind”&#34;: &#34;“Service”&#34;, &#34;“apiVersion”&#34;: &#34;“v1”&#34;, &#34;“metadata”&#34;: { &#34;“name”&#34;: &#34;“my-service”&#34; }, &#34;“spec”&#34;: { &#34;“selector”&#34;: { &#34;“app”&#34;: &#34;“MyApp”&#34; }, &#34;“ports”&#34;: [ { &#34;“protocol”&#34;: &#34;“TCP”&#34;, &#34;“port”&#34;: 80, &#34;“targetPort”&#34;: 9376 } ] } } 这段代码会创建一个新的服务对象，名称为：my-service，并且会连接目标端口9376，并且带有label app=MyApp的pod,这个服务会被分配一个ip地址，这个ip是给服务代理使用的（下面我们会看到），服务的选择器会持续的评估，并且结果会被发送到一个Endpoints 对象，这个Endpoints的对象的名字也叫“my-service”.
+服务可以将一个“入端口”转发到任何“目标端口”，默认情况下targetPort的值会和port的值相同，更有趣的是，targetPort可以是字符串，可以指定到一个name,这个name是pod的一个端口。并且实际指派给这个name的端口可以是不同在不同的后台pod中，这样让我们能更加灵活的部署我们的服务，比如；我们可以在下一个更新版本中修改后台pod暴露的端口而不会影响客户的使用（更新过程不会打断）
+ 服务支持tcp和UDP，但是默认的是TCP Services without selectors（没有选择器的服务）  服务总体上抽象了对Pod的访问，但是服务也抽象了其它的内容，比如：
+1：比如你希望有一个额外的数据库云在生产环境中，但是在测试的时候，我们希望使用自己的数据库
+2：我们希望将服务指向其它的服务或者其它命名空间或者其它的云平台上的服务
+3：我们正在向kubernete迁移，并且我们后台并没有在Kubernete中
+如上的情况下，我们可以定义一个服务没有选择器
+{ &#34;“kind”&#34;: &#34;“Service”&#34;, &#34;“apiVersion”&#34;: &#34;“v1″&#34;, &#34;“metadata”&#34;: { &#34;“name”&#34;: &#34;“my-service”&#34; }, &#34;“spec”&#34;: { &#34;“ports”&#34;: [ { &#34;“protocol”&#34;: &#34;“TCP”&#34;, &#34;“port”&#34;: 80, &#34;“targetPort”&#34;: 9376 } ] } } 因为没有选择器，所以相应的Endpoints对象就不会被创建，但是我们手动把我们的服务和Endpoints对应起来" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.8-k8s%E8%B5%84%E6%BA%90%E5%AF%B9%E8%B1%A1/services/" /><meta property="article:section" content="posts" />
+
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content=""/>
+<meta name="twitter:description" content="Services
+名词解释 Services Overview（概述） Kubernetes Pod是平凡的，它门会被创建，也会死掉（生老病死），并且他们是不可复活的。 ReplicationControllers动态的创建和销毁Pods(比如规模扩大或者缩小，或者执行动态更新)。每个pod都由自己的ip，这些IP也随着时间的变化也不能持续依赖。这样就引发了一个问题：如果一些Pods（让我们叫它作后台，后端）提供了一些功能供其它的Pod使用（让我们叫作前台），在kubernete集群中是如何实现让这些前台能够持续的追踪到这些后台的？
+答案是：Service
+Kubernete Service 是一个定义了一组Pod的策略的抽象，我们也有时候叫做宏观服务。这些被服务标记的Pod都是（一般）通过label Selector决定的（下面我们会讲到我们为什么需要一个没有label selector的服务）
+举个例子，我们假设后台是一个图形处理的后台，并且由3个副本。这些副本是可以相互替代的，并且前台并需要关心使用的哪一个后台Pod，当这个承载前台请求的pod发生变化时，前台并不需要直到这些变化，或者追踪后台的这些副本，服务是这些去耦
+对于Kubernete原生的应用，Kubernete提供了一个简单的Endpoints API，这个Endpoints api的作用就是当一个服务中的pod发生变化时，Endpoints API随之变化，对于哪些不是原生的程序，Kubernetes提供了一个基于虚拟IP的网桥的服务，这个服务会将请求转发到对应的后台pod
+Defining a service(定义一个服务) 一个Kubernete服务是一个最小的对象，类似pod,和其它的终端对象一样，我们可以朝paiserver发送请求来创建一个新的实例，比如，假设你拥有一些Pod,每个pod都开放了9376端口，并且均带有一个标签app=MyApp
+{ &#34;“kind”&#34;: &#34;“Service”&#34;, &#34;“apiVersion”&#34;: &#34;“v1”&#34;, &#34;“metadata”&#34;: { &#34;“name”&#34;: &#34;“my-service”&#34; }, &#34;“spec”&#34;: { &#34;“selector”&#34;: { &#34;“app”&#34;: &#34;“MyApp”&#34; }, &#34;“ports”&#34;: [ { &#34;“protocol”&#34;: &#34;“TCP”&#34;, &#34;“port”&#34;: 80, &#34;“targetPort”&#34;: 9376 } ] } } 这段代码会创建一个新的服务对象，名称为：my-service，并且会连接目标端口9376，并且带有label app=MyApp的pod,这个服务会被分配一个ip地址，这个ip是给服务代理使用的（下面我们会看到），服务的选择器会持续的评估，并且结果会被发送到一个Endpoints 对象，这个Endpoints的对象的名字也叫“my-service”.
+服务可以将一个“入端口”转发到任何“目标端口”，默认情况下targetPort的值会和port的值相同，更有趣的是，targetPort可以是字符串，可以指定到一个name,这个name是pod的一个端口。并且实际指派给这个name的端口可以是不同在不同的后台pod中，这样让我们能更加灵活的部署我们的服务，比如；我们可以在下一个更新版本中修改后台pod暴露的端口而不会影响客户的使用（更新过程不会打断）
+ 服务支持tcp和UDP，但是默认的是TCP Services without selectors（没有选择器的服务）  服务总体上抽象了对Pod的访问，但是服务也抽象了其它的内容，比如：
+1：比如你希望有一个额外的数据库云在生产环境中，但是在测试的时候，我们希望使用自己的数据库
+2：我们希望将服务指向其它的服务或者其它命名空间或者其它的云平台上的服务
+3：我们正在向kubernete迁移，并且我们后台并没有在Kubernete中
+如上的情况下，我们可以定义一个服务没有选择器
+{ &#34;“kind”&#34;: &#34;“Service”&#34;, &#34;“apiVersion”&#34;: &#34;“v1″&#34;, &#34;“metadata”&#34;: { &#34;“name”&#34;: &#34;“my-service”&#34; }, &#34;“spec”&#34;: { &#34;“ports”&#34;: [ { &#34;“protocol”&#34;: &#34;“TCP”&#34;, &#34;“port”&#34;: 80, &#34;“targetPort”&#34;: 9376 } ] } } 因为没有选择器，所以相应的Endpoints对象就不会被创建，但是我们手动把我们的服务和Endpoints对应起来"/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://razonyang.com/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://razonyang.com/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-97403777-3', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="https://razonyang.com/zh-cn/">
+      <img class="logo" alt="Logo" src="https://razonyang.com/images/logo.webp" loading="lazy">RAZON YANG</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://razonyang.com/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
+  </div>
+</form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-categories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-categories"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/programing">
+                <i class="fas fa-fw fa-code"></i>Programing
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/linux">
+                <i class="fab fa-fw fa-linux"></i>Linux
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/server">
+                <i class="fas fa-fw fa-server"></i>Server
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-tags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/php">
+                <i class="fab fa-fw fa-php"></i>PHP
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/html">
+                <i class="fab fa-fw fa-html5"></i>HTML
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fab fa-fw fa-js"></i>JavaScript
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/css">
+                <i class="fab fa-fw fa-css3"></i>CSS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+  <a class="nav-link" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fas fa-fw fa-language"></i> 简体中文
+  </a>
+  <ul class="dropdown-menu" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://razonyang.com/zh-tw/">繁體中文</a></li><li><a class="dropdown-item" href="https://razonyang.com/en/">English</a></li></ul>
+</li><li class="nav-item">
+  <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button"
+    aria-controls="offcanvasSettings">
+    <i class="fas fa-fw fa-sliders-h"></i> 设置
+  </a>
+</li>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings"
+  aria-labelledby="offcanvasSettingsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" w id="offcanvasSettingsLabel"><i class="fas fa-fw fa-sliders-h"></i> 设置</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <span id="btnPalette" class="btn btn-sm"><i class="fas fa-eye-dropper"></i></span>
+    </div>
+  </form>
+  <div class="container mt-2 visually-hidden" id="palettePicker">
+    <div class="btn-group"><button type="button" id="palette-blue" title="蓝色" 
+          class="btn btn-sm palette bg-blue d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-blue-gray" title="蓝灰色" 
+          class="btn btn-sm palette bg-blue-gray d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-brown" title="棕色" 
+          class="btn btn-sm palette bg-brown d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-cyan" title="青色" 
+          class="btn btn-sm palette bg-cyan d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-green" title="绿色" 
+          class="btn btn-sm palette bg-green d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-indigo" title="靛青色" 
+          class="btn btn-sm palette bg-indigo d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-orange" title="橙色" 
+          class="btn btn-sm palette bg-orange d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-pink" title="粉色" 
+          class="btn btn-sm palette bg-pink d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-purple" title="紫色" 
+          class="btn btn-sm palette bg-purple d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-red" title="红色" 
+          class="btn btn-sm palette bg-red d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-teal" title="蓝绿色" 
+          class="btn btn-sm palette bg-teal d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-yellow" title="黄色" 
+          class="btn btn-sm palette bg-yellow d-flex align-items-center justify-content-center">
+        </button></button>
+    </div>
+  </div>
+</section></div>
+</div></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row" aria-label="breadcrumb">
+  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active"></li></ol>
+</nav><article class="post row surface"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-alt fa-rotate-45"></i>
+</a>
+  
+    
+
+    
+    
+    <a id="btnTOC" class="fas fa-fw fa-list-alt" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+</a>
+  </div>
+</div>
+<h1 class="post-title my-3">
+</h1><div class="post-meta mb-3">
+  <span class="post-date me-2">
+    <i class="fas fa-fw fa-calendar-alt"></i>0001-01-01
+  </span>
+  <span class="post-reading-time me-2">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#overview概述">Overview（概述）</a></li>
+    <li><a href="#defining-a-service定义一个服务"><strong>Defining a service(定义一个服务)</strong></a></li>
+    <li><a href="#virtual-ips-and-service-proxies虚拟ip和服务代理">Virtual IPs and service proxies（虚拟IP和服务代理）</a>
+      <ul>
+        <li><a href="#multi-port-services多端口服务">Multi-Port Services（多端口服务）</a></li>
+      </ul>
+    </li>
+    <li><a href="#选择自己的ip地址">选择自己的IP地址</a>
+      <ul>
+        <li><a href="#为什么不使用循环的dns">为什么不使用循环的DNS</a></li>
+      </ul>
+    </li>
+    <li><a href="#discovering-services服务的发现"><strong>Discovering services（服务的发现）</strong></a>
+      <ul>
+        <li><a href="#环境变量">环境变量</a></li>
+        <li><a href="#dns">DNS</a></li>
+      </ul>
+    </li>
+    <li><a href="#headless-services">Headless services</a></li>
+    <li><a href="#external-services外部服务">External services（外部服务）</a>
+      <ul>
+        <li><a href="#type-nodeport">Type NodePort</a></li>
+        <li><a href="#type-loadbalancer">Type LoadBalancer</a></li>
+      </ul>
+    </li>
+    <li><a href="#future-work">Future work</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>Services</p>
+<h1 id="名词解释-serviceshttpswwwkubernetesorgcnkubernetes-services"><a href="https://www.kubernetes.org.cn/kubernetes-services" target="_blank">名词解释 Services</a>
+</h1>
+<h2 id="overview概述">Overview（概述）</h2>
+<p>Kubernetes Pod是平凡的，它门会被创建，也会死掉（生老病死），并且他们是不可复活的。 ReplicationControllers动态的创建和销毁Pods(比如规模扩大或者缩小，或者执行动态更新)。每个pod都由自己的ip，这些IP也随着时间的变化也不能持续依赖。这样就引发了一个问题：如果一些Pods（让我们叫它作后台，后端）提供了一些功能供其它的Pod使用（让我们叫作前台），在kubernete集群中是如何实现让这些前台能够持续的追踪到这些后台的？</p>
+<p><strong>答案是：Service</strong></p>
+<p>Kubernete Service 是一个定义了一组<a href="https://www.kubernetes.org.cn/tags/pod" target="_blank"><strong>Pod</strong></a>
+的策略的抽象，我们也有时候叫做宏观服务。这些被服务标记的Pod都是（一般）通过label Selector决定的（下面我们会讲到我们为什么需要一个没有label selector的服务）</p>
+<p>举个例子，我们假设后台是一个图形处理的后台，并且由3个副本。这些副本是可以相互替代的，并且前台并需要关心使用的哪一个后台Pod，当这个承载前台请求的pod发生变化时，前台并不需要直到这些变化，或者追踪后台的这些副本，服务是这些去耦</p>
+<p>对于Kubernete原生的应用，Kubernete提供了一个简单的Endpoints API，这个Endpoints api的作用就是当一个服务中的pod发生变化时，Endpoints API随之变化，对于哪些不是原生的程序，Kubernetes提供了一个基于虚拟IP的网桥的服务，这个服务会将请求转发到对应的后台pod</p>
+<h2 id="defining-a-service定义一个服务"><strong>Defining a service(定义一个服务)</strong></h2>
+<p>一个Kubernete服务是一个最小的对象，类似pod,和其它的终端对象一样，我们可以朝paiserver发送请求来创建一个新的实例，比如，假设你拥有一些Pod,每个pod都开放了9376端口，并且均带有一个标签app=MyApp</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{
+  <span style="color:#f92672">&#34;“kind”&#34;: </span><span style="color:#e6db74">&#34;“Service”&#34;</span>,
+  <span style="color:#f92672">&#34;“apiVersion”&#34;: </span><span style="color:#e6db74">&#34;“v1”&#34;</span>,
+  <span style="color:#f92672">&#34;“metadata”&#34;: </span>{
+    <span style="color:#f92672">&#34;“name”&#34;: </span><span style="color:#e6db74">&#34;“my-service”&#34;</span>
+  },
+  <span style="color:#f92672">&#34;“spec”&#34;: </span>{
+    <span style="color:#f92672">&#34;“selector”&#34;: </span>{
+      <span style="color:#f92672">&#34;“app”&#34;: </span><span style="color:#e6db74">&#34;“MyApp”&#34;</span>
+    },
+    <span style="color:#f92672">&#34;“ports”&#34;: </span>[
+      {
+        <span style="color:#f92672">&#34;“protocol”&#34;: </span><span style="color:#e6db74">&#34;“TCP”&#34;</span>,
+        <span style="color:#f92672">&#34;“port”&#34;: </span><span style="color:#ae81ff">80</span>,
+        <span style="color:#f92672">&#34;“targetPort”&#34;: </span><span style="color:#ae81ff">9376</span>
+      }
+    ]
+  }
+}
+</code></pre></div><p>这段代码会创建一个新的服务对象，名称为：my-service，并且会连接目标端口9376，并且带有label app=MyApp的pod,这个服务会被分配一个ip地址，这个ip是给服务代理使用的（下面我们会看到），服务的选择器会持续的评估，并且结果会被发送到一个Endpoints 对象，这个Endpoints的对象的名字也叫“my-service”.</p>
+<p>服务可以将一个“入端口”转发到任何“目标端口”，默认情况下targetPort的值会和port的值相同，更有趣的是，targetPort可以是字符串，可以指定到一个name,这个name是pod的一个端口。并且实际指派给这个name的端口可以是不同在不同的后台pod中，这样让我们能更加灵活的部署我们的服务，比如；我们可以在下一个更新版本中修改后台pod暴露的端口而不会影响客户的使用（更新过程不会打断）</p>
+<ul>
+<li>服务支持tcp和UDP，但是默认的是TCP</li>
+<li>Services without selectors（没有选择器的服务）</li>
+</ul>
+<p>服务总体上抽象了对Pod的访问，但是服务也抽象了其它的内容，比如：</p>
+<p>1：比如你希望有一个额外的数据库云在生产环境中，但是在测试的时候，我们希望使用自己的数据库</p>
+<p>2：我们希望将服务指向其它的服务或者其它命名空间或者其它的云平台上的服务</p>
+<p>3：我们正在向kubernete迁移，并且我们后台并没有在Kubernete中</p>
+<p>如上的情况下，我们可以定义一个服务没有选择器</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{
+  <span style="color:#f92672">&#34;“kind”&#34;: </span><span style="color:#e6db74">&#34;“Service”&#34;</span>,
+  <span style="color:#f92672">&#34;“apiVersion”&#34;: </span><span style="color:#e6db74">&#34;“v1″&#34;</span>,
+  <span style="color:#f92672">&#34;“metadata”&#34;: </span>{
+    <span style="color:#f92672">&#34;“name”&#34;: </span><span style="color:#e6db74">&#34;“my-service”&#34;</span>
+  },
+  <span style="color:#f92672">&#34;“spec”&#34;: </span>{
+    <span style="color:#f92672">&#34;“ports”&#34;: </span>[
+      {
+        <span style="color:#f92672">&#34;“protocol”&#34;: </span><span style="color:#e6db74">&#34;“TCP”&#34;</span>,
+        <span style="color:#f92672">&#34;“port”&#34;: </span><span style="color:#ae81ff">80</span>,
+        <span style="color:#f92672">&#34;“targetPort”&#34;: </span><span style="color:#ae81ff">9376</span>
+      }
+    ]
+  }
+}
+</code></pre></div><p>因为没有选择器，所以相应的Endpoints对象就不会被创建，但是我们手动把我们的服务和Endpoints对应起来</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{
+  <span style="color:#f92672">&#34;“kind”&#34;: </span><span style="color:#e6db74">&#34;“Endpoints”&#34;</span>,
+  <span style="color:#f92672">&#34;“apiVersion”&#34;: </span><span style="color:#e6db74">&#34;“v1″&#34;</span>,
+  <span style="color:#f92672">&#34;“metadata”&#34;: </span>{
+    <span style="color:#f92672">&#34;“name”&#34;: </span><span style="color:#e6db74">&#34;“my-service”&#34;</span>
+  },
+  <span style="color:#f92672">&#34;“subsets”&#34;: </span>[
+    {
+      <span style="color:#f92672">&#34;“addresses”&#34;: </span>[
+        {
+          <span style="color:#f92672">&#34;“IP”&#34;: </span><span style="color:#e6db74">&#34;“1.2.3.4”&#34;</span>
+        }
+      ],
+      <span style="color:#f92672">&#34;“ports”&#34;: </span>[
+        {
+          <span style="color:#f92672">&#34;“port”&#34;: </span><span style="color:#ae81ff">80</span>
+        }
+      ]
+    }
+  ]
+}
+</code></pre></div><p>这样的话，这个服务虽然没有selector，但是却可以正常工作，所有的请求都会被转发到1.2.3.4:80</p>
+<h2 id="virtual-ips-and-service-proxies虚拟ip和服务代理">Virtual IPs and service proxies（虚拟IP和服务代理）</h2>
+<p>每一个节点上都运行了一个kube-proxy，这个应用监控着Kubermaster增加和删除服务，对于每一个服务，kube-proxy会随机开启一个本机端口，任何发向这个端口的请求都会被转发到一个后台的Pod当中，而如何选择是哪一个后台的pod的是基于SessionAffinity进行的分配。kube-proxy会增加iptables rules来实现捕捉这个服务的Ip和端口来并重定向到前面提到的端口。</p>
+<p>最终的结果就是所有的对于这个服务的请求都会被转发到后台的Pod中，这一过程用户根本察觉不到</p>
+<p><img class="img-fluid" src="https://img.kubernetes.org.cn/2016/10/20161014161523.jpg" alt="20161014161523"  loading="lazy" />
+</p>
+<p>默认的，后台的选择是随机的，基于用户session机制的策略可以通过修改service.spec.sessionAffinity 的值从NONE到ClientIP</p>
+<h3 id="multi-port-services多端口服务">Multi-Port Services（多端口服务）</h3>
+<p>可能很多服务需要开发不止一个端口,为了满足这样的情况，Kubernetes允许在定义时候指定多个端口，当我们使用多个端口的时候，我们需要指定所有端口的名称，这样endpoints才能清楚，例如</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{
+  <span style="color:#f92672">&#34;“kind”&#34;: </span><span style="color:#e6db74">&#34;“Service”&#34;</span>,
+  <span style="color:#f92672">&#34;“apiVersion”&#34;: </span><span style="color:#e6db74">&#34;“v1”&#34;</span>,
+  <span style="color:#f92672">&#34;“metadata”&#34;: </span>{
+    <span style="color:#f92672">&#34;“name”&#34;: </span><span style="color:#e6db74">&#34;“my-service”&#34;</span>
+  },
+  <span style="color:#f92672">&#34;“spec”&#34;: </span>{
+    <span style="color:#f92672">&#34;“selector”&#34;: </span>{
+      <span style="color:#f92672">&#34;“app”&#34;: </span><span style="color:#e6db74">&#34;“MyApp”&#34;</span>
+    },
+    <span style="color:#f92672">&#34;“ports”&#34;: </span>[
+      {
+        <span style="color:#f92672">&#34;“name”&#34;: </span><span style="color:#e6db74">&#34;“http”&#34;</span>,
+        <span style="color:#f92672">&#34;“protocol”&#34;: </span><span style="color:#e6db74">&#34;“TCP”&#34;</span>,
+        <span style="color:#f92672">&#34;“port”&#34;: </span><span style="color:#ae81ff">80</span>,
+        <span style="color:#f92672">&#34;“targetPort”&#34;: </span><span style="color:#ae81ff">9376</span>
+      },
+      {
+        <span style="color:#f92672">&#34;“name”&#34;: </span><span style="color:#e6db74">&#34;“https”&#34;</span>,
+        <span style="color:#f92672">&#34;“protocol”&#34;: </span><span style="color:#e6db74">&#34;“TCP”&#34;</span>,
+        <span style="color:#f92672">&#34;“port”&#34;: </span><span style="color:#ae81ff">443</span>,
+        <span style="color:#f92672">&#34;“targetPort”&#34;: </span><span style="color:#ae81ff">9377</span>
+      }
+    ]
+  }
+}
+</code></pre></div><h2 id="选择自己的ip地址">选择自己的IP地址</h2>
+<p>我们可以在创建服务的时候指定IP地址，将spec.clusterIP的值设定为我们想要的IP地址即可。例如，我们已经有一个DNS域我们希望用来替换，或者遗留系统只能对指定IP提供服务，并且这些都非常难修改，用户选择的IP地址必须是一个有效的IP地址，并且要在API server分配的IP范围内，如果这个IP地址是不可用的，apiserver会返回422http错误代码来告知是IP地址不可用</p>
+<h3 id="为什么不使用循环的dns">为什么不使用循环的DNS</h3>
+<p>一个问题持续的被提出来，这个问题就是我们为什么不使用标准的循环DNS而使用虚拟IP，我们主要有如下几个原因</p>
+<p>1：DNS不遵循TTL查询和缓存name查询的问题由来已久（这个还真不知道，就是DNS更新的问题估计）</p>
+<p>2：许多的应用的DNS查询查询一次后就缓存起来</p>
+<p>3：即使如上亮点被解决了，但是不停的进行DNS进行查询，大量的请求也是很难被管理的</p>
+<p>我们希望阻止用户使用这些可能会“伤害”他们的事情，但是如果足够多的人要求这么作，那么我们将对此提供支持，来作为一个可选项.</p>
+<h2 id="discovering-services服务的发现"><strong>Discovering services（服务的发现）</strong></h2>
+<p>Kubernetes 支持两种方式的来发现服务 ，环境变量和 DNS</p>
+<h3 id="环境变量">环境变量</h3>
+<p>当一个Pod在一个node上运行时，kubelet 会针对运行的服务增加一系列的环境变量，它支持Docker links compatible 和普通环境变量</p>
+<p>举例子来说：</p>
+<p>redis-master服务暴露了 TCP 6379端口，并且被分配了10.0.0.11 IP地址</p>
+<p>那么我们就会有如下的环境变量</p>
+<blockquote>
+<p>REDIS_MASTER_SERVICE_HOST=10.0.0.11</p>
+<p>REDIS_MASTER_SERVICE_PORT=6379</p>
+<p>REDIS_MASTER_PORT=tcp://10.0.0.11:6379</p>
+<p>REDIS_MASTER_PORT_6379_TCP=tcp://10.0.0.11:6379</p>
+<p>REDIS_MASTER_PORT_6379_TCP_PROTO=tcp</p>
+<p>REDIS_MASTER_PORT_6379_TCP_PORT=6379</p>
+<p>REDIS_MASTER_PORT_6379_TCP_ADDR=10.0.0.11</p>
+</blockquote>
+<p>这样的话，对系统有一个要求：所有的想要被POD访问的服务，必须在POD创建之前创建，否则这个环境变量不会被填充，使用DNS则没有这个问题</p>
+<h3 id="dns">DNS</h3>
+<p>一个可选择的云平台插件就是DNS，DNS 服务器监控着API SERVER ，当有服务被创建的时候，DNS 服务器会为之创建相应的记录，如果DNS这个服务被添加了，那么Pod应该是可以自动解析服务的。</p>
+<p>举个例子来说：如果我们在my-ns命名空间下有一个服务叫做“my-service”，这个时候DNS就会创建一个my-service.my-ns的记录，所有my-ns命名空间下的Pod,都可以通过域名my-service查询找到对应的ip地址，不同命名空间下的Pod在查找是必须使用my-sesrvice.my-ns才可以。</p>
+<p>Kubernete 同样支持端口的解析，如果my-service有一个提供http的TCP主持的端口，那么我们可以通过查询“_http._tcp.my-service.my-ns”来查询这个端口</p>
+<h2 id="headless-services">Headless services</h2>
+<p>有时候我们可能不需要一个固定的IP和分发，这个时候我们只需要将spec.clusterIP的值设置为none就可以了</p>
+<p>对于这样的服务来说，集群IP没有分配，这个时候当你查询服务的名称的时候，DNS会返回多个A记录，这些记录都是指向后端Pod的。Kube 代理不会处理这个服务，在服务的前端也没有负载均衡器。但是endpoints controller还是会创建Endpoints</p>
+<p>（好吧，这个好处貌似我还理解好）</p>
+<p>This option allows developers to reduce coupling to the Kubernetes system, if they desire, but leaves them freedom to do discovery in their own way. Applications can still use a self-registration pattern and adapters for other discovery systems could easily be built upon this API.</p>
+<h2 id="external-services外部服务">External services（外部服务）</h2>
+<p>对于我们的应用程序来说，我们可能有一部分是放在Kubernete外部的（比如我们有单独的物理机来承担数据库的角色），Kubernetes支持两种方式：NodePorts，LoadBalancers</p>
+<p>每一个服务都会有一个字段定义了该服务如何被调用（发现），这个字段的值可以为：</p>
+<ul>
+<li>ClusterIP:使用一个集群固定IP，这个是默认选项</li>
+<li>NodePort：使用一个集群固定IP，但是额外在每个POD上均暴露这个服务，端口</li>
+<li>LoadBalancer：使用集群固定IP，和NODEPord,额外还会申请申请一个负载均衡器来转发到服务（load balancer ）</li>
+</ul>
+<p>注意：NodePort 支持TCP和UDN，但是LoadBalancers在1.0版本只支持TCP</p>
+<h3 id="type-nodeport">Type NodePort</h3>
+<p>如果你选择了“NodePort”，那么 Kubernetes master 会分配一个区域范围内，（默认是30000-32767），并且，每一个node，都会代理（proxy）这个端口到你的服务中，我们可以在spec.ports[*].nodePort 找到具体的值</p>
+<p>如果我们向指定一个端口，我们可以直接写在nodePort上，系统就会给你指派指定端口，但是这个值必须是指定范围内的。</p>
+<p>这样的话就能够让开发者搭配自己的负载均衡器，去撘建一个kubernete不是完全支持的系统，又或者是直接暴露一个node的ip地址</p>
+<h3 id="type-loadbalancer">Type LoadBalancer</h3>
+<p>在支持额外的负载均衡器的的平台上，将值设置为LoadBalancer会提供一个负载均衡器给你的服务，负载均衡器的创建其实是异步的。下面的例子</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{
+  <span style="color:#f92672">&#34;“kind”&#34;: </span><span style="color:#e6db74">&#34;“Service”&#34;</span>,
+  <span style="color:#f92672">&#34;“apiVersion”&#34;: </span><span style="color:#e6db74">&#34;“v1″&#34;</span>,
+  <span style="color:#f92672">&#34;“metadata”&#34;: </span>{
+    <span style="color:#f92672">&#34;“name”&#34;: </span><span style="color:#e6db74">&#34;“my-service”&#34;</span>
+  },
+  <span style="color:#f92672">&#34;“spec”&#34;: </span>{
+    <span style="color:#f92672">&#34;“selector”&#34;: </span>{
+      <span style="color:#f92672">&#34;“app”&#34;: </span><span style="color:#e6db74">&#34;“MyApp”&#34;</span>
+    },
+    <span style="color:#f92672">&#34;“ports”&#34;: </span>[
+      {
+        <span style="color:#f92672">&#34;“protocol”&#34;: </span><span style="color:#e6db74">&#34;“TCP”&#34;</span>,
+        <span style="color:#f92672">&#34;“port”&#34;: </span><span style="color:#ae81ff">80</span>,
+        <span style="color:#f92672">&#34;“targetPort”&#34;: </span><span style="color:#ae81ff">9376</span>,
+        <span style="color:#f92672">&#34;“nodePort”&#34;: </span><span style="color:#ae81ff">30061</span>
+      }
+    ],
+    <span style="color:#f92672">&#34;“clusterIP”&#34;: </span><span style="color:#e6db74">&#34;“10.0.171.239”&#34;</span>,
+    <span style="color:#f92672">&#34;“type”&#34;: </span><span style="color:#e6db74">&#34;“LoadBalancer”&#34;</span>
+  },
+  <span style="color:#f92672">&#34;“status”&#34;: </span>{
+    <span style="color:#f92672">&#34;“loadBalancer”&#34;: </span>{
+      <span style="color:#f92672">&#34;“ingress”&#34;: </span>[
+        {
+          <span style="color:#f92672">&#34;“ip”&#34;: </span><span style="color:#e6db74">&#34;“146.148.47.155”&#34;</span>
+        }
+      ]
+    }
+  }
+}
+</code></pre></div><p>所有服务的请求均会直接到到Pod,具体是如何工作的是由平台决定的</p>
+<p><strong>缺点</strong></p>
+<p>我们希望使用IPTABLES和用户命名空间来代理虚拟IP能在中小型规模的平台上正常运行，但是可能出现问题在比较大的平台上当应对成千上万的服务的时候。</p>
+<p>这个时候，使用kube-proxy来封装服务的请求，这使得这些变成可能</p>
+<p>LoadBalancers 只支持TCP，不支持UDP</p>
+<p>Type 的值是设定好的，不同的值代表不同的功能，并不是所有的平台都需要的，但是是所有API需要的</p>
+<h2 id="future-work">Future work</h2>
+<p>在将来，我们预想proxy的策略能够更加细致，不再是单纯的转发，比如master-elected or sharded，我们预想将来服务会拥有真正的负载均衡器，到时候虚拟IP直接转发到负载均衡器</p>
+<p>将来有倾向与将所的工作均通过iptables来进行，从而小从用户命名空间代理，这样的话会有更好的性能和消除一些原地值IP的问题，尽管这样的会减少一些灵活性.</p>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-between">
+  <div class="post-nav w-50"><div class="prev-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.8-k8s%E8%B5%84%E6%BA%90%E5%AF%B9%E8%B1%A1/statefulset/">
+</a>
+    </div></div>
+  <div class="post-nav flex-row-reverse"><div class="next-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.8-k8s%E8%B5%84%E6%BA%90%E5%AF%B9%E8%B1%A1/service-account/">
+</a>
+    </div></div>
+</div></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label=""
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container"><section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<section class="profile surface row">
+  <div class="col-xl-6 d-flex align-items-center justify-content-center">
+    <img class="profile-avatar img-fluid" src="https://razonyang.com/images/profile.webp" alt="Razon Yang" loading="lazy">
+  </div>
+  <div class="col-xl-6">
+    <h5 class="profile-name my-2">Razon Yang</h5><div class="profile-bio mb-2">Gopher, PHPer, Full Stack Engineer.</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>Null</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>China</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://razonyang.com/zh-cn/about/">关于</a></div></div>
+</section><section class="recent-posts row surface">
+  <h4>最近文章</h4>
+  <ul><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1-k8s%E5%8A%9F%E8%83%BD/k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/">300. 最长递增子序列
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/">400 Bad Request
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/">5种IO模型
+</a></li></ul>
+</section><section class="taxonomy-categories row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/categories">分类</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
+          编程思想 <span class="badge rounded-pill">91</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
+          其他 <span class="badge rounded-pill">21</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机基础">
+          计算机基础 <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构设计">
+          架构设计 <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">2</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
+          区块链 <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-series row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/series">专栏</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
+          Manual <span class="badge rounded-pill">140</span>
+        </a><a href="https://razonyang.com/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-tags row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/tags">标签</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
+          Java <span class="badge rounded-pill">27</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
+          Other <span class="badge rounded-pill">24</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
+          CS <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
+          spring <span class="badge rounded-pill">11</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
+          redis <span class="badge rounded-pill">9</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
+          MySQL <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="剑指offer">
+          剑指offer <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/zk/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ZK">
+          ZK <span class="badge rounded-pill">6</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/nginx/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="nginx">
+          nginx <span class="badge rounded-pill">4</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a></div>
+    </section><section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
+    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a>
+  </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a>
+    </li></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2021 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://razonyang.com/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<a id="btnScrollToTop" class="btn-scroll-to-top">
+  <i class="fas fa-fw fa-chevron-circle-up fa-2x"></i>
+</a>
+<script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script></body>
+</html>

@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> - Razon Yang</title><link rel="apple-touch-icon" href="https://razonyang.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://razonyang.com/images/favicons/manifest.json">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="">
+<meta itemprop="description" content="从零搭建K8S
+机器准备    名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上    由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
+1. 修改hostname [root@k8s-master ~]$ vim /etc/hostname # 修改hostname [root@k8s-master ~]$ vim /etc/hosts	# 将本机IP指向hostname [root@k8s-master ~]$ reboot -h # 重启(可以做完全部前期准备后再重启) 修改后：
+[root@k8s-master ~]# cat /etc/hosts ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6.">
+
+<meta itemprop="wordCount" content="801">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="" />
+<meta property="og:description" content="从零搭建K8S
+机器准备    名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上    由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
+1. 修改hostname [root@k8s-master ~]$ vim /etc/hostname # 修改hostname [root@k8s-master ~]$ vim /etc/hosts	# 将本机IP指向hostname [root@k8s-master ~]$ reboot -h # 重启(可以做完全部前期准备后再重启) 修改后：
+[root@k8s-master ~]# cat /etc/hosts ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://razonyang.com/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BAk8s/" /><meta property="article:section" content="posts" />
+
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content=""/>
+<meta name="twitter:description" content="从零搭建K8S
+机器准备    名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上    由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
+1. 修改hostname [root@k8s-master ~]$ vim /etc/hostname # 修改hostname [root@k8s-master ~]$ vim /etc/hosts	# 将本机IP指向hostname [root@k8s-master ~]$ reboot -h # 重启(可以做完全部前期准备后再重启) 修改后：
+[root@k8s-master ~]# cat /etc/hosts ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6."/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://razonyang.com/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://razonyang.com/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-97403777-3', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="https://razonyang.com/zh-cn/">
+      <img class="logo" alt="Logo" src="https://razonyang.com/images/logo.webp" loading="lazy">RAZON YANG</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://razonyang.com/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
+  </div>
+</form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-categories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-categories"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/programing">
+                <i class="fas fa-fw fa-code"></i>Programing
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/linux">
+                <i class="fab fa-fw fa-linux"></i>Linux
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/server">
+                <i class="fas fa-fw fa-server"></i>Server
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-tags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/php">
+                <i class="fab fa-fw fa-php"></i>PHP
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/html">
+                <i class="fab fa-fw fa-html5"></i>HTML
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fab fa-fw fa-js"></i>JavaScript
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/css">
+                <i class="fab fa-fw fa-css3"></i>CSS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+  <a class="nav-link" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fas fa-fw fa-language"></i> 简体中文
+  </a>
+  <ul class="dropdown-menu" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://razonyang.com/zh-tw/">繁體中文</a></li><li><a class="dropdown-item" href="https://razonyang.com/en/">English</a></li></ul>
+</li><li class="nav-item">
+  <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button"
+    aria-controls="offcanvasSettings">
+    <i class="fas fa-fw fa-sliders-h"></i> 设置
+  </a>
+</li>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings"
+  aria-labelledby="offcanvasSettingsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" w id="offcanvasSettingsLabel"><i class="fas fa-fw fa-sliders-h"></i> 设置</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <span id="btnPalette" class="btn btn-sm"><i class="fas fa-eye-dropper"></i></span>
+    </div>
+  </form>
+  <div class="container mt-2 visually-hidden" id="palettePicker">
+    <div class="btn-group"><button type="button" id="palette-blue" title="蓝色" 
+          class="btn btn-sm palette bg-blue d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-blue-gray" title="蓝灰色" 
+          class="btn btn-sm palette bg-blue-gray d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-brown" title="棕色" 
+          class="btn btn-sm palette bg-brown d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-cyan" title="青色" 
+          class="btn btn-sm palette bg-cyan d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-green" title="绿色" 
+          class="btn btn-sm palette bg-green d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-indigo" title="靛青色" 
+          class="btn btn-sm palette bg-indigo d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-orange" title="橙色" 
+          class="btn btn-sm palette bg-orange d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-pink" title="粉色" 
+          class="btn btn-sm palette bg-pink d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-purple" title="紫色" 
+          class="btn btn-sm palette bg-purple d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-red" title="红色" 
+          class="btn btn-sm palette bg-red d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-teal" title="蓝绿色" 
+          class="btn btn-sm palette bg-teal d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-yellow" title="黄色" 
+          class="btn btn-sm palette bg-yellow d-flex align-items-center justify-content-center">
+        </button></button>
+    </div>
+  </div>
+</section></div>
+</div></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row" aria-label="breadcrumb">
+  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active"></li></ol>
+</nav><article class="post row surface"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-alt fa-rotate-45"></i>
+</a>
+  
+    
+
+    
+    
+    <a id="btnTOC" class="fas fa-fw fa-list-alt" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+</a>
+  </div>
+</div>
+<h1 class="post-title my-3">
+</h1><div class="post-meta mb-3">
+  <span class="post-date me-2">
+    <i class="fas fa-fw fa-calendar-alt"></i>0001-01-01
+  </span>
+  <span class="post-reading-time me-2">
+    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
+  </span></div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#机器准备">机器准备</a></li>
+    <li><a href="#1-修改hostname">1. 修改hostname</a></li>
+    <li><a href="#2-配置防火墙">2. 配置防火墙</a></li>
+    <li><a href="#3-禁用selinux">3. 禁用SELinux</a></li>
+    <li><a href="#4-禁用交换分区">4. 禁用交换分区</a></li>
+    <li><a href="#5-安装docker">5. 安装Docker</a></li>
+    <li><a href="#6-安装kubernetes">6. 安装Kubernetes</a></li>
+    <li><a href="#7-初始化master">7. 初始化Master</a></li>
+    <li><a href="#8-配置网络">8. 配置网络</a></li>
+    <li><a href="#9-安装dashboard">9. 安装Dashboard</a>
+      <ul>
+        <li><a href="#91-部署dashboard">91. 部署Dashboard</a></li>
+        <li><a href="#92-创建用户">9.2 创建用户</a></li>
+        <li><a href="#93-生成证书">9.3 生成证书</a></li>
+        <li><a href="#94-登录dashboard">9.4 登录Dashboard</a></li>
+      </ul>
+    </li>
+    <li><a href="#10-添加node节点">10. 添加Node节点</a></li>
+    <li><a href="#参考链接">参考链接</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>从零搭建K8S</p>
+<h2 id="机器准备">机器准备</h2>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>数量</th>
+<th>IP</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>master</td>
+<td>1</td>
+<td>172.17.0.14</td>
+<td>操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G</td>
+</tr>
+<tr>
+<td>node1</td>
+<td>1</td>
+<td>172.18.0.7</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>node2</td>
+<td>1</td>
+<td>172.19.0.5</td>
+<td>同上</td>
+</tr>
+</tbody>
+</table>
+<p>由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。</p>
+<h2 id="1-修改hostname">1. 修改hostname</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ vim /etc/hostname <span style="color:#75715e"># 修改hostname</span>
+<span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ vim /etc/hosts	<span style="color:#75715e"># 将本机IP指向hostname</span>
+<span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ reboot -h 		<span style="color:#75715e"># 重启(可以做完全部前期准备后再重启)</span>
+</code></pre></div><p>修改后：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># cat /etc/hosts</span>
+
+::1 VM_0_5_centos VM_0_5_centos
+::1 localhost.localdomain localhost
+::1 localhost6.localdomain6 localhost6
+
+127.0.0.1 localhost localhost.localdomain k8s-master
+172.17.0.14 k8s-master
+172.18.0.7 k8s-node1
+172.19.0.5 k8s-node2
+</code></pre></div><h2 id="2-配置防火墙">2. 配置防火墙</h2>
+<p>笔者图方便, 直接关闭了防火墙. 若安全要求较高, 可以参考官方文档放行必要端口.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ systemctl stop firewalld	<span style="color:#75715e"># 关闭服务</span>
+<span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ systemctl disable firewalld	<span style="color:#75715e"># 禁用服务</span>
+</code></pre></div><h2 id="3-禁用selinux">3. 禁用SELinux</h2>
+<p>腾讯云centos7.6默认是禁止的，如果你的不是，请修改<code>/etc/selinux/config</code>, 设置SELINUX=disabled. 重启机器.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ sestatus	<span style="color:#75715e"># 查看SELinux状态</span>
+SELinux status: disabled
+</code></pre></div><h2 id="4-禁用交换分区">4. 禁用交换分区</h2>
+<p>腾讯云centos7.6默认是禁止的，如果你的不是，请编辑<code>/etc/fstab</code>, 将swap注释掉. 重启机器.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ vim /etc/fstab 
+<span style="color:#75715e">#/dev/mapper/cl-swap     swap                    swap    defaults        0 0</span>
+</code></pre></div><h2 id="5-安装docker">5. 安装Docker</h2>
+<p>方法一： 官方安装脚本自动安装</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+</code></pre></div><p>方法二： 手动安装</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">//第一步
+
+yum install -y yum-utils <span style="color:#ae81ff">\ </span>device-mapper-persistent-data <span style="color:#ae81ff">\ </span>lvm2
+
+//第二步
+
+yum-config-manager <span style="color:#ae81ff">\ </span>--add-repo <span style="color:#ae81ff">\ </span>http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+
+//第三步
+
+yum install docker-ce docker-ce-cli containerd.io
+
+//第四步
+
+systemctl start docker
+</code></pre></div><p>配置docker：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># cat /etc/docker/daemon.json </span>
+<span style="color:#f92672">{</span>
+   <span style="color:#e6db74">&#34;registry-mirrors&#34;</span>: <span style="color:#f92672">[</span> <span style="color:#e6db74">&#34;https://mirror.ccs.tencentyun.com&#34;</span><span style="color:#f92672">]</span>,
+   <span style="color:#e6db74">&#34;exec-opts&#34;</span>: <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;native.cgroupdriver=systemd&#34;</span><span style="color:#f92672">]</span>,
+   <span style="color:#e6db74">&#34;bip&#34;</span>: <span style="color:#e6db74">&#34;172.200.0.1/16&#34;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>安装配置完毕后执行:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ systemctl enable docker
+<span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ systemctl start docker
+</code></pre></div><h2 id="6-安装kubernetes">6. 安装Kubernetes</h2>
+<p>由于国内网络原因, 官方文档中的地址不可用, 本文替换为阿里云镜像地址, 执行以下代码即可:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">cat <span style="color:#e6db74">&lt;&lt;EOF &gt; /etc/yum.repos.d/kubernetes.repo
+</span><span style="color:#e6db74">[kubernetes]
+</span><span style="color:#e6db74">name=Kubernetes
+</span><span style="color:#e6db74">baseurl=http://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
+</span><span style="color:#e6db74">enabled=1
+</span><span style="color:#e6db74">gpgcheck=1
+</span><span style="color:#e6db74">repo_gpgcheck=1
+</span><span style="color:#e6db74">gpgkey=http://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg http://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
+</span><span style="color:#e6db74">EOF</span>
+</code></pre></div><p>安装kubeadm，kubelet，kubectl：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">yum install -y kubelet kubeadm kubectl
+systemctl enable kubelet <span style="color:#f92672">&amp;&amp;</span> systemctl start kubelet
+</code></pre></div><p>修改网络配置：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">cat <span style="color:#e6db74">&lt;&lt;EOF &gt;  /etc/sysctl.d/k8s.conf
+</span><span style="color:#e6db74">net.bridge.bridge-nf-call-ip6tables = 1
+</span><span style="color:#e6db74">net.bridge.bridge-nf-call-iptables = 1
+</span><span style="color:#e6db74">EOF</span>
+sysctl --system
+</code></pre></div><p>[su_highlight]注意: 至此, 以上的全部操作, 在Worker机器上也需要执行. 注意hostname等不要相同.[/su_highlight]</p>
+<h2 id="7-初始化master">7. 初始化Master</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ kubeadm config print init-defaults &gt; kubeadm-init.yaml
+</code></pre></div><p>该文件有两处需要修改:</p>
+<p>将<code>advertiseAddress</code>: 1.2.3.4修改为本机地址
+将<code>imageRepository</code>: k8s.gcr.io修改为imageRepository: registry.cn-hangzhou.aliyuncs.com/google_containers</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">kubeadm.k8s.io/v1beta2</span>
+<span style="color:#f92672">bootstrapTokens</span>:
+- <span style="color:#f92672">groups</span>:
+  - <span style="color:#ae81ff">system:bootstrappers:kubeadm:default-node-token</span>
+  <span style="color:#f92672">token</span>: <span style="color:#ae81ff">abcdef.0123456789abcdef</span>
+  <span style="color:#f92672">ttl</span>: <span style="color:#ae81ff">24h0m0s</span>
+  <span style="color:#f92672">usages</span>:
+  - <span style="color:#ae81ff">signing</span>
+  - <span style="color:#ae81ff">authentication</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">InitConfiguration</span>
+<span style="color:#f92672">localAPIEndpoint</span>:
+  <span style="color:#f92672">advertiseAddress</span>: <span style="color:#ae81ff">172.17.0.14</span>
+  <span style="color:#f92672">bindPort</span>: <span style="color:#ae81ff">6443</span>
+<span style="color:#f92672">nodeRegistration</span>:
+  <span style="color:#f92672">criSocket</span>: <span style="color:#ae81ff">/var/run/dockershim.sock</span>
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">k8s-master</span>
+  <span style="color:#f92672">taints</span>:
+  - <span style="color:#f92672">effect</span>: <span style="color:#ae81ff">NoSchedule</span>
+    <span style="color:#f92672">key</span>: <span style="color:#ae81ff">node-role.kubernetes.io/master</span>
+---
+<span style="color:#f92672">apiServer</span>:
+  <span style="color:#f92672">timeoutForControlPlane</span>: <span style="color:#ae81ff">4m0s</span>
+<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">kubeadm.k8s.io/v1beta2</span>
+<span style="color:#f92672">certificatesDir</span>: <span style="color:#ae81ff">/etc/kubernetes/pki</span>
+<span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">kubernetes</span>
+<span style="color:#f92672">controllerManager</span>: {}
+<span style="color:#f92672">dns</span>:
+  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">CoreDNS</span>
+<span style="color:#f92672">etcd</span>:
+  <span style="color:#f92672">local</span>:
+    <span style="color:#f92672">dataDir</span>: <span style="color:#ae81ff">/var/lib/etcd</span>
+<span style="color:#f92672">imageRepository</span>: <span style="color:#ae81ff">registry.cn-hangzhou.aliyuncs.com/google_containers</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ClusterConfiguration</span>
+<span style="color:#f92672">kubernetesVersion</span>: <span style="color:#ae81ff">v1.15.0</span>
+<span style="color:#f92672">networking</span>:
+  <span style="color:#f92672">dnsDomain</span>: <span style="color:#ae81ff">cluster.local</span>
+  <span style="color:#f92672">serviceSubnet</span>: <span style="color:#ae81ff">10.96.0.0</span><span style="color:#ae81ff">/12</span>
+<span style="color:#f92672">scheduler</span>: {}
+</code></pre></div><p>下载镜像：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ kubeadm config images pull --config kubeadm-init.yaml
+</code></pre></div><p>执行初始化：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ kubeadm init --config kubeadm-init.yaml
+</code></pre></div><p>等待执行完毕后, 会输出如下内容：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown <span style="color:#66d9ef">$(</span>id -u<span style="color:#66d9ef">)</span>:<span style="color:#66d9ef">$(</span>id -g<span style="color:#66d9ef">)</span> $HOME/.kube/config
+
+You should now deploy a pod network to the cluster.
+Run <span style="color:#e6db74">&#34;kubectl apply -f [podnetwork].yaml&#34;</span> with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 172.17.0.14:6443 --token abcdef.0123456789abcdef <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --discovery-token-ca-cert-hash sha256:e245251e3de01986694f77319827481ed8669be6ba2ccc23a29596072b275346
+</code></pre></div><p>最后两行需要保存下来, kubeadm join &hellip;是worker节点加入所需要执行的命令.</p>
+<p>接下来配置环境, 让当前用户可以执行kubectl命令:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown <span style="color:#66d9ef">$(</span>id -u<span style="color:#66d9ef">)</span>:<span style="color:#66d9ef">$(</span>id -g<span style="color:#66d9ef">)</span> $HOME/.kube/config
+</code></pre></div><p>测试一下: 此处的NotReady是因为网络还没配置.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master kubernetes<span style="color:#f92672">]</span>$ kubectl get node
+NAME         STATUS     ROLES    AGE     VERSION
+k8s-master   NotReady   master   3m25s   v1.15.3
+</code></pre></div><h2 id="8-配置网络">8. 配置网络</h2>
+<p>下载描述文件：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ wget https://docs.projectcalico.org/v3.15/manifests/calico.yaml
+<span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ cat kubeadm-init.yaml | grep serviceSubnet:
+serviceSubnet: 10.96.0.0/12
+</code></pre></div><p>打开calico.yaml, 将<code>192.168.0.0/16</code>修改为<code>10.96.0.0/12</code></p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/img_5ef33afe955d8-20210621122448233.png" alt="img"  loading="lazy" />
+</p>
+<p>[su_highlight]需要注意的是, <code>calico.yaml</code>中的IP和<code>kubeadm-init.yaml</code>需要保持一致, 要么初始化前修改<code>kubeadm-init.yaml</code>, 要么初始化后修改<code>calico.yaml</code>.[/su_highlight]</p>
+<p>执行<code>kubectl apply -f calico.yaml</code>初始化网络.</p>
+<p>此时查看node信息, master的状态已经是Ready了.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ kubectl get node
+NAME         STATUS   ROLES    AGE   VERSION
+k8s-master   Ready    master   15m   v1.15.3
+</code></pre></div><h2 id="9-安装dashboard">9. 安装Dashboard</h2>
+<h3 id="91-部署dashboard">91. 部署Dashboard</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.3/aio/deploy/recommended.yaml
+<span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ kubectl apply -f recommended.yaml
+</code></pre></div><p>部署完毕后, 执行<code>kubectl get pods --all-namespaces</code>查看pods状态</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master kubernetes<span style="color:#f92672">]</span>$ kubectl get pods --all-namespaces | grep dashboard
+NAMESPACE              NAME                                        READY   STATUS   
+kubernetes-dashboard   dashboard-metrics-scraper-fb986f88d-m9d8z   1/1     Running
+kubernetes-dashboard   kubernetes-dashboard-6bb65fcc49-7s85s       1/1     Running
+</code></pre></div><h3 id="92-创建用户">9.2 创建用户</h3>
+<p>创建一个用于登录Dashboard的用户. 创建文件<code>dashboard-adminuser.yaml</code>内容如下:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kube-system
+</code></pre></div><p>执行命令<code>kubectl apply -f dashboard-adminuser.yaml</code>.</p>
+<h3 id="93-生成证书">9.3 生成证书</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ grep <span style="color:#e6db74">&#39;client-certificate-data&#39;</span> ~/.kube/config | head -n <span style="color:#ae81ff">1</span> | awk <span style="color:#e6db74">&#39;{print $2}&#39;</span> | base64 -d &gt;&gt; kubecfg.crt
+<span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ grep <span style="color:#e6db74">&#39;client-key-data&#39;</span> ~/.kube/config | head -n <span style="color:#ae81ff">1</span> | awk <span style="color:#e6db74">&#39;{print $2}&#39;</span> | base64 -d &gt;&gt; kubecfg.key
+<span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ openssl pkcs12 -export -clcerts -inkey kubecfg.key -in kubecfg.crt -out kubecfg.p12 -name <span style="color:#e6db74">&#34;kubernetes-client&#34;</span>
+</code></pre></div><p>第三条命令生成证书时会提示输入密码, 可以直接两次回车跳过.</p>
+<p><code>kubecfg.p12</code>即需要导入客户端机器的证书. 将证书拷贝到客户端机器上, 导入即可. chrome浏览器按下图所示导入：</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/img_5ef33c7e9db84-20210621122443116.png" alt="img"  loading="lazy" />
+</p>
+<p>此时我们可以登录面板了, 访问地址: <code>https://{k8s-master-ip}:6443/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login</code></p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/img_5ef33d17328d4.png" alt="img"  loading="lazy" />
+</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/img_5ef33d20519c2.png" alt="img"  loading="lazy" />
+</p>
+<h3 id="94-登录dashboard">9.4 登录Dashboard</h3>
+<p>执行<code>kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')</code>, 获取Token.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk &#39;{print $1}&#39;)</span>
+Name:         admin-user-token-6mpx4
+Namespace:    kube-system
+Labels:       &lt;none&gt;
+Annotations:  kubernetes.io/service-account.name: admin-user
+              kubernetes.io/service-account.uid: cabcc858-826a-4236-8514-51f473bf7752
+
+Type:  kubernetes.io/service-account-token
+
+Data
+<span style="color:#f92672">====</span>
+ca.crt:     <span style="color:#ae81ff">1025</span> bytes
+namespace:  <span style="color:#ae81ff">11</span> bytes
+token:      eyJhbGciOiJSUzI1NiIsImtpZCI6Iks2dmRwalB5SWNKbWJTVUUxanVlVlAwbTk1OHR6QzhfN0FOZUw0V3huM0UifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLTZtcHg0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiJjYWJjYzg1OC04MjZhLTQyMzYtODUxNC01MWY0NzNiZjc3NTIiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06YWRtaW4tdXNlciJ9.jHAzmmOBRn5tfZBeukORLm--9_q879fTHPDzjjyCm42MbHP0TFrgbo2A8ZmN0Od4qe9rTHiD9pJl3BtUQ06pIMsly7LvENnuLAxGuK3oDqc5FCdqb8L-f9-9HmBo7nEAMy67i6Cv9TjfD9790ejfOg6ZI0PC8MDXInxSgY97hlwBlyJh_M5zz8SMnOOnMYyr8UFmHRZJjTO5pdIs7cdVBxLz27wzw4h0svJyOsi9MBqHskN6Hq7KOsEYP5wyDHXmU_iHqQJH64R9DA6dpHx6v3qV1dyhtXJE9tZECsvoVtvNlKQ-VirtX4sJX29a5wAXDqkcysDiClIXZGZKtg8tFw
+</code></pre></div><p>复制该Token到登录页, 点击登录即可, 效果如下:</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/img_5ef33d9fd5224-20210621122422540.png" alt="img"  loading="lazy" />
+</p>
+<h2 id="10-添加node节点">10. 添加Node节点</h2>
+<p>执行如下命令将Worker加入集群:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubeadm join 172.17.0.14:6443 --token abcdef.0123456789abcdef <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --discovery-token-ca-cert-hash sha256:e245251e3de01986694f77319827481ed8669be6ba2ccc23a29596072b275346
+</code></pre></div><p>注意: 此处的秘钥是初始化Master后生成的, 参考前文.</p>
+<p>如果token过期，使用如下命令重新生成：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubeadm token create --print-join-command
+</code></pre></div><p>参考连接：<a href="https://www.cnblogs.com/hongdada/p/9854696.html" target="_blank">kubeadm 生成的token过期后，集群增加节点</a>
+</p>
+<p>如果join时报错：<code>[ERROR FileContent--proc-sys-net-ipv4-ip_forward]: /proc/sys/net/ipv4/ip_forward contents are not set to 1</code> 执行如下命令：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">echo <span style="color:#e6db74">&#34;1&#34;</span>&gt;/proc/sys/net/ipv4/ip_forward
+</code></pre></div><p>参考链接：<a href="https://learnku.com/articles/35188" target="_blank">kubernetes 加入子节点</a>
+</p>
+<p>添加完毕后, 在Master上查看节点状态:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl get node</span>
+NAME         STATUS   ROLES    AGE    VERSION
+k8s-master   Ready    master   125m   v1.18.4
+k8s-node1    Ready    &lt;none&gt;   97m    v1.18.4
+k8s-node2    Ready    &lt;none&gt;   95m    v1.18.4
+</code></pre></div><p>在面板上也可查看:</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/img_5ef33e6d5addd-20210621122430349.png" alt="img"  loading="lazy" />
+</p>
+<p>配置node节点，以便node节点能够执行类似<code>kubectl get node</code>的时候不至于报<code>The connection to the server localhost:8080 was refused - did you specify the right host or port?</code></p>
+<p>在node节点上执行：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">mkdir -p $HOME/.kube
+cp -i /etc/kubernetes/kubelet.conf $HOME/.kube/config
+chown <span style="color:#66d9ef">$(</span>id -u<span style="color:#66d9ef">)</span>:<span style="color:#66d9ef">$(</span>id -g<span style="color:#66d9ef">)</span> $HOME/.kube/config //如果你本身是root用户，可以不执行
+</code></pre></div><h2 id="参考链接">参考链接</h2>
+<p><a href="https://juejin.im/post/5d7fb46d5188253264365dcf" target="_blank">https://juejin.im/post/5d7fb46d5188253264365dcf</a>
+</p>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-between">
+  <div class="post-nav w-50"><div class="prev-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/%E5%88%87%E6%8D%A2namespace/">
+</a>
+    </div></div>
+  <div class="post-nav flex-row-reverse"><div class="next-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/pvc%E4%B8%8D%E4%BC%9A%E4%B8%BB%E5%8A%A8%E5%9B%9E%E6%94%B6%E9%97%AE%E9%A2%98/">
+</a>
+    </div></div>
+</div></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label=""
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container"><section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<section class="profile surface row">
+  <div class="col-xl-6 d-flex align-items-center justify-content-center">
+    <img class="profile-avatar img-fluid" src="https://razonyang.com/images/profile.webp" alt="Razon Yang" loading="lazy">
+  </div>
+  <div class="col-xl-6">
+    <h5 class="profile-name my-2">Razon Yang</h5><div class="profile-bio mb-2">Gopher, PHPer, Full Stack Engineer.</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>Null</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>China</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://razonyang.com/zh-cn/about/">关于</a></div></div>
+</section><section class="recent-posts row surface">
+  <h4>最近文章</h4>
+  <ul><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1-k8s%E5%8A%9F%E8%83%BD/k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/">300. 最长递增子序列
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/">400 Bad Request
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/">5种IO模型
+</a></li></ul>
+</section><section class="taxonomy-categories row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/categories">分类</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
+          编程思想 <span class="badge rounded-pill">91</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
+          其他 <span class="badge rounded-pill">21</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机基础">
+          计算机基础 <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构设计">
+          架构设计 <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">2</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
+          区块链 <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-series row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/series">专栏</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
+          Manual <span class="badge rounded-pill">140</span>
+        </a><a href="https://razonyang.com/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-tags row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/tags">标签</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
+          Java <span class="badge rounded-pill">27</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
+          Other <span class="badge rounded-pill">24</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
+          CS <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
+          spring <span class="badge rounded-pill">11</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
+          redis <span class="badge rounded-pill">9</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
+          MySQL <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="剑指offer">
+          剑指offer <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/zk/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ZK">
+          ZK <span class="badge rounded-pill">6</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/nginx/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="nginx">
+          nginx <span class="badge rounded-pill">4</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a></div>
+    </section><section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
+    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a>
+  </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a>
+    </li></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2021 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://razonyang.com/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<a id="btnScrollToTop" class="btn-scroll-to-top">
+  <i class="fas fa-fw fa-chevron-circle-up fa-2x"></i>
+</a>
+<script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script></body>
+</html>

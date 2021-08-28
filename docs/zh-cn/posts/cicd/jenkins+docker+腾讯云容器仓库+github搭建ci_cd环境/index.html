@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> - Razon Yang</title><link rel="apple-touch-icon" href="https://razonyang.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://razonyang.com/images/favicons/manifest.json">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="">
+<meta itemprop="description" content="jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境
+持续集成/持续部署的重要性不必多言，都什么年代了，没有哪个正紧项目还在人工构建/测试/部署。本文手把手教你搭建jenkins&#43;docker&#43;腾讯云容器仓库&#43;github的CI/CD环境。妥妥的干活，绝对是解放生产力的利器。架构图如下：
+step1: 程序猿git push代码到github step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像） step3: 推送镜像到容器仓库 step4: 应用服务器拉去镜像到本地运行
+为了不让文章篇幅过长，本系列tony徐老师将文章分成两个小章节：
+github webhooks&#43;jenkins搭建持续集成环境 本文是jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境的第一子章节。意在教您通过github webhooks&#43;jenkins搭建持续集成环境，如果您已经完成webhooks&#43;jenkins的配置，可以直接调整到第二子章节jenkins&#43;腾讯云容器仓库&#43;docker持续部署1. github配置Personal access tokens 没什么好说的，按图操作： 记下生成的token，待会儿要用的。
+2. github配置webhooks 去到你的github项目仓库，按图操作： 这里的Payload URL = 你的jenkins地址&#43;/github-webhook/
+至此，github上的配置全部完成。接下来，我们配置jenkins。
+ 3. jenkins配置凭据 这里的Secret就是在第1节配置的Personal access tokens
+ 添加一个github登陆凭据，username和password对应github的登陆账号密码。 添加一个宿主机登陆凭据，username和password对应登陆的账号密码（因为小编的jenkins是容器的方式运行的，因此后面需要这个凭据ssh到宿主机上执行命令）。  4. 配置ssh sites 接下来配置一个ssh sites，用于后面需要ssh到宿主机。 5. 配置jenkins运行环境 这里的环境取决与你的项目需要的环境。 如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。
+6. 新建一个maven项目 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。 请按图操作： 请按图操作： 请按图操作： 这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！">
+
+<meta itemprop="wordCount" content="203">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="" />
+<meta property="og:description" content="jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境
+持续集成/持续部署的重要性不必多言，都什么年代了，没有哪个正紧项目还在人工构建/测试/部署。本文手把手教你搭建jenkins&#43;docker&#43;腾讯云容器仓库&#43;github的CI/CD环境。妥妥的干活，绝对是解放生产力的利器。架构图如下：
+step1: 程序猿git push代码到github step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像） step3: 推送镜像到容器仓库 step4: 应用服务器拉去镜像到本地运行
+为了不让文章篇幅过长，本系列tony徐老师将文章分成两个小章节：
+github webhooks&#43;jenkins搭建持续集成环境 本文是jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境的第一子章节。意在教您通过github webhooks&#43;jenkins搭建持续集成环境，如果您已经完成webhooks&#43;jenkins的配置，可以直接调整到第二子章节jenkins&#43;腾讯云容器仓库&#43;docker持续部署1. github配置Personal access tokens 没什么好说的，按图操作： 记下生成的token，待会儿要用的。
+2. github配置webhooks 去到你的github项目仓库，按图操作： 这里的Payload URL = 你的jenkins地址&#43;/github-webhook/
+至此，github上的配置全部完成。接下来，我们配置jenkins。
+ 3. jenkins配置凭据 这里的Secret就是在第1节配置的Personal access tokens
+ 添加一个github登陆凭据，username和password对应github的登陆账号密码。 添加一个宿主机登陆凭据，username和password对应登陆的账号密码（因为小编的jenkins是容器的方式运行的，因此后面需要这个凭据ssh到宿主机上执行命令）。  4. 配置ssh sites 接下来配置一个ssh sites，用于后面需要ssh到宿主机。 5. 配置jenkins运行环境 这里的环境取决与你的项目需要的环境。 如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。
+6. 新建一个maven项目 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。 请按图操作： 请按图操作： 请按图操作： 这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://razonyang.com/zh-cn/posts/cicd/jenkins&#43;docker&#43;%E8%85%BE%E8%AE%AF%E4%BA%91%E5%AE%B9%E5%99%A8%E4%BB%93%E5%BA%93&#43;github%E6%90%AD%E5%BB%BAci_cd%E7%8E%AF%E5%A2%83/" /><meta property="article:section" content="posts" />
+
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content=""/>
+<meta name="twitter:description" content="jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境
+持续集成/持续部署的重要性不必多言，都什么年代了，没有哪个正紧项目还在人工构建/测试/部署。本文手把手教你搭建jenkins&#43;docker&#43;腾讯云容器仓库&#43;github的CI/CD环境。妥妥的干活，绝对是解放生产力的利器。架构图如下：
+step1: 程序猿git push代码到github step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像） step3: 推送镜像到容器仓库 step4: 应用服务器拉去镜像到本地运行
+为了不让文章篇幅过长，本系列tony徐老师将文章分成两个小章节：
+github webhooks&#43;jenkins搭建持续集成环境 本文是jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境的第一子章节。意在教您通过github webhooks&#43;jenkins搭建持续集成环境，如果您已经完成webhooks&#43;jenkins的配置，可以直接调整到第二子章节jenkins&#43;腾讯云容器仓库&#43;docker持续部署1. github配置Personal access tokens 没什么好说的，按图操作： 记下生成的token，待会儿要用的。
+2. github配置webhooks 去到你的github项目仓库，按图操作： 这里的Payload URL = 你的jenkins地址&#43;/github-webhook/
+至此，github上的配置全部完成。接下来，我们配置jenkins。
+ 3. jenkins配置凭据 这里的Secret就是在第1节配置的Personal access tokens
+ 添加一个github登陆凭据，username和password对应github的登陆账号密码。 添加一个宿主机登陆凭据，username和password对应登陆的账号密码（因为小编的jenkins是容器的方式运行的，因此后面需要这个凭据ssh到宿主机上执行命令）。  4. 配置ssh sites 接下来配置一个ssh sites，用于后面需要ssh到宿主机。 5. 配置jenkins运行环境 这里的环境取决与你的项目需要的环境。 如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。
+6. 新建一个maven项目 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。 请按图操作： 请按图操作： 请按图操作： 这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！"/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://razonyang.com/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://razonyang.com/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-97403777-3', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="https://razonyang.com/zh-cn/">
+      <img class="logo" alt="Logo" src="https://razonyang.com/images/logo.webp" loading="lazy">RAZON YANG</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://razonyang.com/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
+  </div>
+</form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-categories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-categories"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/programing">
+                <i class="fas fa-fw fa-code"></i>Programing
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/linux">
+                <i class="fab fa-fw fa-linux"></i>Linux
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/server">
+                <i class="fas fa-fw fa-server"></i>Server
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-tags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/php">
+                <i class="fab fa-fw fa-php"></i>PHP
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/html">
+                <i class="fab fa-fw fa-html5"></i>HTML
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fab fa-fw fa-js"></i>JavaScript
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/css">
+                <i class="fab fa-fw fa-css3"></i>CSS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+  <a class="nav-link" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fas fa-fw fa-language"></i> 简体中文
+  </a>
+  <ul class="dropdown-menu" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://razonyang.com/zh-tw/">繁體中文</a></li><li><a class="dropdown-item" href="https://razonyang.com/en/">English</a></li></ul>
+</li><li class="nav-item">
+  <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button"
+    aria-controls="offcanvasSettings">
+    <i class="fas fa-fw fa-sliders-h"></i> 设置
+  </a>
+</li>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings"
+  aria-labelledby="offcanvasSettingsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" w id="offcanvasSettingsLabel"><i class="fas fa-fw fa-sliders-h"></i> 设置</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <span id="btnPalette" class="btn btn-sm"><i class="fas fa-eye-dropper"></i></span>
+    </div>
+  </form>
+  <div class="container mt-2 visually-hidden" id="palettePicker">
+    <div class="btn-group"><button type="button" id="palette-blue" title="蓝色" 
+          class="btn btn-sm palette bg-blue d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-blue-gray" title="蓝灰色" 
+          class="btn btn-sm palette bg-blue-gray d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-brown" title="棕色" 
+          class="btn btn-sm palette bg-brown d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-cyan" title="青色" 
+          class="btn btn-sm palette bg-cyan d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-green" title="绿色" 
+          class="btn btn-sm palette bg-green d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-indigo" title="靛青色" 
+          class="btn btn-sm palette bg-indigo d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-orange" title="橙色" 
+          class="btn btn-sm palette bg-orange d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-pink" title="粉色" 
+          class="btn btn-sm palette bg-pink d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-purple" title="紫色" 
+          class="btn btn-sm palette bg-purple d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-red" title="红色" 
+          class="btn btn-sm palette bg-red d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-teal" title="蓝绿色" 
+          class="btn btn-sm palette bg-teal d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-yellow" title="黄色" 
+          class="btn btn-sm palette bg-yellow d-flex align-items-center justify-content-center">
+        </button></button>
+    </div>
+  </div>
+</section></div>
+</div></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row" aria-label="breadcrumb">
+  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active"></li></ol>
+</nav><article class="post row surface"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-alt fa-rotate-45"></i>
+</a>
+  
+    
+
+    
+    
+    
+  </div>
+</div>
+<h1 class="post-title my-3">
+</h1><div class="post-meta mb-3">
+  <span class="post-date me-2">
+    <i class="fas fa-fw fa-calendar-alt"></i>0001-01-01
+  </span>
+  <span class="post-reading-time me-2">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境</p>
+<p>持续集成/持续部署的重要性不必多言，都什么年代了，没有哪个正紧项目还在人工构建/测试/部署。本文手把手教你搭建jenkins+docker+腾讯云容器仓库+github的CI/CD环境。妥妥的干活，绝对是解放生产力的利器。架构图如下：</p>
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/20200510052839100.png" target="_blank"><img class="img-fluid" src="https://picgo.6and.ltd/img/20200510052839100.png" alt="jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境"  loading="lazy" />
+</a>
+</p>
+<p>step1: 程序猿git push代码到github
+step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像）
+step3: 推送镜像到容器仓库
+step4: 应用服务器拉去镜像到本地运行</p>
+<p>为了不让文章篇幅过长，本系列tony徐老师将文章分成两个小章节：</p>
+<h1 id="github-webhooksjenkins搭建持续集成环境httpsxuzhijunltdp670"><a href="https://xuzhijun.ltd/?p=670" target="_blank">github webhooks+jenkins搭建持续集成环境</a>
+</h1>
+<p>本文是<a href="https://xuzhijun.ltd/archives/626" target="_blank">jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境</a>
+的第一子章节。意在教您通过github webhooks+jenkins搭建持续集成环境，如果您已经完成webhooks+jenkins的配置，可以直接调整到第二子章节<a href="https://xuzhijun.ltd/archives/677" target="_blank">jenkins+腾讯云容器仓库+docker持续部署</a>
+</p>
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008240188.png" target="_blank"><img class="img-fluid" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008240188.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<h2 id="1-github配置personal-access-tokens">1. github配置Personal access tokens</h2>
+<p>没什么好说的，按图操作：
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008301081.png" target="_blank"><img class="img-fluid" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008301081.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008320846.png" target="_blank"><img class="img-fluid" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008320846.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<p>记下生成的token，待会儿要用的。</p>
+<h2 id="2-github配置webhooks">2. github配置webhooks</h2>
+<p>去到你的github项目仓库，按图操作：
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008353493.png" target="_blank"><img class="img-fluid" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008353493.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008384728.png" target="_blank"><img class="img-fluid" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008384728.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<p>这里的Payload URL = 你的jenkins地址+/github-webhook/</p>
+<p>至此，github上的配置全部完成。接下来，我们配置jenkins。</p>
+<hr>
+<h2 id="3-jenkins配置凭据">3. jenkins配置凭据</h2>
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008473068.png" target="_blank"><img class="img-fluid" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008473068.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008483017.png" target="_blank"><img class="img-fluid" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008483017.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<p>这里的Secret就是在第1节配置的Personal access tokens</p>
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008512188.png" target="_blank"><img class="img-fluid" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008512188.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<ol>
+<li>添加一个github登陆凭据，username和password对应github的登陆账号密码。</li>
+<li>添加一个宿主机登陆凭据，username和password对应登陆的账号密码（因为小编的jenkins是容器的方式运行的，因此后面需要这个凭据ssh到宿主机上执行命令）。</li>
+</ol>
+<h2 id="4-配置ssh-sites">4. 配置ssh sites</h2>
+<p>接下来配置一个ssh sites，用于后面需要ssh到宿主机。
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009070887.png" target="_blank"><img class="img-fluid" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009070887.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<h2 id="5-配置jenkins运行环境">5. 配置jenkins运行环境</h2>
+<p>这里的环境取决与你的项目需要的环境。
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009254533.png" target="_blank"><img class="img-fluid" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009254533.png" alt="img"  loading="lazy" />
+</a>
+
+如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。</p>
+<h2 id="6-新建一个maven项目">6. 新建一个maven项目</h2>
+<p>本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/202005100909402.png" target="_blank"><img class="img-fluid" src="https://picgo.6and.ltd/img/202005100909402.png" alt="img"  loading="lazy" />
+</a>
+
+请按图操作：
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009372456.png" target="_blank"><img class="img-fluid" src="https://picgo.6and.ltd/img/2020051009372456.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<p>请按图操作：
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009154947.png" target="_blank"><img class="img-fluid" src="https://picgo.6and.ltd/img/2020051009154947.png" alt="img"  loading="lazy" />
+</a>
+
+请按图操作：
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009181624.png" target="_blank"><img class="img-fluid" src="https://picgo.6and.ltd/img/2020051009181624.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<p>这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！</p>
+<h2 id="7-新建一个vue项目">7. 新建一个vue项目</h2>
+<p>你的前端可能是通过vue实现前后端分离的，那么你肯定也存在对vue编译构建的需求。</p>
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009305674.png" target="_blank"><img class="img-fluid" src="https://picgo.6and.ltd/img/2020051009305674.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<p>这里大部分配置和第5小节是一样的，不再赘述，需要注意的是：</p>
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009404851.png" target="_blank"><img class="img-fluid" src="https://picgo.6and.ltd/img/2020051009404851.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<p>上图中command的含义是: 1. 构建项目 2. 运行项目 3. 制作镜像 4，推送镜像到仓库。同第5节的maven项目一样，需要哪些步骤取决于你的需求。</p>
+<p>通过本文，您已经掌握了当开发人员提交代码到github之后，jenkins自动构建项目/运行项目的持续集成方法。</p>
+<p>本系列文章的<a href="https://xuzhijun.ltd/archives/677" target="_blank">jenkins+腾讯云容器仓库+docker持续部署</a>
+将教你将构建好的项目制作成docker镜像，并由真正的应用服务器去运行项目，真正实现CI/CD，解放生产力。</p>
+<h1 id="jenkins腾讯云容器仓库docker持续部署httpsxuzhijunltdp677"><a href="https://xuzhijun.ltd/?p=677" target="_blank">jenkins+腾讯云容器仓库+docker持续部署</a>
+</h1>
+<p>本文是<a href="https://xuzhijun.ltd/archives/626" target="_blank">jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境</a>
+的第二子章节。意在教您通过jenkins+腾讯云容器仓库+docker搭建持续部署环境，如果您还没有完成webhooks+jenkins的配置，请完成第一章节的学习<a href="https://xuzhijun.ltd/archives/670" target="_blank">github webhooks+jenkins搭建持续集成环境</a>
+</p>
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008231993.png" target="_blank"><img class="img-fluid" src="https://picgo.6and.ltd/img/2020051008231993.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<h2 id="1-准备">1. 准备</h2>
+<p>在上一个章节的基础上，您首先要：</p>
+<ol>
+<li>jenkins添加您应用服务器的登陆凭证（参照<a href="https://xuzhijun.ltd/archives/670" target="_blank">github webhooks+jenkins搭建持续集成环境</a>
+第3小节）</li>
+<li>jenkins添加您应用服务器的ssh sites（参照<a href="https://xuzhijun.ltd/archives/670" target="_blank">github webhooks+jenkins搭建持续集成环境</a>
+第4小节）</li>
+<li>开通腾讯云容器服务（免费开通<a href="https://cloud.tencent.com/document/product/457/9117" target="_blank">镜像仓库基本教程</a>
+）</li>
+<li>本章的项目源码来自<a href="https://gitee.com/guchengwuyue/yshopmall" target="_blank">yshop意象商城系统</a>
+</li>
+</ol>
+<h2 id="2-项目增加docker配置">2. 项目增加docker配置</h2>
+<h3 id="21-h5项目新增docker配置">2.1 h5项目新增docker配置</h3>
+<p>新增如下3个配置：构建镜像脚本build-image.sh、镜像定义Dockerfile-h5、推送到容器仓库脚本push.sh
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051010202528.png" target="_blank"><img class="img-fluid" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051010202528.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<p>[v_notice]文章末尾获取配置文件！[/v_notice]</p>
+<h3 id="22-后台管理前端项目新增docker配置">2.2 后台管理前端项目新增docker配置</h3>
+<p>新增如下3个配置：
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051010334163.png" target="_blank"><img class="img-fluid" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051010334163.png" alt="img"  loading="lazy" />
+</a>
+
+[v_notice]文章末尾获取配置文件！[/v_notice]</p>
+<h3 id="23-后台项目新增docker配置">2.3 后台项目新增docker配置</h3>
+<p>新增如下10个配置：
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051010521993.png" target="_blank"><img class="img-fluid" src="https://picgo.6and.ltd/img/2020051010521993.png" alt="img"  loading="lazy" />
+</a>
+
+[v_notice]文章末尾获取配置文件！[/v_notice]</p>
+<h2 id="3-修改项目配置文件">3. 修改项目配置文件</h2>
+<p>修改mysql的地址为“db”,redis的地址为“redis”,mysql链接新增 allowPublicKeyRetrieval=true&amp;useSSL=false参数
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011013955.png" target="_blank"><img class="img-fluid" src="https://picgo.6and.ltd/img/2020051011013955.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011035934.png" target="_blank"><img class="img-fluid" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011035934.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<h2 id="4-jenkins配置">4. jenkins配置</h2>
+<p>如果您已经完成了<a href="https://xuzhijun.ltd/archives/670" target="_blank">github webhooks+jenkins搭建持续集成环境</a>
+中的配置，那您只需要新增一小部分配置即可。</p>
+<h3 id="41-新增h5项目的execute-shell-script-on-remote-host-using-ssh">4.1 新增h5项目的Execute shell script on remote host using ssh</h3>
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/202005101117138.png" target="_blank"><img class="img-fluid" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/202005101117138.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<ol>
+<li>jenkins宿主机构建镜像并push到容器仓库</li>
+<li>ssh到应用服务器下载镜像并启动项目</li>
+</ol>
+<h3 id="42-新增前端项目的execute-shell-script-on-remote-host-using-ssh">4.2 新增前端项目的Execute shell script on remote host using ssh</h3>
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011214721.png" target="_blank"><img class="img-fluid" src="https://picgo.6and.ltd/img/2020051011214721.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<ol>
+<li>jenkins宿主机构建镜像并push到容器仓库</li>
+<li>ssh到应用服务器下载镜像并启动项目</li>
+</ol>
+<h3 id="43-新增后台项目的execute-shell-script-on-remote-host-using-ssh">4.3 新增后台项目的Execute shell script on remote host using ssh</h3>
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011255759.png" target="_blank"><img class="img-fluid" src="https://picgo.6and.ltd/img/2020051011255759.png" alt="img"  loading="lazy" />
+</a>
+</p>
+<ol>
+<li>jenkins宿主机构建镜像并push到容器仓库</li>
+<li>ssh到应用服务器下载镜像并启动项目</li>
+</ol>
+<h2 id="5-启动">5. 启动</h2>
+<h3 id="51-修改docker-compose-envyml中mysql的密码">5.1 修改docker-compose-env.yml中mysql的密码</h3>
+<h3 id="52-启动项目">5.2 启动项目</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e">#启动运行环境</span>
+docker-compose -f docker-compose-env.yml up &amp;
+
+<span style="color:#75715e">#建数据库</span>
+cp ~/repository/yshop/sql/yshop2.0.sql /data/mysql/log
+docker exec -it mysql bash
+cd /var/log/mysql
+mysql -uroot -proot
+create database yshop;
+use yshop;
+source yshop2.0.sql
+exit;
+
+<span style="color:#75715e">#启动 system/api/h5/admin</span>
+docker-compose -f docker-compose-app.yml up &amp;
+</code></pre></div><h3 id="53-nginx配置">5.3 nginx配置</h3>
+<p>将app.conf文件放到/data/nginx/vhost目录</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">docker-compose restart -f docker-compose-env.yml nginx
+</code></pre></div><blockquote>
+<p>注意⚠️：</p>
+<p>需要替换server_name成你自己域名
+项目源码中的api默认是https的，如果你没有ssl证书，或者嫌麻烦，请自行改成http。</p>
+</blockquote>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/img_5eb7f8bbad443-20210604143620981.png" alt="img"  loading="lazy" />
+
+<img class="img-fluid" src="https://picgo.6and.ltd/img/img_5eb7f8db1dd68-20210604143629235.png" alt="img"  loading="lazy" />
+</p>
+<p>至此，您已经完成全部配置，提交代码即可自动完成构建/部署/运行，当然你也可以在jenkins上手动点击构建。</p>
+<h2 id="6-配置文件">6. 配置文件</h2>
+<p>配置文件下载：</p>
+<p><a href="https://pan.baidu.com/s/1KQT3vRgYXby3FHPViejzhQ" target="_blank">https://pan.baidu.com/s/1KQT3vRgYXby3FHPViejzhQ</a>
+</p>
+<p>提取码：hrqs</p>
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011572178.png" target="_blank"><img class="img-fluid" src="https://picgo.6and.ltd/img/2020051011572178.png" alt="img"  loading="lazy" />
+</a>
+</p>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-between">
+  <div class="post-nav w-50"><div class="prev-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/cicd/jenkins%E4%BD%BF%E7%94%A8%E4%BD%BF%E7%94%A8%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">
+</a>
+    </div></div>
+  <div class="post-nav flex-row-reverse"><div class="next-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/cicd/docker-compose%E7%9A%84%E6%96%B9%E5%BC%8F%E5%90%AF%E5%8A%A8jenkins/">
+</a>
+    </div></div>
+</div></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label=""
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container"><section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<section class="profile surface row">
+  <div class="col-xl-6 d-flex align-items-center justify-content-center">
+    <img class="profile-avatar img-fluid" src="https://razonyang.com/images/profile.webp" alt="Razon Yang" loading="lazy">
+  </div>
+  <div class="col-xl-6">
+    <h5 class="profile-name my-2">Razon Yang</h5><div class="profile-bio mb-2">Gopher, PHPer, Full Stack Engineer.</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>Null</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>China</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://razonyang.com/zh-cn/about/">关于</a></div></div>
+</section><section class="recent-posts row surface">
+  <h4>最近文章</h4>
+  <ul><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1-k8s%E5%8A%9F%E8%83%BD/k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/">300. 最长递增子序列
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/">400 Bad Request
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/">5种IO模型
+</a></li></ul>
+</section><section class="taxonomy-categories row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/categories">分类</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
+          编程思想 <span class="badge rounded-pill">91</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
+          其他 <span class="badge rounded-pill">21</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机基础">
+          计算机基础 <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构设计">
+          架构设计 <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">2</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
+          区块链 <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-series row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/series">专栏</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
+          Manual <span class="badge rounded-pill">140</span>
+        </a><a href="https://razonyang.com/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-tags row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/tags">标签</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
+          Java <span class="badge rounded-pill">27</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
+          Other <span class="badge rounded-pill">24</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
+          CS <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
+          spring <span class="badge rounded-pill">11</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
+          redis <span class="badge rounded-pill">9</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
+          MySQL <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="剑指offer">
+          剑指offer <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/zk/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ZK">
+          ZK <span class="badge rounded-pill">6</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/nginx/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="nginx">
+          nginx <span class="badge rounded-pill">4</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a></div>
+    </section><section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
+    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a>
+  </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a>
+    </li></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2021 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://razonyang.com/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<a id="btnScrollToTop" class="btn-scroll-to-top">
+  <i class="fas fa-fw fa-chevron-circle-up fa-2x"></i>
+</a>
+<script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script></body>
+</html>

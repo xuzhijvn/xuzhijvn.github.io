@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Java如何绑定线程到指定CPU上执行 - Razon Yang</title><link rel="apple-touch-icon" href="https://razonyang.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://razonyang.com/images/favicons/manifest.json">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="Java如何绑定线程到指定CPU上执行">
+<meta itemprop="description" content="不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。
+而且它还是一个面试题。
+我懵逼倒不是因为我不知道答案，而是恰好我之前在非常机缘巧合的情况下知道了答案。
+我感觉非常的冷门，作为一个考察候选者的知识点出现在面试环节中不太合适，除非是候选者主动提起做过这样的优化。
+而且怕就怕面试官也是恰巧在某个书上或者博客中知道这个东西，稍微的看了一下，以为自己学到了绝世武功，然后拿出去考别人。
+这样不合适。
+说回这个题目。
+正常来说，其实应该是属于考察操作系统的知识点范畴。
+但是面试官呢又特定的加了“在 Java 中如何实现”。
+那我们就聊聊这个问题。
+Java线程 在聊如何绑定之前，先铺垫一个相关的背景知识：Java线程的实现。
+其实我们都知道 Thread 类的大部分方法都是 native 方法：
+在 Java 中一个方法被声明为 native 方法，绝大部分情况下说明这个方法没有或者不能使用平台无关的手段来实现。
+说明需要操作的是很底层的东西了，已经脱离了 Java 语言层面的范畴。
+抛开 Java 语言这个大前提，实现线程主要是有三种方式：
+ 1.使用内核线程实现（1:1实现） 2.使用用户线程实现（1:N实现） 3.使用用户线程加轻量级进程混合实现（N:M实现）
+ 这三种实现方案，在《深入理解Java虚拟机》的 12.4 小节有详细的描述，有兴趣的同学可以去仔细的翻阅一下。
+总之，你要知道的是虽然有这三种不同的线程模型，但是 Java 作为上层应用，其实是感知不到这三种模型之间的区别的。
+JVM 规范里面也没有规定，必须使用哪一种模型。
+因为操作系统支持是怎样的线程模型，很大程度上决定了运行在上面的 Java 虚拟机的线程怎样去映射，但是这一点在不同的平台上很难达成一致。
+所以JVM 规范里面没有、也不好去规定 Java 线程需要使用哪种线程模型来实现。
+同时关于本文要讨论的话题，我在知乎上也找到了类似的问题：
+ https://www.zhihu.com/question/64072646/answer/216184631 这里面有一个R大的回答，大家可以看看一下。
+他也是先从线程模型的角度铺垫了一下。
+我这里主要说一下使用内核线程实现（1:1实现）的这个模型。
+因为我们用的最多的 HotSpot 虚拟机，就是采用 1:1 模型来实现 Java 线程的。
+这是个啥意思呢？
+说人话就是一个 Java 线程是直接映射为一个操作系统原生线程的，中间没有额外的间接结构。HotSpot 虚拟机也不干涉线程的调度，这事全权交给底下的操作系统去做。
+顶多就是设置一个线程优先级，操作系统来调度的时候给个建议。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="322"><meta itemprop="image" content="https://razonyang.com/images/center.png">
+<meta itemprop="keywords" content="Java," /><meta property="og:title" content="Java如何绑定线程到指定CPU上执行" />
+<meta property="og:description" content="不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。
+而且它还是一个面试题。
+我懵逼倒不是因为我不知道答案，而是恰好我之前在非常机缘巧合的情况下知道了答案。
+我感觉非常的冷门，作为一个考察候选者的知识点出现在面试环节中不太合适，除非是候选者主动提起做过这样的优化。
+而且怕就怕面试官也是恰巧在某个书上或者博客中知道这个东西，稍微的看了一下，以为自己学到了绝世武功，然后拿出去考别人。
+这样不合适。
+说回这个题目。
+正常来说，其实应该是属于考察操作系统的知识点范畴。
+但是面试官呢又特定的加了“在 Java 中如何实现”。
+那我们就聊聊这个问题。
+Java线程 在聊如何绑定之前，先铺垫一个相关的背景知识：Java线程的实现。
+其实我们都知道 Thread 类的大部分方法都是 native 方法：
+在 Java 中一个方法被声明为 native 方法，绝大部分情况下说明这个方法没有或者不能使用平台无关的手段来实现。
+说明需要操作的是很底层的东西了，已经脱离了 Java 语言层面的范畴。
+抛开 Java 语言这个大前提，实现线程主要是有三种方式：
+ 1.使用内核线程实现（1:1实现） 2.使用用户线程实现（1:N实现） 3.使用用户线程加轻量级进程混合实现（N:M实现）
+ 这三种实现方案，在《深入理解Java虚拟机》的 12.4 小节有详细的描述，有兴趣的同学可以去仔细的翻阅一下。
+总之，你要知道的是虽然有这三种不同的线程模型，但是 Java 作为上层应用，其实是感知不到这三种模型之间的区别的。
+JVM 规范里面也没有规定，必须使用哪一种模型。
+因为操作系统支持是怎样的线程模型，很大程度上决定了运行在上面的 Java 虚拟机的线程怎样去映射，但是这一点在不同的平台上很难达成一致。
+所以JVM 规范里面没有、也不好去规定 Java 线程需要使用哪种线程模型来实现。
+同时关于本文要讨论的话题，我在知乎上也找到了类似的问题：
+ https://www.zhihu.com/question/64072646/answer/216184631 这里面有一个R大的回答，大家可以看看一下。
+他也是先从线程模型的角度铺垫了一下。
+我这里主要说一下使用内核线程实现（1:1实现）的这个模型。
+因为我们用的最多的 HotSpot 虚拟机，就是采用 1:1 模型来实现 Java 线程的。
+这是个啥意思呢？
+说人话就是一个 Java 线程是直接映射为一个操作系统原生线程的，中间没有额外的间接结构。HotSpot 虚拟机也不干涉线程的调度，这事全权交给底下的操作系统去做。
+顶多就是设置一个线程优先级，操作系统来调度的时候给个建议。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/java%E5%A6%82%E4%BD%95%E7%BB%91%E5%AE%9A%E7%BA%BF%E7%A8%8B%E5%88%B0%E6%8C%87%E5%AE%9Acpu%E4%B8%8A%E6%89%A7%E8%A1%8C/" /><meta property="og:image" content="https://razonyang.com/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/aqs/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/async/" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://razonyang.com/images/center.png"/>
+
+<meta name="twitter:title" content="Java如何绑定线程到指定CPU上执行"/>
+<meta name="twitter:description" content="不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。
+而且它还是一个面试题。
+我懵逼倒不是因为我不知道答案，而是恰好我之前在非常机缘巧合的情况下知道了答案。
+我感觉非常的冷门，作为一个考察候选者的知识点出现在面试环节中不太合适，除非是候选者主动提起做过这样的优化。
+而且怕就怕面试官也是恰巧在某个书上或者博客中知道这个东西，稍微的看了一下，以为自己学到了绝世武功，然后拿出去考别人。
+这样不合适。
+说回这个题目。
+正常来说，其实应该是属于考察操作系统的知识点范畴。
+但是面试官呢又特定的加了“在 Java 中如何实现”。
+那我们就聊聊这个问题。
+Java线程 在聊如何绑定之前，先铺垫一个相关的背景知识：Java线程的实现。
+其实我们都知道 Thread 类的大部分方法都是 native 方法：
+在 Java 中一个方法被声明为 native 方法，绝大部分情况下说明这个方法没有或者不能使用平台无关的手段来实现。
+说明需要操作的是很底层的东西了，已经脱离了 Java 语言层面的范畴。
+抛开 Java 语言这个大前提，实现线程主要是有三种方式：
+ 1.使用内核线程实现（1:1实现） 2.使用用户线程实现（1:N实现） 3.使用用户线程加轻量级进程混合实现（N:M实现）
+ 这三种实现方案，在《深入理解Java虚拟机》的 12.4 小节有详细的描述，有兴趣的同学可以去仔细的翻阅一下。
+总之，你要知道的是虽然有这三种不同的线程模型，但是 Java 作为上层应用，其实是感知不到这三种模型之间的区别的。
+JVM 规范里面也没有规定，必须使用哪一种模型。
+因为操作系统支持是怎样的线程模型，很大程度上决定了运行在上面的 Java 虚拟机的线程怎样去映射，但是这一点在不同的平台上很难达成一致。
+所以JVM 规范里面没有、也不好去规定 Java 线程需要使用哪种线程模型来实现。
+同时关于本文要讨论的话题，我在知乎上也找到了类似的问题：
+ https://www.zhihu.com/question/64072646/answer/216184631 这里面有一个R大的回答，大家可以看看一下。
+他也是先从线程模型的角度铺垫了一下。
+我这里主要说一下使用内核线程实现（1:1实现）的这个模型。
+因为我们用的最多的 HotSpot 虚拟机，就是采用 1:1 模型来实现 Java 线程的。
+这是个啥意思呢？
+说人话就是一个 Java 线程是直接映射为一个操作系统原生线程的，中间没有额外的间接结构。HotSpot 虚拟机也不干涉线程的调度，这事全权交给底下的操作系统去做。
+顶多就是设置一个线程优先级，操作系统来调度的时候给个建议。"/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://razonyang.com/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://razonyang.com/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-97403777-3', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="https://razonyang.com/zh-cn/">
+      <img class="logo" alt="Logo" src="https://razonyang.com/images/logo.webp" loading="lazy">RAZON YANG</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://razonyang.com/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
+  </div>
+</form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-categories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-categories"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/programing">
+                <i class="fas fa-fw fa-code"></i>Programing
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/linux">
+                <i class="fab fa-fw fa-linux"></i>Linux
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/server">
+                <i class="fas fa-fw fa-server"></i>Server
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-tags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/php">
+                <i class="fab fa-fw fa-php"></i>PHP
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/html">
+                <i class="fab fa-fw fa-html5"></i>HTML
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fab fa-fw fa-js"></i>JavaScript
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/css">
+                <i class="fab fa-fw fa-css3"></i>CSS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+  <a class="nav-link" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fas fa-fw fa-language"></i> 简体中文
+  </a>
+  <ul class="dropdown-menu" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://razonyang.com/zh-tw/">繁體中文</a></li><li><a class="dropdown-item" href="https://razonyang.com/en/">English</a></li></ul>
+</li><li class="nav-item">
+  <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button"
+    aria-controls="offcanvasSettings">
+    <i class="fas fa-fw fa-sliders-h"></i> 设置
+  </a>
+</li>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings"
+  aria-labelledby="offcanvasSettingsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" w id="offcanvasSettingsLabel"><i class="fas fa-fw fa-sliders-h"></i> 设置</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <span id="btnPalette" class="btn btn-sm"><i class="fas fa-eye-dropper"></i></span>
+    </div>
+  </form>
+  <div class="container mt-2 visually-hidden" id="palettePicker">
+    <div class="btn-group"><button type="button" id="palette-blue" title="蓝色" 
+          class="btn btn-sm palette bg-blue d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-blue-gray" title="蓝灰色" 
+          class="btn btn-sm palette bg-blue-gray d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-brown" title="棕色" 
+          class="btn btn-sm palette bg-brown d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-cyan" title="青色" 
+          class="btn btn-sm palette bg-cyan d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-green" title="绿色" 
+          class="btn btn-sm palette bg-green d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-indigo" title="靛青色" 
+          class="btn btn-sm palette bg-indigo d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-orange" title="橙色" 
+          class="btn btn-sm palette bg-orange d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-pink" title="粉色" 
+          class="btn btn-sm palette bg-pink d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-purple" title="紫色" 
+          class="btn btn-sm palette bg-purple d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-red" title="红色" 
+          class="btn btn-sm palette bg-red d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-teal" title="蓝绿色" 
+          class="btn btn-sm palette bg-teal d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-yellow" title="黄色" 
+          class="btn btn-sm palette bg-yellow d-flex align-items-center justify-content-center">
+        </button></button>
+    </div>
+  </div>
+</section></div>
+</div></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row" aria-label="breadcrumb">
+  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">Java如何绑定线程到指定CPU上执行</li></ol>
+</nav><article class="post row surface"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-alt fa-rotate-45"></i>
+</a>
+  
+    
+
+    
+    
+    
+  </div>
+</div>
+<h1 class="post-title my-3">Java如何绑定线程到指定CPU上执行
+</h1><div class="post-meta mb-3">
+  <span class="post-date me-2">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
+  </span>
+  <span class="post-reading-time me-2">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span><a href="https://razonyang.com/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy">#编程思想</a><a href="https://razonyang.com/zh-cn/series/manual/" class="post-taxonomy">#Manual</a><a href="https://razonyang.com/zh-cn/tags/java/" class="post-taxonomy">#Java</a></div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。</p>
+<p>而且它还是一个面试题。</p>
+<p>我懵逼倒不是因为我不知道答案，而是恰好我之前在非常机缘巧合的情况下知道了答案。</p>
+<p>我感觉非常的冷门，作为一个考察候选者的知识点出现在面试环节中不太合适，除非是候选者主动提起做过这样的优化。</p>
+<p>而且怕就怕面试官也是恰巧在某个书上或者博客中知道这个东西，稍微的看了一下，以为自己学到了绝世武功，然后拿出去考别人。</p>
+<p>这样不合适。</p>
+<p>说回这个题目。</p>
+<p>正常来说，其实应该是属于考察操作系统的知识点范畴。</p>
+<p>但是面试官呢又特定的加了“在 Java 中如何实现”。</p>
+<p>那我们就聊聊这个问题。</p>
+<h1 id="java线程">Java线程</h1>
+<p>在聊如何绑定之前，先铺垫一个相关的背景知识：Java线程的实现。</p>
+<p>其实我们都知道 Thread 类的大部分方法都是 native 方法：</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/1c4cc84e3f66490e9f6f9642c6aced18" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>在 Java 中一个方法被声明为 native 方法，绝大部分情况下说明这个方法没有或者不能使用平台无关的手段来实现。</p>
+<p>说明需要操作的是很底层的东西了，已经脱离了 Java 语言层面的范畴。</p>
+<p>抛开 Java 语言这个大前提，实现线程主要是有三种方式：</p>
+<blockquote>
+<p>1.使用内核线程实现（1:1实现）
+2.使用用户线程实现（1:N实现）
+3.使用用户线程加轻量级进程混合实现（N:M实现）</p>
+</blockquote>
+<p>这三种实现方案，在《深入理解Java虚拟机》的 12.4 小节有详细的描述，有兴趣的同学可以去仔细的翻阅一下。</p>
+<p>总之，你要知道的是虽然有这三种不同的线程模型，但是 Java 作为上层应用，其实是感知不到这三种模型之间的区别的。</p>
+<p>JVM 规范里面也没有规定，必须使用哪一种模型。</p>
+<p>因为操作系统支持是怎样的线程模型，很大程度上决定了运行在上面的 Java 虚拟机的线程怎样去映射，但是这一点在不同的平台上很难达成一致。</p>
+<p>所以JVM 规范里面没有、也不好去规定 Java 线程需要使用哪种线程模型来实现。</p>
+<p>同时关于本文要讨论的话题，我在知乎上也找到了类似的问题：</p>
+<blockquote>
+<p><a href="https://www.zhihu.com/question/64072646/answer/216184631" target="_blank">https://www.zhihu.com/question/64072646/answer/216184631</a>
+</p>
+</blockquote>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/1f3a800354944d25b06cabd142c30331" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>这里面有一个R大的回答，大家可以看看一下。</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/21b76e01d2de418b838e885448b585d0" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>他也是先从线程模型的角度铺垫了一下。</p>
+<p>我这里主要说一下使用内核线程实现（1:1实现）的这个模型。</p>
+<p>因为我们用的最多的 HotSpot 虚拟机，就是采用 1:1 模型来实现 Java 线程的。</p>
+<p>这是个啥意思呢？</p>
+<p>说人话就是一个 Java 线程是直接映射为一个操作系统原生线程的，中间没有额外的间接结构。HotSpot 虚拟机也不干涉线程的调度，这事全权交给底下的操作系统去做。</p>
+<p>顶多就是设置一个线程优先级，操作系统来调度的时候给个建议。</p>
+<p>但是何时挂起、唤醒、分配时间片、让那个处理器核心去执行等等这些关于线程生命周期、执行的东西都是操作系统干的。</p>
+<p>这话不是我说的，是R大和周佬都说过这样的话。</p>
+<blockquote>
+<p><a href="https://www.zhihu.com/question/64072646/answer/216184631" target="_blank">https://www.zhihu.com/question/64072646/answer/216184631</a>
+</p>
+</blockquote>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/ee5640f1dea245c2b0f7ab8ef1241649" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>关于 1:1 的线程模型，大家记住书上的这幅图就行：</p>
+<blockquote>
+<p>LWP：Light Weight Process 轻量级进程</p>
+<p>KLT：Kernal-Level Thread 内核线程</p>
+<p>UT：User Thread 用户线程</p>
+</blockquote>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/7be3f0a574f14521acf2d54bb56879c7" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>内核线程就是直接由操作系统内核支持的线程，这种线程由内核来完成线程切换，内核通过操纵调度器对线程进行调度，并负责将线程的任务映射到各个处理器上。</p>
+<p>然后你看上面的图片，KLT 线程上面都有一个 LWP 与之对应。</p>
+<p>啥是 LWP 呢？</p>
+<p>程序一般来说不会直接使用内核线程，而是使用内核线程的一种高级接口，即轻量级进程（LWP），轻量级进程就是我们通常意义上说的线程。</p>
+<p>然后大家记住书上的下面这段话，可以说是 Java 多线程实现的基石理论之一：</p>
+<p>由于内核线程的支持，每个轻量级进程都成为一个独立的调度单元，即使其中某一个轻量级进程在系统调用中被阻塞了，也不会影响整个进程继续工作。</p>
+<p>但是，轻量级进程也具有它的局限性。</p>
+<p>首先，由于是基于内核线程实现的，所以各种线程操作，如创建、析构及同步，都需要进行系统调用。而系统调用的代价相对较高，需要在用户态（User Mode）和内核态（Kernel Mode）中来回切换。</p>
+<p>其次，每个轻量级进程都需要一个内核线程的支持，因此轻量级进程要消耗一定的内核资源（如内核线程的栈空间），因此一个系统支持轻量级进程的数量是有限的。</p>
+<p>好的，终于铺垫完成了。</p>
+<p>前面说了这么多，其实就是为了表达一个观点：</p>
+<blockquote>
+<p>不论从什么角度来说，绑定线程到某个 CPU 上去执行都像是操作系统层面干的事儿。Java 作为高级开发语言，肯定是直接干不了的。需要更加底层的开发语言，Java 通过 JNA 技术去调用。</p>
+</blockquote>
+<p>在R大的回答中也提到了解决方案：</p>
+<blockquote>
+<p>在Linux上的话，可以用taskset来把线程绑在某个指定的核上。</p>
+<p>在Java层面上，有大大写了个现成的库来利用taskset绑核：
+OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
+</blockquote>
+<h1 id="java-thread-affinity">Java-Thread-Affinity</h1>
+<p>这个开源项目其实就是面试题的答案。</p>
+<blockquote>
+<p><a href="https://github.com/OpenHFT/Java-Thread-Affinity" target="_blank">https://github.com/OpenHFT/Java-Thread-Affinity</a>
+</p>
+</blockquote>
+<p>项目里面有个问答，解答了如何使用它去做绑核的操作：</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/5dd8bfffd039430283aa88d687fbd21d" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>话不多说，直接上效果演示吧。</p>
+<p>先把依赖搞到项目里面去：</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;net.openhft&lt;/groupId&gt;
+    &lt;artifactId&gt;affinity&lt;/artifactId&gt;
+    &lt;version&gt;3.2.3&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><p>然后来个 main 方法：</p>
+<pre><code>public static void main(String[] args) {
+    try (AffinityLock affinityLock = AffinityLock.acquireLock(5)) {
+        // do some work while locked to a CPU.
+        while(true) {}
+    }
+}
+</code></pre><p>按照 git 上的描述，我在方法里面写了一个死循环，为的是更好的演示效果。</p>
+<p>上面的意思就是我要在第 5 个 CPU 线程执行死循环，把 CPU 利用率打到 100%。</p>
+<p>来看一下效果。</p>
+<p>这是没有程序启动之前：</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/cb4f49f2ae6a462f9c8f9540c765d88e" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>这是启动起来之后：</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/21a81210c0b8460abeebe69fe307374b" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>立竿见影，CUP 5 马上就被打满了。</p>
+<p>同时还有两行日志输出，我截出来给你看一下：</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/b51ff90c29a949068fb5248279b19527" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>另外，说明一下这个项目对应的 Maven 版本还是有好多个的：</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/2c6f6dd3ba224728ad92273885f6e080" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>在我的机器上，如果用高于 3.2.3 的版本就会出现这样的异常信息：</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/6256ec55de264bc2ac2794f3a93543d1" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>感觉是版本冲突了，反正没去深究，如果你也想跑一下，我就提醒一下而已。</p>
+<p>效果我们现在是看到了，可以说这个项目非常的溜，可以实现把线程绑定到指定核心上去。</p>
+<p>该功能也是有实际应用场景的，属于一直非常极致的性能优化手段吧。</p>
+<p>绑定核心之后就可以更好的利用缓存以及减少线程的上下文切换。</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/ca4c14e2b9914361a83e855b43f66f36" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>说到这就不得不提起我第一次知道“绑核”这个骚操作的场景了。</p>
+<p>那是举行于 2018 年的首届数据库性能大赛，或者更加出名一点的名字叫做天池大赛。</p>
+<p>那一届比赛，我去打了个酱油，成绩非常拉胯就不提了。</p>
+<p>但是我去仔细的看了前几名的赛后分享，大家的思路都是大同小异的。</p>
+<p>我又不得不小声的叨叨一句：那一届比赛打到最后已经变成了开发语言层面上、参数配置上的差距了。C++ 天然优势，所以可以看到排在前面的清一色的 C++ 选手。</p>
+<p>很多支队伍都提到了一个小细节，那就是绑核。</p>
+<p>而我第一次知道这个开源项目，就是通过这篇文章《PolarDB数据库性能大赛Java选手分享》</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/62ca31873e0f46bab1233b9ba49315ca" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>当时把他的参赛代码拉下来看了一下，对于绑核操作有了一个基础认识，但是其实也没有深究实现。</p>
+<p>只是这样写就对了，就能绑上就完事了。</p>
+<p>再后来，我看 disruptor 这个框架的时候，看到它有一个这样的等待策略：</p>
+<blockquote>
+<p>com.lmax.disruptor.BusySpinWaitStrategy</p>
+</blockquote>
+<p>这个策略上有这样的一个注释：</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/44dcbc78d94a41fea2d362cb4f712830" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<blockquote>
+<p>It is best used when threads can be bound to specific CPU cores.</p>
+</blockquote>
+<p>如果你要用这个策略，最好是线程可以被绑定到特定的 CPU 核心上。</p>
+<p>就这样，奇怪的知识又被唤醒了。</p>
+<p>我知道怎么绑定啊，Java-Thread-Affinity 这个开源项目就做了。</p>
+<p>于是问题就变成了：它是怎么做呢？</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/b7b71044b3734a038b6c428f1aff84b5" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<h1 id="怎么做的">怎么做的</h1>
+<p>具体怎么做的，只写几个关键的点，简单的分析一下，大家有兴趣的可以把源码拉下看。</p>
+<p>首先第一个点：JNA 对于 Java-Thread-Affinity 非常重要：</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/5566d1eefa5f4a9aaa9b8fccd4a9be70" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>可以说其实 Java-Thread-Affinity 就是套了个 Java 皮，这种应该让操作系统来做的事，其实编写更加底层的 C++ 或者 C 语言来实现的。</p>
+<p>所以这个项目实质上是基于 JNA 调用了 DLL 文件，从而实现绑核的需求。</p>
+<p>具体对应的代码是这样的：</p>
+<blockquote>
+<p>net.openhft.affinity.Affinity</p>
+</blockquote>
+<p>首先在这个类的静态代码块判断操作系统的类型：</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/13365b09d2454a7fa855355dbecc3608" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>我这里是 win 操作系统。</p>
+<blockquote>
+<p>net.openhft.affinity.IAffinity</p>
+</blockquote>
+<p>是一个接口，有各个平台的线程亲和性实现：</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/a39f9a3623a14a6ab3fe678c0729ce6f" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>比如，在实现类 WindowsJNAAffinity 里面，你可以看到在它的静态代码块里面调用了这样的逻辑：</p>
+<blockquote>
+<p>net.openhft.affinity.impl.WindowsJNAAffinity.CLibrary</p>
+</blockquote>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/2ef72d323f4d4e86a0e451c6c4d8c52d" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>这里就是通过前面说的，通过 JNA 调用 kernel32.dll 文件。</p>
+<p>在 windows 平台上能使用该功能的一些的基石就是在此。</p>
+<p>第二个点：怎么绑定到指定核心上？</p>
+<p>在其核心类里面有这样的一个方法：</p>
+<blockquote>
+<p>net.openhft.affinity.AffinityLock#acquireLock(int)</p>
+</blockquote>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/8b993e443e1e4a399cfb0428cd6cc9c3" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>这里的入参，就是第几个 CPU 的意思，记得 CPU 编号是从 0 开始。</p>
+<p>但 0 不建议使用：</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/671147237b17419985cee7c0b1d0b2e8" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>所以程序里面也控制了不能绑定到 0 号 CPU 上。</p>
+<p>最终会走到这个方法中：</p>
+<blockquote>
+<p>net.openhft.affinity.AffinityLock#bind(boolean)</p>
+</blockquote>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/9c976ed0f530470a92ef7d5a64eee47c" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>这里采用的是 BitSet，想绑定到第几个 CPU 就把第几个 CPU 的位置设置为 true。</p>
+<p>在 win 平台上会调用这个方法：</p>
+<blockquote>
+<p>net.openhft.affinity.impl.WindowsJNAAffinity.CLibrary#SetThreadAffinityMask</p>
+</blockquote>
+<p>这个方法，就是限制线程在哪个 CPU 上运行的 API。</p>
+<blockquote>
+<p><a href="https://docs.microsoft.com/zh-cn/windows/win32/api/winbase/nf-winbase-setthreadaffinitymask?redirectedfrom=MSDN" target="_blank">https://docs.microsoft.com/zh-cn/windows/win32/api/winbase/nf-winbase-setthreadaffinitymask?redirectedfrom=MSDN</a>
+</p>
+</blockquote>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/b37611f0db5b4020b0f426bacf2368aa" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>第三个点：Solaris 平台怎么实现的？</p>
+<p>因为我们知道，在 Solaris 平台上的 HotSpot 虚拟机，同时支持 1:1 和 N:M 的线程模型。</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/06cd55a8b08d46d1aba33d2eb865abe3" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>那么按理来说得提供两套绑定方案，于是我点进去一看，好家伙：</p>
+<p>大道至简，直接来一个不实现。</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/39ff3ff169c243e78f918442d73f7684" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>第四个点：有谁用了？</p>
+<p>Netty 里面用到了这个库：</p>
+<blockquote>
+<p><a href="https://ifeve.com/thread-affinity/" target="_blank">https://ifeve.com/thread-affinity/</a>
+</p>
+</blockquote>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/757c924f1e6d4554a42b70f39512ce06" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>SOFAJRaft 里面也依赖了这个包：</p>
+<blockquote>
+<p><a href="https://github.com/sofastack/sofa-jraft/blob/master/README_zh_CN.md" target="_blank">https://github.com/sofastack/sofa-jraft/blob/master/README_zh_CN.md</a>
+</p>
+</blockquote>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/0f8cb2c770584f61a08d7e2808ebdfae" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/22548b1703504b48b49534f0eac711a1" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>然后我前面说到的比赛中也有这样的使用场景，在知乎也看到了这样的一个场景：</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/314ec0e9a86d4f0990a45b6b02d0e343" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>好了，文章写到这里也就可以收尾了。</p>
+<p>你再想想这个面试题，如果面试官想要的真的是这个回答，你说合适吗？</p>
+<p><img class="img-fluid" src="http://picgo.6and.ltd/img/c0a6a0fa9a3343a0a8a5443ae4d7a3ca" alt="面试官：Java如何绑定线程到指定CPU上执行？"  loading="lazy" />
+</p>
+<p>而且你说你问这干啥，自己家啥业务场景啊，掂量掂量，需要优化到这个级别？</p>
+<p>难道是高频交易？</p>
+<p>人招进来后，可能线程池都看不到几个，你说是吧？</p>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-between">
+  <div class="post-nav w-50"><div class="prev-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/java%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/">Java安装指南
+</a>
+    </div></div>
+  <div class="post-nav flex-row-reverse"><div class="next-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/java%E5%A0%86%E5%A4%96%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA/">Java堆外内存溢出
+</a>
+    </div></div>
+</div><section class="related-posts">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/aqs/">AQS
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/completablefuture%E4%BD%BF%E7%94%A8%E8%AF%A6%E8%A7%A3/">CompletableFuture使用详解
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/hashmap%E5%92%8Chashtable%E5%8C%BA%E5%88%AB/">HashMap和HashTable区别
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/jit%E5%8D%B3%E6%97%B6%E7%BC%96%E8%AF%91/">JIT即时编译
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/java-switch%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%94%AF%E6%8C%81%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/">Java switch表达式支持的数据类型
+</a></li></ul>
+  </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label=""
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container"><section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<section class="profile surface row">
+  <div class="col-xl-6 d-flex align-items-center justify-content-center">
+    <img class="profile-avatar img-fluid" src="https://razonyang.com/images/profile.webp" alt="Razon Yang" loading="lazy">
+  </div>
+  <div class="col-xl-6">
+    <h5 class="profile-name my-2">Razon Yang</h5><div class="profile-bio mb-2">Gopher, PHPer, Full Stack Engineer.</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>Null</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>China</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://razonyang.com/zh-cn/about/">关于</a></div></div>
+</section><section class="recent-posts row surface">
+  <h4>最近文章</h4>
+  <ul><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1-k8s%E5%8A%9F%E8%83%BD/k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/">300. 最长递增子序列
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/">400 Bad Request
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/">5种IO模型
+</a></li></ul>
+</section><section class="taxonomy-categories row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/categories">分类</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
+          编程思想 <span class="badge rounded-pill">91</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
+          其他 <span class="badge rounded-pill">21</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机基础">
+          计算机基础 <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构设计">
+          架构设计 <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">2</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
+          区块链 <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-series row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/series">专栏</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
+          Manual <span class="badge rounded-pill">140</span>
+        </a><a href="https://razonyang.com/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-tags row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/tags">标签</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
+          Java <span class="badge rounded-pill">27</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
+          Other <span class="badge rounded-pill">24</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
+          CS <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
+          spring <span class="badge rounded-pill">11</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
+          redis <span class="badge rounded-pill">9</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
+          MySQL <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="剑指offer">
+          剑指offer <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/zk/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ZK">
+          ZK <span class="badge rounded-pill">6</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/nginx/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="nginx">
+          nginx <span class="badge rounded-pill">4</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a></div>
+    </section><section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
+    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a>
+  </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a>
+    </li></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2021 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://razonyang.com/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<a id="btnScrollToTop" class="btn-scroll-to-top">
+  <i class="fas fa-fw fa-chevron-circle-up fa-2x"></i>
+</a>
+<script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script></body>
+</html>

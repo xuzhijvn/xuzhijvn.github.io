@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="zh-tw">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PHP 內置的服務器 - Razon Yang</title><link rel="apple-touch-icon" href="https://razonyang.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://razonyang.com/images/favicons/manifest.json">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="PHP 內置的服務器">
+<meta itemprop="description" content="一般地，PHP 項目需要搭配 Web 服務器一起使用，如最常見的 NGINX 或 Apache。但有些時候，如果急切需要搭建一個 PHP Web 運行環境，但是又沒有已安裝好的 Web 服務器，此時就輪到 PHP 內置的服務器登場了。"><meta itemprop="datePublished" content="2019-12-01T05:22:07+00:00" />
+<meta itemprop="dateModified" content="2019-12-01T05:22:07+00:00" />
+<meta itemprop="wordCount" content="155">
+<meta itemprop="keywords" content="PHP," /><meta property="og:title" content="PHP 內置的服務器" />
+<meta property="og:description" content="一般地，PHP 項目需要搭配 Web 服務器一起使用，如最常見的 NGINX 或 Apache。但有些時候，如果急切需要搭建一個 PHP Web 運行環境，但是又沒有已安裝好的 Web 服務器，此時就輪到 PHP 內置的服務器登場了。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://razonyang.com/zh-tw/posts/php/built-in-server/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2019-12-01T05:22:07+00:00" />
+<meta property="article:modified_time" content="2019-12-01T05:22:07+00:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="PHP 內置的服務器"/>
+<meta name="twitter:description" content="一般地，PHP 項目需要搭配 Web 服務器一起使用，如最常見的 NGINX 或 Apache。但有些時候，如果急切需要搭建一個 PHP Web 運行環境，但是又沒有已安裝好的 Web 服務器，此時就輪到 PHP 內置的服務器登場了。"/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://razonyang.com/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://razonyang.com/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-97403777-3', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="https://razonyang.com/zh-tw/">
+      <img class="logo" alt="Logo" src="https://razonyang.com/images/logo.webp" loading="lazy">RAZON YANG</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://razonyang.com/zh-tw/search">
+  <div class="input-group input-group-sm">
+    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
+  </div>
+</form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-tw/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>歸檔
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-categories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分類
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-categories"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-tw/categories/programing">
+                <i class="fas fa-fw fa-code"></i>Programing
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-tw/categories/linux">
+                <i class="fab fa-fw fa-linux"></i>Linux
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-tw/categories/server">
+                <i class="fas fa-fw fa-server"></i>Server
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-tw/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分類
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-tags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>標籤
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-tw/tags/php">
+                <i class="fab fa-fw fa-php"></i>PHP
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-tw/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-tw/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-tw/tags/html">
+                <i class="fab fa-fw fa-html5"></i>HTML
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-tw/tags/mysql">
+                <i class="fab fa-fw fa-js"></i>JavaScript
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-tw/tags/css">
+                <i class="fab fa-fw fa-css3"></i>CSS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-tw/tags">
+                <i class="fas fa-fw fa-tags"></i>所有標籤
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-tw/series">
+            <i class="fas fa-fw fa-columns"></i>專欄
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            項目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                Hugo Bootstrap 主題
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank">
+                Yii 2 管理後台
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+  <a class="nav-link" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fas fa-fw fa-language"></i> 繁體中文
+  </a>
+  <ul class="dropdown-menu" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://razonyang.com/zh-cn/">简体中文</a></li><li><a class="dropdown-item" href="https://razonyang.com/en/">English</a></li></ul>
+</li><li class="nav-item">
+  <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button"
+    aria-controls="offcanvasSettings">
+    <i class="fas fa-fw fa-sliders-h"></i> 設置
+  </a>
+</li>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings"
+  aria-labelledby="offcanvasSettingsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" w id="offcanvasSettingsLabel"><i class="fas fa-fw fa-sliders-h"></i> 設置</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <span id="btnPalette" class="btn btn-sm"><i class="fas fa-eye-dropper"></i></span>
+    </div>
+  </form>
+  <div class="container mt-2 visually-hidden" id="palettePicker">
+    <div class="btn-group"><button type="button" id="palette-blue" title="藍色" 
+          class="btn btn-sm palette bg-blue d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-blue-gray" title="藍灰色" 
+          class="btn btn-sm palette bg-blue-gray d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-brown" title="棕色" 
+          class="btn btn-sm palette bg-brown d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-cyan" title="青色" 
+          class="btn btn-sm palette bg-cyan d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-green" title="綠色" 
+          class="btn btn-sm palette bg-green d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-indigo" title="靛青色" 
+          class="btn btn-sm palette bg-indigo d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-orange" title="橙色" 
+          class="btn btn-sm palette bg-orange d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-pink" title="粉色" 
+          class="btn btn-sm palette bg-pink d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-purple" title="紫色" 
+          class="btn btn-sm palette bg-purple d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-red" title="紅色" 
+          class="btn btn-sm palette bg-red d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-teal" title="藍綠色" 
+          class="btn btn-sm palette bg-teal d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-yellow" title="黃色" 
+          class="btn btn-sm palette bg-yellow d-flex align-items-center justify-content-center">
+        </button></button>
+    </div>
+  </div>
+</section></div>
+</div></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row" aria-label="breadcrumb">
+  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://razonyang.com/zh-tw/">主頁</a></li><li class="breadcrumb-item"><a href="https://razonyang.com/zh-tw/posts/">文章</a></li><li class="breadcrumb-item"><a href="https://razonyang.com/zh-tw/posts/php/">PHP</a></li><li class="breadcrumb-item active">PHP 內置的服務器</li></ol>
+</nav><article class="post row surface"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-alt fa-rotate-45"></i>
+</a>
+  
+    
+
+    
+    
+    
+  </div>
+</div>
+<h1 class="post-title my-3">PHP 內置的服務器
+</h1><div class="post-meta mb-3">
+  <span class="post-date me-2">
+    <i class="fas fa-fw fa-calendar-alt"></i>2019-12-01
+  </span>
+  <span class="post-reading-time me-2">
+    <i class="fas fa-fw fa-coffee"></i>1 分鐘閱讀
+  </span><a href="https://razonyang.com/zh-tw/categories/programing/" class="post-taxonomy">#Programing</a><a href="https://razonyang.com/zh-tw/tags/php/" class="post-taxonomy">#PHP</a></div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>一般地，PHP 項目需要搭配 Web 服務器一起使用，如最常見的 NGINX 或 Apache。但有些時候，如果急切需要搭建一個 PHP Web 運行環境，但是又沒有已安裝好的 Web 服務器，此時就輪到 PHP 內置的服務器登場了。</p>
+<p>也正因為 PHP 內置服務器可以提供一個便捷 Web 開發環境，很多框架都有提供相應的命令行，如：Yii 的 <code>yii serve</code>、Laravel 的 <code>artisan serve</code>。雖然十分方便，當然也有需要注意的點。</p>
+<h2 id="用法">用法</h2>
+<p>首先自然是介紹用法：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ php -S localhost:2333 <span style="color:#f92672">[</span>-t html<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>-c php.ini<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>router.php<span style="color:#f92672">]</span>
+</code></pre></div><ul>
+<li><code>-S</code> 指定服務器的 Domain/IP 和端口</li>
+<li><code>-t</code> 指定根目錄，默認為當前目錄，其默認會執行 <code>index.php</code> 或 <code>index.html</code>，如果沒有這兩個文件，則會返回 404</li>
+<li><code>-c</code> 指定配置文件</li>
+<li><code>router.php</code> 自定義路由</li>
+</ul>
+<h2 id="例子">例子</h2>
+<p>緊接著開始運行我們的 PHP 內置服務器：</p>
+<p>1.啟動服務</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ php -S localhost:2333                            
+PHP 7.3.4 Development Server started at Fri Apr <span style="color:#ae81ff">26</span> 16:57:36 <span style="color:#ae81ff">2019</span>
+Listening on http://localhost:2333
+Document root is /home/razon/html
+Press Ctrl-C to quit.
+</code></pre></div><p>2.測試</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo <span style="color:#e6db74">&#34;&lt;?php\necho &#39;hello world&#39;;&#34;</span> &gt; index.php
+$ curl http://localhost:2333
+hello world
+</code></pre></div><h2 id="路由">路由</h2>
+<p>如果定義了路由，其會接收所有的請求並處理，PHP 將根據路由返回的結果進行下一步操作。<br>
+如果返回 <code>false</code>，那麼將直接返回請求的文件，否則將返回輸出的內容。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+<span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">preg_match</span>(<span style="color:#e6db74">&#39;/\.(?:png|jpg|jpeg|gif)$/&#39;</span>, $_SERVER[<span style="color:#e6db74">&#34;REQUEST_URI&#34;</span>])) {
+    <span style="color:#75715e">// 如果是靜態文件，則直接返回
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+}
+
+<span style="color:#75715e">// 其他請求交由 index.php 處理
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">require</span> <span style="color:#66d9ef">__DIR__</span> <span style="color:#f92672">.</span> <span style="color:#e6db74">&#39;/index.php&#39;</span>;
+</code></pre></div><h2 id="注意">注意</h2>
+<p>雖然 PHP 內置服務器十分便捷，但是也有需要注意的點：</p>
+<ul>
+<li>不能用於生產環境</li>
+<li>不能併發處理請求，正因為如此，如果出現了併發問題，我們很難去尋找問題的根源</li>
+</ul>
+<h3 id="併發">併發</h3>
+<blockquote>
+<p>The web server runs only one single-threaded process, so PHP applications will stall if a request is blocked. —— <a href="https://www.php.net/manual/en/features.commandline.webserver.php" target="_blank">PHP built-in web server</a>
+</p>
+</blockquote>
+<p>從官方文檔可以知道，PHP 內置服務器是單線程的進程，其不支持併發處理。</p>
+<h2 id="總結">總結</h2>
+<p>儘管內置服務器十分便利，但是由於其不能併發處理請求，這使得其主要用於簡單的情景。複雜的情景，很可能導致更多的問題。</p>
+<h2 id="相關內容">相關內容</h2>
+<ul>
+<li><a href="https://www.php.net/manual/en/features.commandline.webserver.php" target="_blank">Built-in web server</a>
+</li>
+</ul></div><hr /><div class="post-navs d-flex mb-3 justify-content-between">
+  <div class="post-nav w-50"><div class="prev-post btn btn-sm">
+      <a href="https://razonyang.com/zh-tw/posts/leetcode/database/reformat-department-table/">LeetCode 數據庫面試題 – 重新格式化部門表
+</a>
+    </div></div>
+  <div class="post-nav flex-row-reverse"><div class="next-post btn btn-sm">
+      <a href="https://razonyang.com/zh-tw/posts/wsl/ubuntu-mysql/">WSL(Ubuntu) 安裝 MySQL(MariaDB)
+</a>
+    </div></div>
+</div><section class="related-posts">
+    <h3>相關文章</h3>
+    <ul class="related-posts"><li><a href="https://razonyang.com/zh-tw/posts/php/pdo-persistent-connection/">PHP PDO 持久連接的一些思考和實踐
+</a></li><li><a href="https://razonyang.com/zh-tw/posts/php/pthreads/">PHP pthreads 多線程擴展安裝教程
+</a></li><li><a href="https://razonyang.com/zh-tw/posts/php/compilation/">PHP 編譯安裝詳解
+</a></li><li><a href="https://razonyang.com/zh-tw/posts/php/pcntl-primer/">PHP 多進程編程 – 入門
+</a></li><li><a href="https://razonyang.com/zh-tw/posts/php/retrieve-url-info/">PHP 獲取 URL 信息
+</a></li></ul>
+  </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label=""
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container"><section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<section class="profile surface row">
+  <div class="col-xl-6 d-flex align-items-center justify-content-center">
+    <img class="profile-avatar img-fluid" src="https://razonyang.com/images/profile.webp" alt="Razon Yang" loading="lazy">
+  </div>
+  <div class="col-xl-6">
+    <h5 class="profile-name my-2">Razon Yang</h5><div class="profile-bio mb-2">Gopher, PHPer, Full Stack Engineer.</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>Null</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>China</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://razonyang.com/zh-tw/about/">關於</a></div></div>
+</section><section class="featured-posts row surface">
+    <h4>精選文章</h4>
+    <ul><li><a href="https://razonyang.com/zh-tw/posts/go/custom-import-path-via-gopkgs/">利用 gopkgs 自定義 Go 庫的導入路徑
+</a></li></ul>
+  </section><section class="recent-posts row surface">
+  <h4>最近文章</h4>
+  <ul><li><a href="https://razonyang.com/zh-tw/posts/caddy/redirect-from-old-path-to-new-path/">Caddy 2 重定向舊路徑到新路徑
+</a></li><li><a href="https://razonyang.com/zh-tw/posts/bootstrap/navbar-dropdown-remove-arrow/">Bootstrap 導航欄下拉菜單移除倒三角圖標
+</a></li><li><a href="https://razonyang.com/zh-tw/posts/go/custom-import-path-via-gopkgs/">利用 gopkgs 自定義 Go 庫的導入路徑
+</a></li><li><a href="https://razonyang.com/zh-tw/posts/archlinux/zsh/">Arch Linux 安裝 ZSH
+</a></li><li><a href="https://razonyang.com/zh-tw/posts/selinux/apache-proxy-error-permission-denied/">SELinux Apache proxy error permission denied
+</a></li></ul>
+</section><section class="taxonomy-categories row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-tw/categories">分類</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-tw/categories/programing/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Programing">
+          Programing <span class="badge rounded-pill">67</span>
+        </a><a href="https://razonyang.com/zh-tw/categories/linux/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Linux">
+          Linux <span class="badge rounded-pill">39</span>
+        </a><a href="https://razonyang.com/zh-tw/categories/server/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Server">
+          Server <span class="badge rounded-pill">1</span>
+        </a></div>
+    </section><section class="taxonomy-tags row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-tw/tags">標籤</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-tw/tags/leetcode/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="LeetCode">
+          LeetCode <span class="badge rounded-pill">26</span>
+        </a><a href="https://razonyang.com/zh-tw/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
+          MySQL <span class="badge rounded-pill">23</span>
+        </a><a href="https://razonyang.com/zh-tw/tags/arch-linux/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Arch Linux">
+          Arch Linux <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-tw/tags/go/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Go">
+          Go <span class="badge rounded-pill">19</span>
+        </a><a href="https://razonyang.com/zh-tw/tags/php/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="PHP">
+          PHP <span class="badge rounded-pill">12</span>
+        </a><a href="https://razonyang.com/zh-tw/tags/centos/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CentOS">
+          CentOS <span class="badge rounded-pill">6</span>
+        </a><a href="https://razonyang.com/zh-tw/tags/mariadb/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MariaDB">
+          MariaDB <span class="badge rounded-pill">4</span>
+        </a><a href="https://razonyang.com/zh-tw/tags/nginx/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Nginx">
+          Nginx <span class="badge rounded-pill">4</span>
+        </a><a href="https://razonyang.com/zh-tw/tags/apache/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Apache">
+          Apache <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-tw/tags/kde/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="KDE">
+          KDE <span class="badge rounded-pill">3</span>
+        </a></div>
+    </section><section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
+    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a>
+  </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a>
+    </li></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2021 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://razonyang.com/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<a id="btnScrollToTop" class="btn-scroll-to-top">
+  <i class="fas fa-fw fa-chevron-circle-up fa-2x"></i>
+</a>
+<script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script></body>
+</html>

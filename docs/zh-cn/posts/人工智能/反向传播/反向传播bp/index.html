@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>反向传播—BP - Razon Yang</title><link rel="apple-touch-icon" href="https://razonyang.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://razonyang.com/images/favicons/manifest.json">
+<link rel="icon" href="https://razonyang.com/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="反向传播—BP">
+<meta itemprop="description" content="说到神经网络，大家看到这个图应该不陌生：
+这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。
+本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础）
+假设，你有这样一个网络层：
+第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。
+现在对他们赋上初值，如下图：
+其中，输入数据 i1=0.05，i2=0.10;
+　输出数据 o1=0.01,o2=0.99;
+　初始权重 w1=0.15,w2=0.20,w3=0.25,w4=0.30;
+　w5=0.40,w6=0.45,w7=0.50,w8=0.55
+目标：给出输入数据i1,i2(0.05和0.10)，使输出尽可能与原始输出o1,o2(0.01和0.99)接近。
+Step 1 前向传播
+1.输入层&mdash;-&gt;隐含层：
+计算神经元h1的输入加权和： $$ \begin{array}{l} n e t_{h 1}=w_{1} * i_{1}&#43;w_{2} * i_{2}&#43;b_{1} * 1 \
+{ net }_{h 1}=0.15 * 0.05&#43;0.2 * 0.1&#43;0.35 * 1=0.3775 \end{array} $$ 神经元h1的输出o1:(此处用到激活函数为sigmoid函数)： $$ { out }_{h 1}=\frac{1}{1&#43;e^{-n e t_{h 1}}}=\frac{1}{1&#43;e^{-0.3775}}=0.593269992 $$ 同理，可计算出神经元h2的输出o2： $$ { out }_{h 2}=0."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="1451"><meta itemprop="image" content="https://razonyang.com/images/center.png">
+<meta itemprop="keywords" content="CNN,AI," /><meta property="og:title" content="反向传播—BP" />
+<meta property="og:description" content="说到神经网络，大家看到这个图应该不陌生：
+这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。
+本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础）
+假设，你有这样一个网络层：
+第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。
+现在对他们赋上初值，如下图：
+其中，输入数据 i1=0.05，i2=0.10;
+　输出数据 o1=0.01,o2=0.99;
+　初始权重 w1=0.15,w2=0.20,w3=0.25,w4=0.30;
+　w5=0.40,w6=0.45,w7=0.50,w8=0.55
+目标：给出输入数据i1,i2(0.05和0.10)，使输出尽可能与原始输出o1,o2(0.01和0.99)接近。
+Step 1 前向传播
+1.输入层&mdash;-&gt;隐含层：
+计算神经元h1的输入加权和： $$ \begin{array}{l} n e t_{h 1}=w_{1} * i_{1}&#43;w_{2} * i_{2}&#43;b_{1} * 1 \
+{ net }_{h 1}=0.15 * 0.05&#43;0.2 * 0.1&#43;0.35 * 1=0.3775 \end{array} $$ 神经元h1的输出o1:(此处用到激活函数为sigmoid函数)： $$ { out }_{h 1}=\frac{1}{1&#43;e^{-n e t_{h 1}}}=\frac{1}{1&#43;e^{-0.3775}}=0.593269992 $$ 同理，可计算出神经元h2的输出o2： $$ { out }_{h 2}=0." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://razonyang.com/zh-cn/posts/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD/%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%ADbp/" /><meta property="og:image" content="https://razonyang.com/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/aqs/" /><meta property="og:see_also" content="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/async/" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://razonyang.com/images/center.png"/>
+
+<meta name="twitter:title" content="反向传播—BP"/>
+<meta name="twitter:description" content="说到神经网络，大家看到这个图应该不陌生：
+这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。
+本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础）
+假设，你有这样一个网络层：
+第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。
+现在对他们赋上初值，如下图：
+其中，输入数据 i1=0.05，i2=0.10;
+　输出数据 o1=0.01,o2=0.99;
+　初始权重 w1=0.15,w2=0.20,w3=0.25,w4=0.30;
+　w5=0.40,w6=0.45,w7=0.50,w8=0.55
+目标：给出输入数据i1,i2(0.05和0.10)，使输出尽可能与原始输出o1,o2(0.01和0.99)接近。
+Step 1 前向传播
+1.输入层&mdash;-&gt;隐含层：
+计算神经元h1的输入加权和： $$ \begin{array}{l} n e t_{h 1}=w_{1} * i_{1}&#43;w_{2} * i_{2}&#43;b_{1} * 1 \
+{ net }_{h 1}=0.15 * 0.05&#43;0.2 * 0.1&#43;0.35 * 1=0.3775 \end{array} $$ 神经元h1的输出o1:(此处用到激活函数为sigmoid函数)： $$ { out }_{h 1}=\frac{1}{1&#43;e^{-n e t_{h 1}}}=\frac{1}{1&#43;e^{-0.3775}}=0.593269992 $$ 同理，可计算出神经元h2的输出o2： $$ { out }_{h 2}=0."/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://razonyang.com/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://razonyang.com/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-97403777-3', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="https://razonyang.com/zh-cn/">
+      <img class="logo" alt="Logo" src="https://razonyang.com/images/logo.webp" loading="lazy">RAZON YANG</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://razonyang.com/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
+  </div>
+</form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-categories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-categories"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/programing">
+                <i class="fas fa-fw fa-code"></i>Programing
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/linux">
+                <i class="fab fa-fw fa-linux"></i>Linux
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories/server">
+                <i class="fas fa-fw fa-server"></i>Server
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-tags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/php">
+                <i class="fab fa-fw fa-php"></i>PHP
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/html">
+                <i class="fab fa-fw fa-html5"></i>HTML
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/mysql">
+                <i class="fab fa-fw fa-js"></i>JavaScript
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags/css">
+                <i class="fab fa-fw fa-css3"></i>CSS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://razonyang.com/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://razonyang.com/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+  <a class="nav-link" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fas fa-fw fa-language"></i> 简体中文
+  </a>
+  <ul class="dropdown-menu" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://razonyang.com/zh-tw/">繁體中文</a></li><li><a class="dropdown-item" href="https://razonyang.com/en/">English</a></li></ul>
+</li><li class="nav-item">
+  <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button"
+    aria-controls="offcanvasSettings">
+    <i class="fas fa-fw fa-sliders-h"></i> 设置
+  </a>
+</li>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings"
+  aria-labelledby="offcanvasSettingsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" w id="offcanvasSettingsLabel"><i class="fas fa-fw fa-sliders-h"></i> 设置</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <span id="btnPalette" class="btn btn-sm"><i class="fas fa-eye-dropper"></i></span>
+    </div>
+  </form>
+  <div class="container mt-2 visually-hidden" id="palettePicker">
+    <div class="btn-group"><button type="button" id="palette-blue" title="蓝色" 
+          class="btn btn-sm palette bg-blue d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-blue-gray" title="蓝灰色" 
+          class="btn btn-sm palette bg-blue-gray d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-brown" title="棕色" 
+          class="btn btn-sm palette bg-brown d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-cyan" title="青色" 
+          class="btn btn-sm palette bg-cyan d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-green" title="绿色" 
+          class="btn btn-sm palette bg-green d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-indigo" title="靛青色" 
+          class="btn btn-sm palette bg-indigo d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-orange" title="橙色" 
+          class="btn btn-sm palette bg-orange d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-pink" title="粉色" 
+          class="btn btn-sm palette bg-pink d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-purple" title="紫色" 
+          class="btn btn-sm palette bg-purple d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-red" title="红色" 
+          class="btn btn-sm palette bg-red d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-teal" title="蓝绿色" 
+          class="btn btn-sm palette bg-teal d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-yellow" title="黄色" 
+          class="btn btn-sm palette bg-yellow d-flex align-items-center justify-content-center">
+        </button></button>
+    </div>
+  </div>
+</section></div>
+</div></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row" aria-label="breadcrumb">
+  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://razonyang.com/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">反向传播—BP</li></ol>
+</nav><article class="post row surface"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-alt fa-rotate-45"></i>
+</a>
+  
+    
+
+    
+    
+    
+  </div>
+</div>
+<h1 class="post-title my-3">反向传播—BP
+</h1><div class="post-meta mb-3">
+  <span class="post-date me-2">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
+  </span>
+  <span class="post-reading-time me-2">
+    <i class="fas fa-fw fa-coffee"></i>7 分钟阅读
+  </span><a href="https://razonyang.com/zh-cn/categories/ai/" class="post-taxonomy">#AI</a><a href="https://razonyang.com/zh-cn/series/manual/" class="post-taxonomy">#Manual</a><a href="https://razonyang.com/zh-cn/tags/cnn/" class="post-taxonomy">#CNN</a><a href="https://razonyang.com/zh-cn/tags/ai/" class="post-taxonomy">#AI</a></div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>说到神经网络，大家看到这个图应该不陌生：</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/853467-20160630140644406-409859737.png" alt="典型的三层神经网络的基本构成"  loading="lazy" />
+</p>
+<p>这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。</p>
+<p>本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[<a href="http://www.cnblogs.com/maybe2030/p/5597716.html" target="_blank">Mechine Learning &amp; Algorithm] 神经网络基础</a>
+）</p>
+<p>假设，你有这样一个网络层：</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/853467-20160630141449671-1058672778.png" alt="假设，你有这样一个网络层"  loading="lazy" />
+</p>
+<p>第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。</p>
+<p>现在对他们赋上初值，如下图：</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/853467-20160630142019140-402363317.png" alt="对他们赋上初值"  loading="lazy" />
+</p>
+<p>其中，输入数据  i1=0.05，i2=0.10;</p>
+<p>　　　输出数据 o1=0.01,o2=0.99;</p>
+<p>　　　初始权重  w1=0.15,w2=0.20,w3=0.25,w4=0.30;</p>
+<p>　　　　　　　  w5=0.40,w6=0.45,w7=0.50,w8=0.55</p>
+<p>目标：给出输入数据i1,i2(0.05和0.10)，使输出尽可能与原始输出o1,o2(0.01和0.99)接近。</p>
+<p><strong>Step 1 前向传播</strong></p>
+<p>1.输入层&mdash;-&gt;隐含层：</p>
+<p>计算神经元h1的输入加权和：
+$$
+\begin{array}{l}
+n e t_{h 1}=w_{1} * i_{1}+w_{2} * i_{2}+b_{1} * 1 \<br>
+{ net }_{h 1}=0.15 * 0.05+0.2 * 0.1+0.35 * 1=0.3775
+\end{array}
+$$
+神经元h1的输出o1:(此处用到激活函数为sigmoid函数)：
+$$
+{ out }_{h 1}=\frac{1}{1+e^{-n e t_{h 1}}}=\frac{1}{1+e^{-0.3775}}=0.593269992
+$$
+同理，可计算出神经元h2的输出o2：
+$$
+{ out }_{h 2}=0.596884378
+$$
+2.隐含层&mdash;-&gt;输出层：</p>
+<p>计算输出层神经元o1和o2的值：
+$$
+\begin{array}{l}
+{ net }<em>{o 1}=w</em>{5} * { out }<em>{h 1}+w</em>{6} * { out }<em>{h 2}+b</em>{2} * 1 \<br>
+{ net }<em>{o 1}=0.4 * 0.593269992+0.45 * 0.596884378+0.6 * 1=1.105905967 \<br>
+{ out }</em>{o 1}=\frac{1}{1+e^{-n e t_{o 1}}}=\frac{1}{1+e^{-1.105905967}}=0.75136507 \<br>
+{ out }_{o 2}=0.772928465
+\end{array}
+$$
+这样前向传播的过程就结束了，我们得到输出值为[0.75136079 , 0.772928465]，与实际值[0.01 , 0.99]相差还很远，现在我们对误差进行反向传播，更新权值，重新计算输出。</p>
+<p><strong>Step 2 反向传播</strong></p>
+<p>1.计算总误差</p>
+<p>总误差：(square error)
+$$
+E_{ {total }}=\sum \frac{1}{2}( { target }- { output })^{2}
+$$
+但是有两个输出，所以分别计算o1和o2的误差，总误差为两者之和：
+$$
+\begin{array}{l}
+E_{o 1}=\frac{1}{2}\left( { target }_{o 1}- { out }_{o 1}\right)^{2}=\frac{1}{2}(0.01-0.75136507)^{2}=0.274811083 \<br>
+E_{o 2}=0.023560026 \<br>
+E_{ {total }}=E_{o 1}+E_{o 2}=0.274811083+0.023560026=0.298371109
+\end{array}
+$$
+2.隐含层&mdash;-&gt;输出层的权值更新：</p>
+<p>以权重参数w5为例，如果我们想知道w5对整体误差产生了多少影响，可以用整体误差对w5求偏导求出：（链式法则）
+$$
+\frac{\partial E_{{total }}}{\partial w_{5}}=\frac{\partial E_{\text {total }}}{\partial { out }_{o 1}} * \frac{\partial {out }_{o 1}}{\partial { net }_{o 1}} * \frac{\partial { net }_{o 1}}{\partial w_{5}}
+$$
+下面的图可以更直观的看清楚误差是怎样反向传播的：</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/853467-20160630152018906-1524325812.png" alt="误差是怎样反向传播的"  loading="lazy" />
+</p>
+<p>现在我们来分别计算每个式子的值：</p>
+<p>计算：
+$$
+\frac{\partial E_{ {total }}}{\partial  { out }_{o 1}}
+$$</p>
+<p>$$
+\begin{array}{l}
+E_{ {total }}=\frac{1}{2}\left( { target }_{o 1}-\text { out }_{o 1}\right)^{2}+\frac{1}{2}\left( { target }_{o 2}- { out }_{o 2}\right)^{2} \<br>
+\frac{\partial E_{ {total }}}{\partial  { out }_{o 1}}=2 * \frac{1}{2}\left( { target }_{o 1}- { out }_{o 1}\right)^{2-1} *-1+0 \<br>
+\frac{\partial E_{ {total }}}{\partial  { outo }}=-\left( { target }_{o 1}- { out }_{o 1}\right)=-(0.01-0.75136507)=0.74136507
+\end{array}
+$$</p>
+<p>计算：
+$$
+\frac{\partial { out }<em>{o 1}}{\partial n e t</em>{o 1}}
+$$</p>
+<p>$$
+\begin{array}{l}
+{ out }<em>{o 1}=\frac{1}{1+e^{-n e t</em>{o 1}}} \<br>
+\frac{\partial  { out }<em>{o 1}}{\partial  { net }</em>{o 1}}= { out }<em>{o 1}\left(1- { out }</em>{o 1}\right)=0.75136507(1-0.75136507)=0.186815602
+\end{array}
+$$</p>
+<p>（这一步实际上就是对sigmoid函数求导，比较简单，可以自己推导一下）</p>
+<p>计算：
+$$
+\frac{\partial { net }<em>{o 1}}{\partial w</em>{5}}
+$$</p>
+<p>$$
+\begin{array}{l}
+n e t_{o 1}=w_{5} *  { out }_{h 1}+w_{6} *  { out }_{h 2}+b_{2} * 1 \<br>
+\frac{\partial  { net }_{o 1}}{\partial w_{5}}=1 * { out }_{h 1} * w_{5}^{(1-1)}+0+0= { out }_{h 1}=0.593269992
+\end{array}
+$$</p>
+<p>最后三者相乘：
+$$
+\begin{array}{l}
+\frac{\partial E_{ {total }}}{\partial w_{5}}=\frac{\partial E_{ {total }}}{\partial o u t_{o 1}} * \frac{\partial  { out }_{o 1}}{\partial n e t_{o 1}} * \frac{\partial n e t_{o 1}}{\partial w_{5}} \<br>
+\frac{\partial E_{ {total }}}{\partial w_{5}}=0.74136507 * 0.186815602 * 0.593269992=0.082167041
+\end{array}
+$$
+这样我们就计算出整体误差E(total)对w5的偏导值。</p>
+<p>回过头来再看看上面的公式，我们发现：
+$$
+\frac{\partial E_{t o t a l}}{\partial w_{5}}=-\left(\operatorname{target}_{o 1}- { out }_{o 1}\right) * { out }_{o 1}\left(1- { out }_{o 1}\right) *  { out }_{h 1}
+$$
+为了表达方便，用$$\delta_{o 1}$$来表示输出层的误差：
+$$
+\begin{array}{l}
+\delta_{o 1}=\frac{\partial E_{ {total }}}{\partial o u t_{o 1}} * \frac{\partial  { out }_{o 1}}{\partial n e t_{o 1}}=\frac{\partial E_{ {total }}}{\partial n e t_{o 1}} \<br>
+\delta_{o 1}=-\left(\operatorname{target}_{o 1}- { out }_{o 1}\right) *  { out }_{o 1}\left(1- { out }_{o 1}\right)
+\end{array}
+$$
+因此，整体误差E(total)对w5的偏导公式可以写成：
+$$
+\frac{\partial E_{ {total }}}{\partial w_{5}}=\delta_{o 1} { out }_{h 1}
+$$
+如果输出层误差计为负的话，也可以写成：
+$$
+\frac{\partial E_{ {total }}}{\partial w_{5}}=-\delta_{o 1} { out }_{h 1}
+$$
+最后我们来更新w5的值：
+$$
+w_{5}^{+}=w_{5}-\eta * \frac{\partial E_{ {total }}}{\partial_{w_{5}}}=0.4-0.5 * 0.082167041=0.35891648
+$$
+（其中，$$\eta$$是学习速率，这里我们取0.5）</p>
+<p>同理，可更新w6,w7,w8: 
+$$
+\begin{array}{l}
+w_{6}^{+}=0.408666186 \<br>
+w_{7}^{+}=0.511301270 \<br>
+w_{8}^{+}=0.561370121
+\end{array}
+$$
+3.隐含层&mdash;-&gt;输入层的权值更新：</p>
+<p>　方法其实与上面说的差不多，但是有个地方需要变一下，在上文计算总误差对w5的偏导时，是从out(o1)&mdash;-&gt;net(o1)&mdash;-&gt;w5,但是在隐含层之间的权值更新时，是out(h1)&mdash;-&gt;net(h1)&mdash;-&gt;w1,而out(h1)会接受E(o1)和E(o2)两个地方传来的误差，所以这个地方两个都要计算。</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/853467-20160630154317562-311369571.png" alt="隐含层的权值更新"  loading="lazy" />
+</p>
+<p>计算：
+$$
+\frac{\partial E_{ {total }}}{\partial { out }_{h 1}}
+$$</p>
+<p>$$
+\frac{\partial E_{ {total }}}{\partial o u t_{h 1}}=\frac{\partial E_{o 1}}{\partial o u t_{h 1}}+\frac{\partial E_{o 2}}{\partial o u t_{h 1}}
+$$</p>
+<p>先计算：
+$$
+\frac{\partial E_{o 1}}{\partial o u t_{h 1}}
+$$</p>
+<p>$$
+\begin{array}{l}
+\frac{\partial E_{o 1}}{\partial o u t_{h 1}}=\frac{\partial E_{o 1}}{\partial n e t_{o 1}} * \frac{\partial n e t_{o 1}}{\partial o u t_{h 1}} \<br>
+\frac{\partial E_{o 1}}{\partial n e t_{o 1}}=\frac{\partial E_{o 1}}{\partial o u t_{o 1}} * \frac{\partial o u t_{o 1}}{\partial n e t_{o 1}}=0.74136507 * 0.186815602=0.138498562 \<br>
+{ net }_{o 1}=w_{5} * o u t_{h 1}+w_{6} *  { out }_{h 2}+b_{2} * 1 \<br>
+\frac{\partial { net }_{o 1}}{\partial o u t_{h 1}}=w_{5}=0.40 \<br>
+\frac{\partial E_{o 1}}{\partial o u t_{h 1}}=\frac{\partial E_{o 1}}{\partial n e t_{o 1}} * \frac{\partial n e t_{o 1}}{\partial o u t_{h 1}}=0.138498562 * 0.40=0.055399425
+\end{array}
+$$</p>
+<p>同理，计算出：
+$$
+\frac{\partial E_{o 2}}{\partial o u t_{h 1}}=-0.019049119
+$$
+两者相加得到总值：
+$$
+\frac{\partial E_{ {total }}}{\partial o u t_{h 1}}=\frac{\partial E_{o 1}}{\partial o u t_{h 1}}+\frac{\partial E_{o 2}}{\partial o u t_{h 1}}=0.055399425+-0.019049119=0.036350306
+$$
+再计算：
+$$
+\frac{\partial o u t_{h 1}}{\partial n e t_{h 1}}
+$$</p>
+<p>$$
+\begin{array}{l}
+{ out }<em>{h 1}=\frac{1}{1+e^{-n e t}</em>{h 1}} \<br>
+\frac{\partial  { out }<em>{h 1}}{\partial n e t</em>{h 1}}= { out }<em>{h 1}\left(1- { out }</em>{h 1}\right)=0.59326999(1-0.59326999)=0.241300709
+\end{array}
+$$</p>
+<p>再计算：
+$$
+\frac{\partial n e t_{h 1}}{\partial w_{1}}
+$$</p>
+<p>$$
+\begin{array}{l}
+{ net }<em>{h 1}=w</em>{1} * i_{1}+w_{2} * i_{2}+b_{1} * 1 \<br>
+\frac{\partial n e t_{h 1}}{\partial w_{1}}=i_{1}=0.05
+\end{array}
+$$</p>
+<p>最后，三者相乘：
+$$
+\begin{array}{l}
+\frac{\partial E_{ {total }}}{\partial w_{1}}=\frac{\partial E_{ {total }}}{\partial  { out }_{h 1}} * \frac{\partial  { out }_{h 1}}{\partial n e t_{h 1}} * \frac{\partial  { net }_{h 1}}{\partial w_{1}} \<br>
+\frac{\partial E_{ {total }}}{\partial w_{1}}=0.036350306 * 0.241300709 * 0.05=0.000438568
+\end{array}
+$$
+为了简化公式，用sigma(h1)表示隐含层单元h1的误差：
+$$
+\begin{array}{l}
+\frac{\partial E_{ {total }}}{\partial w_{1}}=\left(\sum_{o} \frac{\partial E_{ {total }}}{\partial o u t_{o}} * \frac{\partial  { out }_{o}}{\partial n e t_{o}} * \frac{\partial  { net }_{o}}{\partial o u t_{h 1}}\right) * \frac{\partial o u t_{h 1}}{\partial n e t_{h 1}} * \frac{\partial n e t_{h 1}}{\partial w_{1}} \<br>
+\frac{\partial E_{ {total }}}{\partial w_{1}}=\left(\sum_{o} \delta_{o} * w_{h o}\right) * { out }_{h 1}\left(1- { out }_{h 1}\right) * i_{1} \<br>
+\frac{\partial E_{ {total }}}{\partial w_{1}}=\delta_{h 1} i_{1}
+\end{array}
+$$
+最后，更新w1的权值：
+$$
+w_{1}^{+}=w_{1}-\eta * \frac{\partial E_{\text {total }}}{\partial w_{1}}=0.15-0.5 * 0.000438568=0.149780716
+$$
+同理，额可更新w2,w3,w4的权值：
+$$
+\begin{array}{l}
+w_{2}^{+}=0.19956143 \<br>
+w_{3}^{+}=0.24975114 \<br>
+w_{4}^{+}=0.29950229
+\end{array}
+$$
+　　这样误差反向传播法就完成了，最后我们再把更新的权值重新计算，不停地迭代，在这个例子中第一次迭代之后，总误差E(total)由0.298371109下降至0.291027924。迭代10000次后，总误差为0.000035085，输出为<a href="%e5%8e%9f%e8%be%93%e5%85%a5%e4%b8%ba[0.01,0.99]">0.015912196,0.984065734</a>
+,证明效果还是不错的。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e">#coding:utf-8</span>
+<span style="color:#f92672">import</span> random
+<span style="color:#f92672">import</span> math
+
+<span style="color:#75715e">#</span>
+<span style="color:#75715e">#   参数解释：</span>
+<span style="color:#75715e">#   &#34;pd_&#34; ：偏导的前缀</span>
+<span style="color:#75715e">#   &#34;d_&#34; ：导数的前缀</span>
+<span style="color:#75715e">#   &#34;w_ho&#34; ：隐含层到输出层的权重系数索引</span>
+<span style="color:#75715e">#   &#34;w_ih&#34; ：输入层到隐含层的权重系数的索引</span>
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NeuralNetwork</span>:
+    LEARNING_RATE <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>
+
+    <span style="color:#66d9ef">def</span> __init__(self, num_inputs, num_hidden, num_outputs, hidden_layer_weights <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>, hidden_layer_bias <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>, output_layer_weights <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>, output_layer_bias <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>):
+        self<span style="color:#f92672">.</span>num_inputs <span style="color:#f92672">=</span> num_inputs
+
+        self<span style="color:#f92672">.</span>hidden_layer <span style="color:#f92672">=</span> NeuronLayer(num_hidden, hidden_layer_bias)
+        self<span style="color:#f92672">.</span>output_layer <span style="color:#f92672">=</span> NeuronLayer(num_outputs, output_layer_bias)
+
+        self<span style="color:#f92672">.</span>init_weights_from_inputs_to_hidden_layer_neurons(hidden_layer_weights)
+        self<span style="color:#f92672">.</span>init_weights_from_hidden_layer_neurons_to_output_layer_neurons(output_layer_weights)
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">init_weights_from_inputs_to_hidden_layer_neurons</span>(self, hidden_layer_weights):
+        weight_num <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+        <span style="color:#66d9ef">for</span> h <span style="color:#f92672">in</span> range(len(self<span style="color:#f92672">.</span>hidden_layer<span style="color:#f92672">.</span>neurons)):
+            <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(self<span style="color:#f92672">.</span>num_inputs):
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> hidden_layer_weights:
+                    self<span style="color:#f92672">.</span>hidden_layer<span style="color:#f92672">.</span>neurons[h]<span style="color:#f92672">.</span>weights<span style="color:#f92672">.</span>append(random<span style="color:#f92672">.</span>random())
+                <span style="color:#66d9ef">else</span>:
+                    self<span style="color:#f92672">.</span>hidden_layer<span style="color:#f92672">.</span>neurons[h]<span style="color:#f92672">.</span>weights<span style="color:#f92672">.</span>append(hidden_layer_weights[weight_num])
+                weight_num <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">init_weights_from_hidden_layer_neurons_to_output_layer_neurons</span>(self, output_layer_weights):
+        weight_num <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+        <span style="color:#66d9ef">for</span> o <span style="color:#f92672">in</span> range(len(self<span style="color:#f92672">.</span>output_layer<span style="color:#f92672">.</span>neurons)):
+            <span style="color:#66d9ef">for</span> h <span style="color:#f92672">in</span> range(len(self<span style="color:#f92672">.</span>hidden_layer<span style="color:#f92672">.</span>neurons)):
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> output_layer_weights:
+                    self<span style="color:#f92672">.</span>output_layer<span style="color:#f92672">.</span>neurons[o]<span style="color:#f92672">.</span>weights<span style="color:#f92672">.</span>append(random<span style="color:#f92672">.</span>random())
+                <span style="color:#66d9ef">else</span>:
+                    self<span style="color:#f92672">.</span>output_layer<span style="color:#f92672">.</span>neurons[o]<span style="color:#f92672">.</span>weights<span style="color:#f92672">.</span>append(output_layer_weights[weight_num])
+                weight_num <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">inspect</span>(self):
+        print(<span style="color:#e6db74">&#39;------&#39;</span>)
+        print(<span style="color:#e6db74">&#39;* Inputs: </span><span style="color:#e6db74">{}</span><span style="color:#e6db74">&#39;</span><span style="color:#f92672">.</span>format(self<span style="color:#f92672">.</span>num_inputs))
+        print(<span style="color:#e6db74">&#39;------&#39;</span>)
+        print(<span style="color:#e6db74">&#39;Hidden Layer&#39;</span>)
+        self<span style="color:#f92672">.</span>hidden_layer<span style="color:#f92672">.</span>inspect()
+        print(<span style="color:#e6db74">&#39;------&#39;</span>)
+        print(<span style="color:#e6db74">&#39;* Output Layer&#39;</span>)
+        self<span style="color:#f92672">.</span>output_layer<span style="color:#f92672">.</span>inspect()
+        print(<span style="color:#e6db74">&#39;------&#39;</span>)
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">feed_forward</span>(self, inputs):
+        hidden_layer_outputs <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>hidden_layer<span style="color:#f92672">.</span>feed_forward(inputs)
+        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>output_layer<span style="color:#f92672">.</span>feed_forward(hidden_layer_outputs)
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">train</span>(self, training_inputs, training_outputs):
+        self<span style="color:#f92672">.</span>feed_forward(training_inputs)
+
+        <span style="color:#75715e"># 1. 输出神经元的值</span>
+        pd_errors_wrt_output_neuron_total_net_input <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0</span>] <span style="color:#f92672">*</span> len(self<span style="color:#f92672">.</span>output_layer<span style="color:#f92672">.</span>neurons)
+        <span style="color:#66d9ef">for</span> o <span style="color:#f92672">in</span> range(len(self<span style="color:#f92672">.</span>output_layer<span style="color:#f92672">.</span>neurons)):
+
+            <span style="color:#75715e"># ∂E/∂zⱼ</span>
+            pd_errors_wrt_output_neuron_total_net_input[o] <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>output_layer<span style="color:#f92672">.</span>neurons[o]<span style="color:#f92672">.</span>calculate_pd_error_wrt_total_net_input(training_outputs[o])
+
+        <span style="color:#75715e"># 2. 隐含层神经元的值</span>
+        pd_errors_wrt_hidden_neuron_total_net_input <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0</span>] <span style="color:#f92672">*</span> len(self<span style="color:#f92672">.</span>hidden_layer<span style="color:#f92672">.</span>neurons)
+        <span style="color:#66d9ef">for</span> h <span style="color:#f92672">in</span> range(len(self<span style="color:#f92672">.</span>hidden_layer<span style="color:#f92672">.</span>neurons)):
+
+            <span style="color:#75715e"># dE/dyⱼ = Σ ∂E/∂zⱼ * ∂z/∂yⱼ = Σ ∂E/∂zⱼ * wᵢⱼ</span>
+            d_error_wrt_hidden_neuron_output <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+            <span style="color:#66d9ef">for</span> o <span style="color:#f92672">in</span> range(len(self<span style="color:#f92672">.</span>output_layer<span style="color:#f92672">.</span>neurons)):
+                d_error_wrt_hidden_neuron_output <span style="color:#f92672">+=</span> pd_errors_wrt_output_neuron_total_net_input[o] <span style="color:#f92672">*</span> self<span style="color:#f92672">.</span>output_layer<span style="color:#f92672">.</span>neurons[o]<span style="color:#f92672">.</span>weights[h]
+
+            <span style="color:#75715e"># ∂E/∂zⱼ = dE/dyⱼ * ∂zⱼ/∂</span>
+            pd_errors_wrt_hidden_neuron_total_net_input[h] <span style="color:#f92672">=</span> d_error_wrt_hidden_neuron_output <span style="color:#f92672">*</span> self<span style="color:#f92672">.</span>hidden_layer<span style="color:#f92672">.</span>neurons[h]<span style="color:#f92672">.</span>calculate_pd_total_net_input_wrt_input()
+
+        <span style="color:#75715e"># 3. 更新输出层权重系数</span>
+        <span style="color:#66d9ef">for</span> o <span style="color:#f92672">in</span> range(len(self<span style="color:#f92672">.</span>output_layer<span style="color:#f92672">.</span>neurons)):
+            <span style="color:#66d9ef">for</span> w_ho <span style="color:#f92672">in</span> range(len(self<span style="color:#f92672">.</span>output_layer<span style="color:#f92672">.</span>neurons[o]<span style="color:#f92672">.</span>weights)):
+
+                <span style="color:#75715e"># ∂Eⱼ/∂wᵢⱼ = ∂E/∂zⱼ * ∂zⱼ/∂wᵢⱼ</span>
+                pd_error_wrt_weight <span style="color:#f92672">=</span> pd_errors_wrt_output_neuron_total_net_input[o] <span style="color:#f92672">*</span> self<span style="color:#f92672">.</span>output_layer<span style="color:#f92672">.</span>neurons[o]<span style="color:#f92672">.</span>calculate_pd_total_net_input_wrt_weight(w_ho)
+
+                <span style="color:#75715e"># Δw = α * ∂Eⱼ/∂wᵢ</span>
+                self<span style="color:#f92672">.</span>output_layer<span style="color:#f92672">.</span>neurons[o]<span style="color:#f92672">.</span>weights[w_ho] <span style="color:#f92672">-=</span> self<span style="color:#f92672">.</span>LEARNING_RATE <span style="color:#f92672">*</span> pd_error_wrt_weight
+
+        <span style="color:#75715e"># 4. 更新隐含层的权重系数</span>
+        <span style="color:#66d9ef">for</span> h <span style="color:#f92672">in</span> range(len(self<span style="color:#f92672">.</span>hidden_layer<span style="color:#f92672">.</span>neurons)):
+            <span style="color:#66d9ef">for</span> w_ih <span style="color:#f92672">in</span> range(len(self<span style="color:#f92672">.</span>hidden_layer<span style="color:#f92672">.</span>neurons[h]<span style="color:#f92672">.</span>weights)):
+
+                <span style="color:#75715e"># ∂Eⱼ/∂wᵢ = ∂E/∂zⱼ * ∂zⱼ/∂wᵢ</span>
+                pd_error_wrt_weight <span style="color:#f92672">=</span> pd_errors_wrt_hidden_neuron_total_net_input[h] <span style="color:#f92672">*</span> self<span style="color:#f92672">.</span>hidden_layer<span style="color:#f92672">.</span>neurons[h]<span style="color:#f92672">.</span>calculate_pd_total_net_input_wrt_weight(w_ih)
+
+                <span style="color:#75715e"># Δw = α * ∂Eⱼ/∂wᵢ</span>
+                self<span style="color:#f92672">.</span>hidden_layer<span style="color:#f92672">.</span>neurons[h]<span style="color:#f92672">.</span>weights[w_ih] <span style="color:#f92672">-=</span> self<span style="color:#f92672">.</span>LEARNING_RATE <span style="color:#f92672">*</span> pd_error_wrt_weight
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_total_error</span>(self, training_sets):
+        total_error <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+        <span style="color:#66d9ef">for</span> t <span style="color:#f92672">in</span> range(len(training_sets)):
+            training_inputs, training_outputs <span style="color:#f92672">=</span> training_sets[t]
+            self<span style="color:#f92672">.</span>feed_forward(training_inputs)
+            <span style="color:#66d9ef">for</span> o <span style="color:#f92672">in</span> range(len(training_outputs)):
+                total_error <span style="color:#f92672">+=</span> self<span style="color:#f92672">.</span>output_layer<span style="color:#f92672">.</span>neurons[o]<span style="color:#f92672">.</span>calculate_error(training_outputs[o])
+        <span style="color:#66d9ef">return</span> total_error
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NeuronLayer</span>:
+    <span style="color:#66d9ef">def</span> __init__(self, num_neurons, bias):
+
+        <span style="color:#75715e"># 同一层的神经元共享一个截距项b</span>
+        self<span style="color:#f92672">.</span>bias <span style="color:#f92672">=</span> bias <span style="color:#66d9ef">if</span> bias <span style="color:#66d9ef">else</span> random<span style="color:#f92672">.</span>random()
+
+        self<span style="color:#f92672">.</span>neurons <span style="color:#f92672">=</span> []
+        <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(num_neurons):
+            self<span style="color:#f92672">.</span>neurons<span style="color:#f92672">.</span>append(Neuron(self<span style="color:#f92672">.</span>bias))
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">inspect</span>(self):
+        print(<span style="color:#e6db74">&#39;Neurons:&#39;</span>, len(self<span style="color:#f92672">.</span>neurons))
+        <span style="color:#66d9ef">for</span> n <span style="color:#f92672">in</span> range(len(self<span style="color:#f92672">.</span>neurons)):
+            print(<span style="color:#e6db74">&#39; Neuron&#39;</span>, n)
+            <span style="color:#66d9ef">for</span> w <span style="color:#f92672">in</span> range(len(self<span style="color:#f92672">.</span>neurons[n]<span style="color:#f92672">.</span>weights)):
+                print(<span style="color:#e6db74">&#39;  Weight:&#39;</span>, self<span style="color:#f92672">.</span>neurons[n]<span style="color:#f92672">.</span>weights[w])
+            print(<span style="color:#e6db74">&#39;  Bias:&#39;</span>, self<span style="color:#f92672">.</span>bias)
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">feed_forward</span>(self, inputs):
+        outputs <span style="color:#f92672">=</span> []
+        <span style="color:#66d9ef">for</span> neuron <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>neurons:
+            outputs<span style="color:#f92672">.</span>append(neuron<span style="color:#f92672">.</span>calculate_output(inputs))
+        <span style="color:#66d9ef">return</span> outputs
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_outputs</span>(self):
+        outputs <span style="color:#f92672">=</span> []
+        <span style="color:#66d9ef">for</span> neuron <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>neurons:
+            outputs<span style="color:#f92672">.</span>append(neuron<span style="color:#f92672">.</span>output)
+        <span style="color:#66d9ef">return</span> outputs
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Neuron</span>:
+    <span style="color:#66d9ef">def</span> __init__(self, bias):
+        self<span style="color:#f92672">.</span>bias <span style="color:#f92672">=</span> bias
+        self<span style="color:#f92672">.</span>weights <span style="color:#f92672">=</span> []
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_output</span>(self, inputs):
+        self<span style="color:#f92672">.</span>inputs <span style="color:#f92672">=</span> inputs
+        self<span style="color:#f92672">.</span>output <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>squash(self<span style="color:#f92672">.</span>calculate_total_net_input())
+        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>output
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_total_net_input</span>(self):
+        total <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+        <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(len(self<span style="color:#f92672">.</span>inputs)):
+            total <span style="color:#f92672">+=</span> self<span style="color:#f92672">.</span>inputs[i] <span style="color:#f92672">*</span> self<span style="color:#f92672">.</span>weights[i]
+        <span style="color:#66d9ef">return</span> total <span style="color:#f92672">+</span> self<span style="color:#f92672">.</span>bias
+
+    <span style="color:#75715e"># 激活函数sigmoid</span>
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">squash</span>(self, total_net_input):
+        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">/</span> (<span style="color:#ae81ff">1</span> <span style="color:#f92672">+</span> math<span style="color:#f92672">.</span>exp(<span style="color:#f92672">-</span>total_net_input))
+
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_pd_error_wrt_total_net_input</span>(self, target_output):
+        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>calculate_pd_error_wrt_output(target_output) <span style="color:#f92672">*</span> self<span style="color:#f92672">.</span>calculate_pd_total_net_input_wrt_input();
+
+    <span style="color:#75715e"># 每一个神经元的误差是由平方差公式计算的</span>
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_error</span>(self, target_output):
+        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0.5</span> <span style="color:#f92672">*</span> (target_output <span style="color:#f92672">-</span> self<span style="color:#f92672">.</span>output) <span style="color:#f92672">**</span> <span style="color:#ae81ff">2</span>
+
+    
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_pd_error_wrt_output</span>(self, target_output):
+        <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span>(target_output <span style="color:#f92672">-</span> self<span style="color:#f92672">.</span>output)
+
+    
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_pd_total_net_input_wrt_input</span>(self):
+        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>output <span style="color:#f92672">*</span> (<span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> self<span style="color:#f92672">.</span>output)
+
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_pd_total_net_input_wrt_weight</span>(self, index):
+        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>inputs[index]
+
+
+<span style="color:#75715e"># 文中的例子:</span>
+
+nn <span style="color:#f92672">=</span> NeuralNetwork(<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">2</span>, hidden_layer_weights<span style="color:#f92672">=</span>[<span style="color:#ae81ff">0.15</span>, <span style="color:#ae81ff">0.2</span>, <span style="color:#ae81ff">0.25</span>, <span style="color:#ae81ff">0.3</span>], hidden_layer_bias<span style="color:#f92672">=</span><span style="color:#ae81ff">0.35</span>, output_layer_weights<span style="color:#f92672">=</span>[<span style="color:#ae81ff">0.4</span>, <span style="color:#ae81ff">0.45</span>, <span style="color:#ae81ff">0.5</span>, <span style="color:#ae81ff">0.55</span>], output_layer_bias<span style="color:#f92672">=</span><span style="color:#ae81ff">0.6</span>)
+<span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">10000</span>):
+    nn<span style="color:#f92672">.</span>train([<span style="color:#ae81ff">0.05</span>, <span style="color:#ae81ff">0.1</span>], [<span style="color:#ae81ff">0.01</span>, <span style="color:#ae81ff">0.09</span>])
+    print(i, round(nn<span style="color:#f92672">.</span>calculate_total_error([[[<span style="color:#ae81ff">0.05</span>, <span style="color:#ae81ff">0.1</span>], [<span style="color:#ae81ff">0.01</span>, <span style="color:#ae81ff">0.09</span>]]]), <span style="color:#ae81ff">9</span>))
+
+
+<span style="color:#75715e">#另外一个例子，可以把上面的例子注释掉再运行一下:</span>
+
+<span style="color:#75715e"># training_sets = [</span>
+<span style="color:#75715e">#     [[0, 0], [0]],</span>
+<span style="color:#75715e">#     [[0, 1], [1]],</span>
+<span style="color:#75715e">#     [[1, 0], [1]],</span>
+<span style="color:#75715e">#     [[1, 1], [0]]</span>
+<span style="color:#75715e"># ]</span>
+
+<span style="color:#75715e"># nn = NeuralNetwork(len(training_sets[0][0]), 5, len(training_sets[0][1]))</span>
+<span style="color:#75715e"># for i in range(10000):</span>
+<span style="color:#75715e">#     training_inputs, training_outputs = random.choice(training_sets)</span>
+<span style="color:#75715e">#     nn.train(training_inputs, training_outputs)</span>
+<span style="color:#75715e">#     print(i, nn.calculate_total_error(training_sets))</span>
+</code></pre></div><p>最后写到这里就结束了，现在还不会用latex编辑数学公式，本来都直接想写在草稿纸上然后扫描了传上来，但是觉得太影响阅读体验了。以后会用公式编辑器后再重把公式重新编辑一遍。稳重使用的是sigmoid激活函数，实际还有几种不同的激活函数可以选择，具体的可以参考文献[3]，最后推荐一个在线演示神经网络变化的网址：http://www.emergentmind.com/neural-network，可以自己填输入输出，然后观看每一次迭代权值的变化，很好玩~如果有错误的或者不懂的欢迎留言：）</p>
+<p>原文：</p>
+<p><a href="https://www.cnblogs.com/charlotte77/p/5629865.html" target="_blank">https://www.cnblogs.com/charlotte77/p/5629865.html</a>
+</p>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-between">
+  <div class="post-nav w-50"><div class="prev-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/%E5%9F%BA%E4%BA%8Easpect%E5%AE%9E%E7%8E%B0%E6%B3%A8%E8%A7%A3/">基于aspect实现注解
+</a>
+    </div></div>
+  <div class="post-nav flex-row-reverse"><div class="next-post btn btn-sm">
+      <a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%8E%BB%E9%99%A4%E8%AF%B7%E6%B1%82path%E5%89%8D%E7%BC%80/">去除请求path前缀
+</a>
+    </div></div>
+</div><section class="related-posts">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://razonyang.com/zh-cn/posts/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9Ccnn/">卷积神经网络–CNN
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%B8%B8%E7%94%A8%E7%9A%84%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87/%E5%B8%B8%E7%94%A8%E7%9A%84%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87/">常用的模型评估指标
+</a></li></ul>
+  </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label=""
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container"><section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<section class="profile surface row">
+  <div class="col-xl-6 d-flex align-items-center justify-content-center">
+    <img class="profile-avatar img-fluid" src="https://razonyang.com/images/profile.webp" alt="Razon Yang" loading="lazy">
+  </div>
+  <div class="col-xl-6">
+    <h5 class="profile-name my-2">Razon Yang</h5><div class="profile-bio mb-2">Gopher, PHPer, Full Stack Engineer.</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>Null</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>China</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://razonyang.com/zh-cn/about/">关于</a></div></div>
+</section><section class="recent-posts row surface">
+  <h4>最近文章</h4>
+  <ul><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1-k8s%E5%8A%9F%E8%83%BD/k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/">300. 最长递增子序列
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/">400 Bad Request
+</a></li><li><a href="https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/">5种IO模型
+</a></li></ul>
+</section><section class="taxonomy-categories row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/categories">分类</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
+          编程思想 <span class="badge rounded-pill">91</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
+          其他 <span class="badge rounded-pill">21</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机基础">
+          计算机基础 <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构设计">
+          架构设计 <span class="badge rounded-pill">3</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">2</span>
+        </a><a href="https://razonyang.com/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
+          区块链 <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-series row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/series">专栏</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
+          Manual <span class="badge rounded-pill">140</span>
+        </a><a href="https://razonyang.com/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-tags row surface">
+      <h4>
+        <a href="https://razonyang.com/zh-cn/tags">标签</a>
+      </h4>
+      <div><a href="https://razonyang.com/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
+          Java <span class="badge rounded-pill">27</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
+          Other <span class="badge rounded-pill">24</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
+          CS <span class="badge rounded-pill">20</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
+          spring <span class="badge rounded-pill">11</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
+          redis <span class="badge rounded-pill">9</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
+          MySQL <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="剑指offer">
+          剑指offer <span class="badge rounded-pill">8</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/zk/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ZK">
+          ZK <span class="badge rounded-pill">6</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/nginx/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="nginx">
+          nginx <span class="badge rounded-pill">4</span>
+        </a><a href="https://razonyang.com/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a></div>
+    </section><section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
+    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a>
+  </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a>
+    </li></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2021 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://razonyang.com/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<a id="btnScrollToTop" class="btn-scroll-to-top">
+  <i class="fas fa-fw fa-chevron-circle-up fa-2x"></i>
+</a>
+<script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script></body>
+</html>
