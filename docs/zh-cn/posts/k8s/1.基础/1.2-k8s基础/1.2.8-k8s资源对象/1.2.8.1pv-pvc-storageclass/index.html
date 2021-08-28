@@ -10,14 +10,14 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="1.2.8.1 PV/PVC/StorageClass">
-<meta itemprop="description" content="1.2.8.1 PV/PVC/StorageClass 名词解释：PV/PVC/StorageClass 本文较老，建议查看新文档：http://docs.kubernetes.org.cn/429.html 介绍 PersistentVolume（PV）是集群中已由管理员配置的一段网络存储。 集群中的资源就像一个节点是一个集群资源。 PV是诸如卷之类的卷插件，但是具有独立于使用PV的任何单个pod的生命周期。 该API对象捕获存储的实现细节，即NFS，iSCSI或云提供商特定的存储系统。
+<meta itemprop="description" content="1.2.8.1 PV/PVC/StorageClass 名词解释：PV/PVC/StorageClass  本文较老，建议查看新文档：http://docs.kubernetes.org.cn/429.html 介绍 PersistentVolume（PV）是集群中已由管理员配置的一段网络存储。 集群中的资源就像一个节点是一个集群资源。 PV是诸如卷之类的卷插件，但是具有独立于使用PV的任何单个pod的生命周期。 该API对象捕获存储的实现细节，即NFS，iSCSI或云提供商特定的存储系统。
 PersistentVolumeClaim（PVC）是用户存储的请求。 它类似于pod。Pod消耗节点资源，PVC消耗存储资源。 pod可以请求特定级别的资源（CPU和内存）。 权限要求可以请求特定的大小和访问模式。
 虽然PersistentVolumeClaims允许用户使用抽象存储资源，但是常见的是，用户需要具有不同属性（如性能）的PersistentVolumes，用于不同的问题。 群集管理员需要能够提供多种不同于PersistentVolumes的PersistentVolumes，而不仅仅是大小和访问模式，而不会使用户了解这些卷的实现细节。 对于这些需求，存在StorageClass资源。
 StorageClass为管理员提供了一种描述他们提供的存储的“类”的方法。 不同的类可能映射到服务质量级别，或备份策略，或者由群集管理员确定的任意策略。 Kubernetes本身对于什么类别代表是不言而喻的。 这个概念有时在其他存储系统中称为“配置文件”
-例子 https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/Lifecycle of a volume and claim PV是集群中的资源。 PVC是对这些资源的请求，也是对资源的索赔检查。 PV和PVC之间的相互作用遵循这个生命周期:
+例子 https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/ Lifecycle of a volume and claim PV是集群中的资源。 PVC是对这些资源的请求，也是对资源的索赔检查。 PV和PVC之间的相互作用遵循这个生命周期:
 Provisioning ——-&gt; Binding ——–&gt;Using——&gt;Releasing——&gt;Recycling
 Provisioning 这里有两种PV的提供方式:静态或者动态
-Static集群管理员创建多个PV。 它们携带可供集群用户使用的真实存储的详细信息。 它们存在于Kubernetes API中，可用于消费。Dynamic当管理员创建的静态PV都不匹配用户的PersistentVolumeClaim时，集群可能会尝试为PVC动态配置卷。 此配置基于StorageClasses：PVC必须请求一个类，并且管理员必须已创建并配置该类才能进行动态配置。 要求该类的声明有效地为自己禁用动态配置Binding 在动态配置的情况下，用户创建或已经创建了具有特定数量的存储请求和特定访问模式的PersistentVolumeClaim。 主机中的控制回路监视新的PVC，找到匹配的PV（如果可能），并将它们绑定在一起。 如果为新的PVC动态配置PV，则循环将始终将该PV绑定到PVC。 否则，用户总是至少得到他们要求的内容，但是卷可能超出了要求。 一旦绑定，PersistentVolumeClaim绑定是排他的，不管用于绑定它们的模式。
+Static 集群管理员创建多个PV。 它们携带可供集群用户使用的真实存储的详细信息。 它们存在于Kubernetes API中，可用于消费。 Dynamic 当管理员创建的静态PV都不匹配用户的PersistentVolumeClaim时，集群可能会尝试为PVC动态配置卷。 此配置基于StorageClasses：PVC必须请求一个类，并且管理员必须已创建并配置该类才能进行动态配置。 要求该类的声明有效地为自己禁用动态配置 Binding 在动态配置的情况下，用户创建或已经创建了具有特定数量的存储请求和特定访问模式的PersistentVolumeClaim。 主机中的控制回路监视新的PVC，找到匹配的PV（如果可能），并将它们绑定在一起。 如果为新的PVC动态配置PV，则循环将始终将该PV绑定到PVC。 否则，用户总是至少得到他们要求的内容，但是卷可能超出了要求。 一旦绑定，PersistentVolumeClaim绑定是排他的，不管用于绑定它们的模式。
 如果匹配的卷不存在，PVC将保持无限期。 随着匹配卷变得可用，PVC将被绑定。 例如，提供许多50Gi PV的集群将不匹配要求100Gi的PVC。 当集群中添加100Gi PV时，可以绑定PVC。
 Using Pod使用PVC作为卷。 集群检查声明以找到绑定的卷并挂载该卷的卷。 对于支持多种访问模式的卷，用户在将其声明用作pod中的卷时指定所需的模式。
 一旦用户有声明并且该声明被绑定，绑定的PV属于用户，只要他们需要它。 用户通过在其Pod的卷块中包含persistentVolumeClaim来安排Pods并访问其声明的PV。
@@ -26,14 +26,14 @@ Reclaiming PersistentVolume的回收策略告诉集群在释放其声明后，�
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="613"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="云原生,k8s," /><meta property="og:title" content="1.2.8.1 PV/PVC/StorageClass" />
-<meta property="og:description" content="1.2.8.1 PV/PVC/StorageClass 名词解释：PV/PVC/StorageClass 本文较老，建议查看新文档：http://docs.kubernetes.org.cn/429.html 介绍 PersistentVolume（PV）是集群中已由管理员配置的一段网络存储。 集群中的资源就像一个节点是一个集群资源。 PV是诸如卷之类的卷插件，但是具有独立于使用PV的任何单个pod的生命周期。 该API对象捕获存储的实现细节，即NFS，iSCSI或云提供商特定的存储系统。
+<meta property="og:description" content="1.2.8.1 PV/PVC/StorageClass 名词解释：PV/PVC/StorageClass  本文较老，建议查看新文档：http://docs.kubernetes.org.cn/429.html 介绍 PersistentVolume（PV）是集群中已由管理员配置的一段网络存储。 集群中的资源就像一个节点是一个集群资源。 PV是诸如卷之类的卷插件，但是具有独立于使用PV的任何单个pod的生命周期。 该API对象捕获存储的实现细节，即NFS，iSCSI或云提供商特定的存储系统。
 PersistentVolumeClaim（PVC）是用户存储的请求。 它类似于pod。Pod消耗节点资源，PVC消耗存储资源。 pod可以请求特定级别的资源（CPU和内存）。 权限要求可以请求特定的大小和访问模式。
 虽然PersistentVolumeClaims允许用户使用抽象存储资源，但是常见的是，用户需要具有不同属性（如性能）的PersistentVolumes，用于不同的问题。 群集管理员需要能够提供多种不同于PersistentVolumes的PersistentVolumes，而不仅仅是大小和访问模式，而不会使用户了解这些卷的实现细节。 对于这些需求，存在StorageClass资源。
 StorageClass为管理员提供了一种描述他们提供的存储的“类”的方法。 不同的类可能映射到服务质量级别，或备份策略，或者由群集管理员确定的任意策略。 Kubernetes本身对于什么类别代表是不言而喻的。 这个概念有时在其他存储系统中称为“配置文件”
-例子 https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/Lifecycle of a volume and claim PV是集群中的资源。 PVC是对这些资源的请求，也是对资源的索赔检查。 PV和PVC之间的相互作用遵循这个生命周期:
+例子 https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/ Lifecycle of a volume and claim PV是集群中的资源。 PVC是对这些资源的请求，也是对资源的索赔检查。 PV和PVC之间的相互作用遵循这个生命周期:
 Provisioning ——-&gt; Binding ——–&gt;Using——&gt;Releasing——&gt;Recycling
 Provisioning 这里有两种PV的提供方式:静态或者动态
-Static集群管理员创建多个PV。 它们携带可供集群用户使用的真实存储的详细信息。 它们存在于Kubernetes API中，可用于消费。Dynamic当管理员创建的静态PV都不匹配用户的PersistentVolumeClaim时，集群可能会尝试为PVC动态配置卷。 此配置基于StorageClasses：PVC必须请求一个类，并且管理员必须已创建并配置该类才能进行动态配置。 要求该类的声明有效地为自己禁用动态配置Binding 在动态配置的情况下，用户创建或已经创建了具有特定数量的存储请求和特定访问模式的PersistentVolumeClaim。 主机中的控制回路监视新的PVC，找到匹配的PV（如果可能），并将它们绑定在一起。 如果为新的PVC动态配置PV，则循环将始终将该PV绑定到PVC。 否则，用户总是至少得到他们要求的内容，但是卷可能超出了要求。 一旦绑定，PersistentVolumeClaim绑定是排他的，不管用于绑定它们的模式。
+Static 集群管理员创建多个PV。 它们携带可供集群用户使用的真实存储的详细信息。 它们存在于Kubernetes API中，可用于消费。 Dynamic 当管理员创建的静态PV都不匹配用户的PersistentVolumeClaim时，集群可能会尝试为PVC动态配置卷。 此配置基于StorageClasses：PVC必须请求一个类，并且管理员必须已创建并配置该类才能进行动态配置。 要求该类的声明有效地为自己禁用动态配置 Binding 在动态配置的情况下，用户创建或已经创建了具有特定数量的存储请求和特定访问模式的PersistentVolumeClaim。 主机中的控制回路监视新的PVC，找到匹配的PV（如果可能），并将它们绑定在一起。 如果为新的PVC动态配置PV，则循环将始终将该PV绑定到PVC。 否则，用户总是至少得到他们要求的内容，但是卷可能超出了要求。 一旦绑定，PersistentVolumeClaim绑定是排他的，不管用于绑定它们的模式。
 如果匹配的卷不存在，PVC将保持无限期。 随着匹配卷变得可用，PVC将被绑定。 例如，提供许多50Gi PV的集群将不匹配要求100Gi的PVC。 当集群中添加100Gi PV时，可以绑定PVC。
 Using Pod使用PVC作为卷。 集群检查声明以找到绑定的卷并挂载该卷的卷。 对于支持多种访问模式的卷，用户在将其声明用作pod中的卷时指定所需的模式。
 一旦用户有声明并且该声明被绑定，绑定的PV属于用户，只要他们需要它。 用户通过在其Pod的卷块中包含persistentVolumeClaim来安排Pods并访问其声明的PV。
@@ -49,21 +49,22 @@ Reclaiming PersistentVolume的回收策略告诉集群在释放其声明后，�
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
 
 <meta name="twitter:title" content="1.2.8.1 PV/PVC/StorageClass"/>
-<meta name="twitter:description" content="1.2.8.1 PV/PVC/StorageClass 名词解释：PV/PVC/StorageClass 本文较老，建议查看新文档：http://docs.kubernetes.org.cn/429.html 介绍 PersistentVolume（PV）是集群中已由管理员配置的一段网络存储。 集群中的资源就像一个节点是一个集群资源。 PV是诸如卷之类的卷插件，但是具有独立于使用PV的任何单个pod的生命周期。 该API对象捕获存储的实现细节，即NFS，iSCSI或云提供商特定的存储系统。
+<meta name="twitter:description" content="1.2.8.1 PV/PVC/StorageClass 名词解释：PV/PVC/StorageClass  本文较老，建议查看新文档：http://docs.kubernetes.org.cn/429.html 介绍 PersistentVolume（PV）是集群中已由管理员配置的一段网络存储。 集群中的资源就像一个节点是一个集群资源。 PV是诸如卷之类的卷插件，但是具有独立于使用PV的任何单个pod的生命周期。 该API对象捕获存储的实现细节，即NFS，iSCSI或云提供商特定的存储系统。
 PersistentVolumeClaim（PVC）是用户存储的请求。 它类似于pod。Pod消耗节点资源，PVC消耗存储资源。 pod可以请求特定级别的资源（CPU和内存）。 权限要求可以请求特定的大小和访问模式。
 虽然PersistentVolumeClaims允许用户使用抽象存储资源，但是常见的是，用户需要具有不同属性（如性能）的PersistentVolumes，用于不同的问题。 群集管理员需要能够提供多种不同于PersistentVolumes的PersistentVolumes，而不仅仅是大小和访问模式，而不会使用户了解这些卷的实现细节。 对于这些需求，存在StorageClass资源。
 StorageClass为管理员提供了一种描述他们提供的存储的“类”的方法。 不同的类可能映射到服务质量级别，或备份策略，或者由群集管理员确定的任意策略。 Kubernetes本身对于什么类别代表是不言而喻的。 这个概念有时在其他存储系统中称为“配置文件”
-例子 https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/Lifecycle of a volume and claim PV是集群中的资源。 PVC是对这些资源的请求，也是对资源的索赔检查。 PV和PVC之间的相互作用遵循这个生命周期:
+例子 https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/ Lifecycle of a volume and claim PV是集群中的资源。 PVC是对这些资源的请求，也是对资源的索赔检查。 PV和PVC之间的相互作用遵循这个生命周期:
 Provisioning ——-&gt; Binding ——–&gt;Using——&gt;Releasing——&gt;Recycling
 Provisioning 这里有两种PV的提供方式:静态或者动态
-Static集群管理员创建多个PV。 它们携带可供集群用户使用的真实存储的详细信息。 它们存在于Kubernetes API中，可用于消费。Dynamic当管理员创建的静态PV都不匹配用户的PersistentVolumeClaim时，集群可能会尝试为PVC动态配置卷。 此配置基于StorageClasses：PVC必须请求一个类，并且管理员必须已创建并配置该类才能进行动态配置。 要求该类的声明有效地为自己禁用动态配置Binding 在动态配置的情况下，用户创建或已经创建了具有特定数量的存储请求和特定访问模式的PersistentVolumeClaim。 主机中的控制回路监视新的PVC，找到匹配的PV（如果可能），并将它们绑定在一起。 如果为新的PVC动态配置PV，则循环将始终将该PV绑定到PVC。 否则，用户总是至少得到他们要求的内容，但是卷可能超出了要求。 一旦绑定，PersistentVolumeClaim绑定是排他的，不管用于绑定它们的模式。
+Static 集群管理员创建多个PV。 它们携带可供集群用户使用的真实存储的详细信息。 它们存在于Kubernetes API中，可用于消费。 Dynamic 当管理员创建的静态PV都不匹配用户的PersistentVolumeClaim时，集群可能会尝试为PVC动态配置卷。 此配置基于StorageClasses：PVC必须请求一个类，并且管理员必须已创建并配置该类才能进行动态配置。 要求该类的声明有效地为自己禁用动态配置 Binding 在动态配置的情况下，用户创建或已经创建了具有特定数量的存储请求和特定访问模式的PersistentVolumeClaim。 主机中的控制回路监视新的PVC，找到匹配的PV（如果可能），并将它们绑定在一起。 如果为新的PVC动态配置PV，则循环将始终将该PV绑定到PVC。 否则，用户总是至少得到他们要求的内容，但是卷可能超出了要求。 一旦绑定，PersistentVolumeClaim绑定是排他的，不管用于绑定它们的模式。
 如果匹配的卷不存在，PVC将保持无限期。 随着匹配卷变得可用，PVC将被绑定。 例如，提供许多50Gi PV的集群将不匹配要求100Gi的PVC。 当集群中添加100Gi PV时，可以绑定PVC。
 Using Pod使用PVC作为卷。 集群检查声明以找到绑定的卷并挂载该卷的卷。 对于支持多种访问模式的卷，用户在将其声明用作pod中的卷时指定所需的模式。
 一旦用户有声明并且该声明被绑定，绑定的PV属于用户，只要他们需要它。 用户通过在其Pod的卷块中包含persistentVolumeClaim来安排Pods并访问其声明的PV。
 Releasing 当用户完成卷时，他们可以从允许资源回收的API中删除PVC对象。 当声明被删除时，卷被认为是“释放的”，但是它还不能用于另一个声明。 以前的索赔人的数据仍然保留在必须根据政策处理的卷上.
 Reclaiming PersistentVolume的回收策略告诉集群在释放其声明后，该卷应该如何处理。 目前，卷可以是保留，回收或删除。 保留可以手动回收资源。 对于那些支持它的卷插件，删除将从Kubernetes中删除PersistentVolume对象，以及删除外部基础架构（如AWS EBS，GCE PD，Azure Disk或Cinder卷）中关联的存储资产。 动态配置的卷始终被删除"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://xuzhijvn.github.io/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://xuzhijvn.github.io/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
@@ -86,14 +87,16 @@ if (!doNotTrack) {
 </script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
-      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy">唯有光頭才能變強</a>
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
+   width="400" height="400" loading="lazy" />
+唯有光頭才能變強</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
   <div class="input-group input-group-sm">
-    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
     <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
   </div>
 </form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
@@ -175,22 +178,22 @@ if (!doNotTrack) {
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
               <a class="dropdown-item"
-                href="https://clevergo.tech/" target="_blank">
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
                 CleverGo
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://gopkgs.net/" target="_blank">
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
                 GOPKGS
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
                 Hugo Bootstrap 主题
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://admin.yii2.razonyang.com/" target="_blank">
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
                 Yii 2 管理后台
               </a>
             </li></ul>
@@ -291,13 +294,12 @@ if (!doNotTrack) {
   </div>
 </div>
 <h1 class="post-title my-3">1.2.8.1 PV/PVC/StorageClass
-</h1><div class="post-meta mb-3">
-  <span class="post-date me-2">
+</h1><div class="post-meta mb-3"><span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
-  </span>
-  <span class="post-reading-time me-2">
+  </span><span class="post-reading-time me-2">
     <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">#云原生</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy">#k8s</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">#云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="post-taxonomy">#k8s</a></div>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy">k8s</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="post-taxonomy">k8s</a></span>
+</div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
@@ -324,7 +326,7 @@ if (!doNotTrack) {
 </nav>
   </div>
 </div><div class="post-content mb-3"><h1 id="1281-pvpvcstorageclass">1.2.8.1 PV/PVC/StorageClass</h1>
-<h1 id="名词解释pvpvcstorageclasshttpswwwkubernetesorgcnpvpvcstorageclass"><a href="https://www.kubernetes.org.cn/pvpvcstorageclass" target="_blank">名词解释：PV/PVC/StorageClass</a>
+<h1 id="名词解释pvpvcstorageclasshttpswwwkubernetesorgcnpvpvcstorageclass"><a href="https://www.kubernetes.org.cn/pvpvcstorageclass" target="_blank" rel="noopener noreferrer">名词解释：PV/PVC/StorageClass</a>
 </h1>
 <h3 id="本文较老建议查看新文档httpdocskubernetesorgcn429html">本文较老，建议查看新文档：http://docs.kubernetes.org.cn/429.html</h3>
 <h3 id="介绍">介绍</h3>
@@ -333,7 +335,7 @@ if (!doNotTrack) {
 <p>虽然PersistentVolumeClaims允许用户使用抽象存储资源，但是常见的是，用户需要具有不同属性（如性能）的PersistentVolumes，用于不同的问题。 群集管理员需要能够提供多种不同于PersistentVolumes的PersistentVolumes，而不仅仅是大小和访问模式，而不会使用户了解这些卷的实现细节。 对于这些需求，存在StorageClass资源。</p>
 <p>StorageClass为管理员提供了一种描述他们提供的存储的“类”的方法。 不同的类可能映射到服务质量级别，或备份策略，或者由群集管理员确定的任意策略。 Kubernetes本身对于什么类别代表是不言而喻的。 这个概念有时在其他存储系统中称为“配置文件”</p>
 <p>例子
-<a href="https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/" target="_blank">https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/</a>
+<a href="https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/" target="_blank" rel="noopener noreferrer">https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/</a>
 </p>
 <h3 id="lifecycle-of-a-volume-and-claim">Lifecycle of a volume and claim</h3>
 <p>PV是集群中的资源。 PVC是对这些资源的请求，也是对资源的索赔检查。 PV和PVC之间的相互作用遵循这个生命周期:</p>
@@ -565,12 +567,12 @@ availability: Availability Zone. If not specified, volumes are generally round-r
 ３．　不要使用volume.beta.kubernetes.io/storage-class：包含空字符串的任何值，因为它将阻止DefaultStorageClass接纳控制器运行（如果启用）。</p>
 <p>在您的工具中，请注意在一段时间后未绑定的PVC，并将其表示给用户，因为这可能表明集群没有动态存储支持（在这种情况下，用户应创建匹配的PV）或集群没有存储系统（在这种情况下，用户无法部署需要PVC的配置）。</p>
 <p>在将来，我们预计大多数集群都将启用DefaultStorageClass，并提供某种形式的存储。但是，可能没有任何存储类名可用于所有集群，因此默认情况下继续不设置。在某种程度上，alpha注释将不再有意义，但PVC上的未设置的storageClass字段将具有所需的效果。</p>
-<p><em>译者：阿仆来耶 <a href="http://blog.csdn.net/jettery/article/details/72722324" target="_blank">http://blog.csdn.net/jettery/article/details/72722324</a>
+<p><em>译者：阿仆来耶 <a href="http://blog.csdn.net/jettery/article/details/72722324" target="_blank" rel="noopener noreferrer">http://blog.csdn.net/jettery/article/details/72722324</a>
 </em></p>
 <p>参考链接</p>
-<p><a href="https://www.kubernetes.org.cn/" target="_blank">https://www.kubernetes.org.cn/</a>
+<p><a href="https://www.kubernetes.org.cn/" target="_blank" rel="noopener noreferrer">https://www.kubernetes.org.cn/</a>
 
-<a href="http://docs.kubernetes.org.cn/" target="_blank">http://docs.kubernetes.org.cn/</a>
+<a href="http://docs.kubernetes.org.cn/" target="_blank" rel="noopener noreferrer">http://docs.kubernetes.org.cn/</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -617,7 +619,7 @@ availability: Availability Zone. If not specified, volumes are generally round-r
   </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
   repo="razonyang/blog"
   issue-term="pathname"
-  label=""
+  label="comment"
   theme="github-dark"
   crossorigin="anonymous"
   async>
@@ -633,13 +635,13 @@ availability: Availability Zone. If not specified, volumes are generally round-r
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<section class="profile surface row">
-  <div class="col-xl-6 d-flex align-items-center justify-content-center">
-    <img class="profile-avatar img-fluid" src="https://xuzhijvn.github.io/images/profile.webp" alt="Tony Xu" loading="lazy">
-  </div>
-  <div class="col-xl-6">
-    <h5 class="profile-name my-2">Tony Xu</h5><div class="profile-bio mb-2">发型总监</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>光头发廊</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
-</section><section class="recent-posts row surface">
+<section class="profile surface row text-center">
+  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony Xu" src="https://xuzhijvn.github.io/images/profile.webp"
+   width="400" height="400" loading="lazy" />
+</div>
+  <div class="col-12 profile-meta"><div class="profile-name">Tony Xu</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section>
+  <section class="recent-posts row surface">
   <h4>最近文章</h4>
   <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
@@ -719,36 +721,24 @@ availability: Availability Zone. If not specified, volumes are generally round-r
 </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
-    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
-    </a>
-  </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-gitlab"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-qq"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-twitter"></i>
-      </a>
-    </li></nav>
+      </a></nav>
 <div class="copyright mb-2">
   Copyright © 2016-2021 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
-  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
 </div><div class="mb-3">
   <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
   <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>

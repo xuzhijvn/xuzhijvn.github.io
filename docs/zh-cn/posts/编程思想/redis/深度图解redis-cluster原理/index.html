@@ -16,7 +16,7 @@
 1. 为什么需要Redis Cluster 的确，在数据上，有replication副本做保证；可用性上，master宕机会自动的执行failover。
  那问题在哪儿呢？
  首先Redis Sentinel说白了也是基于主从复制，在主从复制中slave的数据是完全来自于master。
-假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
+假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制 文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
 所以，当你只需要存储4G的数据时候的，基于主从复制和基于Sentinel的高可用架构是完全够用的。
 但是如果当你面临的是海量的数据的时候呢？16G、64G、256G甚至1T呢？现在互联网的业务里面，如果你的体量足够大，我觉得是肯定会面临缓存海量缓存数据的场景的。
 这就是为什么我们需要引入Redis Cluster。
@@ -51,7 +51,7 @@ Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点�
 1. 为什么需要Redis Cluster 的确，在数据上，有replication副本做保证；可用性上，master宕机会自动的执行failover。
  那问题在哪儿呢？
  首先Redis Sentinel说白了也是基于主从复制，在主从复制中slave的数据是完全来自于master。
-假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
+假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制 文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
 所以，当你只需要存储4G的数据时候的，基于主从复制和基于Sentinel的高可用架构是完全够用的。
 但是如果当你面临的是海量的数据的时候呢？16G、64G、256G甚至1T呢？现在互联网的业务里面，如果你的体量足够大，我觉得是肯定会面临缓存海量缓存数据的场景的。
 这就是为什么我们需要引入Redis Cluster。
@@ -93,7 +93,7 @@ Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点�
 1. 为什么需要Redis Cluster 的确，在数据上，有replication副本做保证；可用性上，master宕机会自动的执行failover。
  那问题在哪儿呢？
  首先Redis Sentinel说白了也是基于主从复制，在主从复制中slave的数据是完全来自于master。
-假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
+假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制 文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
 所以，当你只需要存储4G的数据时候的，基于主从复制和基于Sentinel的高可用架构是完全够用的。
 但是如果当你面临的是海量的数据的时候呢？16G、64G、256G甚至1T呢？现在互联网的业务里面，如果你的体量足够大，我觉得是肯定会面临缓存海量缓存数据的场景的。
 这就是为什么我们需要引入Redis Cluster。
@@ -120,7 +120,8 @@ Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点�
 此时数据落在节点A上的概率明显是大于其他两个节点的，其次落在节点C上的概率最小。这样一来会导致整个集群的数据存储不平衡，AB节点压力较大，而C节点资源利用不充分。为了解决这个问题，一致性哈希算法引入了虚拟节点机制。
 在圆环中，增加了对应节点的虚拟节点，然后完成了虚拟节点到真实节点的映射。假设现在计算得出了位置D，那么按照顺时针的顺序，我们找到的第一个节点就是C #1，最终数据实际还是会落在节点C上。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://xuzhijvn.github.io/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://xuzhijvn.github.io/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
@@ -143,14 +144,16 @@ if (!doNotTrack) {
 </script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
-      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy">唯有光頭才能變強</a>
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
+   width="400" height="400" loading="lazy" />
+唯有光頭才能變強</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
   <div class="input-group input-group-sm">
-    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
     <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
   </div>
 </form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
@@ -232,22 +235,22 @@ if (!doNotTrack) {
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
               <a class="dropdown-item"
-                href="https://clevergo.tech/" target="_blank">
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
                 CleverGo
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://gopkgs.net/" target="_blank">
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
                 GOPKGS
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
                 Hugo Bootstrap 主题
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://admin.yii2.razonyang.com/" target="_blank">
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
                 Yii 2 管理后台
               </a>
             </li></ul>
@@ -347,13 +350,12 @@ if (!doNotTrack) {
   </div>
 </div>
 <h1 class="post-title my-3">深度图解Redis Cluster原理
-</h1><div class="post-meta mb-3">
-  <span class="post-date me-2">
+</h1><div class="post-meta mb-3"><span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
-  </span>
-  <span class="post-reading-time me-2">
+  </span><span class="post-reading-time me-2">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy">#编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">#Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy">#redis</a></div>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy">redis</a></span>
+</div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><h2 id="前言">前言</h2>
 <p>上文我们聊了基于Sentinel的Redis高可用架构，了解了Redis基于读写分离的主从架构，同时也知道当Redis的master发生故障之后，Sentinel集群是如何执行failover的，以及其执行failover的原理是什么。</p>
 <p>这里大概再提一下，Sentinel集群会对Redis的主从架构中的Redis实例进行监控，一旦发现了master节点宕机了，就会选举出一个Sentinel节点来执行故障转移，从原来的slave节点中选举出一个，将其提升为master节点，然后让其他的节点去复制新选举出来的master节点。</p>
@@ -364,9 +366,11 @@ if (!doNotTrack) {
 <p>那问题在哪儿呢？</p>
 </blockquote>
 <p>首先Redis Sentinel说白了也是基于<strong>主从复制</strong>，在主从复制中slave的数据是完全来自于master。</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/0081Kckwly1gll2khn7srj30el03vt8o.jpg" alt="redis-capacity"  loading="lazy" />
+<p><img class="img-fluid" alt="redis-capacity" src="https://picgo.6and.ltd/img/0081Kckwly1gll2khn7srj30el03vt8o.jpg"
+   loading="lazy" />
+
 </p>
-<p>假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的<a href="https://mp.weixin.qq.com/s/VJTBmAB-A1aRT9DR6v5gow" target="_blank">跟随杠精的视角一起来了解Redis的主从复制</a>
+<p>假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的<a href="https://mp.weixin.qq.com/s/VJTBmAB-A1aRT9DR6v5gow" target="_blank" rel="noopener noreferrer">跟随杠精的视角一起来了解Redis的主从复制</a>
 文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是<strong>写能力</strong>和<strong>存储能力</strong>是无法进行扩展的，就只能是master节点能够承载的上限。</p>
 <p>所以，当你只需要存储4G的数据时候的，基于主从复制和基于Sentinel的高可用架构是完全够用的。</p>
 <p>但是如果当你面临的是海量的数据的时候呢？16G、64G、256G甚至1T呢？现在互联网的业务里面，如果你的体量足够大，我觉得是肯定会面临缓存<strong>海量</strong>缓存数据的场景的。</p>
@@ -377,7 +381,9 @@ if (!doNotTrack) {
 <p>那什么是Redis Cluster呢？</p>
 </blockquote>
 <p>很简单，你就可以理解为n个主从架构组合在一起对外服务。Redis Cluster要求至少需要3个master才能组成一个集群，同时每个master至少需要有一个slave节点。</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/0081Kckwly1gll36kwg27j30qr0i3myk.jpg" alt="redis-cluster"  loading="lazy" />
+<p><img class="img-fluid" alt="redis-cluster" src="https://picgo.6and.ltd/img/0081Kckwly1gll36kwg27j30qr0i3myk.jpg"
+   loading="lazy" />
+
 </p>
 <p>这样一来，如果一个主从能够存储32G的数据，如果这个集群包含了两个主从，则整个集群就能够存储64G的数据。</p>
 <p>我们知道，主从架构中，可以通过增加slave节点的方式来扩展读请求的并发量，那Redis Cluster中是如何做的呢？虽然每个master下都挂载了一个slave节点，但是在Redis Cluster中的读、写请求其实都是在<strong>master</strong>上完成的。</p>
@@ -385,7 +391,9 @@ if (!doNotTrack) {
 <h2 id="3-节点负载均衡">3. 节点负载均衡</h2>
 <p>知道了什么是Redis Cluster，我们就可以继续下面的讨论了。</p>
 <p>不知道你思考过一个问题没，这么多的master节点。我存储的时候，到底该选择哪个节点呢？一般这种负载均衡算法，会选择<strong>哈希算法</strong>。哈希算法是怎么做的呢？</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/0081Kckwly1gll3oxx5iqj30d80dhaag.jpg" alt="redis-master-select"  loading="lazy" />
+<p><img class="img-fluid" alt="redis-master-select" src="https://picgo.6and.ltd/img/0081Kckwly1gll3oxx5iqj30d80dhaag.jpg"
+   loading="lazy" />
+
 </p>
 <p>首先就是对key计算出一个hash值，然后用哈希值对master数量进行取模。由此就可以将key负载均衡到每一个Redis节点上去。这就是简单的<strong>哈希算法</strong>的实现。</p>
 <p>那Redis Cluster是采取的上面的哈希算法吗？答案是<strong>没有</strong>。</p>
@@ -395,20 +403,28 @@ if (!doNotTrack) {
 <p>知道了通过传统哈希算法来实现对节点的负载均衡的弊端，我们就需要进一步了解<strong>什么是一致性哈希</strong>。</p>
 <p>我们上面提过哈希算法是对master实例数量来取模，而<strong>一致性哈希</strong>则是对2^32取模，也就是值的范围在[0, 2^32 -1]。一致性哈希将其范围抽象成了一个圆环，使用CRC16算法计算出来的哈希值会落到圆环上的某个地方。</p>
 <p>然后我们的Redis实例也分布在圆环上，我们在圆环上按照顺时针的顺序找到第一个Redis实例，这样就完成了对key的节点分配。我们举个例子。</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/0081Kckwgy1glmcvvmyvkj30ee0jdmy3.jpg" alt="hash"  loading="lazy" />
+<p><img class="img-fluid" alt="hash" src="https://picgo.6and.ltd/img/0081Kckwgy1glmcvvmyvkj30ee0jdmy3.jpg"
+   loading="lazy" />
+
 </p>
 <p>假设我们有A、B、C三个Redis实例按照如图所示的位置分布在圆环上，此时计算出来的hash值，取模之后位置落在了<strong>位置D</strong>，那么我们按照顺时针的顺序，就能够找到我们这个key应该分配的Redis实例B。同理如果我们计算出来位置在E，那么对应选择的Redis的实例就是A。</p>
 <p>即使这个时候Redis实例B挂了，也不会影响到实例A和C的缓存。</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/0081Kckwgy1gln53ifhuwj30ee0jdt9p.jpg" alt="hash-down"  loading="lazy" />
+<p><img class="img-fluid" alt="hash-down" src="https://picgo.6and.ltd/img/0081Kckwgy1gln53ifhuwj30ee0jdt9p.jpg"
+   loading="lazy" />
+
 </p>
 <p>例如此时节点B挂了，那之前计算出来在位置D的key，此时会按照顺时针的顺序，找到节点C。相当于自动的把原来节点B的流量给转移到了节点C上去。而其他原本就在节点A和节点C的数据则完全不受影响。</p>
 <p>这就是一致性哈希，能够在我们后续需要新增节点或者删除节点的时候，不影响其他节点的正常运行。</p>
 <h2 id="5-虚拟节点机制">5. 虚拟节点机制</h2>
 <p>但是一致性哈希也存在自身的小问题，例如当我们的Redis节点分布如下时，就有问题了。</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/0081Kckwgy1gln5gdf877j30ee0jd0to.jpg" alt="hash-unevently"  loading="lazy" />
+<p><img class="img-fluid" alt="hash-unevently" src="https://picgo.6and.ltd/img/0081Kckwgy1gln5gdf877j30ee0jd0to.jpg"
+   loading="lazy" />
+
 </p>
 <p>此时数据落在节点A上的概率明显是大于其他两个节点的，其次落在节点C上的概率最小。这样一来会导致整个集群的数据存储不平衡，AB节点压力较大，而C节点资源利用不充分。为了解决这个问题，一致性哈希算法引入了<strong>虚拟节点机制</strong>。</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/0081Kckwgy1gln5lb847oj30ee0k2my8.jpg" alt="virtual-dom"  loading="lazy" />
+<p><img class="img-fluid" alt="virtual-dom" src="https://picgo.6and.ltd/img/0081Kckwgy1gln5lb847oj30ee0k2my8.jpg"
+   loading="lazy" />
+
 </p>
 <p>在圆环中，增加了对应节点的虚拟节点，然后完成了虚拟节点到真实节点的映射。假设现在计算得出了位置D，那么按照顺时针的顺序，我们找到的第一个节点就是<strong>C #1</strong>，最终数据实际还是会落在节点C上。</p>
 <p>通过增加虚拟节点的方式，使ABC三个节点在圆环上的位置更加均匀，平均了落在每一个节点上的概率。这样一来就解决了上文提到的数据存储存在不均匀的问题了，这就是一致性哈希的虚拟节点机制。</p>
@@ -438,7 +454,9 @@ if (!doNotTrack) {
 </tbody>
 </table>
 <p>每个Redis实例会自己维护一份<strong>slot - Redis节点</strong>的映射关系，假设你在节点A上设置了某个key，但是这个key通过CRC16计算出来的槽位是由节点B维护的，那么就会提示你需要去节点B上进行操作。</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/0081Kckwgy1glnlpufb7yj30f50bmjry.jpg" alt="slot-to-node"  loading="lazy" />
+<p><img class="img-fluid" alt="slot-to-node" src="https://picgo.6and.ltd/img/0081Kckwgy1glnlpufb7yj30f50bmjry.jpg"
+   loading="lazy" />
+
 </p>
 <h2 id="7-redis-cluster如何做到高可用">7. Redis Cluster如何做到高可用</h2>
 <p>不知道你思考过一个问题没，如果Redis Cluster中的某个master节点挂了，它是如何保证集群自身的高可用的？如果这个时候我们集群需要扩容节点，它该负责哪些槽位呢？我们一个一个问题的来看一下。</p>
@@ -448,11 +466,13 @@ if (!doNotTrack) {
 <p>假设我们需要向集群中加入一个D节点，而此时集群内已经有A、B、C三个节点了。</p>
 <p>此时redis-trib会向A、B、C三个节点发送迁移出槽位的请求，同时向D节点发送准备导入槽位的请求，做好准备之后A、B、C这三个源节点就开始执行迁移，将对应的slot所对应的键值对迁移至目标节点D。最后redis-trib会向集群中所有主节点发送槽位的变更信息。</p>
 <h3 id="高可用及故障转移">高可用及故障转移</h3>
-<p>Redis Cluster中保证集群高可用的思路和实现和Redis Sentinel如出一辙，感兴趣的可以去看我之前写的关于Sentinel的文章<a href="https://mp.weixin.qq.com/s/k-wGpBBnS53Ap86KNiBYvA" target="_blank">Redis Sentinel-深入浅出原理和实战</a>
+<p>Redis Cluster中保证集群高可用的思路和实现和Redis Sentinel如出一辙，感兴趣的可以去看我之前写的关于Sentinel的文章<a href="https://mp.weixin.qq.com/s/k-wGpBBnS53Ap86KNiBYvA" target="_blank" rel="noopener noreferrer">Redis Sentinel-深入浅出原理和实战</a>
 。</p>
 <p>简单来说，针对A节点，某一个节点认为A宕机了，那么此时是<strong>主观宕机</strong>。而如果集群内超过半数的节点认为A挂了， 那么此时A就会被标记为<strong>客观宕机</strong>。</p>
 <p>一旦节点A被标记为了客观宕机，集群就会开始执行<strong>故障转移</strong>。其余正常运行的master节点会进行投票选举，从A节点的slave节点中选举出一个，将其切换成新的master对外提供服务。当某个slave获得了超过半数的master节点投票，就成功当选。</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/0081Kckwgy1glqmfywf8jj30920f3mxp.jpg" alt="cluster-failover"  loading="lazy" />
+<p><img class="img-fluid" alt="cluster-failover" src="https://picgo.6and.ltd/img/0081Kckwgy1glqmfywf8jj30920f3mxp.jpg"
+   loading="lazy" />
+
 </p>
 <p>当选成功之后，新的master会执行<code>slaveof no one</code>来让自己停止复制A节点，使自己成为master。然后将A节点所负责处理的slot，全部转移给自己，然后就会向集群发<strong>PONG</strong>消息来广播自己的最新状态。</p>
 <p>按照<strong>一致性哈希</strong>的思想，如果某个节点挂了，那么就会沿着那个圆环，按照顺时针的顺序找到遇到的第一个Redis实例。</p>
@@ -462,12 +482,16 @@ if (!doNotTrack) {
 <p>这就是Redis Cluster各个节点之间交换数据、通信所采用的一种协议，叫做<strong>gossip</strong>。</p>
 <pre><code>gossip: 流言、八卦、小道消息
 </code></pre><p>gossip是在1989年的论文上提出的，我看了一堆资料都说的是1987年发表的，但是文章里的时间明确是1989年1月份发表。</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/0081Kckwgy1globdud52sj30p0044dfx.jpg" alt="image-20201215100703648"  loading="lazy" />
+<p><img class="img-fluid" alt="image-20201215100703648" src="https://picgo.6and.ltd/img/0081Kckwgy1globdud52sj30p0044dfx.jpg"
+   loading="lazy" />
+
 </p>
-<p>感兴趣的可以去看看<a href="http://bitsavers.trailing-edge.com/pdf/xerox/parc/techReports/CSL-89-1_Epidemic_Algorithms_for_Replicated_Database_Maintenance.pdf" target="_blank">Epidemic Algorithms for Replicated . Database Maintenance</a>
+<p>感兴趣的可以去看看<a href="http://bitsavers.trailing-edge.com/pdf/xerox/parc/techReports/CSL-89-1_Epidemic_Algorithms_for_Replicated_Database_Maintenance.pdf" target="_blank" rel="noopener noreferrer">Epidemic Algorithms for Replicated . Database Maintenance</a>
 ，在当时提出gossip主要是为了解决在分布式数据库中，各个副本节点的数据同步问题。但随着技术的发展，gossip后续也被广泛运用于信息扩散、故障探测等等。</p>
 <p>Redis Cluster就是利用了gossip来实现自身的<strong>信息扩散</strong>的。那使用gossip具体是如何通信的呢？</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/0081Kckwgy1glob136uztj30hn0cwgmi.jpg" alt="gossip"  loading="lazy" />
+<p><img class="img-fluid" alt="gossip" src="https://picgo.6and.ltd/img/0081Kckwgy1glob136uztj30hn0cwgmi.jpg"
+   loading="lazy" />
+
 </p>
 <p>很简单，就像图里这样。每个Redis节点<strong>每秒钟</strong>都会向其他的节点发送<strong>PING</strong>，然后被<strong>PING</strong>的节点会回一个<strong>PONG</strong>。</p>
 <h2 id="9-gossip协议消息类型">9. gossip协议消息类型</h2>
@@ -546,9 +570,9 @@ if (!doNotTrack) {
 <h2 id="11-总结">11. 总结</h2>
 <p>总的来说，Redis Cluster相当于是把Redis的<strong>主从架构</strong>和<strong>Sentinel</strong>集成到了一起，从Redis Cluster的高可用机制、判断故障转移以及执行故障转移的过程，都和主从、Sentinel相关，这也是为什么我在之前的文章里说，主从是Redis高可用架构的基石。</p>
 <h2 id="参考">参考</h2>
-<p><a href="https://www.cnblogs.com/detectiveHLH/p/14154665.html" target="_blank">深度图解Redis Cluster原理</a>
+<p><a href="https://www.cnblogs.com/detectiveHLH/p/14154665.html" target="_blank" rel="noopener noreferrer">深度图解Redis Cluster原理</a>
 </p>
-<p><a href="https://juejin.cn/post/6930774718114955278#heading-17" target="_blank">[分布式系列]Gossip协议</a>
+<p><a href="https://juejin.cn/post/6930774718114955278#heading-17" target="_blank" rel="noopener noreferrer">[分布式系列]Gossip协议</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -595,7 +619,7 @@ if (!doNotTrack) {
   </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
   repo="razonyang/blog"
   issue-term="pathname"
-  label=""
+  label="comment"
   theme="github-dark"
   crossorigin="anonymous"
   async>
@@ -611,13 +635,13 @@ if (!doNotTrack) {
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<section class="profile surface row">
-  <div class="col-xl-6 d-flex align-items-center justify-content-center">
-    <img class="profile-avatar img-fluid" src="https://xuzhijvn.github.io/images/profile.webp" alt="Tony Xu" loading="lazy">
-  </div>
-  <div class="col-xl-6">
-    <h5 class="profile-name my-2">Tony Xu</h5><div class="profile-bio mb-2">发型总监</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>光头发廊</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
-</section><section class="recent-posts row surface">
+<section class="profile surface row text-center">
+  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony Xu" src="https://xuzhijvn.github.io/images/profile.webp"
+   width="400" height="400" loading="lazy" />
+</div>
+  <div class="col-12 profile-meta"><div class="profile-name">Tony Xu</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section>
+  <section class="recent-posts row surface">
   <h4>最近文章</h4>
   <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
@@ -697,36 +721,24 @@ if (!doNotTrack) {
 </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
-    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
-    </a>
-  </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-gitlab"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-qq"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-twitter"></i>
-      </a>
-    </li></nav>
+      </a></nav>
 <div class="copyright mb-2">
   Copyright © 2016-2021 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
-  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
 </div><div class="mb-3">
   <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
   <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>

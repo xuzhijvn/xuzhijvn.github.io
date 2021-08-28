@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="反向传播—BP">
 <meta itemprop="description" content="说到神经网络，大家看到这个图应该不陌生：
 这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。
-本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础）
+本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础 ）
 假设，你有这样一个网络层：
 第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。
 现在对他们赋上初值，如下图：
@@ -30,7 +30,7 @@ Step 1 前向传播
 <meta itemprop="keywords" content="CNN,AI," /><meta property="og:title" content="反向传播—BP" />
 <meta property="og:description" content="说到神经网络，大家看到这个图应该不陌生：
 这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。
-本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础）
+本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础 ）
 假设，你有这样一个网络层：
 第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。
 现在对他们赋上初值，如下图：
@@ -55,7 +55,7 @@ Step 1 前向传播
 <meta name="twitter:title" content="反向传播—BP"/>
 <meta name="twitter:description" content="说到神经网络，大家看到这个图应该不陌生：
 这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。
-本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础）
+本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础 ）
 假设，你有这样一个网络层：
 第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。
 现在对他们赋上初值，如下图：
@@ -69,7 +69,8 @@ Step 1 前向传播
 计算神经元h1的输入加权和： $$ \begin{array}{l} n e t_{h 1}=w_{1} * i_{1}&#43;w_{2} * i_{2}&#43;b_{1} * 1 \
 { net }_{h 1}=0.15 * 0.05&#43;0.2 * 0.1&#43;0.35 * 1=0.3775 \end{array} $$ 神经元h1的输出o1:(此处用到激活函数为sigmoid函数)： $$ { out }_{h 1}=\frac{1}{1&#43;e^{-n e t_{h 1}}}=\frac{1}{1&#43;e^{-0.3775}}=0.593269992 $$ 同理，可计算出神经元h2的输出o2： $$ { out }_{h 2}=0."/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://xuzhijvn.github.io/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://xuzhijvn.github.io/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
@@ -92,14 +93,16 @@ if (!doNotTrack) {
 </script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
-      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy">唯有光頭才能變強</a>
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
+   width="400" height="400" loading="lazy" />
+唯有光頭才能變強</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
   <div class="input-group input-group-sm">
-    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
     <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
   </div>
 </form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
@@ -181,22 +184,22 @@ if (!doNotTrack) {
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
               <a class="dropdown-item"
-                href="https://clevergo.tech/" target="_blank">
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
                 CleverGo
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://gopkgs.net/" target="_blank">
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
                 GOPKGS
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
                 Hugo Bootstrap 主题
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://admin.yii2.razonyang.com/" target="_blank">
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
                 Yii 2 管理后台
               </a>
             </li></ul>
@@ -296,25 +299,30 @@ if (!doNotTrack) {
   </div>
 </div>
 <h1 class="post-title my-3">反向传播—BP
-</h1><div class="post-meta mb-3">
-  <span class="post-date me-2">
+</h1><div class="post-meta mb-3"><span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
-  </span>
-  <span class="post-reading-time me-2">
+  </span><span class="post-reading-time me-2">
     <i class="fas fa-fw fa-coffee"></i>7 分钟阅读
-  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="post-taxonomy">#人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">#Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="post-taxonomy">#CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="post-taxonomy">#AI</a></div>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="post-taxonomy">人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="post-taxonomy">CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="post-taxonomy">AI</a></span>
+</div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>说到神经网络，大家看到这个图应该不陌生：</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/853467-20160630140644406-409859737.png" alt="典型的三层神经网络的基本构成"  loading="lazy" />
+<p><img class="img-fluid" alt="典型的三层神经网络的基本构成" src="https://picgo.6and.ltd/img/853467-20160630140644406-409859737.png"
+   loading="lazy" />
+
 </p>
 <p>这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。</p>
-<p>本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[<a href="http://www.cnblogs.com/maybe2030/p/5597716.html" target="_blank">Mechine Learning &amp; Algorithm] 神经网络基础</a>
+<p>本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[<a href="http://www.cnblogs.com/maybe2030/p/5597716.html" target="_blank" rel="noopener noreferrer">Mechine Learning &amp; Algorithm] 神经网络基础</a>
 ）</p>
 <p>假设，你有这样一个网络层：</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/853467-20160630141449671-1058672778.png" alt="假设，你有这样一个网络层"  loading="lazy" />
+<p><img class="img-fluid" alt="假设，你有这样一个网络层" src="https://picgo.6and.ltd/img/853467-20160630141449671-1058672778.png"
+   loading="lazy" />
+
 </p>
 <p>第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。</p>
 <p>现在对他们赋上初值，如下图：</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/853467-20160630142019140-402363317.png" alt="对他们赋上初值"  loading="lazy" />
+<p><img class="img-fluid" alt="对他们赋上初值" src="https://picgo.6and.ltd/img/853467-20160630142019140-402363317.png"
+   loading="lazy" />
+
 </p>
 <p>其中，输入数据  i1=0.05，i2=0.10;</p>
 <p>　　　输出数据 o1=0.01,o2=0.99;</p>
@@ -369,7 +377,9 @@ $$
 \frac{\partial E_{{total }}}{\partial w_{5}}=\frac{\partial E_{\text {total }}}{\partial { out }_{o 1}} * \frac{\partial {out }_{o 1}}{\partial { net }_{o 1}} * \frac{\partial { net }_{o 1}}{\partial w_{5}}
 $$
 下面的图可以更直观的看清楚误差是怎样反向传播的：</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/853467-20160630152018906-1524325812.png" alt="误差是怎样反向传播的"  loading="lazy" />
+<p><img class="img-fluid" alt="误差是怎样反向传播的" src="https://picgo.6and.ltd/img/853467-20160630152018906-1524325812.png"
+   loading="lazy" />
+
 </p>
 <p>现在我们来分别计算每个式子的值：</p>
 <p>计算：
@@ -436,7 +446,7 @@ $$
 w_{5}^{+}=w_{5}-\eta * \frac{\partial E_{ {total }}}{\partial_{w_{5}}}=0.4-0.5 * 0.082167041=0.35891648
 $$
 （其中，$$\eta$$是学习速率，这里我们取0.5）</p>
-<p>同理，可更新w6,w7,w8: 
+<p>同理，可更新w6,w7,w8:
 $$
 \begin{array}{l}
 w_{6}^{+}=0.408666186 \<br>
@@ -446,7 +456,9 @@ w_{8}^{+}=0.561370121
 $$
 3.隐含层&mdash;-&gt;输入层的权值更新：</p>
 <p>　方法其实与上面说的差不多，但是有个地方需要变一下，在上文计算总误差对w5的偏导时，是从out(o1)&mdash;-&gt;net(o1)&mdash;-&gt;w5,但是在隐含层之间的权值更新时，是out(h1)&mdash;-&gt;net(h1)&mdash;-&gt;w1,而out(h1)会接受E(o1)和E(o2)两个地方传来的误差，所以这个地方两个都要计算。</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/853467-20160630154317562-311369571.png" alt="隐含层的权值更新"  loading="lazy" />
+<p><img class="img-fluid" alt="隐含层的权值更新" src="https://picgo.6and.ltd/img/853467-20160630154317562-311369571.png"
+   loading="lazy" />
+
 </p>
 <p>计算：
 $$
@@ -729,7 +741,7 @@ nn <span style="color:#f92672">=</span> NeuralNetwork(<span style="color:#ae81ff
 <span style="color:#75715e">#     print(i, nn.calculate_total_error(training_sets))</span>
 </code></pre></div><p>最后写到这里就结束了，现在还不会用latex编辑数学公式，本来都直接想写在草稿纸上然后扫描了传上来，但是觉得太影响阅读体验了。以后会用公式编辑器后再重把公式重新编辑一遍。稳重使用的是sigmoid激活函数，实际还有几种不同的激活函数可以选择，具体的可以参考文献[3]，最后推荐一个在线演示神经网络变化的网址：http://www.emergentmind.com/neural-network，可以自己填输入输出，然后观看每一次迭代权值的变化，很好玩~如果有错误的或者不懂的欢迎留言：）</p>
 <p>原文：</p>
-<p><a href="https://www.cnblogs.com/charlotte77/p/5629865.html" target="_blank">https://www.cnblogs.com/charlotte77/p/5629865.html</a>
+<p><a href="https://www.cnblogs.com/charlotte77/p/5629865.html" target="_blank" rel="noopener noreferrer">https://www.cnblogs.com/charlotte77/p/5629865.html</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -773,7 +785,7 @@ nn <span style="color:#f92672">=</span> NeuralNetwork(<span style="color:#ae81ff
   </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
   repo="razonyang/blog"
   issue-term="pathname"
-  label=""
+  label="comment"
   theme="github-dark"
   crossorigin="anonymous"
   async>
@@ -789,13 +801,13 @@ nn <span style="color:#f92672">=</span> NeuralNetwork(<span style="color:#ae81ff
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<section class="profile surface row">
-  <div class="col-xl-6 d-flex align-items-center justify-content-center">
-    <img class="profile-avatar img-fluid" src="https://xuzhijvn.github.io/images/profile.webp" alt="Tony Xu" loading="lazy">
-  </div>
-  <div class="col-xl-6">
-    <h5 class="profile-name my-2">Tony Xu</h5><div class="profile-bio mb-2">发型总监</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>光头发廊</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
-</section><section class="recent-posts row surface">
+<section class="profile surface row text-center">
+  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony Xu" src="https://xuzhijvn.github.io/images/profile.webp"
+   width="400" height="400" loading="lazy" />
+</div>
+  <div class="col-12 profile-meta"><div class="profile-name">Tony Xu</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section>
+  <section class="recent-posts row surface">
   <h4>最近文章</h4>
   <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
@@ -875,36 +887,24 @@ nn <span style="color:#f92672">=</span> NeuralNetwork(<span style="color:#ae81ff
 </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
-    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
-    </a>
-  </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-gitlab"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-qq"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-twitter"></i>
-      </a>
-    </li></nav>
+      </a></nav>
 <div class="copyright mb-2">
   Copyright © 2016-2021 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
-  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
 </div><div class="mb-3">
   <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
   <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>

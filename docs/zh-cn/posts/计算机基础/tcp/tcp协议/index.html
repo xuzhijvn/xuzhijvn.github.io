@@ -15,7 +15,7 @@ TCP 数据包的大小 以太网数据包（packet）的大小是固定的，最
 （图片说明：IP 数据包在以太网数据包里面，TCP 数据包在 IP 数据包里面。）
 TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20字节，因此 TCP 数据包的最大负载是 1480 - 20 = 1460 字节。由于 IP 和 TCP 协议往往有额外的头信息，所以 TCP 负载实际为1400字节左右。
 因此，一条1500字节的信息需要两个 TCP 数据包。HTTP/2 协议的一大改进， 就是压缩 HTTP 协议的头信息，使得一个 HTTP 请求可以放在一个 TCP 数据包里面，而不是分成多个，这样就提高了速度。
-创建连接 TCP用三次握手（或称三路握手，three-way handshake）过程创建一个连接。在连接创建过程中，很多参数要被初始化，例如序号被初始化以保证按序传输和连接的强壮性。 一对终端同时初始化一个它们之间的连接是可能的。但通常是由一端打开一个套接字（socket）然后监听来自另一方的连接，这就是通常所指的被动打开（passive open）。服务器端被被动打开以后，用户端就能开始创建主动打开（active open）。
+创建连接 TCP用三次握手（或称三路握手，three-way handshake）过程创建一个连接。在连接创建过程中，很多参数要被初始化，例如序号被初始化以保证按序传输和连接的强壮性。 一对终端同时初始化一个它们之间的连接是可能的。但通常是由一端打开一个套接字 （socket ）然后监听来自另一方的连接，这就是通常所指的被动打开（passive open）。服务器端被被动打开以后，用户端就能开始创建主动打开（active open）。
  客户端通过向服务器端发送一个SYN来创建一个主动打开，作为三次握手的一部分。客户端把这段连接的序号设定为随机数A。 服务器端应当为一个合法的SYN回送一个SYN/ACK。ACK的确认码应为A&#43;1，SYN/ACK包本身又有一个随机产生的序号B。 最后，客户端再发送一个ACK。此时包的序号被设定为A&#43;1，而ACK的确认码则为B&#43;1。当服务端收到这个ACK的时候，就完成了三次握手，并进入了连接创建状态。  注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的
 注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的
 如果服务器端接到了客户端发的SYN后回了SYN-ACK后客户端掉线了，服务器端没有收到客户端回来的ACK，那么，这个连接处于一个中间状态，即没成功，也没失败。于是，服务器端如果在一定时间内没有收到的TCP会重发SYN-ACK。在Linux下，默认重试次数为5次，重试的间隔时间从1s开始每次都翻倍，5次的重试时间间隔为1s, 2s, 4s, 8s, 16s，总共31s，第5次发出后还要等32s才知道第5次也超时了，所以，总共需要 1s &#43; 2s &#43; 4s&#43; 8s&#43; 16s &#43; 32s = 63s，TCP才会断开这个连接。使用三个TCP参数来调整行为：tcp_synack_retries 减少重试次数；tcp_max_syn_backlog，增大SYN连接数；tcp_abort_on_overflow决定超出能力时的行为。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
@@ -27,7 +27,7 @@ TCP 数据包的大小 以太网数据包（packet）的大小是固定的，最
 （图片说明：IP 数据包在以太网数据包里面，TCP 数据包在 IP 数据包里面。）
 TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20字节，因此 TCP 数据包的最大负载是 1480 - 20 = 1460 字节。由于 IP 和 TCP 协议往往有额外的头信息，所以 TCP 负载实际为1400字节左右。
 因此，一条1500字节的信息需要两个 TCP 数据包。HTTP/2 协议的一大改进， 就是压缩 HTTP 协议的头信息，使得一个 HTTP 请求可以放在一个 TCP 数据包里面，而不是分成多个，这样就提高了速度。
-创建连接 TCP用三次握手（或称三路握手，three-way handshake）过程创建一个连接。在连接创建过程中，很多参数要被初始化，例如序号被初始化以保证按序传输和连接的强壮性。 一对终端同时初始化一个它们之间的连接是可能的。但通常是由一端打开一个套接字（socket）然后监听来自另一方的连接，这就是通常所指的被动打开（passive open）。服务器端被被动打开以后，用户端就能开始创建主动打开（active open）。
+创建连接 TCP用三次握手（或称三路握手，three-way handshake）过程创建一个连接。在连接创建过程中，很多参数要被初始化，例如序号被初始化以保证按序传输和连接的强壮性。 一对终端同时初始化一个它们之间的连接是可能的。但通常是由一端打开一个套接字 （socket ）然后监听来自另一方的连接，这就是通常所指的被动打开（passive open）。服务器端被被动打开以后，用户端就能开始创建主动打开（active open）。
  客户端通过向服务器端发送一个SYN来创建一个主动打开，作为三次握手的一部分。客户端把这段连接的序号设定为随机数A。 服务器端应当为一个合法的SYN回送一个SYN/ACK。ACK的确认码应为A&#43;1，SYN/ACK包本身又有一个随机产生的序号B。 最后，客户端再发送一个ACK。此时包的序号被设定为A&#43;1，而ACK的确认码则为B&#43;1。当服务端收到这个ACK的时候，就完成了三次握手，并进入了连接创建状态。  注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的
 注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的
 如果服务器端接到了客户端发的SYN后回了SYN-ACK后客户端掉线了，服务器端没有收到客户端回来的ACK，那么，这个连接处于一个中间状态，即没成功，也没失败。于是，服务器端如果在一定时间内没有收到的TCP会重发SYN-ACK。在Linux下，默认重试次数为5次，重试的间隔时间从1s开始每次都翻倍，5次的重试时间间隔为1s, 2s, 4s, 8s, 16s，总共31s，第5次发出后还要等32s才知道第5次也超时了，所以，总共需要 1s &#43; 2s &#43; 4s&#43; 8s&#43; 16s &#43; 32s = 63s，TCP才会断开这个连接。使用三个TCP参数来调整行为：tcp_synack_retries 减少重试次数；tcp_max_syn_backlog，增大SYN连接数；tcp_abort_on_overflow决定超出能力时的行为。" />
@@ -46,12 +46,13 @@ TCP 数据包的大小 以太网数据包（packet）的大小是固定的，最
 （图片说明：IP 数据包在以太网数据包里面，TCP 数据包在 IP 数据包里面。）
 TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20字节，因此 TCP 数据包的最大负载是 1480 - 20 = 1460 字节。由于 IP 和 TCP 协议往往有额外的头信息，所以 TCP 负载实际为1400字节左右。
 因此，一条1500字节的信息需要两个 TCP 数据包。HTTP/2 协议的一大改进， 就是压缩 HTTP 协议的头信息，使得一个 HTTP 请求可以放在一个 TCP 数据包里面，而不是分成多个，这样就提高了速度。
-创建连接 TCP用三次握手（或称三路握手，three-way handshake）过程创建一个连接。在连接创建过程中，很多参数要被初始化，例如序号被初始化以保证按序传输和连接的强壮性。 一对终端同时初始化一个它们之间的连接是可能的。但通常是由一端打开一个套接字（socket）然后监听来自另一方的连接，这就是通常所指的被动打开（passive open）。服务器端被被动打开以后，用户端就能开始创建主动打开（active open）。
+创建连接 TCP用三次握手（或称三路握手，three-way handshake）过程创建一个连接。在连接创建过程中，很多参数要被初始化，例如序号被初始化以保证按序传输和连接的强壮性。 一对终端同时初始化一个它们之间的连接是可能的。但通常是由一端打开一个套接字 （socket ）然后监听来自另一方的连接，这就是通常所指的被动打开（passive open）。服务器端被被动打开以后，用户端就能开始创建主动打开（active open）。
  客户端通过向服务器端发送一个SYN来创建一个主动打开，作为三次握手的一部分。客户端把这段连接的序号设定为随机数A。 服务器端应当为一个合法的SYN回送一个SYN/ACK。ACK的确认码应为A&#43;1，SYN/ACK包本身又有一个随机产生的序号B。 最后，客户端再发送一个ACK。此时包的序号被设定为A&#43;1，而ACK的确认码则为B&#43;1。当服务端收到这个ACK的时候，就完成了三次握手，并进入了连接创建状态。  注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的
 注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的
 如果服务器端接到了客户端发的SYN后回了SYN-ACK后客户端掉线了，服务器端没有收到客户端回来的ACK，那么，这个连接处于一个中间状态，即没成功，也没失败。于是，服务器端如果在一定时间内没有收到的TCP会重发SYN-ACK。在Linux下，默认重试次数为5次，重试的间隔时间从1s开始每次都翻倍，5次的重试时间间隔为1s, 2s, 4s, 8s, 16s，总共31s，第5次发出后还要等32s才知道第5次也超时了，所以，总共需要 1s &#43; 2s &#43; 4s&#43; 8s&#43; 16s &#43; 32s = 63s，TCP才会断开这个连接。使用三个TCP参数来调整行为：tcp_synack_retries 减少重试次数；tcp_max_syn_backlog，增大SYN连接数；tcp_abort_on_overflow决定超出能力时的行为。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://xuzhijvn.github.io/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://xuzhijvn.github.io/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
@@ -74,14 +75,16 @@ if (!doNotTrack) {
 </script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
-      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy">唯有光頭才能變強</a>
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
+   width="400" height="400" loading="lazy" />
+唯有光頭才能變強</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
   <div class="input-group input-group-sm">
-    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
     <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
   </div>
 </form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
@@ -163,22 +166,22 @@ if (!doNotTrack) {
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
               <a class="dropdown-item"
-                href="https://clevergo.tech/" target="_blank">
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
                 CleverGo
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://gopkgs.net/" target="_blank">
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
                 GOPKGS
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
                 Hugo Bootstrap 主题
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://admin.yii2.razonyang.com/" target="_blank">
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
                 Yii 2 管理后台
               </a>
             </li></ul>
@@ -278,33 +281,38 @@ if (!doNotTrack) {
   </div>
 </div>
 <h1 class="post-title my-3">TCP协议
-</h1><div class="post-meta mb-3">
-  <span class="post-date me-2">
+</h1><div class="post-meta mb-3"><span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
-  </span>
-  <span class="post-reading-time me-2">
+  </span><span class="post-reading-time me-2">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="post-taxonomy">#计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">#Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="post-taxonomy">#CS</a></div>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="post-taxonomy">计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="post-taxonomy">CS</a></span>
+</div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><h3 id="简介">简介</h3>
 <p>数据在TCP层称为流（Stream），数据分组称为分段（Segment）。作为比较，数据在IP层称为Datagram，数据分组称为分片（Fragment）。 UDP 中分组称为Message。</p>
 <h3 id="tcp-数据包的大小">TCP 数据包的大小</h3>
 <p>以太网数据包（packet）的大小是固定的，最初是1518字节，后来增加到1522字节。其中， 1500 字节是负载（payload），22字节是头信息（head）。 IP 数据包在以太网数据包的负载里面，它也有自己的头信息，最少需要20字节，所以 IP 数据包的负载最多为1480字节。</p>
-<p><img class="img-fluid" src="http://106.55.152.92:30989/wp-content/uploads/2019/11/bg2012052913.png" alt="img"  loading="lazy" />
+<p><img class="img-fluid" alt="img" src="http://106.55.152.92:30989/wp-content/uploads/2019/11/bg2012052913.png"
+   loading="lazy" />
+
 （图片说明：IP 数据包在以太网数据包里面，TCP 数据包在 IP 数据包里面。）</p>
 <p>TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20字节，因此 TCP 数据包的最大负载是 1480 - 20 = 1460 字节。由于 IP 和 TCP 协议往往有额外的头信息，所以 TCP 负载实际为1400字节左右。</p>
 <p>因此，一条1500字节的信息需要两个 TCP 数据包。HTTP/2 协议的一大改进， 就是压缩 HTTP 协议的头信息，使得一个 HTTP 请求可以放在一个 TCP 数据包里面，而不是分成多个，这样就提高了速度。</p>
 <h3 id="创建连接">创建连接</h3>
-<p>TCP用三次握手（或称三路握手，three-way handshake）过程创建一个连接。在连接创建过程中，很多参数要被初始化，例如序号被初始化以保证按序传输和连接的强壮性。 一对终端同时初始化一个它们之间的连接是可能的。但通常是由一端打开一个<a href="https://zh.wikipedia.org/wiki/Berkeley%e5%a5%97%e6%8e%a5%e5%ad%97" target="_blank">套接字</a>
-（<a href="https://zh.wikipedia.org/wiki/Socket" target="_blank">socket</a>
+<p>TCP用三次握手（或称三路握手，three-way handshake）过程创建一个连接。在连接创建过程中，很多参数要被初始化，例如序号被初始化以保证按序传输和连接的强壮性。 一对终端同时初始化一个它们之间的连接是可能的。但通常是由一端打开一个<a href="https://zh.wikipedia.org/wiki/Berkeley%e5%a5%97%e6%8e%a5%e5%ad%97" target="_blank" rel="noopener noreferrer">套接字</a>
+（<a href="https://zh.wikipedia.org/wiki/Socket" target="_blank" rel="noopener noreferrer">socket</a>
 ）然后监听来自另一方的连接，这就是通常所指的被动打开（passive open）。服务器端被被动打开以后，用户端就能开始创建主动打开（active open）。</p>
 <ol>
 <li>客户端通过向服务器端发送一个SYN来创建一个主动打开，作为三次握手的一部分。客户端把这段连接的序号设定为随机数A。</li>
 <li>服务器端应当为一个合法的SYN回送一个SYN/ACK。ACK的确认码应为A+1，SYN/ACK包本身又有一个随机产生的序号B。</li>
 <li>最后，客户端再发送一个ACK。此时包的序号被设定为A+1，而ACK的确认码则为B+1。当服务端收到这个ACK的时候，就完成了三次握手，并进入了连接创建状态。</li>
 </ol>
-<p><img class="img-fluid" src="http://106.55.152.92:30989/wp-content/uploads/2019/11/Connection_TCP.png" alt="img"  loading="lazy" />
+<p><img class="img-fluid" alt="img" src="http://106.55.152.92:30989/wp-content/uploads/2019/11/Connection_TCP.png"
+   loading="lazy" />
+
 注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的</p>
-<p><img class="img-fluid" src="http://106.55.152.92:30989/wp-content/uploads/2019/11/%e4%b8%89%e6%ac%a1%e6%8f%a1%e6%89%8b.png" alt="img"  loading="lazy" />
+<p><img class="img-fluid" alt="img" src="http://106.55.152.92:30989/wp-content/uploads/2019/11/%e4%b8%89%e6%ac%a1%e6%8f%a1%e6%89%8b.png"
+   loading="lazy" />
+
 注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的</p>
 <p>如果服务器端接到了客户端发的SYN后回了SYN-ACK后客户端掉线了，服务器端没有收到客户端回来的ACK，那么，这个连接处于一个中间状态，即没成功，也没失败。于是，服务器端如果在一定时间内没有收到的TCP会重发SYN-ACK。在Linux下，默认重试次数为5次，重试的间隔时间从1s开始每次都翻倍，5次的重试时间间隔为1s, 2s, 4s, 8s, 16s，总共31s，第5次发出后还要等32s才知道第5次也超时了，所以，总共需要 1s + 2s + 4s+ 8s+ 16s + 32s = 63s，TCP才会断开这个连接。使用三个TCP参数来调整行为：tcp_synack_retries 减少重试次数；tcp_max_syn_backlog，增大SYN连接数；tcp_abort_on_overflow决定超出能力时的行为。</p>
 <h3 id="数据传输">数据传输</h3>
@@ -315,22 +323,28 @@ if (!doNotTrack) {
 <li>发送方在发送了第三条以后，没能收到回应，因此当时钟（timer）过时（expire）时，他重发第三条。（每次发送者发送一条TCP报文段后，都会再次启动一次时钟：RTT）。</li>
 <li>这次第三条被成功接收，接收方可以直接确认第5条，因为4，5两条已收到。</li>
 </ol>
-<p><img class="img-fluid" src="http://106.55.152.92:30989/wp-content/uploads/2019/11/Tcp_transport_example.gif" alt="img"  loading="lazy" />
+<p><img class="img-fluid" alt="img" src="http://106.55.152.92:30989/wp-content/uploads/2019/11/Tcp_transport_example.gif"
+   loading="lazy" />
+
 </p>
 <p>上图只考虑了一方发送数据一方接收数据的情形，如果是双方都收发数据的情形则如下图所示：</p>
-<p><img class="img-fluid" src="http://106.55.152.92:30989/wp-content/uploads/2019/11/transport.jpg" alt="img"  loading="lazy" />
+<p><img class="img-fluid" alt="img" src="http://106.55.152.92:30989/wp-content/uploads/2019/11/transport.jpg"
+   loading="lazy" />
+
 </p>
 <p>上图一共4次通信。第一次通信，A 主机发给B 主机的数据包编号是1，长度是100字节，因此第二次通信 B 主机的 ACK 编号是 1 + 100 = 101，第三次通信 A 主机的数据包编号也是 101。同理，第二次通信 B 主机发给 A 主机的数据包编号是1，长度是200字节，因此第三次通信 A 主机的 ACK 是201，第四次通信 B 主机的数据包编号也是201。</p>
 <h3 id="断开连接">断开连接</h3>
 <p>所谓四次挥手（Four-Way Wavehand）即终止TCP连接，就是指断开一个TCP连接时，需要客户端和服务端总共发送4个包以确认连接的断开。在socket编程中，这一过程由客户端或服务端任一方执行close来触发，整个流程如下图所示：</p>
-<p><img class="img-fluid" src="http://106.55.152.92:30989/wp-content/uploads/2019/11/%e5%9b%9b%e6%ac%a1%e5%88%86%e6%89%8b.png" alt="img"  loading="lazy" />
+<p><img class="img-fluid" alt="img" src="http://106.55.152.92:30989/wp-content/uploads/2019/11/%e5%9b%9b%e6%ac%a1%e5%88%86%e6%89%8b.png"
+   loading="lazy" />
+
 注意：四次分手断开连接的时候，ACK和FIN信号是分成两次发送的</p>
 <p>由于TCP连接是全双工的，因此，每个方向都必须要单独进行关闭。这一原则是当一方完成数据发送任务后，发送一个FIN来终止这一方向的连接，收到一个FIN只是意味着这一方向上没有数据流动了，即不会再收到数据了，但是在这个TCP连接上仍然能够发送数据，直到这一方向也发送了FIN。首先进行关闭的一方将执行主动关闭，而另一方则执行被动关闭。</p>
 <ol>
 <li>第一次挥手：Client发送一个FIN，用来关闭Client到Server的数据传送，Client进入FIN_WAIT_1状态。</li>
 <li>第二次挥手：Server收到FIN后，发送一个ACK给Client，确认序号为收到序号+1（与SYN相同，一个FIN占用一个序号），Server进入CLOSE_WAIT状态。</li>
 <li>第三次挥手：Server发送一个FIN，用来关闭Server到Client的数据传送，Server进入LAST_ACK状态。</li>
-<li>第四次挥手：Client收到FIN后，Client进入TIME_WAIT状态，接着发送一个ACK给Server，确认序号为收到序号+1，Server进入CLOSED状态，完成四次挥手。 主动关闭端接收到FIN后，就发送ACK包，等待足够时间以确保被动关闭端收到了终止请求的确认包。【按照RFC 793，一个连接可以在TIME-WAIT保证最大四分钟，即<a href="https://zh.wikipedia.org/wiki/%e6%9c%80%e5%a4%a7%e5%88%86%e6%ae%b5%e5%af%bf%e5%91%bd" target="_blank">最大分段寿命</a>
+<li>第四次挥手：Client收到FIN后，Client进入TIME_WAIT状态，接着发送一个ACK给Server，确认序号为收到序号+1，Server进入CLOSED状态，完成四次挥手。 主动关闭端接收到FIN后，就发送ACK包，等待足够时间以确保被动关闭端收到了终止请求的确认包。【按照RFC 793，一个连接可以在TIME-WAIT保证最大四分钟，即<a href="https://zh.wikipedia.org/wiki/%e6%9c%80%e5%a4%a7%e5%88%86%e6%ae%b5%e5%af%bf%e5%91%bd" target="_blank" rel="noopener noreferrer">最大分段寿命</a>
 （maximum segment lifetime）的2倍】</li>
 </ol>
 <pre><code>为什么建立连接是3次分手是4次？
@@ -338,16 +352,16 @@ if (!doNotTrack) {
 而分手的时候，存在类单双工的情形（即只有一方发数据，另外一方收数据），所以不能在回复fin的时候同时发送fin，即需要分开发送ack和fin，所以一共4次通信。
 </code></pre><h4 id="资源使用">资源使用</h4>
 <p>主机收到一个TCP包时，用两端的IP地址与端口号来标识这个TCP包属于哪个session。使用一张表来存储所有的session，表中的每条称作Transmission Control Block（TCB），tcb结构的定义包括连接使用的源端口、目的端口、目的ip、序号、应答序号、对方窗口大小、己方窗口大小、tcp状态、tcp输入/输出队列、应用层输出队列、tcp的重传有关变量等。</p>
-<p>服务器端的连接数量是无限的，只受内存的限制。客户端的连接数量，过去由于在发送第一个SYN到服务器之前需要先分配一个随机空闲的端口，这限制了客户端IP地址的对外发出连接的数量上限。从Linux 4.2开始，有了socket选项IP_BIND_ADDRESS_NO_PORT，它通知Linux内核不保留usingbind使用端口号为0时内部使用的临时端口（ephemeral port），在connect时会自动选择端口以组成独一无二的四元组（同一个客户端端口可用于连接不同的服务器<a href="https://zh.wikipedia.org/wiki/%e5%a5%97%e6%8e%a5%e5%ad%97" target="_blank">套接字</a>
+<p>服务器端的连接数量是无限的，只受内存的限制。客户端的连接数量，过去由于在发送第一个SYN到服务器之前需要先分配一个随机空闲的端口，这限制了客户端IP地址的对外发出连接的数量上限。从Linux 4.2开始，有了socket选项IP_BIND_ADDRESS_NO_PORT，它通知Linux内核不保留usingbind使用端口号为0时内部使用的临时端口（ephemeral port），在connect时会自动选择端口以组成独一无二的四元组（同一个客户端端口可用于连接不同的服务器<a href="https://zh.wikipedia.org/wiki/%e5%a5%97%e6%8e%a5%e5%ad%97" target="_blank" rel="noopener noreferrer">套接字</a>
 ；同一个服务器端口可用于接受不同客户端套接字的连接）。对于不能确认的包、接收但还没读取的数据，都会占用操作系统的资源。</p>
 <h4 id="参考连接">参考连接</h4>
-<p><a href="https://zh.wikipedia.org/wiki/%e4%bc%a0%e8%be%93%e6%8e%a7%e5%88%b6%e5%8d%8f%e8%ae%ae" target="_blank">传输控制协议</a>
+<p><a href="https://zh.wikipedia.org/wiki/%e4%bc%a0%e8%be%93%e6%8e%a7%e5%88%b6%e5%8d%8f%e8%ae%ae" target="_blank" rel="noopener noreferrer">传输控制协议</a>
 </p>
-<p><a href="http://www.ruanyifeng.com/blog/2017/06/tcp-protocol.html" target="_blank">TCP 协议简介</a>
+<p><a href="http://www.ruanyifeng.com/blog/2017/06/tcp-protocol.html" target="_blank" rel="noopener noreferrer">TCP 协议简介</a>
 </p>
-<p><a href="https://www.polarxiong.com/archives/%e5%9b%be%e8%a7%a3TCP%e4%bc%a0%e8%be%93%e8%bf%87%e7%a8%8b-%e4%b8%89%e6%ac%a1%e6%8f%a1%e6%89%8b-%e6%95%b0%e6%8d%ae%e4%bc%a0%e8%be%93-%e5%9b%9b%e6%ac%a1%e6%8c%a5%e6%89%8b.html" target="_blank">图解TCP传输过程（三次握手、数据传输、四次挥手）</a>
+<p><a href="https://www.polarxiong.com/archives/%e5%9b%be%e8%a7%a3TCP%e4%bc%a0%e8%be%93%e8%bf%87%e7%a8%8b-%e4%b8%89%e6%ac%a1%e6%8f%a1%e6%89%8b-%e6%95%b0%e6%8d%ae%e4%bc%a0%e8%be%93-%e5%9b%9b%e6%ac%a1%e6%8c%a5%e6%89%8b.html" target="_blank" rel="noopener noreferrer">图解TCP传输过程（三次握手、数据传输、四次挥手）</a>
 </p>
-<p><a href="https://www.jianshu.com/p/ef892323e68f" target="_blank">TCP协议详解</a>
+<p><a href="https://www.jianshu.com/p/ef892323e68f" target="_blank" rel="noopener noreferrer">TCP协议详解</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -394,7 +408,7 @@ if (!doNotTrack) {
   </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
   repo="razonyang/blog"
   issue-term="pathname"
-  label=""
+  label="comment"
   theme="github-dark"
   crossorigin="anonymous"
   async>
@@ -410,13 +424,13 @@ if (!doNotTrack) {
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<section class="profile surface row">
-  <div class="col-xl-6 d-flex align-items-center justify-content-center">
-    <img class="profile-avatar img-fluid" src="https://xuzhijvn.github.io/images/profile.webp" alt="Tony Xu" loading="lazy">
-  </div>
-  <div class="col-xl-6">
-    <h5 class="profile-name my-2">Tony Xu</h5><div class="profile-bio mb-2">发型总监</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>光头发廊</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
-</section><section class="recent-posts row surface">
+<section class="profile surface row text-center">
+  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony Xu" src="https://xuzhijvn.github.io/images/profile.webp"
+   width="400" height="400" loading="lazy" />
+</div>
+  <div class="col-12 profile-meta"><div class="profile-name">Tony Xu</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section>
+  <section class="recent-posts row surface">
   <h4>最近文章</h4>
   <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
@@ -496,36 +510,24 @@ if (!doNotTrack) {
 </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
-    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
-    </a>
-  </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-gitlab"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-qq"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-twitter"></i>
-      </a>
-    </li></nav>
+      </a></nav>
 <div class="copyright mb-2">
   Copyright © 2016-2021 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
-  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
 </div><div class="mb-3">
   <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
   <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>

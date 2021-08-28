@@ -11,13 +11,13 @@
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="istio启用策略检查功能">
 <meta itemprop="description" content="istio启用策略检查功能
-不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
+不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法 也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
  默认安装istio之后disablePolicyChecks=true  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | grep disablePolicyChecks disablePolicyChecks: true 编辑 istio configmap 以启用策略检查  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | sed -e &#34;s/disablePolicyChecks: true/disablePolicyChecks: false/&#34; &gt; /tmp/mesh.yaml [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system create cm Istio -o yaml --dry-run --from-file=mesh=/tmp/mesh.yaml | kubectl replace -f - W0902 17:00:37.208604 16538 helpers.go:535] --dry-run is deprecated and can be replaced with --dry-run=client."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="100"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="云原生,istio," /><meta property="og:title" content="istio启用策略检查功能" />
 <meta property="og:description" content="istio启用策略检查功能
-不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
+不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法 也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
  默认安装istio之后disablePolicyChecks=true  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | grep disablePolicyChecks disablePolicyChecks: true 编辑 istio configmap 以启用策略检查  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | sed -e &#34;s/disablePolicyChecks: true/disablePolicyChecks: false/&#34; &gt; /tmp/mesh.yaml [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system create cm Istio -o yaml --dry-run --from-file=mesh=/tmp/mesh.yaml | kubectl replace -f - W0902 17:00:37.208604 16538 helpers.go:535] --dry-run is deprecated and can be replaced with --dry-run=client." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%90%AF%E7%94%A8%E7%AD%96%E7%95%A5%E6%A3%80%E6%9F%A5%E5%8A%9F%E8%83%BD/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
@@ -30,10 +30,11 @@
 
 <meta name="twitter:title" content="istio启用策略检查功能"/>
 <meta name="twitter:description" content="istio启用策略检查功能
-不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
+不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法 也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
  默认安装istio之后disablePolicyChecks=true  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | grep disablePolicyChecks disablePolicyChecks: true 编辑 istio configmap 以启用策略检查  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | sed -e &#34;s/disablePolicyChecks: true/disablePolicyChecks: false/&#34; &gt; /tmp/mesh.yaml [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system create cm Istio -o yaml --dry-run --from-file=mesh=/tmp/mesh.yaml | kubectl replace -f - W0902 17:00:37.208604 16538 helpers.go:535] --dry-run is deprecated and can be replaced with --dry-run=client."/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://xuzhijvn.github.io/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://xuzhijvn.github.io/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
@@ -56,14 +57,16 @@ if (!doNotTrack) {
 </script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
-      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy">唯有光頭才能變強</a>
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
+   width="400" height="400" loading="lazy" />
+唯有光頭才能變強</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
   <div class="input-group input-group-sm">
-    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
     <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
   </div>
 </form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
@@ -145,22 +148,22 @@ if (!doNotTrack) {
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
               <a class="dropdown-item"
-                href="https://clevergo.tech/" target="_blank">
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
                 CleverGo
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://gopkgs.net/" target="_blank">
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
                 GOPKGS
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
                 Hugo Bootstrap 主题
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://admin.yii2.razonyang.com/" target="_blank">
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
                 Yii 2 管理后台
               </a>
             </li></ul>
@@ -260,15 +263,14 @@ if (!doNotTrack) {
   </div>
 </div>
 <h1 class="post-title my-3">istio启用策略检查功能
-</h1><div class="post-meta mb-3">
-  <span class="post-date me-2">
+</h1><div class="post-meta mb-3"><span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
-  </span>
-  <span class="post-reading-time me-2">
+  </span><span class="post-reading-time me-2">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">#云原生</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="post-taxonomy">#istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">#云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="post-taxonomy">#istio</a></div>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="post-taxonomy">istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="post-taxonomy">istio</a></span>
+</div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>istio启用策略检查功能</p>
-<p>不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照<a href="https://istio.io/latest/zh/docs/tasks/policy-enforcement/enabling-policy/" target="_blank">官方做法</a>
+<p>不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照<a href="https://istio.io/latest/zh/docs/tasks/policy-enforcement/enabling-policy/" target="_blank" rel="noopener noreferrer">官方做法</a>
 也不能生效。现先以<code>istio-1.5.10</code>为例总结启用策略检查功能的方法如下：</p>
 <ol>
 <li>默认安装istio之后<code>disablePolicyChecks=true</code></li>
@@ -295,7 +297,7 @@ disablePolicyChecks: false
 <ol start="5">
 <li>参考：</li>
 </ol>
-<p><a href="https://blog.csdn.net/u013538795/article/details/90241062" target="_blank">第二十一部分 Istio策略检查</a>
+<p><a href="https://blog.csdn.net/u013538795/article/details/90241062" target="_blank" rel="noopener noreferrer">第二十一部分 Istio策略检查</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -342,7 +344,7 @@ disablePolicyChecks: false
   </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
   repo="razonyang/blog"
   issue-term="pathname"
-  label=""
+  label="comment"
   theme="github-dark"
   crossorigin="anonymous"
   async>
@@ -358,13 +360,13 @@ disablePolicyChecks: false
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<section class="profile surface row">
-  <div class="col-xl-6 d-flex align-items-center justify-content-center">
-    <img class="profile-avatar img-fluid" src="https://xuzhijvn.github.io/images/profile.webp" alt="Tony Xu" loading="lazy">
-  </div>
-  <div class="col-xl-6">
-    <h5 class="profile-name my-2">Tony Xu</h5><div class="profile-bio mb-2">发型总监</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>光头发廊</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
-</section><section class="recent-posts row surface">
+<section class="profile surface row text-center">
+  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony Xu" src="https://xuzhijvn.github.io/images/profile.webp"
+   width="400" height="400" loading="lazy" />
+</div>
+  <div class="col-12 profile-meta"><div class="profile-name">Tony Xu</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section>
+  <section class="recent-posts row surface">
   <h4>最近文章</h4>
   <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
@@ -444,36 +446,24 @@ disablePolicyChecks: false
 </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
-    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
-    </a>
-  </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-gitlab"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-qq"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-twitter"></i>
-      </a>
-    </li></nav>
+      </a></nav>
 <div class="copyright mb-2">
   Copyright © 2016-2021 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
-  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
 </div><div class="mb-3">
   <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
   <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>

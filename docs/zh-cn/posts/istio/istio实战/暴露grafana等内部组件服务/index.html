@@ -13,7 +13,7 @@
 <meta itemprop="description" content="暴露grafana等内部组件服务
 在安装完成istio后，默认状态下，集群外用户不能直接访问istio集群内的grafana等管理、监控服务。
 有两种方法可以将集群内服务开放出来。一种是使用port-forward方式将本地端口流量转发到pod端口，实现集群内服务的访问；另一种方式是采用istio gateway方式，将集群内服务暴露到外网。
-第一种方式（以暴露Prometheus为例，官方教程也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
+第一种方式（以暴露Prometheus为例，官方教程 也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
 kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=prometheus -o jsonpath=&#39;{.items[0].metadata.name}&#39;) 9090:9090 &amp; 第二种方式需要将集群的默认网关服务ingressgateway的网络模式设置为LB/nodeport模式，作为代理实现对外服务。
 1. 设置ingress gateway的工作模式 安装istio的时候默认就是LB的
 2. 验证ingress gateway的网络模式 [root@k8s-master ~]# kubectl get svc -n Istio-system NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE grafana ClusterIP 10.101.122.19 &lt;none&gt; 3000/TCP 11h Istio-egressgateway ClusterIP 10.106.2.83 &lt;none&gt; 80/TCP,443/TCP,15443/TCP 11h Istio-ingressgateway LoadBalancer 10.110.238.41 &lt;pending&gt; 15020:31598/TCP,80:30299/TCP,443:31413/TCP,15029:30249/TCP,15030:32499/TCP,15031:31399/TCP,15032:32373/TCP,31400:30156/TCP,15443:30319/TCP 11h Istio-pilot ClusterIP 10.103.43.172 &lt;none&gt; 15010/TCP,15011/TCP,15012/TCP,8080/TCP,15014/TCP,443/TCP 11h istiod ClusterIP 10.105.251.21 &lt;none&gt; 15012/TCP,443/TCP 11h jaeger-agent ClusterIP None &lt;none&gt; 5775/UDP,6831/UDP,6832/UDP 11h jaeger-collector ClusterIP 10."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
@@ -23,7 +23,7 @@ kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=pr
 <meta property="og:description" content="暴露grafana等内部组件服务
 在安装完成istio后，默认状态下，集群外用户不能直接访问istio集群内的grafana等管理、监控服务。
 有两种方法可以将集群内服务开放出来。一种是使用port-forward方式将本地端口流量转发到pod端口，实现集群内服务的访问；另一种方式是采用istio gateway方式，将集群内服务暴露到外网。
-第一种方式（以暴露Prometheus为例，官方教程也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
+第一种方式（以暴露Prometheus为例，官方教程 也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
 kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=prometheus -o jsonpath=&#39;{.items[0].metadata.name}&#39;) 9090:9090 &amp; 第二种方式需要将集群的默认网关服务ingressgateway的网络模式设置为LB/nodeport模式，作为代理实现对外服务。
 1. 设置ingress gateway的工作模式 安装istio的时候默认就是LB的
 2. 验证ingress gateway的网络模式 [root@k8s-master ~]# kubectl get svc -n Istio-system NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE grafana ClusterIP 10.101.122.19 &lt;none&gt; 3000/TCP 11h Istio-egressgateway ClusterIP 10.106.2.83 &lt;none&gt; 80/TCP,443/TCP,15443/TCP 11h Istio-ingressgateway LoadBalancer 10.110.238.41 &lt;pending&gt; 15020:31598/TCP,80:30299/TCP,443:31413/TCP,15029:30249/TCP,15030:32499/TCP,15031:31399/TCP,15032:32373/TCP,31400:30156/TCP,15443:30319/TCP 11h Istio-pilot ClusterIP 10.103.43.172 &lt;none&gt; 15010/TCP,15011/TCP,15012/TCP,8080/TCP,15014/TCP,443/TCP 11h istiod ClusterIP 10.105.251.21 &lt;none&gt; 15012/TCP,443/TCP 11h jaeger-agent ClusterIP None &lt;none&gt; 5775/UDP,6831/UDP,6832/UDP 11h jaeger-collector ClusterIP 10." />
@@ -40,12 +40,13 @@ kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=pr
 <meta name="twitter:description" content="暴露grafana等内部组件服务
 在安装完成istio后，默认状态下，集群外用户不能直接访问istio集群内的grafana等管理、监控服务。
 有两种方法可以将集群内服务开放出来。一种是使用port-forward方式将本地端口流量转发到pod端口，实现集群内服务的访问；另一种方式是采用istio gateway方式，将集群内服务暴露到外网。
-第一种方式（以暴露Prometheus为例，官方教程也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
+第一种方式（以暴露Prometheus为例，官方教程 也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
 kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=prometheus -o jsonpath=&#39;{.items[0].metadata.name}&#39;) 9090:9090 &amp; 第二种方式需要将集群的默认网关服务ingressgateway的网络模式设置为LB/nodeport模式，作为代理实现对外服务。
 1. 设置ingress gateway的工作模式 安装istio的时候默认就是LB的
 2. 验证ingress gateway的网络模式 [root@k8s-master ~]# kubectl get svc -n Istio-system NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE grafana ClusterIP 10.101.122.19 &lt;none&gt; 3000/TCP 11h Istio-egressgateway ClusterIP 10.106.2.83 &lt;none&gt; 80/TCP,443/TCP,15443/TCP 11h Istio-ingressgateway LoadBalancer 10.110.238.41 &lt;pending&gt; 15020:31598/TCP,80:30299/TCP,443:31413/TCP,15029:30249/TCP,15030:32499/TCP,15031:31399/TCP,15032:32373/TCP,31400:30156/TCP,15443:30319/TCP 11h Istio-pilot ClusterIP 10.103.43.172 &lt;none&gt; 15010/TCP,15011/TCP,15012/TCP,8080/TCP,15014/TCP,443/TCP 11h istiod ClusterIP 10.105.251.21 &lt;none&gt; 15012/TCP,443/TCP 11h jaeger-agent ClusterIP None &lt;none&gt; 5775/UDP,6831/UDP,6832/UDP 11h jaeger-collector ClusterIP 10."/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://xuzhijvn.github.io/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://xuzhijvn.github.io/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
@@ -68,14 +69,16 @@ if (!doNotTrack) {
 </script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
-      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy">唯有光頭才能變強</a>
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
+   width="400" height="400" loading="lazy" />
+唯有光頭才能變強</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
   <div class="input-group input-group-sm">
-    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
     <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
   </div>
 </form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
@@ -157,22 +160,22 @@ if (!doNotTrack) {
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
               <a class="dropdown-item"
-                href="https://clevergo.tech/" target="_blank">
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
                 CleverGo
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://gopkgs.net/" target="_blank">
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
                 GOPKGS
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
                 Hugo Bootstrap 主题
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://admin.yii2.razonyang.com/" target="_blank">
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
                 Yii 2 管理后台
               </a>
             </li></ul>
@@ -273,13 +276,12 @@ if (!doNotTrack) {
   </div>
 </div>
 <h1 class="post-title my-3">暴露grafana等内部组件服务
-</h1><div class="post-meta mb-3">
-  <span class="post-date me-2">
+</h1><div class="post-meta mb-3"><span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
-  </span>
-  <span class="post-reading-time me-2">
+  </span><span class="post-reading-time me-2">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">#云原生</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="post-taxonomy">#istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">#云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="post-taxonomy">#istio</a></div>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="post-taxonomy">istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="post-taxonomy">istio</a></span>
+</div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
@@ -302,7 +304,7 @@ if (!doNotTrack) {
 </div><div class="post-content mb-3"><p>暴露grafana等内部组件服务</p>
 <p>在安装完成istio后，默认状态下，集群外用户不能直接访问istio集群内的grafana等管理、监控服务。</p>
 <p>有两种方法可以将集群内服务开放出来。一种是使用port-forward方式将本地端口流量转发到pod端口，实现集群内服务的访问；另一种方式是采用istio gateway方式，将集群内服务暴露到外网。</p>
-<p>第一种方式（以暴露Prometheus为例，<a href="https://istio.io/latest/zh/docs/tasks/observability/metrics/querying-metrics/" target="_blank">官方教程</a>
+<p>第一种方式（以暴露Prometheus为例，<a href="https://istio.io/latest/zh/docs/tasks/observability/metrics/querying-metrics/" target="_blank" rel="noopener noreferrer">官方教程</a>
 也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl -n Istio-system port-forward <span style="color:#66d9ef">$(</span>kubectl -n Istio-system get pod -l app<span style="color:#f92672">=</span>prometheus -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.items[0].metadata.name}&#39;</span><span style="color:#66d9ef">)</span> 9090:9090 &amp;
 </code></pre></div><p>第二种方式需要将集群的默认网关服务ingressgateway的网络模式设置为LB/nodeport模式，作为代理实现对外服务。</p>
@@ -415,7 +417,7 @@ Events:                   &lt;none&gt;
 <h2 id="5-测试grafana的连通性">5. 测试grafana的连通性</h2>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">http://&lt;公网IP&gt;:31399
 </code></pre></div><h2 id="参考">参考</h2>
-<p><a href="https://blog.csdn.net/scwang18/article/details/100833886" target="_blank">istio中的grafana等内部组件服务开放给集群外用户访问</a>
+<p><a href="https://blog.csdn.net/scwang18/article/details/100833886" target="_blank" rel="noopener noreferrer">istio中的grafana等内部组件服务开放给集群外用户访问</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -462,7 +464,7 @@ Events:                   &lt;none&gt;
   </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
   repo="razonyang/blog"
   issue-term="pathname"
-  label=""
+  label="comment"
   theme="github-dark"
   crossorigin="anonymous"
   async>
@@ -478,13 +480,13 @@ Events:                   &lt;none&gt;
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<section class="profile surface row">
-  <div class="col-xl-6 d-flex align-items-center justify-content-center">
-    <img class="profile-avatar img-fluid" src="https://xuzhijvn.github.io/images/profile.webp" alt="Tony Xu" loading="lazy">
-  </div>
-  <div class="col-xl-6">
-    <h5 class="profile-name my-2">Tony Xu</h5><div class="profile-bio mb-2">发型总监</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>光头发廊</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
-</section><section class="recent-posts row surface">
+<section class="profile surface row text-center">
+  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony Xu" src="https://xuzhijvn.github.io/images/profile.webp"
+   width="400" height="400" loading="lazy" />
+</div>
+  <div class="col-12 profile-meta"><div class="profile-name">Tony Xu</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section>
+  <section class="recent-posts row surface">
   <h4>最近文章</h4>
   <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
@@ -564,36 +566,24 @@ Events:                   &lt;none&gt;
 </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
-    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
-    </a>
-  </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-gitlab"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-qq"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-twitter"></i>
-      </a>
-    </li></nav>
+      </a></nav>
 <div class="copyright mb-2">
   Copyright © 2016-2021 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
-  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
 </div><div class="mb-3">
   <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
   <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>

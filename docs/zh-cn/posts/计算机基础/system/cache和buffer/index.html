@@ -12,16 +12,16 @@
 <meta name="description" content="" /><meta itemprop="name" content="cache和buffer">
 <meta itemprop="description" content="首先我们使用 free -m 查看系统内存的使用情况：
 可以看出，系统内存为 16G，Swap 内存 16G，mem free 虽然显示为 1118，因缓存的存在，不能认为系统目前内剩下这么多内存。而应该把 buffers、cached 的也算上，即 free&#43;cached&#43;buffers=1118&#43;7110&#43;430＝8658，总内存再减去 8658＝7314，与 buffers/cache 行中对应 free 列的 7312 和 8659 基本一致。
- 这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念  Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
- 从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
+ 这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念   Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
+ 从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因 ），所以同样使用 free -m 看到的是：
 [root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0  使用 hostnamectl 或者 cat /proc/version 可以查看内核版本："><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="193"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="CS,System," /><meta property="og:title" content="cache和buffer" />
 <meta property="og:description" content="首先我们使用 free -m 查看系统内存的使用情况：
 可以看出，系统内存为 16G，Swap 内存 16G，mem free 虽然显示为 1118，因缓存的存在，不能认为系统目前内剩下这么多内存。而应该把 buffers、cached 的也算上，即 free&#43;cached&#43;buffers=1118&#43;7110&#43;430＝8658，总内存再减去 8658＝7314，与 buffers/cache 行中对应 free 列的 7312 和 8659 基本一致。
- 这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念  Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
- 从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
+ 这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念   Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
+ 从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因 ），所以同样使用 free -m 看到的是：
 [root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0  使用 hostnamectl 或者 cat /proc/version 可以查看内核版本：" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/system/cache%E5%92%8Cbuffer/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
@@ -35,11 +35,12 @@
 <meta name="twitter:title" content="cache和buffer"/>
 <meta name="twitter:description" content="首先我们使用 free -m 查看系统内存的使用情况：
 可以看出，系统内存为 16G，Swap 内存 16G，mem free 虽然显示为 1118，因缓存的存在，不能认为系统目前内剩下这么多内存。而应该把 buffers、cached 的也算上，即 free&#43;cached&#43;buffers=1118&#43;7110&#43;430＝8658，总内存再减去 8658＝7314，与 buffers/cache 行中对应 free 列的 7312 和 8659 基本一致。
- 这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念  Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
- 从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
+ 这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念   Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
+ 从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因 ），所以同样使用 free -m 看到的是：
 [root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0  使用 hostnamectl 或者 cat /proc/version 可以查看内核版本："/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://xuzhijvn.github.io/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://xuzhijvn.github.io/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
@@ -62,14 +63,16 @@ if (!doNotTrack) {
 </script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
-      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy">唯有光頭才能變強</a>
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
+   width="400" height="400" loading="lazy" />
+唯有光頭才能變強</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
   <div class="input-group input-group-sm">
-    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
     <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
   </div>
 </form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
@@ -151,22 +154,22 @@ if (!doNotTrack) {
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
               <a class="dropdown-item"
-                href="https://clevergo.tech/" target="_blank">
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
                 CleverGo
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://gopkgs.net/" target="_blank">
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
                 GOPKGS
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
                 Hugo Bootstrap 主题
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://admin.yii2.razonyang.com/" target="_blank">
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
                 Yii 2 管理后台
               </a>
             </li></ul>
@@ -266,25 +269,26 @@ if (!doNotTrack) {
   </div>
 </div>
 <h1 class="post-title my-3">cache和buffer
-</h1><div class="post-meta mb-3">
-  <span class="post-date me-2">
+</h1><div class="post-meta mb-3"><span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
-  </span>
-  <span class="post-reading-time me-2">
+  </span><span class="post-reading-time me-2">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="post-taxonomy">#计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">#Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="post-taxonomy">#CS</a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="post-taxonomy">#System</a></div>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="post-taxonomy">计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="post-taxonomy">CS</a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="post-taxonomy">System</a></span>
+</div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>首先我们使用 <code>free -m</code> 查看系统内存的使用情况：</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/20200502221926518.png" alt="老版本linux内核"  loading="lazy" />
+<p><img class="img-fluid" alt="老版本linux内核" src="https://picgo.6and.ltd/img/20200502221926518.png"
+   loading="lazy" />
+
 </p>
 <p>可以看出，系统内存为 16G，Swap 内存 16G，mem free 虽然显示为 1118，因缓存的存在，不能认为系统目前内剩下这么多内存。而应该把 buffers、cached 的也算上，即 free+cached+buffers=1118+7110+430＝8658，总内存再减去 8658＝7314，与 buffers/cache 行中对应 free 列的 7312 和 8659 基本一致。</p>
 <blockquote>
-<p>这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 <a href="https://www.cnblogs.com/kerrycode/p/5246383.html" target="_blank">Swap交换分区概念</a>
+<p>这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 <a href="https://www.cnblogs.com/kerrycode/p/5246383.html" target="_blank" rel="noopener noreferrer">Swap交换分区概念</a>
 </p>
 </blockquote>
 <blockquote>
 <p>Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。</p>
 </blockquote>
-<p>从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 <a href="https://blog.csdn.net/jasonchen_gbd/article/details/80151328" target="_blank">Linux IO的buffer cache和page cache合并的原因</a>
+<p>从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 <a href="https://blog.csdn.net/jasonchen_gbd/article/details/80151328" target="_blank" rel="noopener noreferrer">Linux IO的buffer cache和page cache合并的原因</a>
 ），所以同样使用 <code>free -m</code> 看到的是：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#f92672">[</span>root@k8s-node3 ~<span style="color:#f92672">]</span><span style="color:#75715e"># free -m</span>
               total        used        free      shared  buff/cache   available
@@ -311,7 +315,7 @@ Linux version 3.10.0-1127.19.1.el7.x86_64 <span style="color:#f92672">(</span>mo
 </code></pre></div></blockquote>
 <p>我们假设buffer/cache还没发生合并，那它们之间的区别是什么呢？</p>
 <p>这里罗列几个高赞👍知乎回答：</p>
-<p><a href="https://www.zhihu.com/question/26190832" target="_blank">Cache 和 Buffer 都是缓存，主要区别是什么？</a>
+<p><a href="https://www.zhihu.com/question/26190832" target="_blank" rel="noopener noreferrer">Cache 和 Buffer 都是缓存，主要区别是什么？</a>
 </p>
 <blockquote>
 <ul>
@@ -319,7 +323,7 @@ Linux version 3.10.0-1127.19.1.el7.x86_64 <span style="color:#f92672">(</span>mo
 <li>而 buffer 的主要目的进行流量整形，把突发的大数量较小规模的 I/O 整理成平稳的小数量较大规模的 I/O，以<strong>减少响应次数</strong>（比如从网上下电影，你不能下一点点数据就写一下硬盘，而是积攒一定量的数据以后一整块一起写，不然硬盘都要被你玩坏了）。</li>
 </ul>
 </blockquote>
-<p><a href="https://zhuanlan.zhihu.com/p/35277219" target="_blank">Linux系统中的Page cache和Buffer cache</a>
+<p><a href="https://zhuanlan.zhihu.com/p/35277219" target="_blank" rel="noopener noreferrer">Linux系统中的Page cache和Buffer cache</a>
 </p>
 <blockquote>
 <p>磁盘的操作有逻辑级（文件系统）和物理级（磁盘块），这两种Cache就是分别缓存逻辑和物理级数据的。</p>
@@ -332,11 +336,11 @@ Linux version 3.10.0-1127.19.1.el7.x86_64 <span style="color:#f92672">(</span>mo
 <p><strong>Cache(Page Cache)以页面形式缓存了文件系统的文件，给需要使用的程序读取，它是为了给读操作提供缓冲，避免频繁读硬盘，提高读取效率。</strong></p>
 </blockquote>
 <h2 id="参考">参考</h2>
-<p><a href="https://blog.csdn.net/Jmilk/article/details/105896326" target="_blank">Linux 操作系统原理 — 内存 — Cache 和 Buffer</a>
+<p><a href="https://blog.csdn.net/Jmilk/article/details/105896326" target="_blank" rel="noopener noreferrer">Linux 操作系统原理 — 内存 — Cache 和 Buffer</a>
 </p>
-<p><a href="https://zhuanlan.zhihu.com/p/35277219" target="_blank">Linux系统中的Page cache和Buffer cache</a>
+<p><a href="https://zhuanlan.zhihu.com/p/35277219" target="_blank" rel="noopener noreferrer">Linux系统中的Page cache和Buffer cache</a>
 </p>
-<p><a href="https://www.zhihu.com/question/26190832" target="_blank">Cache 和 Buffer 都是缓存，主要区别是什么？</a>
+<p><a href="https://www.zhihu.com/question/26190832" target="_blank" rel="noopener noreferrer">Cache 和 Buffer 都是缓存，主要区别是什么？</a>
 </p>
 <p>[Swap交换分区概念](</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
@@ -384,7 +388,7 @@ Linux version 3.10.0-1127.19.1.el7.x86_64 <span style="color:#f92672">(</span>mo
   </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
   repo="razonyang/blog"
   issue-term="pathname"
-  label=""
+  label="comment"
   theme="github-dark"
   crossorigin="anonymous"
   async>
@@ -400,13 +404,13 @@ Linux version 3.10.0-1127.19.1.el7.x86_64 <span style="color:#f92672">(</span>mo
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<section class="profile surface row">
-  <div class="col-xl-6 d-flex align-items-center justify-content-center">
-    <img class="profile-avatar img-fluid" src="https://xuzhijvn.github.io/images/profile.webp" alt="Tony Xu" loading="lazy">
-  </div>
-  <div class="col-xl-6">
-    <h5 class="profile-name my-2">Tony Xu</h5><div class="profile-bio mb-2">发型总监</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>光头发廊</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
-</section><section class="recent-posts row surface">
+<section class="profile surface row text-center">
+  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony Xu" src="https://xuzhijvn.github.io/images/profile.webp"
+   width="400" height="400" loading="lazy" />
+</div>
+  <div class="col-12 profile-meta"><div class="profile-name">Tony Xu</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section>
+  <section class="recent-posts row surface">
   <h4>最近文章</h4>
   <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
@@ -486,36 +490,24 @@ Linux version 3.10.0-1127.19.1.el7.x86_64 <span style="color:#f92672">(</span>mo
 </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
-    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
-    </a>
-  </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-gitlab"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-qq"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-twitter"></i>
-      </a>
-    </li></nav>
+      </a></nav>
 <div class="copyright mb-2">
   Copyright © 2016-2021 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
-  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
 </div><div class="mb-3">
   <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
   <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>

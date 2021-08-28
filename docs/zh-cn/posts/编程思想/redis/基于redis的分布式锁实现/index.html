@@ -19,7 +19,7 @@
  基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
 Redis的分布式锁实现 1. 利用setnx&#43;expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
 因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx&#43;expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) {Long result = jedis.setnx(key, requset);// result = 1时，设置成功，否则设置失败if (result == 1L) {return jedis.expire(key, timeout) == 1L;} else {return false;}}复制代码实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.expire(key, timeout) == 1L; } else { return false; } } 复制代码 实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="784"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="Redis," /><meta property="og:title" content="基于Redis的分布式锁实现" />
@@ -32,7 +32,7 @@ public boolean tryLock(String key,String requset,int timeout) {Long result = je
  基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
 Redis的分布式锁实现 1. 利用setnx&#43;expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
 因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx&#43;expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) {Long result = jedis.setnx(key, requset);// result = 1时，设置成功，否则设置失败if (result == 1L) {return jedis.expire(key, timeout) == 1L;} else {return false;}}复制代码实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。" />
+public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.expire(key, timeout) == 1L; } else { return false; } } 复制代码 实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -52,9 +52,10 @@ public boolean tryLock(String key,String requset,int timeout) {Long result = je
  基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
 Redis的分布式锁实现 1. 利用setnx&#43;expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
 因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx&#43;expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) {Long result = jedis.setnx(key, requset);// result = 1时，设置成功，否则设置失败if (result == 1L) {return jedis.expire(key, timeout) == 1L;} else {return false;}}复制代码实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。"/>
+public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.expire(key, timeout) == 1L; } else { return false; } } 复制代码 实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://xuzhijvn.github.io/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://xuzhijvn.github.io/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
@@ -77,14 +78,16 @@ if (!doNotTrack) {
 </script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
-      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy">唯有光頭才能變強</a>
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
+   width="400" height="400" loading="lazy" />
+唯有光頭才能變強</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
   <div class="input-group input-group-sm">
-    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
     <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
   </div>
 </form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
@@ -166,22 +169,22 @@ if (!doNotTrack) {
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
               <a class="dropdown-item"
-                href="https://clevergo.tech/" target="_blank">
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
                 CleverGo
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://gopkgs.net/" target="_blank">
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
                 GOPKGS
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
                 Hugo Bootstrap 主题
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://admin.yii2.razonyang.com/" target="_blank">
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
                 Yii 2 管理后台
               </a>
             </li></ul>
@@ -282,13 +285,12 @@ if (!doNotTrack) {
   </div>
 </div>
 <h1 class="post-title my-3">基于Redis的分布式锁实现
-</h1><div class="post-meta mb-3">
-  <span class="post-date me-2">
+</h1><div class="post-meta mb-3"><span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
-  </span>
-  <span class="post-reading-time me-2">
+  </span><span class="post-reading-time me-2">
     <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
-  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy">#编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">#Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy">#redis</a></div>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy">redis</a></span>
+</div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
@@ -333,7 +335,9 @@ if (!doNotTrack) {
 <p>在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？</p>
 <p>实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间<strong>互斥访问共享资源</strong>的一种方式。</p>
 <p>比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/16a53749547937bb~tplv-t2oaga2asx-watermark.awebp" alt="分布式锁"  loading="lazy" />
+<p><img class="img-fluid" alt="分布式锁" src="https://picgo.6and.ltd/img/16a53749547937bb~tplv-t2oaga2asx-watermark.awebp"
+   loading="lazy" />
+
 </p>
 <h3 id="分布式锁的特点">分布式锁的特点</h3>
 <p>分布式锁一般有如下的特点：</p>
@@ -417,8 +421,8 @@ if (!doNotTrack) {
 <h3 id="4-redlock算法-与-redisson-实现">4. Redlock算法 与 Redisson 实现</h3>
 <p>Redis作者 antirez基于分布式环境下提出了一种更高级的分布式锁的实现Redlock，原理如下：</p>
 <blockquote>
-<p>下面参考文章<a href="https://link.juejin.cn/?target=https%3A%2F%2Fmp.weixin.qq.com%2Fs%3F__biz%3DMzU5ODUwNzY1Nw%3D%3D%26mid%3D2247484155%26idx%3D1%26sn%3D0c73f45f2f641ba0bf4399f57170ac9b%26scene%3D21%23wechat_redirect" target="_blank">Redlock：Redis分布式锁最牛逼的实现</a>
- 和 <a href="https://link.juejin.cn/?target=https%3A%2F%2Fredis.io%2Ftopics%2Fdistlock" target="_blank">redis.io/topics/dist…</a>
+<p>下面参考文章<a href="https://link.juejin.cn/?target=https%3A%2F%2Fmp.weixin.qq.com%2Fs%3F__biz%3DMzU5ODUwNzY1Nw%3D%3D%26mid%3D2247484155%26idx%3D1%26sn%3D0c73f45f2f641ba0bf4399f57170ac9b%26scene%3D21%23wechat_redirect" target="_blank" rel="noopener noreferrer">Redlock：Redis分布式锁最牛逼的实现</a>
+ 和 <a href="https://link.juejin.cn/?target=https%3A%2F%2Fredis.io%2Ftopics%2Fdistlock" target="_blank" rel="noopener noreferrer">redis.io/topics/dist…</a>
 </p>
 </blockquote>
 <p>假设有5个独立的Redis节点（<strong>注意这里的节点可以是5个Redis单master实例，也可以是5个Redis Cluster集群，但并不是有5个主节点的cluster集群</strong>）：</p>
@@ -462,7 +466,7 @@ lock<span style="color:#f92672">.</span><span style="color:#a6e22e">lock</span><
 <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
     lock<span style="color:#f92672">.</span><span style="color:#a6e22e">unlock</span><span style="color:#f92672">();</span>
 <span style="color:#f92672">}</span>
-</code></pre></div><p>关于Redlock算法的实现，在Redisson中我们可以使用RedissonRedLock来完成，具体使用细节可以参考大佬的文章： <a href="https://link.juejin.cn/?target=https%3A%2F%2Fmp.weixin.qq.com%2Fs%2F8uhYult2h_YUHT7q7YCKYQ" target="_blank">mp.weixin.qq.com/s/8uhYult2h…</a>
+</code></pre></div><p>关于Redlock算法的实现，在Redisson中我们可以使用RedissonRedLock来完成，具体使用细节可以参考大佬的文章： <a href="https://link.juejin.cn/?target=https%3A%2F%2Fmp.weixin.qq.com%2Fs%2F8uhYult2h_YUHT7q7YCKYQ" target="_blank" rel="noopener noreferrer">mp.weixin.qq.com/s/8uhYult2h…</a>
 </p>
 <h2 id="redis实现的分布式锁轮子">Redis实现的分布式锁轮子</h2>
 <p>下面利用SpringBoot + Jedis + AOP的组合来实现一个简易的分布式锁。</p>
@@ -655,10 +659,10 @@ lock<span style="color:#f92672">.</span><span style="color:#a6e22e">lock</span><
 <span style="color:#f92672">}</span>
 </code></pre></div><h2 id="小结">小结</h2>
 <p>分布式锁重点在于互斥性，在任意一个时刻，只有一个客户端获取了锁。在实际的生产环境中，分布式锁的实现可能会更复杂，而我这里的讲述主要针对的是单机环境下的基于Redis的分布式锁实现，至于Redis集群环境并没有过多涉及，有兴趣的朋友可以查阅相关资料。</p>
-<p>项目源码地址：<a href="https://link.juejin.cn/?target=https%3A%2F%2Fgithub.com%2Fpjmike%2Fredis-distributed-lock" target="_blank">github.com/pjmike/redi…</a>
+<p>项目源码地址：<a href="https://link.juejin.cn/?target=https%3A%2F%2Fgithub.com%2Fpjmike%2Fredis-distributed-lock" target="_blank" rel="noopener noreferrer">github.com/pjmike/redi…</a>
 </p>
 <h2 id="参考">参考</h2>
-<p><a href="https://juejin.cn/post/6844903830442737671" target="_blank">基于Redis的分布式锁实现</a>
+<p><a href="https://juejin.cn/post/6844903830442737671" target="_blank" rel="noopener noreferrer">基于Redis的分布式锁实现</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -705,7 +709,7 @@ lock<span style="color:#f92672">.</span><span style="color:#a6e22e">lock</span><
   </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
   repo="razonyang/blog"
   issue-term="pathname"
-  label=""
+  label="comment"
   theme="github-dark"
   crossorigin="anonymous"
   async>
@@ -721,13 +725,13 @@ lock<span style="color:#f92672">.</span><span style="color:#a6e22e">lock</span><
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<section class="profile surface row">
-  <div class="col-xl-6 d-flex align-items-center justify-content-center">
-    <img class="profile-avatar img-fluid" src="https://xuzhijvn.github.io/images/profile.webp" alt="Tony Xu" loading="lazy">
-  </div>
-  <div class="col-xl-6">
-    <h5 class="profile-name my-2">Tony Xu</h5><div class="profile-bio mb-2">发型总监</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>光头发廊</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
-</section><section class="recent-posts row surface">
+<section class="profile surface row text-center">
+  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony Xu" src="https://xuzhijvn.github.io/images/profile.webp"
+   width="400" height="400" loading="lazy" />
+</div>
+  <div class="col-12 profile-meta"><div class="profile-name">Tony Xu</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section>
+  <section class="recent-posts row surface">
   <h4>最近文章</h4>
   <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
@@ -807,36 +811,24 @@ lock<span style="color:#f92672">.</span><span style="color:#a6e22e">lock</span><
 </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
-    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
-    </a>
-  </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-gitlab"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-qq"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-twitter"></i>
-      </a>
-    </li></nav>
+      </a></nav>
 <div class="copyright mb-2">
   Copyright © 2016-2021 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
-  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
 </div><div class="mb-3">
   <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
   <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>

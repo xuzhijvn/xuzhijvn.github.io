@@ -23,7 +23,7 @@
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%90%AF%E7%94%A8%E7%AD%96%E7%95%A5%E6%A3%80%E6%9F%A5%E5%8A%9F%E8%83%BD/</guid>
       <description>istio启用策略检查功能
-不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
+不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法 也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
  默认安装istio之后disablePolicyChecks=true  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&amp;#34;{@.data.mesh}&amp;#34; | grep disablePolicyChecks disablePolicyChecks: true 编辑 istio configmap 以启用策略检查  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&amp;#34;{@.data.mesh}&amp;#34; | sed -e &amp;#34;s/disablePolicyChecks: true/disablePolicyChecks: false/&amp;#34; &amp;gt; /tmp/mesh.yaml [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system create cm Istio -o yaml --dry-run --from-file=mesh=/tmp/mesh.yaml | kubectl replace -f - W0902 17:00:37.208604 16538 helpers.go:535] --dry-run is deprecated and can be replaced with --dry-run=client.</description>
     </item>
     
@@ -43,9 +43,9 @@ istioctl manifest apply --set profile=demo 查看svc：kubectl get svc -n istio-
 查看pod：kubectl get pods -n istio-system
 这里需要注意，如果使用的是1.5.10以后的高版本，安装命令应该是：istioctl manifest install --set profile=demo
 并且，最新版本1.7.0不再默认安装grafana ``kiali ``zipkin等等组件。
-当使用 kubectl apply 来部署应用时，如果 pod 启动在标有 istio-injection=enabled 的命名空间中，那么，Istio sidecar 注入器将自动注入 Envoy 容器到应用的 pod 中：
+当使用 kubectl apply 来部署应用时，如果 pod 启动在标有 istio-injection=enabled 的命名空间中，那么，Istio sidecar 注入器 将自动注入 Envoy 容器到应用的 pod 中：
 kubectl label namespace &amp;lt;namespace&amp;gt; Istio-injection=enabled 3.卸载 卸载程序将删除 RBAC 权限、istio-system 命名空间和所有相关资源。可以忽略那些不存在的资源的报错，因为它们可能已经被删除掉了。
-istioctl manifest generate --set profile=demo | kubectl delete -f - 参考 istio官网: 开始</description>
+istioctl manifest generate --set profile=demo | kubectl delete -f - 参考 istio官网: 开始 </description>
     </item>
     
     <item>
@@ -55,9 +55,9 @@ istioctl manifest generate --set profile=demo | kubectl delete -f - 参考 istio
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/</guid>
       <description>istio实现灰度
-Gateway apiVersion: networking.istio.io/v1alpha3 kind: Gateway metadata: name: bookinfo-gateway spec: selector: istio: ingressgateway # use istio default controller servers: - port: number: 80 name: http protocol: HTTP hosts: - &amp;#34;*&amp;#34; VirtualService 是在 Istio 服务网格内对服务的请求如何进行路由控制？VirtualService中就包含了这方面的定义。例如一个 Virtual Service 可以把请求路由到不同版本，甚至是可以路由到一个完全不同于请求要求的服务上去。路由可以用很多条件进行判断，例如请求的源和目的地、HTTP 路径和 Header 以及各个服务版本的权重等。
+Gateway apiVersion: networking.istio.io/v1alpha3 kind: Gateway metadata: name: bookinfo-gateway spec: selector: istio: ingressgateway # use istio default controller servers: - port: number: 80 name: http protocol: HTTP hosts: - &amp;#34;*&amp;#34; VirtualService 是在 Istio 服务网格内对服务的请求如何进行路由控制？VirtualService 中就包含了这方面的定义。例如一个 Virtual Service 可以把请求路由到不同版本，甚至是可以路由到一个完全不同于请求要求的服务上去。路由可以用很多条件进行判断，例如请求的源和目的地、HTTP 路径和 Header 以及各个服务版本的权重等。
 路由规则对应着一或多个用 VirtualService 配置指定的请求目的主机。这些主机可以是也可以不是实际的目标负载，甚至可以不是同一网格内可路由的服务。例如要给到 reviews 服务的请求定义路由规则，可以使用内部的名称 reviews，也可以用域名 bookinfo.com，VirtualService 可以定义这样的 host 字段：
-hosts:- reviews- bookinfo.com复制代码host 字段用显示或者隐式的方式定义了一或多个完全限定名（FQDN）。上面的 reviews，会隐式的扩展成为特定的 FQDN，例如在 Kubernetes 环境中，全名会从 VirtualService 所在的集群和命名空间中继承而来（比如说 reviews.default.svc.cluster.local）。
+hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的方式定义了一或多个完全限定名（FQDN）。上面的 reviews，会隐式的扩展成为特定的 FQDN，例如在 Kubernetes 环境中，全名会从 VirtualService 所在的集群和命名空间中继承而来（比如说 reviews.default.svc.cluster.local）。
 --- apiVersion: networking.istio.io/v1alpha3 kind: VirtualService metadata: name: bookinfo spec: hosts: - &amp;#34;*&amp;#34; gateways: - bookinfo-gateway http: - match: - uri: exact: /productpage - uri: prefix: /static - uri: exact: /login - uri: exact: /logout - uri: prefix: /api/v1/products route: - destination: host: productpage port: number: 9080 所有的流量都去到reviews:v1</description>
     </item>
     
@@ -70,7 +70,7 @@ hosts:- reviews- bookinfo.com复制代码host 字段用显示或者隐式的�
       <description>暴露grafana等内部组件服务
 在安装完成istio后，默认状态下，集群外用户不能直接访问istio集群内的grafana等管理、监控服务。
 有两种方法可以将集群内服务开放出来。一种是使用port-forward方式将本地端口流量转发到pod端口，实现集群内服务的访问；另一种方式是采用istio gateway方式，将集群内服务暴露到外网。
-第一种方式（以暴露Prometheus为例，官方教程也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
+第一种方式（以暴露Prometheus为例，官方教程 也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
 kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=prometheus -o jsonpath=&amp;#39;{.items[0].metadata.name}&amp;#39;) 9090:9090 &amp;amp; 第二种方式需要将集群的默认网关服务ingressgateway的网络模式设置为LB/nodeport模式，作为代理实现对外服务。
 1. 设置ingress gateway的工作模式 安装istio的时候默认就是LB的
 2. 验证ingress gateway的网络模式 [root@k8s-master ~]# kubectl get svc -n Istio-system NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE grafana ClusterIP 10.101.122.19 &amp;lt;none&amp;gt; 3000/TCP 11h Istio-egressgateway ClusterIP 10.106.2.83 &amp;lt;none&amp;gt; 80/TCP,443/TCP,15443/TCP 11h Istio-ingressgateway LoadBalancer 10.110.238.41 &amp;lt;pending&amp;gt; 15020:31598/TCP,80:30299/TCP,443:31413/TCP,15029:30249/TCP,15030:32499/TCP,15031:31399/TCP,15032:32373/TCP,31400:30156/TCP,15443:30319/TCP 11h Istio-pilot ClusterIP 10.103.43.172 &amp;lt;none&amp;gt; 15010/TCP,15011/TCP,15012/TCP,8080/TCP,15014/TCP,443/TCP 11h istiod ClusterIP 10.105.251.21 &amp;lt;none&amp;gt; 15012/TCP,443/TCP 11h jaeger-agent ClusterIP None &amp;lt;none&amp;gt; 5775/UDP,6831/UDP,6832/UDP 11h jaeger-collector ClusterIP 10.</description>
