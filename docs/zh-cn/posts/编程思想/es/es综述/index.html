@@ -13,7 +13,7 @@
 <meta itemprop="description" content="1. ES 的分布式架构原理 ElasticSearch 设计的理念就是分布式搜索引擎，底层其实还是基于 lucene 的。核心思想就是在多台机器上启动多个 ES 进程实例，组成了一个 ES 集群。
 默认节点会去加入一个名称为 elasticsearch 的集群。如果直接启动一堆节点，那么它们会自动组成一个 elasticsearch 集群，当然一个节点也可以组成 elasticsearch 集群。
 1.1 ES数据结构 ES 中存储数据的基本单位是索引，比如说你现在要在 ES 中存储一些订单数据，你就应该在 ES 中创建一个索引 order_idx ，所有的订单数据就都写到这个索引里面去，一个索引差不多就是相当于是 mysql 里的一张表。
-index -&gt; type -&gt; mapping -&gt; document -&gt; field。 1.2 ES高可用 类似kafka将一个topic分成多个partition，es将一个index分成多个shard。
+index -&gt; type -&gt; mapping -&gt; document -&gt; field。1.2 ES高可用 类似kafka将一个topic分成多个partition，es将一个index分成多个shard。
  每个 shard 存储部分数据。拆分多个 shard 是有好处的，一是支持横向扩展，比如你数据量是 3T，3 个 shard，每个 shard 就 1T 的数据，若现在数据量增加到 4T，怎么扩展，很简单，重新建一个有 4 个 shard 的索引，将数据导进去；二是提高性能，数据分布在多个 shard，即多台服务器上，所有的操作，都会在多台机器上并行分布式执行，提高了吞吐量和性能。
  kafka的每个partition有多个replica副本，所有副本选出一个leader（依赖zookeeper完成选举）负责所有的读写请求。
 ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 primary shard ，负责写入数据，但是还有几个 replica shard 。 primary shard 写入数据之后，会将数据同步到其他几个 replica shard 上去。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
@@ -23,7 +23,7 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
 <meta property="og:description" content="1. ES 的分布式架构原理 ElasticSearch 设计的理念就是分布式搜索引擎，底层其实还是基于 lucene 的。核心思想就是在多台机器上启动多个 ES 进程实例，组成了一个 ES 集群。
 默认节点会去加入一个名称为 elasticsearch 的集群。如果直接启动一堆节点，那么它们会自动组成一个 elasticsearch 集群，当然一个节点也可以组成 elasticsearch 集群。
 1.1 ES数据结构 ES 中存储数据的基本单位是索引，比如说你现在要在 ES 中存储一些订单数据，你就应该在 ES 中创建一个索引 order_idx ，所有的订单数据就都写到这个索引里面去，一个索引差不多就是相当于是 mysql 里的一张表。
-index -&gt; type -&gt; mapping -&gt; document -&gt; field。 1.2 ES高可用 类似kafka将一个topic分成多个partition，es将一个index分成多个shard。
+index -&gt; type -&gt; mapping -&gt; document -&gt; field。1.2 ES高可用 类似kafka将一个topic分成多个partition，es将一个index分成多个shard。
  每个 shard 存储部分数据。拆分多个 shard 是有好处的，一是支持横向扩展，比如你数据量是 3T，3 个 shard，每个 shard 就 1T 的数据，若现在数据量增加到 4T，怎么扩展，很简单，重新建一个有 4 个 shard 的索引，将数据导进去；二是提高性能，数据分布在多个 shard，即多台服务器上，所有的操作，都会在多台机器上并行分布式执行，提高了吞吐量和性能。
  kafka的每个partition有多个replica副本，所有副本选出一个leader（依赖zookeeper完成选举）负责所有的读写请求。
 ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 primary shard ，负责写入数据，但是还有几个 replica shard 。 primary shard 写入数据之后，会将数据同步到其他几个 replica shard 上去。" />
@@ -31,7 +31,7 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/es/es%E7%BB%BC%E8%BF%B0/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/aqs/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/async/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/git-submodule-update-init-recursive/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/aqs/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
@@ -40,13 +40,12 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
 <meta name="twitter:description" content="1. ES 的分布式架构原理 ElasticSearch 设计的理念就是分布式搜索引擎，底层其实还是基于 lucene 的。核心思想就是在多台机器上启动多个 ES 进程实例，组成了一个 ES 集群。
 默认节点会去加入一个名称为 elasticsearch 的集群。如果直接启动一堆节点，那么它们会自动组成一个 elasticsearch 集群，当然一个节点也可以组成 elasticsearch 集群。
 1.1 ES数据结构 ES 中存储数据的基本单位是索引，比如说你现在要在 ES 中存储一些订单数据，你就应该在 ES 中创建一个索引 order_idx ，所有的订单数据就都写到这个索引里面去，一个索引差不多就是相当于是 mysql 里的一张表。
-index -&gt; type -&gt; mapping -&gt; document -&gt; field。 1.2 ES高可用 类似kafka将一个topic分成多个partition，es将一个index分成多个shard。
+index -&gt; type -&gt; mapping -&gt; document -&gt; field。1.2 ES高可用 类似kafka将一个topic分成多个partition，es将一个index分成多个shard。
  每个 shard 存储部分数据。拆分多个 shard 是有好处的，一是支持横向扩展，比如你数据量是 3T，3 个 shard，每个 shard 就 1T 的数据，若现在数据量增加到 4T，怎么扩展，很简单，重新建一个有 4 个 shard 的索引，将数据导进去；二是提高性能，数据分布在多个 shard，即多台服务器上，所有的操作，都会在多台机器上并行分布式执行，提高了吞吐量和性能。
  kafka的每个partition有多个replica副本，所有副本选出一个leader（依赖zookeeper完成选举）负责所有的读写请求。
 ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 primary shard ，负责写入数据，但是还有几个 replica shard 。 primary shard 写入数据之后，会将数据同步到其他几个 replica shard 上去。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://xuzhijvn.github.io/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://xuzhijvn.github.io/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
 <script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
@@ -69,16 +68,14 @@ if (!doNotTrack) {
 </script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
-      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
-   width="400" height="400" loading="lazy" />
-唯有光頭才能變強</a>
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy">唯有光頭才能變強</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
   <div class="input-group input-group-sm">
-    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
+    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
     <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
   </div>
 </form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
@@ -160,22 +157,22 @@ if (!doNotTrack) {
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
               <a class="dropdown-item"
-                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                href="https://clevergo.tech/" target="_blank">
                 CleverGo
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                href="https://gopkgs.net/" target="_blank">
                 GOPKGS
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
                 Hugo Bootstrap 主题
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                href="https://admin.yii2.razonyang.com/" target="_blank">
                 Yii 2 管理后台
               </a>
             </li></ul>
@@ -276,12 +273,13 @@ if (!doNotTrack) {
   </div>
 </div>
 <h1 class="post-title my-3">ES综述
-</h1><div class="post-meta mb-3"><span class="post-date me-2">
+</h1><div class="post-meta mb-3">
+  <span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
-  </span><span class="post-reading-time me-2">
+  </span>
+  <span class="post-reading-time me-2">
     <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="post-taxonomy">ES</a></span>
-</div>
+  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy">#编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">#Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="post-taxonomy">#ES</a></div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
@@ -341,21 +339,19 @@ if (!doNotTrack) {
 <p>primary shard（建立索引时一次设置，不能修改，默认 5 个），replica shard（随时修改数量，默认 1 个），默认每个索引 10 个 shard，5 个 primary shard，5 个 replica shard，最小的高可用配置，是 2 台服务器。</p>
 </blockquote>
 <p>与kafka partition副本不同的是，es不仅 <code>primary shard</code> 能读写，<code>replica shard</code> 也能读。</p>
-<p><img class="img-fluid" alt="es-cluster" src="https://picgo.6and.ltd/img/es-cluster.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/es-cluster.png" alt="es-cluster"  loading="lazy" />
 </p>
 <p>ES 集群多个节点，会自动选举一个节点为 master 节点，这个 master 节点其实就是干一些管理的工作的，比如维护索引元数据、负责切换 primary shard 和 replica shard 身份等。要是 master 节点宕机了，那么会重新选举一个节点为 master 节点。</p>
 <p>与kafka依赖zookeeper完成 <code>选举主节点服务器(controller)</code>、  <code>选举partition leader</code>方式不同的是，es依赖自己的实现（ZenDiscovery）完成集群<code>master 节点选举</code>、<code>primary shard切换</code> 不依赖第三方组件。</p>
 <blockquote>
-<p><a href="https://www.wangjunfei.com/2020/02/26/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95%E7%A0%94%E7%A9%B6-%E4%B8%89-Kafka/" target="_blank" rel="noopener noreferrer">一致性算法研究(三)Kafka</a>
+<p><a href="https://www.wangjunfei.com/2020/02/26/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95%E7%A0%94%E7%A9%B6-%E4%B8%89-Kafka/" target="_blank">一致性算法研究(三)Kafka</a>
 </p>
 <p>但是，中间过程中的机器宕机等情况时，怎么来保证一致性呢？ 这个问题，kafka交给了zookeeper来解决。kafka集群启动时，会依靠zookeeper来选举一个集群的主节点服务器(controller)，controller来管理整个集群，比如队列的创建、删除，队列分区的选主，如前边所说的，topicA有3个分区，每个分区有3个副本(replica)，在创建每个分区时，kafka会使用zookeeper来选举一个分区副本的主(leader)。</p>
 <p>一个集群内有上千个队列，每个队列都有数十个甚至数百个分区，每个分区又会有若干个副本，多个副本之间谁是leader副本？这些信息称之为metadata，kafka全部储存在了zookeeper上。</p>
 <p>所以机器宕机时，controller和leader replica的选举任务都交给了zookeeper来完成，那么这时集群内机器之间的一致性，分区副本之间的一致性，这些共识问题都交给了zookeeper来解决。有了zookeeper，集群内每个机器不会对谁是controller再产生分歧，有了controller，一个集群就一个统一的“负责人”。同时，每个分区的副本之间使用zookeeper来选主，也会产生一个“负责人”，所有机器，多个副本之间都交由这些负责人来协调，不会再产生分歧，而且不会脑裂。</p>
 </blockquote>
 <blockquote>
-<p><a href="https://zhuanlan.zhihu.com/p/34830403" target="_blank" rel="noopener noreferrer">Elasticsearch分布式一致性原理剖析(一)-节点篇</a>
+<p><a href="https://zhuanlan.zhihu.com/p/34830403" target="_blank">Elasticsearch分布式一致性原理剖析(一)-节点篇</a>
 </p>
 <p>那为什么ES不使用Zookeeper呢，大概是官方开发觉得增加Zookeeper依赖后会多依赖一个组件，使集群部署变得更复杂，用户在运维时需要多运维一个Zookeeper。</p>
 <p>那么在自主实现这条路上，还有什么别的算法选择吗？当然有的，比如raft</p>
@@ -485,15 +481,11 @@ if (!doNotTrack) {
 <li>实际的 node 上的 <code>primary shard</code> 处理请求，然后将数据同步到 <code>replica node</code> 。</li>
 <li><code>coordinating node</code> 如果发现 <code>primary node</code> 和所有 <code>replica node</code> 都搞定之后，就返回响应结果给客户端。</li>
 </ul>
-<p><img class="img-fluid" alt="es-write" src="https://picgo.6and.ltd/img/es-write.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/es-write.png" alt="es-write"  loading="lazy" />
 </p>
 <h3 id="32-es-读数据过程">3.2 ES 读数据过程</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-http" data-lang="http"><span style="color:#960050;background-color:#1e0010">GET my-index/_doc/0
-</span></code></pre></div><p><img class="img-fluid" alt="查询流程" src="https://picgo.6and.ltd/img/209c63fb760b19cb4e9c745c1e795045.png"
-   loading="lazy" />
-
+</span></code></pre></div><p><img class="img-fluid" src="https://picgo.6and.ltd/img/209c63fb760b19cb4e9c745c1e795045.png" alt="查询流程"  loading="lazy" />
 </p>
 <ol>
 <li>Client 将请求发送到任意节点 node，此时 node 节点就是<strong>协调节点</strong>（coordinating node）。</li>
@@ -522,12 +514,10 @@ j2ee特别牛
 </blockquote>
 <h2 id="4-优化es提升检索效率">4. 优化ES提升检索效率</h2>
 <h3 id="41-filesystem-cache">4.1 filesystem cache</h3>
-<p><code>filesystem cache</code> 即<code>文件系统cache</code>，由文件系统进行热点数据缓存，不受进程自主控制。关于cache的详细介绍请 👉 <a href="https://huolala.gitbook.io/code/ji-suan-ji-ji-chu/cao-zuo-xi-tong/cache-he-buffer" target="_blank" rel="noopener noreferrer">cache和buffer</a>
+<p><code>filesystem cache</code> 即<code>文件系统cache</code>，由文件系统进行热点数据缓存，不受进程自主控制。关于cache的详细介绍请 👉 <a href="https://huolala.gitbook.io/code/ji-suan-ji-ji-chu/cao-zuo-xi-tong/cache-he-buffer" target="_blank">cache和buffer</a>
 </p>
 <p>你往 es 里写的数据，实际上都写到磁盘文件里去了，<strong>查询的时候</strong>，操作系统会将磁盘文件里的数据自动缓存到 <code>filesystem cache</code> 里面去。</p>
-<p><img class="img-fluid" alt="es-search-process" src="https://picgo.6and.ltd/img/es-search-process.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/es-search-process.png" alt="es-search-process"  loading="lazy" />
 </p>
 <p>归根结底，你要让 es 性能要好，最佳的情况下，就是你的机器的内存，至少可以容纳你的总数据量的一半。</p>
 <p>根据我们自己的生产环境实践经验，最佳的情况下，是仅仅在 es 中就存少量的数据，就是你要<strong>用来搜索的那些索引</strong>，如果内存留给 <code>filesystem cache</code> 的是 100G，那么你就将索引数据控制在 <code>100G</code> 以内，这样的话，你的数据几乎全部走内存来搜索，性能非常之高，一般可以在 1 秒以内。</p>
@@ -554,19 +544,19 @@ j2ee特别牛
 <p><strong>基础：</strong></p>
 <p><a href="doocs/advanced-java">doocs/advanced-java</a>
 </p>
-<p><a href="https://xie.infoq.cn/article/7f84ceaca3e1537eab40b853d" target="_blank" rel="noopener noreferrer">【Elasticsearch 技术分享】—— ES 查询检索数据的过程，是什么样子的？</a>
+<p><a href="https://xie.infoq.cn/article/7f84ceaca3e1537eab40b853d" target="_blank">【Elasticsearch 技术分享】—— ES 查询检索数据的过程，是什么样子的？</a>
 </p>
-<p><a href="https://www.ruanyifeng.com/blog/2017/08/elasticsearch.html" target="_blank" rel="noopener noreferrer">全文搜索引擎 Elasticsearch 入门教程</a>
+<p><a href="https://www.ruanyifeng.com/blog/2017/08/elasticsearch.html" target="_blank">全文搜索引擎 Elasticsearch 入门教程</a>
 </p>
 <p><strong>应用场景：</strong></p>
-<p><a href="https://www.cnblogs.com/liuyanling/p/13023251.html" target="_blank" rel="noopener noreferrer">七个生产案例告诉你BATJ为何选择ElasticSearch！应用场景和优势！</a>
+<p><a href="https://www.cnblogs.com/liuyanling/p/13023251.html" target="_blank">七个生产案例告诉你BATJ为何选择ElasticSearch！应用场景和优势！</a>
 </p>
 <p><strong>项目实战：</strong></p>
-<p><a href="https://mp.weixin.qq.com/s/cohWZy_eUOUqbmUxhXzzNA" target="_blank" rel="noopener noreferrer">Elasticsearch快速入门，掌握这些刚刚好！</a>
+<p><a href="https://mp.weixin.qq.com/s/cohWZy_eUOUqbmUxhXzzNA" target="_blank">Elasticsearch快速入门，掌握这些刚刚好！</a>
 </p>
-<p><a href="https://mp.weixin.qq.com/s/op7CTQS5dGOKv5BvRbeFow" target="_blank" rel="noopener noreferrer">mall整合Elasticsearch实现商品搜索</a>
+<p><a href="https://mp.weixin.qq.com/s/op7CTQS5dGOKv5BvRbeFow" target="_blank">mall整合Elasticsearch实现商品搜索</a>
 </p>
-<p><a href="https://juejin.cn/post/6844904126321524744" target="_blank" rel="noopener noreferrer">Elasticsearch项目实战，商品搜索功能设计与实现！</a>
+<p><a href="https://juejin.cn/post/6844904126321524744" target="_blank">Elasticsearch项目实战，商品搜索功能设计与实现！</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -605,7 +595,7 @@ j2ee特别牛
 </div></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
   repo="razonyang/blog"
   issue-term="pathname"
-  label="comment"
+  label=""
   theme="github-dark"
   crossorigin="anonymous"
   async>
@@ -621,19 +611,19 @@ j2ee特别牛
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<section class="profile surface row text-center">
-  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony Xu" src="https://xuzhijvn.github.io/images/profile.webp"
-   width="400" height="400" loading="lazy" />
-</div>
-  <div class="col-12 profile-meta"><div class="profile-name">Tony Xu</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
-</section>
-  <section class="recent-posts row surface">
+<section class="profile surface row">
+  <div class="col-xl-6 d-flex align-items-center justify-content-center">
+    <img class="profile-avatar img-fluid" src="https://xuzhijvn.github.io/images/profile.webp" alt="Tony Xu" loading="lazy">
+  </div>
+  <div class="col-xl-6">
+    <h5 class="profile-name my-2">Tony Xu</h5><div class="profile-bio mb-2">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section><section class="recent-posts row surface">
   <h4>最近文章</h4>
-  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/git-submodule-update-init-recursive/">git submodule update --init --recursive
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.2k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/1.2.2.1k8s%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/">1.2.2.1 k8s基本概念
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.2k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/1.2.2.2%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A/">1.2.2.2 名词解释
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.3k8s%E6%9E%B6%E6%9E%84/">1.2.3 k8s架构
 </a></li></ul>
 </section><section class="taxonomy-categories row surface">
       <h4>
@@ -644,7 +634,7 @@ j2ee特别牛
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
           云原生 <span class="badge rounded-pill">32</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
-          其他 <span class="badge rounded-pill">21</span>
+          其他 <span class="badge rounded-pill">22</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机科学">
           计算机科学 <span class="badge rounded-pill">19</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="持续集成部署">
@@ -661,7 +651,7 @@ j2ee特别牛
         <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
-          Manual <span class="badge rounded-pill">140</span>
+          Manual <span class="badge rounded-pill">141</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
           k8s <span class="badge rounded-pill">13</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s实战">
@@ -682,7 +672,7 @@ j2ee特别牛
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
           CS <span class="badge rounded-pill">20</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
-          Other <span class="badge rounded-pill">17</span>
+          Other <span class="badge rounded-pill">18</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
           spring <span class="badge rounded-pill">11</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
@@ -707,24 +697,36 @@ j2ee特别牛
 </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
+    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
-    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
+    </a>
+  </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
         <i class="fa-fw fa-2x fab fa-github"></i>
-      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
         <i class="fa-fw fa-2x fab fa-gitlab"></i>
-      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
         <i class="fa-fw fa-2x fab fa-qq"></i>
-      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
         <i class="fa-fw fa-2x fab fa-twitter"></i>
-      </a></nav>
+      </a>
+    </li></nav>
 <div class="copyright mb-2">
   Copyright © 2016-2021 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
-  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
 </div><div class="mb-3">
   <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
   <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>

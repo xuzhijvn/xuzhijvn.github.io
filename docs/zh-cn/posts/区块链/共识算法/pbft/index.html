@@ -10,7 +10,7 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="pbft">
-<meta itemprop="description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance 。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery 发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
+<meta itemprop="description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
 0. 背景 拜占庭问题（Byzantine Problem） 又叫拜占庭将军（Byzantine Generals Problem） 问题，讨论的是允许存在少数节点作恶（消息可能被伪造） 场景下的如何达成共识问题。拜占庭容错（Byzantine Fault Tolerant，BFT）讨论的是容忍拜占庭错误的共识算法。
  两将军问题  拜占庭问题之前，学术界就已经存在两将军问题的讨论（《Some constraints and tradeofis in the design of network communications》 ，1975年）：两个将军要通过信使来达成进攻还是撤退的约定，但信使可能迷路或被敌军阻拦（消息丢失或伪造），如何达成一致？根据FLP不可能原理，这个问题无通用解。
  拜占庭问题  拜占庭问题最早由 Leslie Lamport 等学者于 1982 年在论文《The Byzantine Generals Problem》中正式提出，是用来解释异步系统中共识问题的一个虚构模型。它是分布式领域中最复杂、最严格的容错模型。在该模型下，系统不会对集群中的节点做任何的限制，它们可以向其他节点发送随机数据、错误数据，也可以选择不响应其他节点的请求，这些无法预测的行为使得容错这一问题变得更加复杂。
@@ -21,7 +21,7 @@
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="350"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="BlockChain," /><meta property="og:title" content="pbft" />
-<meta property="og:description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance 。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery 发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
+<meta property="og:description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
 0. 背景 拜占庭问题（Byzantine Problem） 又叫拜占庭将军（Byzantine Generals Problem） 问题，讨论的是允许存在少数节点作恶（消息可能被伪造） 场景下的如何达成共识问题。拜占庭容错（Byzantine Fault Tolerant，BFT）讨论的是容忍拜占庭错误的共识算法。
  两将军问题  拜占庭问题之前，学术界就已经存在两将军问题的讨论（《Some constraints and tradeofis in the design of network communications》 ，1975年）：两个将军要通过信使来达成进攻还是撤退的约定，但信使可能迷路或被敌军阻拦（消息丢失或伪造），如何达成一致？根据FLP不可能原理，这个问题无通用解。
  拜占庭问题  拜占庭问题最早由 Leslie Lamport 等学者于 1982 年在论文《The Byzantine Generals Problem》中正式提出，是用来解释异步系统中共识问题的一个虚构模型。它是分布式领域中最复杂、最严格的容错模型。在该模型下，系统不会对集群中的节点做任何的限制，它们可以向其他节点发送随机数据、错误数据，也可以选择不响应其他节点的请求，这些无法预测的行为使得容错这一问题变得更加复杂。
@@ -33,13 +33,13 @@
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/%E5%8C%BA%E5%9D%97%E9%93%BE/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/pbft/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/aqs/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/async/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/git-submodule-update-init-recursive/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/aqs/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
 
 <meta name="twitter:title" content="pbft"/>
-<meta name="twitter:description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance 。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery 发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
+<meta name="twitter:description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
 0. 背景 拜占庭问题（Byzantine Problem） 又叫拜占庭将军（Byzantine Generals Problem） 问题，讨论的是允许存在少数节点作恶（消息可能被伪造） 场景下的如何达成共识问题。拜占庭容错（Byzantine Fault Tolerant，BFT）讨论的是容忍拜占庭错误的共识算法。
  两将军问题  拜占庭问题之前，学术界就已经存在两将军问题的讨论（《Some constraints and tradeofis in the design of network communications》 ，1975年）：两个将军要通过信使来达成进攻还是撤退的约定，但信使可能迷路或被敌军阻拦（消息丢失或伪造），如何达成一致？根据FLP不可能原理，这个问题无通用解。
  拜占庭问题  拜占庭问题最早由 Leslie Lamport 等学者于 1982 年在论文《The Byzantine Generals Problem》中正式提出，是用来解释异步系统中共识问题的一个虚构模型。它是分布式领域中最复杂、最严格的容错模型。在该模型下，系统不会对集群中的节点做任何的限制，它们可以向其他节点发送随机数据、错误数据，也可以选择不响应其他节点的请求，这些无法预测的行为使得容错这一问题变得更加复杂。
@@ -48,8 +48,7 @@
  拜占庭容错算法  拜占庭容错算法（Byzantine Fault Tolerant）是面向拜占庭问题的容错算法，解决的是在网络通信可靠，但节点可能故障和作恶情况下如何达成共识。
 拜占庭容错算法最早的讨论可以追溯到Leslie Lamport等人1982年发表的论文《The Byzantine Generals Problem》，之后出现了大量的改进工作，代表性成果包括《Optimal Asynchronous Byzantine Agreement》（1992年）、《Fully Polynomial Byzantine Agreement for n&gt;3t Processors in t&#43;1 Rounds》（1998年）等。长期以来，拜占庭问题的解决方案都存在运行过慢，或复杂度过高的问题，直到“实用拜占庭容错算法”（Practical Byzantine Fault Tolerance，PBFT）算法的提出。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://xuzhijvn.github.io/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://xuzhijvn.github.io/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
 <script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
@@ -72,16 +71,14 @@ if (!doNotTrack) {
 </script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
-      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
-   width="400" height="400" loading="lazy" />
-唯有光頭才能變強</a>
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy">唯有光頭才能變強</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
   <div class="input-group input-group-sm">
-    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
+    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
     <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
   </div>
 </form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
@@ -163,22 +160,22 @@ if (!doNotTrack) {
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
               <a class="dropdown-item"
-                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                href="https://clevergo.tech/" target="_blank">
                 CleverGo
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                href="https://gopkgs.net/" target="_blank">
                 GOPKGS
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
                 Hugo Bootstrap 主题
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                href="https://admin.yii2.razonyang.com/" target="_blank">
                 Yii 2 管理后台
               </a>
             </li></ul>
@@ -279,12 +276,13 @@ if (!doNotTrack) {
   </div>
 </div>
 <h1 class="post-title my-3">pbft
-</h1><div class="post-meta mb-3"><span class="post-date me-2">
+</h1><div class="post-meta mb-3">
+  <span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
-  </span><span class="post-reading-time me-2">
+  </span>
+  <span class="post-reading-time me-2">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy">区块链</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy">BlockChain</a></span>
-</div>
+  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy">#区块链</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">#Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy">#BlockChain</a></div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
@@ -318,8 +316,8 @@ if (!doNotTrack) {
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><p>1999年Castro和Liskov在《操作系统设计与实现》上发表论文<a href="http://pmg.csail.mit.edu/papers/osdi99.pdf" target="_blank" rel="noopener noreferrer">Practical Byzantine Fault Tolerance</a>
-。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文<a href="http://www.pmg.csail.mit.edu/papers/bft-tocs.pdf" target="_blank" rel="noopener noreferrer">Practical Byzantine Fault Tolerance and Proactive Recovery</a>
+</div><div class="post-content mb-3"><p>1999年Castro和Liskov在《操作系统设计与实现》上发表论文<a href="http://pmg.csail.mit.edu/papers/osdi99.pdf" target="_blank">Practical Byzantine Fault Tolerance</a>
+。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文<a href="http://www.pmg.csail.mit.edu/papers/bft-tocs.pdf" target="_blank">Practical Byzantine Fault Tolerance and Proactive Recovery</a>
 发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含<code>请求消息</code>（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。</p>
 <h2 id="0-背景">0. 背景</h2>
 <p>拜占庭问题（Byzantine Problem） 又叫拜占庭将军（Byzantine Generals Problem） 问题，讨论的是允许存在少数节点作恶（消息可能被伪造） 场景下的如何达成共识问题。拜占庭容错（Byzantine Fault Tolerant，BFT）讨论的是容忍拜占庭错误的共识算法。</p>
@@ -357,14 +355,10 @@ if (!doNotTrack) {
 <h3 id="11-算法流程">1.1 算法流程</h3>
 <p>pbft算法通过三阶段广播协议来使所有正常节点按相同的顺序执行请求，三阶段分别为pre-prepare、prepare和commit。pre-prepare阶段和prepare阶段确保了在同一个view下，正常节点对于消息m达成了全局一致的顺序，用(Order&lt;v, m, n&gt;)表示，在view = v下，正常节点都会对消息m，确认一个序号n。接下来的commit投票，再配合上viewchange的设计，实现了即使view切换，也可以保证对于m的全局一致顺序，即(Order&lt;v+1, m, n&gt;)，视图切换到v+1, 依然会对消息m，确认序号n。</p>
 <p><strong>三阶段协议</strong></p>
-<p><img class="img-fluid" alt="image-20210604124945145" src="https://picgo.6and.ltd/img/image-20210604124945145.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/image-20210604124945145.png" alt="image-20210604124945145"  loading="lazy" />
 </p>
 <p><strong>三阶段协议数据结构</strong></p>
-<p><img class="img-fluid" alt="image-20210604125121077" src="https://picgo.6and.ltd/img/image-20210604125121077.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/image-20210604125121077.png" alt="image-20210604125121077"  loading="lazy" />
 </p>
 <h2 id="---pre-prepare">-  <strong>pre-prepare</strong></h2>
 <blockquote>
@@ -439,13 +433,9 @@ if (!doNotTrack) {
 <p>检查点的正确性证明的生成过程如下：当副本节点i生成一个检查点后，向其他副本节点广播检查点消息&lt;CHECKPOINT,n,d,i&gt;，这里n是最近一个影响状态的请求序号，d是状态的摘要。每个副本节点都默默地在各自的日志中收集并记录其他节点发过来的检查点消息，直到收到来自2f+1个不同副本节点的具有相同序号n和摘要d的检查点消息。<strong>这2f+1个消息就是这个检查点的正确性证明</strong>。</p>
 <p>具有证明的检查点成为稳定检查点，然后副本节点就可以将所有序号小于等于n的预准备、准备和确认消息从日志中删除。同时也可以将之前的检查点和检查点消息一并删除。</p>
 <p>检查点协议可以用来更新水线（watermark）的高低值（h和H），这两个高低值限定了可以被接受的消息。水线的低值h与最近稳定检查点的序列号相同，而水线的高值H=h+k，k需要足够大才能使副本不至于为了等待稳定检查点而停顿。加入检查点每100个请求产生一次，k的取值可以是200。</p>
-<p><img class="img-fluid" alt="image-20210604125401192" src="https://picgo.6and.ltd/img/image-20210604125401192.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/image-20210604125401192.png" alt="image-20210604125401192"  loading="lazy" />
 </p>
-<p><img class="img-fluid" alt="image-20210604125501073" src="https://picgo.6and.ltd/img/image-20210604125501073.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/image-20210604125501073.png" alt="image-20210604125501073"  loading="lazy" />
 </p>
 <blockquote>
 <p>举例：</p>
@@ -457,9 +447,7 @@ if (!doNotTrack) {
 <blockquote>
 <p>&lt;VIEW-CHANGE, v+1, n, C, P, i&gt;<!-- raw HTML omitted -->sigma(i)<!-- raw HTML omitted -->消息。n是最新的stable checkpoint的编号，C是2f+1验证过的CheckPoint消息集合，P是当前副本节点未完成的请求的PRE-PREPARE和PREPARE消息集合。</p>
 </blockquote>
-<p><img class="img-fluid" alt="image-20210604125157418" src="https://picgo.6and.ltd/img/image-20210604125157418.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/image-20210604125157418.png" alt="image-20210604125157418"  loading="lazy" />
 </p>
 <p><strong>NEW-VIEW</strong></p>
 <blockquote>
@@ -469,9 +457,7 @@ if (!doNotTrack) {
 <li>选取V中最小的stable checkpoint编号min-s，选取V中prepare消息的最大编号max-s。</li>
 <li>在min-s和max-s之间，如果存在P消息集合，则创建&laquo;PRE-PREPARE, v+1, n, d&gt;, m&gt;消息。否则创建一个空的PRE-PREPARE消息，即：&laquo;PRE-PREPARE, v+1, n, d(null)&gt;, m(null)&gt;, m(null)空消息，d(null)空消息摘要。</li>
 </ol>
-<p><img class="img-fluid" alt="image-20210604125232540" src="https://picgo.6and.ltd/img/image-20210604125232540.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/image-20210604125232540.png" alt="image-20210604125232540"  loading="lazy" />
 </p>
 <p>当主节点p = v + 1 mod |R|收到2f个有效的VIEW-CHANGE消息后，向其他节点广播&lt;NEW-VIEW, v+1, V, O&gt;<!-- raw HTML omitted -->sigma(p)<!-- raw HTML omitted -->消息，副本节点收到主节点的NEW-VIEW消息，验证有效性，有效的话，进入v+1状态，并且开始O中的PRE-PREPARE消息处理流程。</p>
 <blockquote>
@@ -503,17 +489,17 @@ if (!doNotTrack) {
 <p>首先，限制一段时间内整个网络中出现提案的个数（通过工作量证明来增加提案成本）；其次是丢掉最终确认的约数，约定好始终沿着已知最长的链进行拓展。共识的最终确认是概率意义上的存在。这样，即便有人试图恶意破坏，也会付出相应的经济代价（超过整体系统一半的工作量） 。</p>
 <p>后来的各种 PoX 系列算法，也都是沿着这个思路进行改进，采用经济博弈来制约攻击者。</p>
 <h2 id="参考文献">参考文献</h2>
-<p><a href="http://pmg.csail.mit.edu/papers/osdi99.pdf" target="_blank" rel="noopener noreferrer">Practical Byzantine Fault Tolerance</a>
+<p><a href="http://pmg.csail.mit.edu/papers/osdi99.pdf" target="_blank">Practical Byzantine Fault Tolerance</a>
 </p>
-<p><a href="http://www.pmg.csail.mit.edu/papers/bft-tocs.pdf" target="_blank" rel="noopener noreferrer">Practical Byzantine Fault Tolerance and Proactive Recovery</a>
+<p><a href="http://www.pmg.csail.mit.edu/papers/bft-tocs.pdf" target="_blank">Practical Byzantine Fault Tolerance and Proactive Recovery</a>
 </p>
-<p><a href="http://kddlab.zjgsu.edu.cn:7200/research/blockchain/%E5%8C%BA%E5%9D%97%E9%93%BE%E6%8A%80%E6%9C%AF%E6%8C%87%E5%8D%97.pdf" target="_blank" rel="noopener noreferrer">区块链技术指南</a>
+<p><a href="http://kddlab.zjgsu.edu.cn:7200/research/blockchain/%E5%8C%BA%E5%9D%97%E9%93%BE%E6%8A%80%E6%9C%AF%E6%8C%87%E5%8D%97.pdf" target="_blank">区块链技术指南</a>
 </p>
-<p><a href="https://blog.csdn.net/kojhliang/article/details/71515199" target="_blank" rel="noopener noreferrer">pbft流程深层分析和解释</a>
+<p><a href="https://blog.csdn.net/kojhliang/article/details/71515199" target="_blank">pbft流程深层分析和解释</a>
 </p>
-<p><a href="https://blog.csdn.net/TurkeyCock/article/details/81672759" target="_blank" rel="noopener noreferrer">PBFT实用拜占庭容错算法深入详解</a>
+<p><a href="https://blog.csdn.net/TurkeyCock/article/details/81672759" target="_blank">PBFT实用拜占庭容错算法深入详解</a>
 </p>
-<p><a href="https://www.bbsmax.com/A/gGdX4YEZd4/" target="_blank" rel="noopener noreferrer">对PBFT算法的理解</a>
+<p><a href="https://www.bbsmax.com/A/gGdX4YEZd4/" target="_blank">对PBFT算法的理解</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -556,7 +542,7 @@ if (!doNotTrack) {
   </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
   repo="razonyang/blog"
   issue-term="pathname"
-  label="comment"
+  label=""
   theme="github-dark"
   crossorigin="anonymous"
   async>
@@ -572,19 +558,19 @@ if (!doNotTrack) {
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<section class="profile surface row text-center">
-  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony Xu" src="https://xuzhijvn.github.io/images/profile.webp"
-   width="400" height="400" loading="lazy" />
-</div>
-  <div class="col-12 profile-meta"><div class="profile-name">Tony Xu</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
-</section>
-  <section class="recent-posts row surface">
+<section class="profile surface row">
+  <div class="col-xl-6 d-flex align-items-center justify-content-center">
+    <img class="profile-avatar img-fluid" src="https://xuzhijvn.github.io/images/profile.webp" alt="Tony Xu" loading="lazy">
+  </div>
+  <div class="col-xl-6">
+    <h5 class="profile-name my-2">Tony Xu</h5><div class="profile-bio mb-2">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section><section class="recent-posts row surface">
   <h4>最近文章</h4>
-  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/git-submodule-update-init-recursive/">git submodule update --init --recursive
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.2k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/1.2.2.1k8s%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/">1.2.2.1 k8s基本概念
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.2k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/1.2.2.2%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A/">1.2.2.2 名词解释
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.3k8s%E6%9E%B6%E6%9E%84/">1.2.3 k8s架构
 </a></li></ul>
 </section><section class="taxonomy-categories row surface">
       <h4>
@@ -595,7 +581,7 @@ if (!doNotTrack) {
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
           云原生 <span class="badge rounded-pill">32</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
-          其他 <span class="badge rounded-pill">21</span>
+          其他 <span class="badge rounded-pill">22</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机科学">
           计算机科学 <span class="badge rounded-pill">19</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="持续集成部署">
@@ -612,7 +598,7 @@ if (!doNotTrack) {
         <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
-          Manual <span class="badge rounded-pill">140</span>
+          Manual <span class="badge rounded-pill">141</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
           k8s <span class="badge rounded-pill">13</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s实战">
@@ -633,7 +619,7 @@ if (!doNotTrack) {
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
           CS <span class="badge rounded-pill">20</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
-          Other <span class="badge rounded-pill">17</span>
+          Other <span class="badge rounded-pill">18</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
           spring <span class="badge rounded-pill">11</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
@@ -658,24 +644,36 @@ if (!doNotTrack) {
 </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
+    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
-    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
+    </a>
+  </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
         <i class="fa-fw fa-2x fab fa-github"></i>
-      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
         <i class="fa-fw fa-2x fab fa-gitlab"></i>
-      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
         <i class="fa-fw fa-2x fab fa-qq"></i>
-      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
         <i class="fa-fw fa-2x fab fa-twitter"></i>
-      </a></nav>
+      </a>
+    </li></nav>
 <div class="copyright mb-2">
   Copyright © 2016-2021 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
-  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
 </div><div class="mb-3">
   <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
   <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>

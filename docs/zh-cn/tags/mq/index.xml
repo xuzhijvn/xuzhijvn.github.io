@@ -48,7 +48,7 @@ Topic 实现了发布和订阅，当你发布一个消息，所有订阅这个 T
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mysql/%E8%BD%ACmysql%E7%B4%A2%E5%BC%95%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/</guid>
       <description>【转】MySQL索引的工作原理 索引是一种加快查询的数据结构，在 MySQL 中，索引的数据结构选择的是 B+Tree，至于 B+Tree 是什么以及为什么 MySQL 为什么选择 B+Tree 来作为索引，可以去查看公众号的前三篇文章。
-  索引数据结构之 B-Tree 与 B+Tree（上篇）   索引数据结构之 B-Tree 与 B+Tree（下篇）   MySQL 为什么不用数组、哈希表、二叉树等数据结构作为索引呢 今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。
+  索引数据结构之 B-Tree 与 B+Tree（上篇）  索引数据结构之 B-Tree 与 B+Tree（下篇）  MySQL 为什么不用数组、哈希表、二叉树等数据结构作为索引呢今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。
   首先需要说明的是，本文的所有讨论均是基于 InnoDB 存储引擎为前提。
 示例表 为了方便说明，我们先创建一个示例表。建表语句如下
 CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR ( 64 ) COMMENT &amp;#39;姓名&amp;#39;, `age` INT ( 4 ) COMMENT &amp;#39;年龄&amp;#39;, PRIMARY KEY ( `id` ), INDEX ( NAME ) ) ENGINE = INNODB COMMENT &amp;#39;用户表&amp;#39;; INSERT INTO `user` ( `name`, `age` ) VALUES ( &amp;#39;AA&amp;#39;, 30 ),( &amp;#39;BB&amp;#39;, 33 ),( &amp;#39;CC&amp;#39;, 31 ),( &amp;#39;DD&amp;#39;, 30 ),( &amp;#39;EE&amp;#39;, 29 ) 复制代码 在上面的 SQL 语句中，创建了一张 user 表，表中有三个字段，id 是主键，name 和 age 分别表示用户的姓名和年龄，同时还为字段 name 创建了一个普通索引。为了方便后面描述，因此还向表中插入了 5 条数据，由于主键 id 是自增的，所以这五行数据的 id 值分为是 1~5。</description>
