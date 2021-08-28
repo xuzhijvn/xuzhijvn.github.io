@@ -1,3 +1,0 @@
-+++
-title = "Visual Studio Code"
-+++
