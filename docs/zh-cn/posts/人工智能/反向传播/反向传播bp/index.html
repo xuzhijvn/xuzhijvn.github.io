@@ -12,7 +12,8 @@
 <meta name="description" content="" /><meta itemprop="name" content="反向传播—BP">
 <meta itemprop="description" content="说到神经网络，大家看到这个图应该不陌生：
 这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。
-本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础）
+本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础
+）
 假设，你有这样一个网络层：
 第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。
 现在对他们赋上初值，如下图：
@@ -30,7 +31,8 @@ Step 1 前向传播
 <meta itemprop="keywords" content="CNN,AI," /><meta property="og:title" content="反向传播—BP" />
 <meta property="og:description" content="说到神经网络，大家看到这个图应该不陌生：
 这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。
-本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础）
+本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础
+）
 假设，你有这样一个网络层：
 第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。
 现在对他们赋上初值，如下图：
@@ -55,7 +57,8 @@ Step 1 前向传播
 <meta name="twitter:title" content="反向传播—BP"/>
 <meta name="twitter:description" content="说到神经网络，大家看到这个图应该不陌生：
 这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。
-本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础）
+本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础
+）
 假设，你有这样一个网络层：
 第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。
 现在对他们赋上初值，如下图：
@@ -75,7 +78,7 @@ var doNotTrack = false;
 if (!doNotTrack) {
 	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
 	ga('create', 'UA-97403777-3', 'auto');
-	
+
 	ga('send', 'pageview');
 }
 </script>
@@ -86,7 +89,7 @@ if (!doNotTrack) {
   (function() {
     var hm = document.createElement("script");
     hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
-    var s = document.getElementsByTagName("script")[0]; 
+    var s = document.getElementsByTagName("script")[0];
     s.parentNode.insertBefore(hm, s);
   })();
 </script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
@@ -242,29 +245,29 @@ if (!doNotTrack) {
     </div>
   </form>
   <div class="container mt-2 visually-hidden" id="palettePicker">
-    <div class="btn-group"><button type="button" id="palette-blue" title="蓝色" 
+    <div class="btn-group"><button type="button" id="palette-blue" title="蓝色"
           class="btn btn-sm palette bg-blue d-flex align-items-center justify-content-center">
-        </button><button type="button" id="palette-blue-gray" title="蓝灰色" 
+        </button><button type="button" id="palette-blue-gray" title="蓝灰色"
           class="btn btn-sm palette bg-blue-gray d-flex align-items-center justify-content-center">
-        </button><button type="button" id="palette-brown" title="棕色" 
+        </button><button type="button" id="palette-brown" title="棕色"
           class="btn btn-sm palette bg-brown d-flex align-items-center justify-content-center">
-        </button><button type="button" id="palette-cyan" title="青色" 
+        </button><button type="button" id="palette-cyan" title="青色"
           class="btn btn-sm palette bg-cyan d-flex align-items-center justify-content-center">
-        </button><button type="button" id="palette-green" title="绿色" 
+        </button><button type="button" id="palette-green" title="绿色"
           class="btn btn-sm palette bg-green d-flex align-items-center justify-content-center">
-        </button><button type="button" id="palette-indigo" title="靛青色" 
+        </button><button type="button" id="palette-indigo" title="靛青色"
           class="btn btn-sm palette bg-indigo d-flex align-items-center justify-content-center">
-        </button><button type="button" id="palette-orange" title="橙色" 
+        </button><button type="button" id="palette-orange" title="橙色"
           class="btn btn-sm palette bg-orange d-flex align-items-center justify-content-center">
-        </button><button type="button" id="palette-pink" title="粉色" 
+        </button><button type="button" id="palette-pink" title="粉色"
           class="btn btn-sm palette bg-pink d-flex align-items-center justify-content-center">
-        </button><button type="button" id="palette-purple" title="紫色" 
+        </button><button type="button" id="palette-purple" title="紫色"
           class="btn btn-sm palette bg-purple d-flex align-items-center justify-content-center">
-        </button><button type="button" id="palette-red" title="红色" 
+        </button><button type="button" id="palette-red" title="红色"
           class="btn btn-sm palette bg-red d-flex align-items-center justify-content-center">
-        </button><button type="button" id="palette-teal" title="蓝绿色" 
+        </button><button type="button" id="palette-teal" title="蓝绿色"
           class="btn btn-sm palette bg-teal d-flex align-items-center justify-content-center">
-        </button><button type="button" id="palette-yellow" title="黄色" 
+        </button><button type="button" id="palette-yellow" title="黄色"
           class="btn btn-sm palette bg-yellow d-flex align-items-center justify-content-center">
         </button></button>
     </div>
@@ -285,12 +288,12 @@ if (!doNotTrack) {
     <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
   <i class="fas fa-fw fa-expand-alt fa-rotate-45"></i>
 </a>
-  
-    
 
-    
-    
-    
+
+
+
+
+
   </div>
 </div>
 <h1 class="post-title my-3">反向传播—BP
@@ -434,7 +437,7 @@ $$
 w_{5}^{+}=w_{5}-\eta * \frac{\partial E_{ {total }}}{\partial_{w_{5}}}=0.4-0.5 * 0.082167041=0.35891648
 $$
 （其中，$$\eta$$是学习速率，这里我们取0.5）</p>
-<p>同理，可更新w6,w7,w8: 
+<p>同理，可更新w6,w7,w8:
 $$
 \begin{array}{l}
 w_{6}^{+}=0.408666186 \<br>
@@ -690,11 +693,11 @@ $$
     <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_error</span>(self, target_output):
         <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0.5</span> <span style="color:#f92672">*</span> (target_output <span style="color:#f92672">-</span> self<span style="color:#f92672">.</span>output) <span style="color:#f92672">**</span> <span style="color:#ae81ff">2</span>
 
-    
+
     <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_pd_error_wrt_output</span>(self, target_output):
         <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span>(target_output <span style="color:#f92672">-</span> self<span style="color:#f92672">.</span>output)
 
-    
+
     <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_pd_total_net_input_wrt_input</span>(self):
         <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>output <span style="color:#f92672">*</span> (<span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> self<span style="color:#f92672">.</span>output)
 
@@ -784,8 +787,8 @@ nn <span style="color:#f92672">=</span> NeuralNetwork(<span style="color:#ae81ff
           编程思想 <span class="badge rounded-pill">91</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
           其他 <span class="badge rounded-pill">21</span>
-        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机基础">
-          计算机基础 <span class="badge rounded-pill">20</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机科学">
+          计算机科学 <span class="badge rounded-pill">20</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
           AI <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构设计">

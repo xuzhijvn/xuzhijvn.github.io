@@ -4,7 +4,7 @@ date: 2021-08-27T11:15:10+08:00
 draft: false
 reward: true
 categories: [
-"AI"
+"人工智能"
 ]
 tags : [
 "CNN",

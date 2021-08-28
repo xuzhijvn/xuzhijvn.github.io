@@ -41,10 +41,10 @@ location ^~/gateway/ { proxy_set_header Host $host:$server_port; proxy_set_heade
     
     <item>
       <title>API接口安全设计</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/</guid>
       <description> 验签：防接口被肆意调用  client对request签名，server对请求进行验签。
 鉴权：防调用没有权限的接口  token鉴权，实际上验签、鉴权通常是一同处理的，例如：OAuth2
 验证请求的timestamp：防盗链  当前时间 - timestamp &amp;gt; 阈值，则说明该请求已经失效。
@@ -171,7 +171,7 @@ public static CompletableFuture&amp;lt;Void&amp;gt; runAsync(Runnable runnable) 
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/maven/dockerfile-maven-plugin%E4%BD%BF%E7%94%A8/</guid>
-      <description>&amp;lt;properties&amp;gt; &amp;lt;docker.image.prefix&amp;gt;anaham-docker.pkg.coding.net/cereshop/ceres&amp;lt;/docker.image.prefix&amp;gt; &amp;lt;anaham-docker.username&amp;gt;用户名&amp;lt;/anaham-docker.username&amp;gt; &amp;lt;anaham-docker.password&amp;gt;密码&amp;lt;/anaham-docker.password&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;build&amp;gt; &amp;lt;plugins&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;executions&amp;gt; &amp;lt;execution&amp;gt; &amp;lt;goals&amp;gt; &amp;lt;goal&amp;gt;repackage&amp;lt;/goal&amp;gt; &amp;lt;/goals&amp;gt; &amp;lt;/execution&amp;gt; &amp;lt;/executions&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;!-- docker打包插件 --&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;com.spotify&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;dockerfile-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${dockerfile-maven-plugin.version}&amp;lt;/version&amp;gt; &amp;lt;configuration&amp;gt; &amp;lt;username&amp;gt;${anaham-docker.username}&amp;lt;/username&amp;gt; &amp;lt;password&amp;gt;${anaham-docker.password}&amp;lt;/password&amp;gt; &amp;lt;repository&amp;gt;${docker.image.prefix}/${project.artifactId}&amp;lt;/repository&amp;gt; &amp;lt;tag&amp;gt;${ceres.version}&amp;lt;/tag&amp;gt; &amp;lt;!-- 不指定tag默认为latest --&amp;gt; &amp;lt;buildArgs&amp;gt; &amp;lt;JAR_FILE&amp;gt;target/${project.build.finalName}.jar&amp;lt;/JAR_FILE&amp;gt; &amp;lt;/buildArgs&amp;gt; &amp;lt;/configuration&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;/plugins&amp;gt; &amp;lt;/build&amp;gt;  构建镜像  mvn clean package -Dmaven.计算机基础.skip=true dockerfile:build -Ddockerfile.tag=latest 因为上面pom.xml已经指定了tag，也可以直接使用：mvn dockerfile:build 会优先选择pom.xml配置的tag
+      <description>&amp;lt;properties&amp;gt; &amp;lt;docker.image.prefix&amp;gt;anaham-docker.pkg.coding.net/cereshop/ceres&amp;lt;/docker.image.prefix&amp;gt; &amp;lt;anaham-docker.username&amp;gt;用户名&amp;lt;/anaham-docker.username&amp;gt; &amp;lt;anaham-docker.password&amp;gt;密码&amp;lt;/anaham-docker.password&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;build&amp;gt; &amp;lt;plugins&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;executions&amp;gt; &amp;lt;execution&amp;gt; &amp;lt;goals&amp;gt; &amp;lt;goal&amp;gt;repackage&amp;lt;/goal&amp;gt; &amp;lt;/goals&amp;gt; &amp;lt;/execution&amp;gt; &amp;lt;/executions&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;!-- docker打包插件 --&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;com.spotify&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;dockerfile-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${dockerfile-maven-plugin.version}&amp;lt;/version&amp;gt; &amp;lt;configuration&amp;gt; &amp;lt;username&amp;gt;${anaham-docker.username}&amp;lt;/username&amp;gt; &amp;lt;password&amp;gt;${anaham-docker.password}&amp;lt;/password&amp;gt; &amp;lt;repository&amp;gt;${docker.image.prefix}/${project.artifactId}&amp;lt;/repository&amp;gt; &amp;lt;tag&amp;gt;${ceres.version}&amp;lt;/tag&amp;gt; &amp;lt;!-- 不指定tag默认为latest --&amp;gt; &amp;lt;buildArgs&amp;gt; &amp;lt;JAR_FILE&amp;gt;target/${project.build.finalName}.jar&amp;lt;/JAR_FILE&amp;gt; &amp;lt;/buildArgs&amp;gt; &amp;lt;/configuration&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;/plugins&amp;gt; &amp;lt;/build&amp;gt;  构建镜像  mvn clean package -Dmaven.计算机科学.skip=true dockerfile:build -Ddockerfile.tag=latest 因为上面pom.xml已经指定了tag，也可以直接使用：mvn dockerfile:build 会优先选择pom.xml配置的tag
 上传镜像  mvn dockerfile:push -Ddockerfile.username=[镜像仓库账号] -Ddockerfile.password=[镜像仓库密码] 因为上面pom.xml已经指定了username和password，也可以直接使用：mvn dockerfile:push</description>
     </item>
     
@@ -1350,10 +1350,10 @@ public class ThreadSafeCache { int result; public int getResult() { return resul
     
     <item>
       <title>几种注册中心对比</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%87%A0%E7%A7%8D%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%AF%B9%E6%AF%94/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E5%87%A0%E7%A7%8D%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%AF%B9%E6%AF%94/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%87%A0%E7%A7%8D%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%AF%B9%E6%AF%94/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E5%87%A0%E7%A7%8D%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%AF%B9%E6%AF%94/</guid>
       <description>前言 服务注册中心本质上是为了解耦服务提供者和服务消费者。对于任何一个微服务，原则上都应存在或者支持多个提供者，这是由微服务的分布式属性决定的。更进一步，为了支持弹性扩缩容特性，一个微服务的提供者的数量和分布往往是动态变化的，也是无法预先确定的。因此，原本在单体应用阶段常用的静态LB机制就不再适用了，需要引入额外的组件来管理微服务提供者的注册与发现，而这个组件就是服务注册中心。
 CAP理论 CAP理论是分布式架构中重要理论
  一致性(Consistency) (所有节点在同一时间具有相同的数据) 可用性(Availability) (保证每个请求不管成功或者失败都有响应) 分隔容忍(Partition tolerance) (系统中任意信息的丢失或失败不会影响系统的继续运作)  关于
@@ -1503,10 +1503,10 @@ CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.</description>
     
     <item>
       <title>卷积神经网络–CNN</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9Ccnn/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9Ccnn/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9Ccnn/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9Ccnn/</guid>
       <description>在 CNN 出现之前，图像对于人工智能来说是一个难题，有2个原因：
  图像需要处理的数据量太大，导致成本很高，效率很低 图像在数字化的过程中很难保留原有的特征，导致图像处理的准确率不高  下面就详细说明一下这2个问题：
 0.0、需要处理的数据量太大 图像是由像素构成的，每个像素又是由颜色构成的。
@@ -1551,10 +1551,10 @@ CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.</description>
     
     <item>
       <title>反向传播—BP</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD/%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%ADbp/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%ADbp/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD/%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%ADbp/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%ADbp/</guid>
       <description>说到神经网络，大家看到这个图应该不陌生：
 这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&amp;hellip;,xn},输出也是一堆数据{y1,y2,y3,&amp;hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。
 本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp;amp; Algorithm] 神经网络基础）
@@ -1628,10 +1628,10 @@ show slave status查看 Seconds_Behind_Master ，可以看到从库复制主库
     
     <item>
       <title>如何设计一个高并发系统</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E9%AB%98%E5%B9%B6%E5%8F%91%E7%B3%BB%E7%BB%9F/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E9%AB%98%E5%B9%B6%E5%8F%91%E7%B3%BB%E7%BB%9F/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E9%AB%98%E5%B9%B6%E5%8F%91%E7%B3%BB%E7%BB%9F/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E9%AB%98%E5%B9%B6%E5%8F%91%E7%B3%BB%E7%BB%9F/</guid>
       <description>其实所谓的高并发，如果你要理解这个问题呢，其实就得从高并发的根源出发，为啥会有高并发？为啥高并发就很牛逼？
 我说的浅显一点，很简单，就是因为刚开始系统都是连接数据库的，但是要知道数据库支撑到每秒并发两三千的时候，基本就快完了。所以才有说，很多公司，刚开始干的时候，技术比较 low，结果业务发展太快，有的时候系统扛不住压力就挂了。
 当然会挂了，凭什么不挂？你数据库如果瞬间承载每秒 5000/8000，甚至上万的并发，一定会宕机，因为比如 mysql 就压根儿扛不住这么高的并发量。
@@ -1677,10 +1677,10 @@ public class JoinTest { public static void main(String[] args) { Task task1 = ne
     
     <item>
       <title>常用的模型评估指标</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%B8%B8%E7%94%A8%E7%9A%84%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87/%E5%B8%B8%E7%94%A8%E7%9A%84%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%B8%B8%E7%94%A8%E7%9A%84%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%B8%B8%E7%94%A8%E7%9A%84%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87/%E5%B8%B8%E7%94%A8%E7%9A%84%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/%E5%B8%B8%E7%94%A8%E7%9A%84%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87/</guid>
       <description>“没有测量，就没有科学。”这是科学家门捷列夫的名言。在计算机科学中，特别是在机器学习的领域，对模型的测量和评估同样至关重要。只有选择与问题相匹配的评估方法，我们才能够快速的发现在模型选择和训练过程中可能出现的问题，迭代地对模型进行优化。本文将总结机器学习最常见的模型评估指标，其中包括：
  precision recall F1-score PRC ROC和AUC IOU  从混淆矩阵谈起 看一看下面这个例子：假定瓜农拉来一车西瓜，我们用训练好的模型对这些西瓜进行判别，显然我们可以使用错误率来衡量有多少比例的瓜被判别错误。但如果我们关心的是“挑出的西瓜中有多少比例是好瓜”，或者“所有好瓜中有多少比例被挑出来了”，那么错误率显然就不够用了，这时我们需要引入新的评估指标，比如“查准率”和查全率更适合此类需求的性能度量。
 在引入查全率和查准率之前我们必须先理解到什么是混淆矩阵（Confusion matrix）。这个名字起得是真的好，初学者很容易被这个矩阵搞得晕头转向。下图a就是有名的混淆矩阵，而下图b则是由混淆矩阵推出的一些有名的评估指标。
@@ -1943,10 +1943,10 @@ Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点�
     
     <item>
       <title>系统性能优化</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/</guid>
       <description>系统性能优化之并发编程提升系统的QPS和吞吐量</description>
     </item>
     

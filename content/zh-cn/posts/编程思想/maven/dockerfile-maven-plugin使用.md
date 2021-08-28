@@ -63,7 +63,7 @@ images : [
 1. 构建镜像
 
 ```shell
-mvn clean package -Dmaven.计算机基础.skip=true dockerfile:build -Ddockerfile.tag=latest
+mvn clean package -Dmaven.计算机科学.skip=true dockerfile:build -Ddockerfile.tag=latest
 ```
 
 因为上面pom.xml已经指定了tag，也可以直接使用：`mvn dockerfile:build` 会优先选择pom.xml配置的tag
