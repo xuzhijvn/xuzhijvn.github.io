@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>pbft - Razon Yang</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://xuzhijvn.github.io/images/favicons/manifest.json">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="pbft">
+<meta itemprop="description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
+0. 背景 拜占庭问题（Byzantine Problem） 又叫拜占庭将军（Byzantine Generals Problem） 问题，讨论的是允许存在少数节点作恶（消息可能被伪造） 场景下的如何达成共识问题。拜占庭容错（Byzantine Fault Tolerant，BFT）讨论的是容忍拜占庭错误的共识算法。
+ 两将军问题  拜占庭问题之前，学术界就已经存在两将军问题的讨论（《Some constraints and tradeofis in the design of network communications》 ，1975年）：两个将军要通过信使来达成进攻还是撤退的约定，但信使可能迷路或被敌军阻拦（消息丢失或伪造），如何达成一致？根据FLP不可能原理，这个问题无通用解。
+ 拜占庭问题  拜占庭问题最早由 Leslie Lamport 等学者于 1982 年在论文《The Byzantine Generals Problem》中正式提出，是用来解释异步系统中共识问题的一个虚构模型。它是分布式领域中最复杂、最严格的容错模型。在该模型下，系统不会对集群中的节点做任何的限制，它们可以向其他节点发送随机数据、错误数据，也可以选择不响应其他节点的请求，这些无法预测的行为使得容错这一问题变得更加复杂。
+拜占庭是古代东罗马帝国的首都，由于地域宽广，假设其守卫边境的多个将军（系统中的多个节点） 需要通过信使来传递消息，达成某些一致决定。但由于将军中可能存在叛徒（系统中节点出错），这些叛徒将向不同的将军发送不同的消息，试图干扰共识的达成。拜占庭问题即讨论在此情况下，如何让忠诚的将军们能达成行动的一致。
+在大多数的分布式系统中，拜占庭的场景并不多见。然而在特定场景下存在意义，例如允许匿名参与的系统（如比特币） ，或是出现欺诈可能造成巨大损失的情况。
+ 拜占庭容错算法  拜占庭容错算法（Byzantine Fault Tolerant）是面向拜占庭问题的容错算法，解决的是在网络通信可靠，但节点可能故障和作恶情况下如何达成共识。
+拜占庭容错算法最早的讨论可以追溯到Leslie Lamport等人1982年发表的论文《The Byzantine Generals Problem》，之后出现了大量的改进工作，代表性成果包括《Optimal Asynchronous Byzantine Agreement》（1992年）、《Fully Polynomial Byzantine Agreement for n&gt;3t Processors in t&#43;1 Rounds》（1998年）等。长期以来，拜占庭问题的解决方案都存在运行过慢，或复杂度过高的问题，直到“实用拜占庭容错算法”（Practical Byzantine Fault Tolerance，PBFT）算法的提出。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="350"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="keywords" content="BlockChain," /><meta property="og:title" content="pbft" />
+<meta property="og:description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
+0. 背景 拜占庭问题（Byzantine Problem） 又叫拜占庭将军（Byzantine Generals Problem） 问题，讨论的是允许存在少数节点作恶（消息可能被伪造） 场景下的如何达成共识问题。拜占庭容错（Byzantine Fault Tolerant，BFT）讨论的是容忍拜占庭错误的共识算法。
+ 两将军问题  拜占庭问题之前，学术界就已经存在两将军问题的讨论（《Some constraints and tradeofis in the design of network communications》 ，1975年）：两个将军要通过信使来达成进攻还是撤退的约定，但信使可能迷路或被敌军阻拦（消息丢失或伪造），如何达成一致？根据FLP不可能原理，这个问题无通用解。
+ 拜占庭问题  拜占庭问题最早由 Leslie Lamport 等学者于 1982 年在论文《The Byzantine Generals Problem》中正式提出，是用来解释异步系统中共识问题的一个虚构模型。它是分布式领域中最复杂、最严格的容错模型。在该模型下，系统不会对集群中的节点做任何的限制，它们可以向其他节点发送随机数据、错误数据，也可以选择不响应其他节点的请求，这些无法预测的行为使得容错这一问题变得更加复杂。
+拜占庭是古代东罗马帝国的首都，由于地域宽广，假设其守卫边境的多个将军（系统中的多个节点） 需要通过信使来传递消息，达成某些一致决定。但由于将军中可能存在叛徒（系统中节点出错），这些叛徒将向不同的将军发送不同的消息，试图干扰共识的达成。拜占庭问题即讨论在此情况下，如何让忠诚的将军们能达成行动的一致。
+在大多数的分布式系统中，拜占庭的场景并不多见。然而在特定场景下存在意义，例如允许匿名参与的系统（如比特币） ，或是出现欺诈可能造成巨大损失的情况。
+ 拜占庭容错算法  拜占庭容错算法（Byzantine Fault Tolerant）是面向拜占庭问题的容错算法，解决的是在网络通信可靠，但节点可能故障和作恶情况下如何达成共识。
+拜占庭容错算法最早的讨论可以追溯到Leslie Lamport等人1982年发表的论文《The Byzantine Generals Problem》，之后出现了大量的改进工作，代表性成果包括《Optimal Asynchronous Byzantine Agreement》（1992年）、《Fully Polynomial Byzantine Agreement for n&gt;3t Processors in t&#43;1 Rounds》（1998年）等。长期以来，拜占庭问题的解决方案都存在运行过慢，或复杂度过高的问题，直到“实用拜占庭容错算法”（Practical Byzantine Fault Tolerance，PBFT）算法的提出。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/%E5%8C%BA%E5%9D%97%E9%93%BE/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/pbft/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/aqs/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/async/" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
+
+<meta name="twitter:title" content="pbft"/>
+<meta name="twitter:description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
+0. 背景 拜占庭问题（Byzantine Problem） 又叫拜占庭将军（Byzantine Generals Problem） 问题，讨论的是允许存在少数节点作恶（消息可能被伪造） 场景下的如何达成共识问题。拜占庭容错（Byzantine Fault Tolerant，BFT）讨论的是容忍拜占庭错误的共识算法。
+ 两将军问题  拜占庭问题之前，学术界就已经存在两将军问题的讨论（《Some constraints and tradeofis in the design of network communications》 ，1975年）：两个将军要通过信使来达成进攻还是撤退的约定，但信使可能迷路或被敌军阻拦（消息丢失或伪造），如何达成一致？根据FLP不可能原理，这个问题无通用解。
+ 拜占庭问题  拜占庭问题最早由 Leslie Lamport 等学者于 1982 年在论文《The Byzantine Generals Problem》中正式提出，是用来解释异步系统中共识问题的一个虚构模型。它是分布式领域中最复杂、最严格的容错模型。在该模型下，系统不会对集群中的节点做任何的限制，它们可以向其他节点发送随机数据、错误数据，也可以选择不响应其他节点的请求，这些无法预测的行为使得容错这一问题变得更加复杂。
+拜占庭是古代东罗马帝国的首都，由于地域宽广，假设其守卫边境的多个将军（系统中的多个节点） 需要通过信使来传递消息，达成某些一致决定。但由于将军中可能存在叛徒（系统中节点出错），这些叛徒将向不同的将军发送不同的消息，试图干扰共识的达成。拜占庭问题即讨论在此情况下，如何让忠诚的将军们能达成行动的一致。
+在大多数的分布式系统中，拜占庭的场景并不多见。然而在特定场景下存在意义，例如允许匿名参与的系统（如比特币） ，或是出现欺诈可能造成巨大损失的情况。
+ 拜占庭容错算法  拜占庭容错算法（Byzantine Fault Tolerant）是面向拜占庭问题的容错算法，解决的是在网络通信可靠，但节点可能故障和作恶情况下如何达成共识。
+拜占庭容错算法最早的讨论可以追溯到Leslie Lamport等人1982年发表的论文《The Byzantine Generals Problem》，之后出现了大量的改进工作，代表性成果包括《Optimal Asynchronous Byzantine Agreement》（1992年）、《Fully Polynomial Byzantine Agreement for n&gt;3t Processors in t&#43;1 Rounds》（1998年）等。长期以来，拜占庭问题的解决方案都存在运行过慢，或复杂度过高的问题，直到“实用拜占庭容错算法”（Practical Byzantine Fault Tolerance，PBFT）算法的提出。"/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://xuzhijvn.github.io/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://xuzhijvn.github.io/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-97403777-3', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy">RAZON YANG</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
+  </div>
+</form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-categories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-categories"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3">
+                <i class="fas fa-fw fa-code"></i>编程思想
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD">
+                <i class="fas fa-fw fa-robot"></i>人工智能
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE">
+                <i class="fas fa-fw fa-cubes"></i>区块链
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6">
+                <i class="fas fa-fw fa-server"></i>计算机科学
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B">
+                <i class="fas fa-fw fa-sitemap"></i>架构演进
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F">
+                <i class="fas fa-fw fa-cloud"></i>云原生
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-tags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/java">
+                <i class="fab fa-fw fa-java"></i>Java
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+  <a class="nav-link" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fas fa-fw fa-language"></i> 简体中文
+  </a>
+  <ul class="dropdown-menu" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/">繁體中文</a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/en/">English</a></li></ul>
+</li><li class="nav-item">
+  <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button"
+    aria-controls="offcanvasSettings">
+    <i class="fas fa-fw fa-sliders-h"></i> 设置
+  </a>
+</li>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings"
+  aria-labelledby="offcanvasSettingsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" w id="offcanvasSettingsLabel"><i class="fas fa-fw fa-sliders-h"></i> 设置</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <span id="btnPalette" class="btn btn-sm"><i class="fas fa-eye-dropper"></i></span>
+    </div>
+  </form>
+  <div class="container mt-2 visually-hidden" id="palettePicker">
+    <div class="btn-group"><button type="button" id="palette-blue" title="蓝色" 
+          class="btn btn-sm palette bg-blue d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-blue-gray" title="蓝灰色" 
+          class="btn btn-sm palette bg-blue-gray d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-brown" title="棕色" 
+          class="btn btn-sm palette bg-brown d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-cyan" title="青色" 
+          class="btn btn-sm palette bg-cyan d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-green" title="绿色" 
+          class="btn btn-sm palette bg-green d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-indigo" title="靛青色" 
+          class="btn btn-sm palette bg-indigo d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-orange" title="橙色" 
+          class="btn btn-sm palette bg-orange d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-pink" title="粉色" 
+          class="btn btn-sm palette bg-pink d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-purple" title="紫色" 
+          class="btn btn-sm palette bg-purple d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-red" title="红色" 
+          class="btn btn-sm palette bg-red d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-teal" title="蓝绿色" 
+          class="btn btn-sm palette bg-teal d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-yellow" title="黄色" 
+          class="btn btn-sm palette bg-yellow d-flex align-items-center justify-content-center">
+        </button></button>
+    </div>
+  </div>
+</section></div>
+</div></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row" aria-label="breadcrumb">
+  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">pbft</li></ol>
+</nav><article class="post row surface"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-alt fa-rotate-45"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-medal"></i>
+</a>
+    
+    <a id="btnTOC" class="fas fa-fw fa-list-alt" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+</a>
+  </div>
+</div>
+<h1 class="post-title my-3">pbft
+</h1><div class="post-meta mb-3">
+  <span class="post-date me-2">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
+  </span>
+  <span class="post-reading-time me-2">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy">#区块链</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">#Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy">#BlockChain</a></div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#0-背景">0. 背景</a></li>
+  </ul>
+
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#11-算法流程">1.1 算法流程</a></li>
+      </ul>
+    </li>
+    <li><a href="#---pre-prepare">-  <strong>pre-prepare</strong></a></li>
+    <li><a href="#--prepare">- <strong>prepare</strong></a></li>
+    <li><a href="#--commit">- <strong>commit</strong></a>
+      <ul>
+        <li><a href="#12-垃圾回收">1.2 垃圾回收</a></li>
+        <li><a href="#13-视图变更">1.3 视图变更</a></li>
+        <li><a href="#14-pbft优化">1.4 pbft优化</a></li>
+      </ul>
+    </li>
+    <li><a href="#2-新的解决思路">2. 新的解决思路</a></li>
+    <li><a href="#参考文献">参考文献</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>1999年Castro和Liskov在《操作系统设计与实现》上发表论文<a href="http://pmg.csail.mit.edu/papers/osdi99.pdf" target="_blank">Practical Byzantine Fault Tolerance</a>
+。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文<a href="http://www.pmg.csail.mit.edu/papers/bft-tocs.pdf" target="_blank">Practical Byzantine Fault Tolerance and Proactive Recovery</a>
+发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含<code>请求消息</code>（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。</p>
+<h2 id="0-背景">0. 背景</h2>
+<p>拜占庭问题（Byzantine Problem） 又叫拜占庭将军（Byzantine Generals Problem） 问题，讨论的是允许存在少数节点作恶（消息可能被伪造） 场景下的如何达成共识问题。拜占庭容错（Byzantine Fault Tolerant，BFT）讨论的是容忍拜占庭错误的共识算法。</p>
+<ul>
+<li><strong>两将军问题</strong></li>
+</ul>
+<p>拜占庭问题之前，学术界就已经存在两将军问题的讨论（《Some constraints and tradeofis in the design of network communications》 ，1975年）：两个将军要通过信使来达成进攻还是撤退的约定，但信使可能迷路或被敌军阻拦（消息丢失或伪造），如何达成一致？根据FLP不可能原理，这个问题无通用解。</p>
+<ul>
+<li><strong>拜占庭问题</strong></li>
+</ul>
+<p>拜占庭问题最早由 Leslie Lamport 等学者于 1982 年在论文《The Byzantine Generals Problem》中正式提出，是用来解释异步系统中共识问题的一个虚构模型。它是分布式领域中最复杂、最严格的容错模型。在该模型下，系统不会对集群中的节点做任何的限制，它们可以向其他节点发送随机数据、错误数据，也可以选择不响应其他节点的请求，这些无法预测的行为使得容错这一问题变得更加复杂。</p>
+<p>拜占庭是古代东罗马帝国的首都，由于地域宽广，假设其守卫边境的多个将军（系统中的多个节点） 需要通过信使来传递消息，达成某些一致决定。但由于将军中可能存在叛徒（系统中节点出错），这些叛徒将向不同的将军发送不同的消息，试图干扰共识的达成。拜占庭问题即讨论在此情况下，如何让忠诚的将军们能达成行动的一致。</p>
+<p>在大多数的分布式系统中，拜占庭的场景并不多见。然而在特定场景下存在意义，例如允许匿名参与的系统（如比特币） ，或是出现欺诈可能造成巨大损失的情况。</p>
+<ul>
+<li><strong>拜占庭容错算法</strong></li>
+</ul>
+<p>拜占庭容错算法（Byzantine Fault Tolerant）是面向拜占庭问题的容错算法，解决的是在网络通信可靠，但节点可能故障和作恶情况下如何达成共识。</p>
+<p>拜占庭容错算法最早的讨论可以追溯到Leslie Lamport等人1982年发表的论文《The Byzantine Generals Problem》，之后出现了大量的改进工作，代表性成果包括《Optimal Asynchronous Byzantine Agreement》（1992年）、《Fully Polynomial Byzantine Agreement for n&gt;3t Processors in t+1 Rounds》（1998年）等。长期以来，拜占庭问题的解决方案都存在运行过慢，或复杂度过高的问题，直到“实用拜占庭容错算法”（Practical Byzantine Fault Tolerance，PBFT）算法的提出。</p>
+<p>1999年，这一算法由Castro和Liskov于论文《Practical Byzantine Fault Tolerance》中提出。该算法基于前人工作（特别是Paxos相关算法，因此也被称为Byzantine Paxos）进行了优化，首次将拜占庭容错算法复杂度从指数级降低到了多项式级，目前已得到广泛应用。其可以在恶意节点不超过总数1/3的情况下同时保证Safety和Liveness。</p>
+<p>PBFT算法采用密码学相关技术（RSA签名算法、消息验证编码和摘要）确保消息传递过程无法被篡改和破坏。</p>
+<p>算法整体的基本过程如下：</p>
+<ul>
+<li>
+<p>首先，通过轮换或随机算法选出某个节点为主节点，此后只要主节点不切换，则称为一个视图（View） 。</p>
+</li>
+<li>
+<p>在某个视图中，客户端将请求&lt;REQUEST,operation,timestamp,client&gt; 发送给主节点，主节点负责广播请求到所有其它副本节点。</p>
+</li>
+<li>
+<p>所有节点处理完成请求，将处理结果 &lt;REPLY,view,timestamp,client,id_node,response&gt;返回给客户端。客户端检查是否收到了至少 f+1 个来自不同节点的相同结果，作为最终结果。</p>
+</li>
+</ul>
+<p>主节点广播过程包括三个阶段的处理：预准备（Pre-Prepare）、准备（Prepare）和提交（Commit）。预准备和准备阶段确保在同一个视图内请求发送的顺序正确；准备和提交阶段则确保在不同视图之间的确认请求是保序的。接下来详细解释pbft算法流程。</p>
+<h1 id="1-pbft">1. pbft</h1>
+<h3 id="11-算法流程">1.1 算法流程</h3>
+<p>pbft算法通过三阶段广播协议来使所有正常节点按相同的顺序执行请求，三阶段分别为pre-prepare、prepare和commit。pre-prepare阶段和prepare阶段确保了在同一个view下，正常节点对于消息m达成了全局一致的顺序，用(Order&lt;v, m, n&gt;)表示，在view = v下，正常节点都会对消息m，确认一个序号n。接下来的commit投票，再配合上viewchange的设计，实现了即使view切换，也可以保证对于m的全局一致顺序，即(Order&lt;v+1, m, n&gt;)，视图切换到v+1, 依然会对消息m，确认序号n。</p>
+<p><strong>三阶段协议</strong></p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/image-20210604124945145.png" alt="image-20210604124945145"  loading="lazy" />
+</p>
+<p><strong>三阶段协议数据结构</strong></p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/image-20210604125121077.png" alt="image-20210604125121077"  loading="lazy" />
+</p>
+<h2 id="---pre-prepare">-  <strong>pre-prepare</strong></h2>
+<blockquote>
+<p>pre-prepare阶段的消息格式(&laquo;PRE-PREPARE, v, n, d&gt;<!-- raw HTML omitted -->sigma(p)<!-- raw HTML omitted -->, m&gt;)，其中v表示当前view编号，n表示给m分配的序号，d为m的哈希，以及m的原文。</p>
+</blockquote>
+<p><strong>节点</strong>收到请求m时，会做两件事，首先，广播<code>pre-prepare消息</code>给其他节点。然后，将消息保存在本地log中。</p>
+<p><strong>其他从节点</strong>收到pre-prepare消息时，会依次验证：</p>
+<ol>
+<li>签名验证</li>
+<li>检测v是否合法</li>
+<li>检测n是否合法（相同、间隔、是否在水线&lt;h, H&gt;之内）</li>
+</ol>
+<blockquote>
+<p>总结：</p>
+</blockquote>
+<p>主节点发出pre-prepare消息，从节点验证消息的正确性（客户端签名、视图、请求编号）；一旦消息验证正确，则pre-prepare阶段完成，从节点广播prepare消息，进入prepare阶段；之后，节点将消息加入到本地的log中。</p>
+<h2 id="--prepare">- <strong>prepare</strong></h2>
+<blockquote>
+<p>prepare阶段的消息格式(&lt;PREPARE, v, n, d, i&gt;<!-- raw HTML omitted -->sigma(i)<!-- raw HTML omitted -->)，其中v表示当前view编号，n表示给m分配的序号，d为m的哈希。</p>
+</blockquote>
+<p><strong>所有节点</strong>收到prepare消息时，会依次验证：</p>
+<ol>
+<li>签名验证</li>
+<li>检测v是否合法</li>
+<li>检测n是否合法（相同、间隔、是否在水线&lt;h, H&gt;之内）</li>
+</ol>
+<p>节点收到2f+1个该消息编号的prepare消息，则表明prepare阶段完成，节点达成了prepared状态，记为prepared(m,v,n,i)，节点广播commit消息，同时进入commit阶段；</p>
+<p>至此，可以确保在view不发生切换的情况下，对于消息m有全局一致的顺序。</p>
+<p>也就是说，在view不变的情况的下:</p>
+<p>(1) 一个正常节点i，不能对两个及以上的不同消息，达成相同序号n的prepared状态。即不能同时存在prepared(m,v,n,i)和prepared(m',v,n,i)</p>
+<p>(2) 两个正常节点i、j，必须对相同的消息m，达成相同序号n的prepared状态。prepared(m,v,n,i) &amp;&amp; prepared(m,v,n,j)</p>
+<blockquote>
+<p>证明：</p>
+</blockquote>
+<p>(1) 假如正常节点i, 对于消息m达成了prepared(m,v,n,i)，同时存在一个m'，也达成了prepared(m',v,n,i)。</p>
+<p>首先对于prepared(m,v,n,i)，肯定有2m+1个节点发出了&lt;prepare,m,v,n&gt;消息。</p>
+<p>对于prepared(m',v,n,i)，肯定也有2m+1个节点发出了&lt;prepare,m',v,n&gt;。</p>
+<p>2*(2f+1) - (3f+1) = f+1</p>
+<p>所以至少有f+1个节点，既发出了&lt;prepare,m,v,n&gt;，又发出了&lt;prepare,m',v,n&gt;，这明显是拜占庭行为。也就是说，至少有f+1个拜占庭节点，而这与容错条件相矛盾。</p>
+<p>(2) 假如两个正常节点i、j，分别对不同的消息m、m'，达成序号n的prepared状态，prepared(m,v,n,i)和prepared(m',v,n,j)</p>
+<p>首先对于prepared(m,v,n,i)，肯定有2m+1个节点发出了&lt;prepare,m,v,n&gt;消息。</p>
+<p>对于prepared(m',v,n,j)，肯定也有2m+1个节点发出了&lt;prepare,m',v,n&gt;。</p>
+<p>2*(2f+1) - (3f+1) = f+1</p>
+<p>所以至少有f+1个节点，既发出了&lt;prepare,m,v,n&gt;，又发出了&lt;prepare,m',v,n&gt;，这明显是拜占庭行为。也就是说，至少有f+1个拜占庭节点，而这与容错条件相矛盾。</p>
+<p>prepared状态是十分重要的，当涉及到view转换时，为了保证view切换前后的safety特性，需要将上一轮view的信息传递到新的view，而在pbft中就是将prepared状态信息传递到新的view。可以这么理解，新的view中需要在上一轮view的prepared信息基础上，继续进行共识。</p>
+<blockquote>
+<p>总结：</p>
+</blockquote>
+<p>节点收到prepare消息，节点验证消息的正确性（签名、视图、请求编号）；一旦2f+1个prepare消息验证正确，则prepare阶段完成，节点广播commit消息，同时进入commit阶段；之后，节点将消息加入到本地的log中。</p>
+<h2 id="--commit">- <strong>commit</strong></h2>
+<blockquote>
+<p>commit阶段的消息格式(&lt;COMMIT, v, n, d, i&gt;<!-- raw HTML omitted -->sigma(i)<!-- raw HTML omitted -->)，其中v表示当前view编号，n表示给m分配的序号，d为m的哈希。</p>
+</blockquote>
+<p><strong>其他从节点</strong>收到commit消息时，会依次验证：</p>
+<ol>
+<li>签名验证</li>
+<li>检测v是否合法</li>
+<li>检测n是否合法（相同、间隔、是否在水线&lt;h, H&gt;之内）</li>
+</ol>
+<p>节点接收commit消息后，会像收到prepare消息一样进行几步验证已确定是否接受该消息。</p>
+<p>当节点i，达成了prepared(m,v,n,i)状态，并且收到了(2f+1)个commit(v,n,d,i)消息，则该节点达成了commit-local(m,v,n,i)状态。</p>
+<p>达成commit-local之后，节点对于消息m就有了一个全局一致的顺序，可以执行该消息并reply to客户端了。</p>
+<p>commit-local状态说明有2f+1个节点达成了prepared状态.</p>
+<blockquote>
+<p>总结：</p>
+</blockquote>
+<p>节点收到2f+1个该消息编号的commit消息，则commit阶段完成，节点执行客户端请求操作。</p>
+<h3 id="12-垃圾回收">1.2 垃圾回收</h3>
+<p>为了节省内存，系统需要一种将日志中的无异议消息记录删除的机制。为了保证系统的安全性，副本节点在删除自己的消息日志前，需要确保至少f+1个正常副本节点执行了消息对应的请求，并且可以在视图变更时向其他副本节点证明。另外，如果一些副本节点错过部分消息，但是这些消息已经被所有正常副本节点删除了，这就需要通过传输部分或者全部服务状态实现该副本节点的同步。因此，副本节点同样需要证明状态的正确性。</p>
+<p>在每一个操作执行后都生成这样的证明是非常消耗资源的。因此，证明过程只有在请求序号可以被某个常数（比如100）整除的时候才会周期性地进行。我们将这些请求执行后得到的状态称作<strong>检查点（checkpoint）</strong>，并且将具有证明的检查点称作<strong>稳定检查点（stable checkpoint）</strong>。</p>
+<p>副本节点保存了服务状态的多个逻辑拷贝，包括最新的稳定检查点，零个或者多个非稳定的检查点，以及一个当前状态。写时复制技术可以被用来减少存储额外状态拷贝的空间开销。</p>
+<p>检查点的正确性证明的生成过程如下：当副本节点i生成一个检查点后，向其他副本节点广播检查点消息&lt;CHECKPOINT,n,d,i&gt;，这里n是最近一个影响状态的请求序号，d是状态的摘要。每个副本节点都默默地在各自的日志中收集并记录其他节点发过来的检查点消息，直到收到来自2f+1个不同副本节点的具有相同序号n和摘要d的检查点消息。<strong>这2f+1个消息就是这个检查点的正确性证明</strong>。</p>
+<p>具有证明的检查点成为稳定检查点，然后副本节点就可以将所有序号小于等于n的预准备、准备和确认消息从日志中删除。同时也可以将之前的检查点和检查点消息一并删除。</p>
+<p>检查点协议可以用来更新水线（watermark）的高低值（h和H），这两个高低值限定了可以被接受的消息。水线的低值h与最近稳定检查点的序列号相同，而水线的高值H=h+k，k需要足够大才能使副本不至于为了等待稳定检查点而停顿。加入检查点每100个请求产生一次，k的取值可以是200。</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/image-20210604125401192.png" alt="image-20210604125401192"  loading="lazy" />
+</p>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/image-20210604125501073.png" alt="image-20210604125501073"  loading="lazy" />
+</p>
+<blockquote>
+<p>举例：</p>
+</blockquote>
+<p>stable checkpoint 就是大部分节点 （2f+1） 已经共识完成的最大请求序号。比如系统有 4 个节点，三个节点都已经共识完了的请求编号是 100 ，那么这个 100 就是 stable checkpoint 了。那设置这个 stable checkpoint 有什么作用呢？最大的目的就是减少内存的占用。因为每个节点应该记录下之前曾经共识过什么请求，但如果一直记录下去，数据会越来越大，所以应该有一个机制来实现对数据的删除。那怎么删呢？很简单，比如现在的稳定检查点是 100 ，那么代表 100 号之前的记录已经共识过的了，所以之前的记录就可以删掉了。</p>
+<h3 id="13-视图变更">1.3 视图变更</h3>
+<p>如果主节点作恶，它可能会给不同的请求编上相同的序号，或者不去分配序号，或者让相邻的序号不连续。备份节点应当有职责来主动检查这些序号的合法性。如果主节点掉线或者作恶不广播客户端的请求，客户端设置超时机制，超时的话，向所有副本节点广播请求消息。副本节点检测出主节点作恶或者下线，发起View Change消息。</p>
+<p><strong>VIEW-CHANGE</strong></p>
+<blockquote>
+<p>&lt;VIEW-CHANGE, v+1, n, C, P, i&gt;<!-- raw HTML omitted -->sigma(i)<!-- raw HTML omitted -->消息。n是最新的stable checkpoint的编号，C是2f+1验证过的CheckPoint消息集合，P是当前副本节点未完成的请求的PRE-PREPARE和PREPARE消息集合。</p>
+</blockquote>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/image-20210604125157418.png" alt="image-20210604125157418"  loading="lazy" />
+</p>
+<p><strong>NEW-VIEW</strong></p>
+<blockquote>
+<p>&lt;NEW-VIEW, v+1, V, O&gt;<!-- raw HTML omitted -->sigma(p)<!-- raw HTML omitted -->消息。V是有效的VIEW-CHANGE消息集合。O是主节点重新发起的未经完成的PRE-PREPARE消息集合。PRE-PREPARE消息集合的选取规则：</p>
+</blockquote>
+<ol>
+<li>选取V中最小的stable checkpoint编号min-s，选取V中prepare消息的最大编号max-s。</li>
+<li>在min-s和max-s之间，如果存在P消息集合，则创建&laquo;PRE-PREPARE, v+1, n, d&gt;, m&gt;消息。否则创建一个空的PRE-PREPARE消息，即：&laquo;PRE-PREPARE, v+1, n, d(null)&gt;, m(null)&gt;, m(null)空消息，d(null)空消息摘要。</li>
+</ol>
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/image-20210604125232540.png" alt="image-20210604125232540"  loading="lazy" />
+</p>
+<p>当主节点p = v + 1 mod |R|收到2f个有效的VIEW-CHANGE消息后，向其他节点广播&lt;NEW-VIEW, v+1, V, O&gt;<!-- raw HTML omitted -->sigma(p)<!-- raw HTML omitted -->消息，副本节点收到主节点的NEW-VIEW消息，验证有效性，有效的话，进入v+1状态，并且开始O中的PRE-PREPARE消息处理流程。</p>
+<blockquote>
+<p>总结：</p>
+</blockquote>
+<p>可以这样理解，在新的view中，节点是在上一轮view中各个节点的prepared状态基础上进行共识流程的。</p>
+<blockquote>
+<p>Notes：</p>
+</blockquote>
+<p>发生view转换时，需要的保证的是：如果视图转换之前的消息m被分配了序号n, 并且达到了prepared状态，那么在视图转换之后，该消息也必须被分配序号n(safety特性)。因为达到prepared状态以后，就有可能存在某个节点commit-local。要保证对于m的commit-local，在视图转换之后，其他节点的commit-local依然是一样的序号。</p>
+<h3 id="14-pbft优化">1.4 pbft优化</h3>
+<ul>
+<li>减少通信
+<ul>
+<li>指定一个节点回复client完整的执行结果，其他节点只回复结果摘要；如果对比摘要不一致，重新发送该请求，并等待所有节点的完整结果。<code>节省了带宽</code></li>
+<li>节点到达prepared状态就执行请求，节点将这个临时执行结果回复给client端。如果client收到2f+1个临时回复，就能保证该请求最终也是以这个结果提交的。否则，走三阶段常规流程，等待f+1个一致回复。 <code>省略了comimit阶段</code></li>
+<li>对于只读操作，client将请求广播给所有节点，之后的流程同上。<code>省略了pre-prepare阶段</code></li>
+</ul>
+</li>
+<li>只在view-change和new-view时才采用数字签名，其他所有消息采用消息验证码（MACs）认证。</li>
+</ul>
+<h2 id="2-新的解决思路">2. 新的解决思路</h2>
+<p>拜占庭问题之所以难解，在于任何时候系统中都可能存在多个提案（因为提案成本很低），并且在大规模场景下要完成最终确认的过程容易受干扰，难以达成共识。</p>
+<p>2014 年，斯坦福的 Christopher Copeland 和 Hongxia Zhong 在论文《Tangaroa: a byzantine fault tolerant raft》 中提出在 Raft 算法基础上借鉴 PBFT 算法的一些特性（包括签名、恶意领导探测、选举校验等） 来实现拜占庭容错性，兼顾可实现性和鲁棒性。该论文也启发了Kadena 等项目的出现，实现更好性能的拜占庭算法。</p>
+<p>2017年，MIT计算机科学与人工智能实验室（CSAIL）的Yossi Gilad和Silvio Micali等人在论文《Algorand: Scaling Byzantine Agreements for Cryptocurrencies》 中针对PBFT算法在很多节点情况下性能不佳的问题，提出先选出少量记账节点，然后再利用可验证随机函数（Verifiable Random Function，VRF）来随机选取领导节点，避免全网直接做共识，将拜占庭算法扩展到了支持较大规模的应用场景，同时保持较好的性能（1000+ tps）。</p>
+<p>此外，康奈尔大学的Rafael Pass和Elaine Shi在论文《The Sleepy Model of Consensus》中还探讨了在动态场景（大量节点离线情况）下如何保障共识的安全性，所提出的Sleepy Consensus算法可以在活跃诚实节点达到一半以上时确保完成拜占庭共识。</p>
+<p>2018年，清华大学的Chenxing Li等在论文《Scaling Nakamoto Consensus to Thousands of Transactions per Second》中提出了Conflux共识协议。该协议在 GHOST算法基础上改善了安全性，面向公有区块链场景下，理论上能达到6000+ tps。</p>
+<p>比特币网络在设计时使用了PoW（Proof of Work）的概率型算法思路，从如下两个角度解决大规模场景下的拜占庭容错问题。</p>
+<p>首先，限制一段时间内整个网络中出现提案的个数（通过工作量证明来增加提案成本）；其次是丢掉最终确认的约数，约定好始终沿着已知最长的链进行拓展。共识的最终确认是概率意义上的存在。这样，即便有人试图恶意破坏，也会付出相应的经济代价（超过整体系统一半的工作量） 。</p>
+<p>后来的各种 PoX 系列算法，也都是沿着这个思路进行改进，采用经济博弈来制约攻击者。</p>
+<h2 id="参考文献">参考文献</h2>
+<p><a href="http://pmg.csail.mit.edu/papers/osdi99.pdf" target="_blank">Practical Byzantine Fault Tolerance</a>
+</p>
+<p><a href="http://www.pmg.csail.mit.edu/papers/bft-tocs.pdf" target="_blank">Practical Byzantine Fault Tolerance and Proactive Recovery</a>
+</p>
+<p><a href="http://kddlab.zjgsu.edu.cn:7200/research/blockchain/%E5%8C%BA%E5%9D%97%E9%93%BE%E6%8A%80%E6%9C%AF%E6%8C%87%E5%8D%97.pdf" target="_blank">区块链技术指南</a>
+</p>
+<p><a href="https://blog.csdn.net/kojhliang/article/details/71515199" target="_blank">pbft流程深层分析和解释</a>
+</p>
+<p><a href="https://blog.csdn.net/TurkeyCock/article/details/81672759" target="_blank">PBFT实用拜占庭容错算法深入详解</a>
+</p>
+<p><a href="https://www.bbsmax.com/A/gGdX4YEZd4/" target="_blank">对PBFT算法的理解</a>
+</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-medal"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" aria-label="Close"><i class="fas fa-fw fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-between">
+  <div class="post-nav w-50"><div class="prev-post btn btn-sm">
+      <a href="https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/http/post%E5%92%8Cget/">post和get
+</a>
+    </div></div>
+  <div class="post-nav flex-row-reverse"><div class="next-post btn btn-sm">
+      <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/operator%E5%AE%9E%E6%88%98/">operator实战
+</a>
+    </div></div>
+</div><section class="related-posts">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E5%8C%BA%E5%9D%97%E9%93%BE/merkle-patricia-treempt/">Merkle Patricia Tree
+</a></li></ul>
+  </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label=""
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container"><section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<section class="profile surface row">
+  <div class="col-xl-6 d-flex align-items-center justify-content-center">
+    <img class="profile-avatar img-fluid" src="https://xuzhijvn.github.io/images/profile.webp" alt="Razon Yang" loading="lazy">
+  </div>
+  <div class="col-xl-6">
+    <h5 class="profile-name my-2">Razon Yang</h5><div class="profile-bio mb-2">Gopher, PHPer, Full Stack Engineer.</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>Null</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>China</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section><section class="recent-posts row surface">
+  <h4>最近文章</h4>
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.2k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/1.2.2.1k8s%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/">1.2.2.1 k8s基本概念
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.2k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/1.2.2.2%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A/">1.2.2.2 名词解释
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.3k8s%E6%9E%B6%E6%9E%84/">1.2.3 k8s架构
+</a></li></ul>
+</section><section class="taxonomy-categories row surface">
+      <h4>
+        <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+      </h4>
+      <div><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
+          编程思想 <span class="badge rounded-pill">91</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">32</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
+          其他 <span class="badge rounded-pill">21</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机科学">
+          计算机科学 <span class="badge rounded-pill">19</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="持续集成部署">
+          持续集成部署 <span class="badge rounded-pill">5</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构演进">
+          架构演进 <span class="badge rounded-pill">4</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="人工智能">
+          人工智能 <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
+          区块链 <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-series row surface">
+      <h4>
+        <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
+      </h4>
+      <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
+          Manual <span class="badge rounded-pill">140</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">13</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s实战">
+          k8s实战 <span class="badge rounded-pill">13</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="istio实战">
+          istio实战 <span class="badge rounded-pill">4</span>
+        </a></div>
+    </section><section class="taxonomy-tags row surface">
+      <h4>
+        <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
+      </h4>
+      <div><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">32</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
+          Java <span class="badge rounded-pill">27</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">26</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
+          CS <span class="badge rounded-pill">20</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
+          Other <span class="badge rounded-pill">17</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
+          spring <span class="badge rounded-pill">11</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
+          redis <span class="badge rounded-pill">9</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
+          MySQL <span class="badge rounded-pill">8</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="剑指offer">
+          剑指offer <span class="badge rounded-pill">8</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="WordPress">
+          WordPress <span class="badge rounded-pill">7</span>
+        </a></div>
+    </section><section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
+    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a>
+  </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a>
+    </li></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2021 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<a id="btnScrollToTop" class="btn-scroll-to-top">
+  <i class="fas fa-fw fa-chevron-circle-up fa-2x"></i>
+</a>
+<script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script></body>
+</html>

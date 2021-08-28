@@ -1,3 +1,20 @@
+---
+title: "jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境"
+date: 2021-08-27T11:15:10+08:00
+draft: false
+reward: true
+categories: [
+"持续集成部署"
+]
+tags : [
+"Jenkins",
+"docker"
+]
+images : [
+"images/center.png"
+]
+---
+
 jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境
 
 持续集成/持续部署的重要性不必多言，都什么年代了，没有哪个正紧项目还在人工构建/测试/部署。本文手把手教你搭建jenkins+docker+腾讯云容器仓库+github的CI/CD环境。妥妥的干活，绝对是解放生产力的利器。架构图如下：

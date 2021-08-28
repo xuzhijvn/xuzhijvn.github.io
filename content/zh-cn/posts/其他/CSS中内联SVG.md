@@ -1,5 +1,5 @@
 ---
-title: "Ubuntu修改域名解析"
+title: "CSS中内联SVG"
 date: 2021-08-27T11:15:10+08:00
 draft: false
 reward: true

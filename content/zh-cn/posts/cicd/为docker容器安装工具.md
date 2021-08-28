@@ -1,3 +1,19 @@
+---
+title: "为docker容器安装工具"
+date: 2021-08-27T11:15:10+08:00
+draft: false
+reward: true
+categories: [
+"持续集成部署"
+]
+tags : [
+"docker"
+]
+images : [
+"images/center.png"
+]
+---
+
 为docker容器安装工具
 
 因为我的docker jenkins需要node环境，默认是没有的，所以最初想法是和maven一样，将宿主机的maven和docker一起共享使用，但是不管怎么操作就不行，很诡异，同样的操作，maven可以执行，jdk和node却不行，如下所示：

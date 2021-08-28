@@ -1,3 +1,19 @@
+---
+title: "Jenkins使用使用注意事项"
+date: 2021-08-27T11:15:10+08:00
+draft: false
+reward: true
+categories: [
+"持续集成部署"
+]
+tags : [
+"Jenkins"
+]
+images : [
+"images/center.png"
+]
+---
+
 Jenkins使用使用注意事项
 
 ## 1. 无法通过execute shell启动进程

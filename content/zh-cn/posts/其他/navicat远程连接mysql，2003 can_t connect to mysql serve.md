@@ -1,5 +1,5 @@
 ---
-title: "Ubuntu修改域名解析"
+title: "navicat远程连接mysql，2003 can't connect to mysql server on 10038"
 date: 2021-08-27T11:15:10+08:00
 draft: false
 reward: true

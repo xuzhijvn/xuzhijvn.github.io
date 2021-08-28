@@ -1,3 +1,24 @@
+---
+title: "pvc不会主动回收问题"
+date: 2021-08-27T11:15:10+08:00
+draft: false
+reward: true
+categories: [
+"云原生"
+]
+tags : [
+"云原生",
+"k8s"
+]
+series : [
+"k8s实战"
+]
+images : [
+"images/center.png"
+]
+---
+
+
 pvc不会主动回收问题
 
 使用k8s部署nacos的时候发现，通过volumeClaimTemplates配置的pvc不会随着使用`kubectl delete -f xxx.yaml` 删除StatefulSet的时候一同被删除。`nacos-pvc-nfs.yaml`文件如下所示：

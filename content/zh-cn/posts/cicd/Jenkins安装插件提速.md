@@ -1,3 +1,19 @@
+---
+title: "Jenkins安装插件提速"
+date: 2021-08-27T11:15:10+08:00
+draft: false
+reward: true
+categories: [
+"持续集成部署"
+]
+tags : [
+"Jenkins"
+]
+images : [
+"images/center.png"
+]
+---
+
 Jenkins安装插件提速
 
 国内安装Jenkins插件缓慢，这是我见到最完美的解决方案。

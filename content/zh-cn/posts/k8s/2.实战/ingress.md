@@ -1,4 +1,24 @@
-ingress
+---
+title: "ingress"
+date: 2021-08-27T11:15:10+08:00
+draft: false
+reward: true
+categories: [
+"云原生"
+]
+tags : [
+"云原生",
+"k8s"
+]
+series : [
+"k8s实战"
+]
+images : [
+"images/center.png"
+]
+---
+
+# ingress
 
 ## 1. ingress是什么
 

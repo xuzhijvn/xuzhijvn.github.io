@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>WordPress on Razon Yang</title>
+    <link>https://xuzhijvn.github.io/zh-cn/tags/wordpress/</link>
+    <description>Recent content in WordPress on Razon Yang</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
+    <lastBuildDate>Fri, 27 Aug 2021 11:15:10 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>docker-compose的方式部署wordpress</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/wordpress/docker-compose%E7%9A%84%E6%96%B9%E5%BC%8F%E9%83%A8%E7%BD%B2wordpress/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/wordpress/docker-compose%E7%9A%84%E6%96%B9%E5%BC%8F%E9%83%A8%E7%BD%B2wordpress/</guid>
+      <description>docker-compose的方式部署wordpress
+ 安装docker  sudo yum install -y yum-utils device-mapper-persistent-data lvm2 sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo sudo yum install docker-ce docker-ce-cli containerd.io  编写docker-compose.yml  mysql: image: mysql:5.7 environment: - MYSQL_ROOT_PASSWORD=123456 - MYSQL_DATABASE=wordpress web: image: wordpress links: - mysql environment: - WORDPRESS_DB_PASSWORD=123456 ports: - &amp;#34;0.0.0.0:8080:80&amp;#34; working_dir: /var/www/html volumes: - wordpress:/var/www/html  启动docker  sudo systemctl start docker 运行docker-compose  docker-compose up 参考：
+What does &amp;ldquo;local address&amp;rdquo; and &amp;ldquo;foreign address&amp;rdquo; mean in the netstat command result?</description>
+    </item>
+    
+    <item>
+      <title>nginx 访问 .php文件变成下载(chrome) 或者直接显示源码(edge)</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/wordpress/nginx-%E8%AE%BF%E9%97%AE-.php%E6%96%87%E4%BB%B6%E5%8F%98%E6%88%90%E4%B8%8B%E8%BD%BDchrome-%E6%88%96%E8%80%85%E7%9B%B4%E6%8E%A5%E6%98%BE%E7%A4%BA%E6%BA%90%E7%A0%81edge/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/wordpress/nginx-%E8%AE%BF%E9%97%AE-.php%E6%96%87%E4%BB%B6%E5%8F%98%E6%88%90%E4%B8%8B%E8%BD%BDchrome-%E6%88%96%E8%80%85%E7%9B%B4%E6%8E%A5%E6%98%BE%E7%A4%BA%E6%BA%90%E7%A0%81edge/</guid>
+      <description>nginx 访问 .php文件变成下载(chrome) 或者直接显示源码(edge)
+原因：这是因为nginx没有设置好碰到php文件时，要传递到后方的php解释器。
+需要在nginx.conf的server{}添加如下内容：
+location ~ [^/]\.php(/|$) { #fastcgi_pass remote_php_ip:9000; fastcgi_pass unix:/dev/shm/php-cgi.sock; fastcgi_index index.php; include fastcgi.conf; } </description>
+    </item>
+    
+    <item>
+      <title>woocommerce_rest_authentication_error</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/wordpress/woocommerce_rest_authentication_error/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/wordpress/woocommerce_rest_authentication_error/</guid>
+      <description>woocommerce_rest_authentication_error
+nginx配置错误导致woocommerce REST API不可用
+It was a bad configuration of try_files in nginx:
+WRONG
+try_files $uri $uri/ /index.php?q=$uri&amp;amp;$args; CORRECT
+try_files $uri $uri/ /index.php$is_args$args; After changing that everything works perfectly ^^
+参考： woocommerce_rest_authentication_error on localhost</description>
+    </item>
+    
+    <item>
+      <title>WordPress 安装插件 cURL error 77解决</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/wordpress/wordpress-%E5%AE%89%E8%A3%85%E6%8F%92%E4%BB%B6-curl-error-77%E8%A7%A3%E5%86%B3/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/wordpress/wordpress-%E5%AE%89%E8%A3%85%E6%8F%92%E4%BB%B6-curl-error-77%E8%A7%A3%E5%86%B3/</guid>
+      <description>WordPress 安装插件 cURL error 77解决
+第一步：执行命令
+yum install ca-certificates 第二步：重启php-fpm
+/etc/init.d/php-fpm restart </description>
+    </item>
+    
+    <item>
+      <title>WordPress改造成https的注意事项</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/wordpress/wordpress%E6%94%B9%E9%80%A0%E6%88%90https%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/wordpress/wordpress%E6%94%B9%E9%80%A0%E6%88%90https%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/</guid>
+      <description>WordPress改造成https的注意事项
+WordPress加入ssl后可能出现的网站访问缓慢、样式无法被加载，是由于站点虽然被改造成了https访问，但是 WordPress 代码层面对于一些css、js、图片等静态资源的访问还是http的，所以才会出现这种情况。解决的办法可以改造代码，也可以安装WordPress插件。下面介绍后者的步骤：
+1、申请证书、上传证书到服务器、配置服务器（阿里云有免费的证书，并有详细的操作步骤）
+2、安装 Really Simple SSL插件，它会将http的请求全都转成https（感谢作者吧）
+3、 后台修改wordpress地址和站点地址，如下图所示：
+参考链接：https://www.rogoso.info/wordpress-ssl/</description>
+    </item>
+    
+    <item>
+      <title>wordpress文章发布后，nginx报404解决方法</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/wordpress/wordpress%E6%96%87%E7%AB%A0%E5%8F%91%E5%B8%83%E5%90%8Enginx%E6%8A%A5404%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/wordpress/wordpress%E6%96%87%E7%AB%A0%E5%8F%91%E5%B8%83%E5%90%8Enginx%E6%8A%A5404%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</guid>
+      <description>wordpress文章发布后，nginx报404解决方法
+修改nginx.conf文件，在location /节点下添加如下代码：
+location / { try_files $uri $uri/ /index.php?q=$uri&amp;amp;$args; } 然后重启nginx即可解决。</description>
+    </item>
+    
+    <item>
+      <title>WordPress更换域名</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/wordpress/wordpress%E6%9B%B4%E6%8D%A2%E5%9F%9F%E5%90%8D/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/wordpress/wordpress%E6%9B%B4%E6%8D%A2%E5%9F%9F%E5%90%8D/</guid>
+      <description>WordPress更换域名
+在更换的域名过程中遇到很多坑，主要还是我的架构比较特殊的原因，导致跟以往配置不太一样，架构如下：
+1. 无法通过nginx转发请求到容器端口 原因：nginx配置不正确
+解决：补充缺失的如下配置
+add_header X-Frame-Options SAMEORIGIN; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_hide_header X-Frame-Options; 最终类似：
+server { listen 443 ssl; listen [::]:443 ssl; include snippets/ssl-params.conf; server_name wptest.your-awesome-domain.com; # domain當然要用自己的，subdomain請隨自己喜好 location / { add_header X-Frame-Options SAMEORIGIN; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_hide_header X-Frame-Options; proxy_pass http://localhost:8000; # 注意這邊跟上面docker-compose設定的port相同 } } 2. 提示“重定向次数过多” 修改wordpress根目录下的wp-config.php：
+$_SERVER[&amp;#39;HTTPS&amp;#39;] = &amp;#39;on&amp;#39;; define(&amp;#39;FORCE_SSL_LOGIN&amp;#39;, true); define(&amp;#39;FORCE_SSL_ADMIN&amp;#39;, true); 参考链接： https://softman.</description>
+    </item>
+    
+  </channel>
+</rss>

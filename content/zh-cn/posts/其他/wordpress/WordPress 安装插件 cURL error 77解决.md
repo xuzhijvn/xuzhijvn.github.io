@@ -1,5 +1,5 @@
 ---
-title: "Ubuntu修改域名解析"
+title: "WordPress 安装插件 cURL error 77解决"
 date: 2021-08-27T11:15:10+08:00
 draft: false
 reward: true
@@ -7,7 +7,7 @@ categories: [
 "其他"
 ]
 tags : [
-"Other"
+"WordPress"
 ]
 series : [
 "Manual"

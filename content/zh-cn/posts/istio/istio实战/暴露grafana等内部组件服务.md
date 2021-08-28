@@ -1,3 +1,24 @@
+---
+title: "暴露grafana等内部组件服务"
+date: 2021-08-27T11:15:10+08:00
+draft: false
+reward: true
+categories: [
+"云原生"
+]
+tags : [
+"云原生",
+"istio"
+]
+series : [
+"istio实战"
+]
+images : [
+"images/center.png"
+]
+---
+
+
 暴露grafana等内部组件服务
 
 在安装完成istio后，默认状态下，集群外用户不能直接访问istio集群内的grafana等管理、监控服务。

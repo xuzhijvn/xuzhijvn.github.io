@@ -87,8 +87,7 @@ Merkle树具有下列特性:
  每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。  Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
 首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://xuzhijvn.github.io/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://xuzhijvn.github.io/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
 <script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
@@ -111,16 +110,14 @@ if (!doNotTrack) {
 </script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
-      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
-   width="400" height="400" loading="lazy" />
-RAZON YANG</a>
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy">RAZON YANG</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
   <div class="input-group input-group-sm">
-    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
+    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
     <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
   </div>
 </form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
@@ -148,13 +145,18 @@ RAZON YANG</a>
               </a>
             </li><li>
               <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6">
+                <i class="fas fa-fw fa-server"></i>计算机科学
+              </a>
+            </li><li>
+              <a class="dropdown-item"
                 href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B">
                 <i class="fas fa-fw fa-sitemap"></i>架构演进
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6">
-                <i class="fas fa-fw fa-server"></i>计算机科学
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F">
+                <i class="fas fa-fw fa-cloud"></i>云原生
               </a>
             </li><li>
               <a class="dropdown-item"
@@ -168,8 +170,8 @@ RAZON YANG</a>
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
               <a class="dropdown-item"
-                href="https://xuzhijvn.github.io/zh-cn/tags/php">
-                <i class="fab fa-fw fa-php"></i>PHP
+                href="https://xuzhijvn.github.io/zh-cn/tags/java">
+                <i class="fab fa-fw fa-java"></i>Java
               </a>
             </li><li>
               <a class="dropdown-item"
@@ -180,21 +182,6 @@ RAZON YANG</a>
               <a class="dropdown-item"
                 href="https://xuzhijvn.github.io/zh-cn/tags/mysql">
                 <i class="fas fa-fw fa-database"></i>MySQL
-              </a>
-            </li><li>
-              <a class="dropdown-item"
-                href="https://xuzhijvn.github.io/zh-cn/tags/html">
-                <i class="fab fa-fw fa-html5"></i>HTML
-              </a>
-            </li><li>
-              <a class="dropdown-item"
-                href="https://xuzhijvn.github.io/zh-cn/tags/mysql">
-                <i class="fab fa-fw fa-js"></i>JavaScript
-              </a>
-            </li><li>
-              <a class="dropdown-item"
-                href="https://xuzhijvn.github.io/zh-cn/tags/css">
-                <i class="fab fa-fw fa-css3"></i>CSS
               </a>
             </li><li>
               <a class="dropdown-item"
@@ -212,22 +199,22 @@ RAZON YANG</a>
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
               <a class="dropdown-item"
-                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                href="https://clevergo.tech/" target="_blank">
                 CleverGo
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                href="https://gopkgs.net/" target="_blank">
                 GOPKGS
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
                 Hugo Bootstrap 主题
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                href="https://admin.yii2.razonyang.com/" target="_blank">
                 Yii 2 管理后台
               </a>
             </li></ul>
@@ -328,12 +315,13 @@ RAZON YANG</a>
   </div>
 </div>
 <h1 class="post-title my-3">Merkle Patricia Tree
-</h1><div class="post-meta mb-3"><span class="post-date me-2">
+</h1><div class="post-meta mb-3">
+  <span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
-  </span><span class="post-reading-time me-2">
+  </span>
+  <span class="post-reading-time me-2">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy">区块链</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy">BlockChain</a></span>
-</div>
+  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy">#区块链</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">#Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy">#BlockChain</a></div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
@@ -359,23 +347,17 @@ RAZON YANG</a>
 <p>Trie树又称前缀树或字典树，是一种检索树，使用一个有序的树结构存储一个动态数据集或者关联数组，其中的键通常是字符串。与二叉查找树不同，键不是直接保存在节点中，而是由节点在树中的位置决定。一个节点的所有子孙相对于当前节点都有相同的前缀，而根节点为空字符串。一般情况下，不是所有的节点都有对应的值，只有叶子节点和部分内部节点所对应的键才有相关的值。</p>
 <p>Trie树中，key是从树根到对应value得真实的路径。即从根节点开始，key中的每个字符会标识走那个子节点从而到达相应value。Value被存储在叶子节点，是每条路径的终止。假如key来自一个包含N个字符的字母表，那么树中的每个节点都可能会有多达N个孩子，树的最大深度是key的最大长度。看个例子画个图就了然了。
 例子：关键字集合{“a”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/trie.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/trie.png" alt="img"  loading="lazy" />
  Trie树</p>
 <p>不理想情况下，数据集中存在一个很长的key，而这个key与其它key又没有太多的公共前缀，这就造成整个树的深度会加大，需要存储多个节点，存储比较稀疏而且极不平衡。
 例子：关键字集合{“algori”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/trie1-1024x796.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/trie1-1024x796.png" alt="img"  loading="lazy" />
  稀疏Trie树</p>
 <h4 id="patricia-trie树">Patricia Trie树</h4>
 <p>既然Trie树在某些情况下存储空间利用率不高，那就给压缩下，然后就出现了Patricia Trie树。</p>
 <p>Patricia Trie树是一种空间使用率经过优化的Trie树。与Trie树不同的是，Patricia Trie 里如果存在一个父节点只有一个子节点，那么这个父节点将与其子节点合并。这样压缩存储可以减少Trie树中不必要的深度，大大加快搜索节点速度。
 如下图所示</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/patricia-1024x650.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/patricia-1024x650.png" alt="img"  loading="lazy" />
  Patricia Trie树</p>
 <h4 id="merkle树">Merkle树</h4>
 <p>Merkle树是由计算机科学家Ralph Merkle在很多年前提出的，并以他本人的名字来命名，是一种树形数据结构，可以是二叉树，也可以是多叉树。
@@ -383,9 +365,7 @@ RAZON YANG</a>
 <p>由于Merkle树是自底向上构建的，而且除叶子结点之外的其它节点都是其子节点的散列，这样每个节点的值发生变化都会一层一层的向上反映，最终在根节点上表现出来。也就是说只要对比两个Merkle树的根节点是否相等就能得到两份数据集是否一样，而且还可以验证Merkle树的某个分支。</p>
 <p>比特币使用Merkle树存储一个区块中的所有交易信息，一是为了防篡改，因为散列是向上的，伪造任何一个节点都会引起上层节点的改动，最终导致根节点的变化。二是为了允许区块的数据可以零散的传送，即节点可以从一个节点下载区块头，从另外的源下载与其相关的树的其他部分，而依然能够确认所有的数据都是正确的。</p>
 <p>看下图的例子，首先将L1-L4四个单元数据散列化，然后将散列值存储至相应的叶子节点。这些节点是Hash0-0, Hash0-1, Hash1-0, Hash1-1，然后将相邻两个节点的散列值合并成一个字符串，然后计算这个字符串的散列，得到的就是这两个节点的父节点的散列值。</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/merkle-1024x620.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/merkle-1024x620.png" alt="img"  loading="lazy" />
  Merkle树</p>
 <p>在比特币网络中，merkle树被用来归纳一个区块中的所有交易，同时生成整个交易集合的数字指纹。此外，由于merkle树的存在，使得在比特币这种公链的场景下，扩展一种“轻节点”实现简单支付验证变成可能。</p>
 <p>知道了Merkle树在比特币中的应用，那么他是怎么构成呢？现在就简单看下其构成。<em>它由一组叶节点、一组中间节点和一个根节点构成</em>。最下面的叶节点包含基础数据，每个中间节点是它的子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部 。</p>
@@ -418,9 +398,7 @@ Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太�
 </ul>
 <p>也是[key，value]的一个键值对，但是这里的value是其他节点的hash值，这个hash可以被用来查询数据库中的节点。也就是说通过hash链接到其他节点。</p>
 <p>下面看个以太坊中MPT树的官方示例</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/e-mpt.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/e-mpt.png" alt="img"  loading="lazy" />
 </p>
 <h4 id="示例">示例</h4>
 <p>看到这里你肯定依然是一脸懵逼，(不要问我我是怎么知道的。。。。)，接下来我们就来根据一批数据构造一个MPT树，这样你会理解一些。
@@ -510,9 +488,7 @@ HP编码: 16进制前缀编码，用于对数据库中树节点key进行编码�
 #68 6f 72 73 65
 [ 6, 8, 6, 15, 7, 2, 7, 3, 6, 5, 16 ] : horse =&gt; 'stallion'
 </code></pre><p>其构造MPT树如图：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/mpt-1024x972.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/mpt-1024x972.png" alt="img"  loading="lazy" />
  MPT</p>
 <pre><code>rootHash: [ &lt;16&gt;, hashA ]
 hashA:    [ &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, hashB, &lt;&gt;, &lt;&gt;, &lt;&gt;, hashC, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt; ]
@@ -526,36 +502,28 @@ hashG:    [ &lt;35&gt;, 'coin' ]
 <ol>
 <li>假设插入第一个kv对是do-&gt;verb，key根据Hex-Prefix编码为[‘0x20’, ‘0x64’, ‘0x6f’]，MPT树为：</li>
 </ol>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/leafA.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/leafA.png" alt="img"  loading="lazy" />
  叶子节点</p>
 <ol start="2">
 <li>接着插入第二个kv对dog-&gt;puppy，dog和do的公共前缀为[‘64’, ‘6f’]，do是叶子结点A，将<em>叶子结点替换成扩展节点A</em>，并将新key与叶子节点A的公共前缀(646f)作为扩展节点的key，<em>扩展节点的value是新分支节点B的hash值</em>，然后将do和dog剩余的key插入到分支节点中，由于do没有剩余的key，则将对应的value写入分支节点B的value中，dog剩余的key为67，则分支节点B中的路径为6，指向叶子结点C。7为dog剩下的最后一个key值，是奇数叶子结点则前缀为3，所有最终的MPT树为：</li>
 </ol>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/two-1024x542.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/two-1024x542.png" alt="img"  loading="lazy" />
  叶子节点插入</p>
 <ol start="3">
 <li>再插入第三个kv对doge-&gt;coin，按照上面的步骤生成的MPT树是：</li>
 </ol>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/three-1024x745.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/three-1024x745.png" alt="img"  loading="lazy" />
 </p>
 <ol start="4">
 <li>最后插入第四个kv对horse-&gt;stallion，horse与其它key的公共前缀只有6，则将扩展节点A新增一个分支节点F作为其孩子节点，将新key与扩展节点A的公共前缀6作为扩展节点A的key，A是扩展节点并且key为奇数，所以前缀为1，value为新增分支节点F的hash。原扩展节点A变成新扩展节点之后剩余的key，与新key剩下的key，插入到分支节点F中，分别放入4和8中，4指向新的扩展节点G，8指向叶子节点H。最终的MPT树为：</li>
 </ol>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/four-1024x659.png"
-   loading="lazy" />
-
+<p><img class="img-fluid" src="https://picgo.6and.ltd/img/four-1024x659.png" alt="img"  loading="lazy" />
 </p>
 <h4 id="mpt在以太坊中的应用">MPT在以太坊中的应用</h4>
 <p>Merkle数据结构在区块链领域中使用比较广泛，比特币和以太坊都是用了Merkle树，其中以太坊中保留了三颗MPT，分别是<em>状态树、交易树和收据树</em>，这三种树可以帮助以太坊客户端做一些简易的查询，如查询某个账户的余额、某笔交易是否被包含在区块中等。</p>
 <p>需要注意的是在以太坊中对MPT再进行了一次封装，对<em>数据项的key进行了一次哈希计算sha3(key)</em>，value进行了RLP(Recursive length prefix encoding,递归长度前缀编码)编码，数据库中存储额外的sha3(key)与key之间的对应关系。</p>
 <h4 id="原文链接">原文链接：</h4>
-<p><a href="http://bigdatadecode.club/Merkle-Patricia-Tree.html" target="_blank" rel="noopener noreferrer">http://bigdatadecode.club/Merkle-Patricia-Tree.html</a>
+<p><a href="http://bigdatadecode.club/Merkle-Patricia-Tree.html" target="_blank">http://bigdatadecode.club/Merkle-Patricia-Tree.html</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -593,12 +561,12 @@ hashG:    [ &lt;35&gt;, 'coin' ]
     </div></div>
 </div><section class="related-posts">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E5%8C%BA%E5%9D%97%E9%93%BE/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/pbft/pbft/">pbft
+    <ul class="related-posts"><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E5%8C%BA%E5%9D%97%E9%93%BE/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/pbft/">pbft
 </a></li></ul>
   </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
   repo="razonyang/blog"
   issue-term="pathname"
-  label="comment"
+  label=""
   theme="github-dark"
   crossorigin="anonymous"
   async>
@@ -614,19 +582,19 @@ hashG:    [ &lt;35&gt;, 'coin' ]
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<section class="profile surface row text-center">
-  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Razon Yang" src="https://xuzhijvn.github.io/images/profile.webp"
-   width="400" height="400" loading="lazy" />
-</div>
-  <div class="col-12 profile-meta"><div class="profile-name">Razon Yang</div><div class="profile-bio">Gopher, PHPer, Full Stack Engineer.</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>Null</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>China</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
-</section>
-  <section class="recent-posts row surface">
+<section class="profile surface row">
+  <div class="col-xl-6 d-flex align-items-center justify-content-center">
+    <img class="profile-avatar img-fluid" src="https://xuzhijvn.github.io/images/profile.webp" alt="Razon Yang" loading="lazy">
+  </div>
+  <div class="col-xl-6">
+    <h5 class="profile-name my-2">Razon Yang</h5><div class="profile-bio mb-2">Gopher, PHPer, Full Stack Engineer.</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>Null</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>China</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section><section class="recent-posts row surface">
   <h4>最近文章</h4>
-  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1-k8s%E5%8A%9F%E8%83%BD/k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/">300. 最长递增子序列
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/400-bad-request/">400 Bad Request
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/">5种IO模型
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/">1.1 一些概念
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.1k8s%E5%8A%9F%E8%83%BD/">1.2.1 k8s功能
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.2k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/1.2.2.1k8s%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/">1.2.2.1 k8s基本概念
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.2k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/1.2.2.2%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A/">1.2.2.2 名词解释
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.3k8s%E6%9E%B6%E6%9E%84/">1.2.3 k8s架构
 </a></li></ul>
 </section><section class="taxonomy-categories row surface">
       <h4>
@@ -634,16 +602,18 @@ hashG:    [ &lt;35&gt;, 'coin' ]
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
           编程思想 <span class="badge rounded-pill">91</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">32</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
           其他 <span class="badge rounded-pill">21</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机科学">
           计算机科学 <span class="badge rounded-pill">19</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="持续集成部署">
+          持续集成部署 <span class="badge rounded-pill">5</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构演进">
           架构演进 <span class="badge rounded-pill">4</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="人工智能">
           人工智能 <span class="badge rounded-pill">3</span>
-        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
-          云原生 <span class="badge rounded-pill">2</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
           区块链 <span class="badge rounded-pill">2</span>
         </a></div>
@@ -654,18 +624,26 @@ hashG:    [ &lt;35&gt;, 'coin' ]
       <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
           Manual <span class="badge rounded-pill">140</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
-          k8s <span class="badge rounded-pill">2</span>
+          k8s <span class="badge rounded-pill">13</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s实战">
+          k8s实战 <span class="badge rounded-pill">13</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="istio实战">
+          istio实战 <span class="badge rounded-pill">4</span>
         </a></div>
     </section><section class="taxonomy-tags row surface">
       <h4>
         <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
       </h4>
-      <div><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
+      <div><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">32</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
           Java <span class="badge rounded-pill">27</span>
-        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
-          Other <span class="badge rounded-pill">24</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">26</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
           CS <span class="badge rounded-pill">20</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
+          Other <span class="badge rounded-pill">17</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
           spring <span class="badge rounded-pill">11</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
@@ -674,12 +652,8 @@ hashG:    [ &lt;35&gt;, 'coin' ]
           MySQL <span class="badge rounded-pill">8</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="剑指offer">
           剑指offer <span class="badge rounded-pill">8</span>
-        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ZK">
-          ZK <span class="badge rounded-pill">6</span>
-        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="nginx">
-          nginx <span class="badge rounded-pill">4</span>
-        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
-          AI <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="WordPress">
+          WordPress <span class="badge rounded-pill">7</span>
         </a></div>
     </section><section class="ad ad-sticky row surface justify-content-center">
   <ins class="adsbygoogle sidebar-ad"
@@ -694,24 +668,36 @@ hashG:    [ &lt;35&gt;, 'coin' ]
 </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
+    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
-    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
+    </a>
+  </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
         <i class="fa-fw fa-2x fab fa-github"></i>
-      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
         <i class="fa-fw fa-2x fab fa-gitlab"></i>
-      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
         <i class="fa-fw fa-2x fab fa-qq"></i>
-      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
         <i class="fa-fw fa-2x fab fa-twitter"></i>
-      </a></nav>
+      </a>
+    </li></nav>
 <div class="copyright mb-2">
   Copyright © 2016-2021 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
-  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
 </div><div class="mb-3">
   <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
   <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>

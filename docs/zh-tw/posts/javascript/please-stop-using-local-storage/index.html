@@ -24,8 +24,7 @@
 <meta name="twitter:title" content="Please Stop Using Local Storage For Storing Sensitive Data"/>
 <meta name="twitter:description" content="此前筆者搜索過不少前後端分離，身份驗證 token 應該存放在哪的問題，不少結果都說放到 Local Storage，但放到 Local Storage 真的安全嗎？這正是分享本篇文章的原因，希望能幫助到其他有相同疑惑的開發者。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.e14af9c5587414a71c0dba225f9a74a2fe09184ff4a790b0b825495c9e04c59d.css" integrity="sha256-4Ur5xVh0FKccDboiX5p0ov4JGE/0p5CwuCVJXJ4ExZ0=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://xuzhijvn.github.io/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://xuzhijvn.github.io/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
 <script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
@@ -48,16 +47,14 @@ if (!doNotTrack) {
 </script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-tw/">
-      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
-   width="400" height="400" loading="lazy" />
-RAZON YANG</a>
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy">RAZON YANG</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-tw/search">
   <div class="input-group input-group-sm">
-    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
+    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
     <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
   </div>
 </form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
@@ -139,22 +136,22 @@ RAZON YANG</a>
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
               <a class="dropdown-item"
-                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                href="https://clevergo.tech/" target="_blank">
                 CleverGo
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                href="https://gopkgs.net/" target="_blank">
                 GOPKGS
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
                 Hugo Bootstrap 主題
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                href="https://admin.yii2.razonyang.com/" target="_blank">
                 Yii 2 管理後台
               </a>
             </li></ul>
@@ -255,12 +252,13 @@ RAZON YANG</a>
   </div>
 </div>
 <h1 class="post-title my-3">Please Stop Using Local Storage For Storing Sensitive Data
-</h1><div class="post-meta mb-3"><span class="post-date me-2">
+</h1><div class="post-meta mb-3">
+  <span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2020-01-04
-  </span><span class="post-reading-time me-2">
+  </span>
+  <span class="post-reading-time me-2">
     <i class="fas fa-fw fa-coffee"></i>12 分鐘閱讀
-  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-tw/categories/programing/" class="post-taxonomy">Programing</a><a href="https://xuzhijvn.github.io/zh-tw/tags/javascript/" class="post-taxonomy">JavaScript</a><a href="https://xuzhijvn.github.io/zh-tw/tags/local-storage/" class="post-taxonomy">Local Storage</a></span>
-</div>
+  </span><a href="https://xuzhijvn.github.io/zh-tw/categories/programing/" class="post-taxonomy">#Programing</a><a href="https://xuzhijvn.github.io/zh-tw/tags/javascript/" class="post-taxonomy">#JavaScript</a><a href="https://xuzhijvn.github.io/zh-tw/tags/local-storage/" class="post-taxonomy">#Local Storage</a></div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="offcanvasTOCLabel">目錄</h5>
@@ -289,12 +287,12 @@ RAZON YANG</a>
   </div>
 </div><div class="post-content mb-3"><p>此前筆者搜索過不少前後端分離，身份驗證 token 應該存放在哪的問題，不少結果都說放到 Local Storage，但放到 Local Storage 真的安全嗎？這正是分享本篇文章的原因，希望能幫助到其他有相同疑惑的開發者。</p>
 <p>Seriously. Just stop it already.</p>
-<p>I don’t know what it is, exactly, that drives so many developers to store session information in <a href="https://developer.mozilla.org/en-US/docs/Web/API/Storage/LocalStorage" target="_blank" rel="noopener noreferrer">local storage</a>
+<p>I don’t know what it is, exactly, that drives so many developers to store session information in <a href="https://developer.mozilla.org/en-US/docs/Web/API/Storage/LocalStorage" target="_blank">local storage</a>
 , but whatever the reason: the practice needs to die out. Things are getting completely out of hand.</p>
 <p>Almost every day I stumble across a new website storing sensitive user information in local storage and it bothers me to know that so many developers are opening themselves up to catastrophic security issues by doing so.</p>
 <p>Let’s have a heart-to-heart and talk about local storage and why you should stop using it to store session data.</p>
 <blockquote>
-<p>Source: <a href="https://www.rdegges.com/2018/please-stop-using-local-storage/" target="_blank" rel="noopener noreferrer">Please Stop Using Local Storage</a>
+<p>Source: <a href="https://www.rdegges.com/2018/please-stop-using-local-storage/" target="_blank">Please Stop Using Local Storage</a>
 </p>
 </blockquote>
 <h2 id="what-is-local-storage">What is Local Storage?</h2>
@@ -334,7 +332,7 @@ RAZON YANG</a>
 <p>It is synchronous. This means each local storage operation you run will be one-at-a-time. For complex applications this is a big no-no as it’ll slow down your app’s runtime.</p>
 </li>
 <li>
-<p>It can’t be used by <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers" target="_blank" rel="noopener noreferrer">web workers</a>
+<p>It can’t be used by <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers" target="_blank">web workers</a>
  =/ This means that if you want to build an application that takes advantage of background processing for performance, chrome extensions, things like that: you can’t use local storage at all since it isn’t available to the web workers.</p>
 </li>
 <li>
@@ -352,7 +350,7 @@ RAZON YANG</a>
 <p>Local storage <em>wasn’t designed</em> to be used as a secure storage mechanism in a browser. It was designed to be a simple string only key/value store that developers could use to build slightly more complex single page apps. That’s it.</p>
 <p>What’s the most dangerous thing in the entire world? That’s right! JavaScript.</p>
 <p>Think about it like this: when you store sensitive information in local storage, you’re essentially using the most dangerous thing in the world to store your most sensitive information in the worst vault ever created: not the best idea.</p>
-<p>What the problem really boils down to is cross-site scripting attacks (<a href="https://www.owasp.org/index.php/Cross-site_Scripting_%28XSS%29" target="_blank" rel="noopener noreferrer">XSS</a>
+<p>What the problem really boils down to is cross-site scripting attacks (<a href="https://www.owasp.org/index.php/Cross-site_Scripting_%28XSS%29" target="_blank">XSS</a>
 ). I won’t bore you with a full explanation of XSS, but here’s the high level:</p>
 <p>If an attacker can run JavaScript on your website, they can retrieve all the data you’ve stored in local storage and send it off to their own domain. This means anything sensitive you’ve got in local storage (like a user’s session data) can be compromised.</p>
 <p>Now, you might be thinking “So what? My website is secure. No attacker can run JavaScript on my website.”</p>
@@ -380,7 +378,7 @@ RAZON YANG</a>
 <h2 id="psa-dont-store-json-web-tokens-in-local-storage">PSA: Don’t Store JSON Web Tokens in Local Storage</h2>
 <p>While I feel like I made myself clear that you should never <em>ever</em> store sensitive information in local storage in the previous section, I feel the need to specifically call out JSON Web Tokens (JWTs).</p>
 <p>The biggest security offenders I see today are those of us who store JWTs (session data) in local storage. Many people don’t realize that JWTs are essentially the same thing as a username/password.</p>
-<p>If an attacker can <a href="https://stackoverflow.com/questions/34259248/what-if-jwt-is-stolen" target="_blank" rel="noopener noreferrer">get a copy of your JWT</a>
+<p>If an attacker can <a href="https://stackoverflow.com/questions/34259248/what-if-jwt-is-stolen" target="_blank">get a copy of your JWT</a>
 , they can make requests to the website on your behalf and you will never know. Treat your JWTs like you would a credit card number or password: don’t ever store them in local storage.</p>
 <p>There are thousands of tutorials, YouTube videos, and even programming classes at universities and coding bootcamps incorrectly teaching new developers to store JWTs in local storage as an authentication mechanism. <strong>THIS INFORMATION IS WRONG.</strong> If you see someone telling you to do this, run away!</p>
 <h2 id="what-to-use-instead-of-local-storage">What to Use Instead of Local Storage</h2>
@@ -402,11 +400,11 @@ RAZON YANG</a>
 <p>When a user logs into your website, create a session identifier for them and store it in a cryptographically signed cookie. If you’re using a web framework, look up “how to create a user session using cookies” and follow that guide.</p>
 </li>
 <li>
-<p>Make sure that whatever cookie library your web framework uses is setting the <code>httpOnly</code> cookie flag. This flag makes it impossible for a browser to read any cookies, which is <em>required</em> in order to safely use server-side sessions with cookies. Read <a href="https://blog.codinghorror.com/protecting-your-cookies-httponly/" target="_blank" rel="noopener noreferrer">Jeff Atwood’s article</a>
+<p>Make sure that whatever cookie library your web framework uses is setting the <code>httpOnly</code> cookie flag. This flag makes it impossible for a browser to read any cookies, which is <em>required</em> in order to safely use server-side sessions with cookies. Read <a href="https://blog.codinghorror.com/protecting-your-cookies-httponly/" target="_blank">Jeff Atwood’s article</a>
  for more information. He’s the <em>man</em>.</p>
 </li>
 <li>
-<p>Make sure that your cookie library also sets the <code>SameSite=strict</code> cookie flag (to prevent <a href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery_%28CSRF%29" target="_blank" rel="noopener noreferrer">CSRF</a>
+<p>Make sure that your cookie library also sets the <code>SameSite=strict</code> cookie flag (to prevent <a href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery_%28CSRF%29" target="_blank">CSRF</a>
  attacks), as well as the <code>secure=true</code> flag (to ensure cookies can only be set over an encrypted connection).</p>
 </li>
 <li>
@@ -420,12 +418,12 @@ RAZON YANG</a>
 <h3 id="non-string-data">Non-String Data</h3>
 <p>If you need to store data in the browser that isn’t sensitive and isn’t purely string data, the best option for you is IndexedDB. It’s an API that lets you work with a database-esque object store in the browser.</p>
 <p>What’s great about IndexedDB is that you can use it to store typed information: integers, floats, etc. You can also define primary keys, handle indexing, and create transactions to prevent data integrity issues.</p>
-<p>A great tutorial for learning about (and using) IndexedDB is this <a href="https://developers.google.com/web/ilt/pwa/working-with-indexeddb" target="_blank" rel="noopener noreferrer">Google tutorial</a>
+<p>A great tutorial for learning about (and using) IndexedDB is this <a href="https://developers.google.com/web/ilt/pwa/working-with-indexeddb" target="_blank">Google tutorial</a>
 .</p>
 <h3 id="offline-data">Offline Data</h3>
 <p>If you need your app to run offline, your best option is to use a combination of IndexedDB (above) along with the Cache API (which is a part of Service Workers).</p>
 <p>The Cache API allows you to cache network resources that your app needs to load.</p>
-<p>A great tutorial for learning about (and using) the Cache API is this <a href="https://developers.google.com/web/fundamentals/instant-and-offline/web-storage/cache-api" target="_blank" rel="noopener noreferrer">Google tutorial</a>
+<p>A great tutorial for learning about (and using) the Cache API is this <a href="https://developers.google.com/web/fundamentals/instant-and-offline/web-storage/cache-api" target="_blank">Google tutorial</a>
 .</p>
 <h2 id="please-stop-using-local-storage">Please Stop Using Local Storage</h2>
 <p>Now that we’ve had a chance to talk about local storage, I hope you understand why you (probably) shouldn’t be using it.</p>
@@ -441,11 +439,11 @@ RAZON YANG</a>
 <p>Have a question? <a href="mailto:r@rdegges.com">Shoot me an email</a>
 .</p>
 <p>Stay safe out there =)</p>
-<p><strong>NOTE</strong>: For those of you who made it this far who are wondering why I didn’t specifically call out <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP" target="_blank" rel="noopener noreferrer">Content Security Policy</a>
+<p><strong>NOTE</strong>: For those of you who made it this far who are wondering why I didn’t specifically call out <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP" target="_blank">Content Security Policy</a>
  as a way to mitigate the effects of XSS, I specifically chose not to include this because it cannot help in the situation I described above. Even if you use CSP to whitelist all third party JavaScript domains, that does nothing to prevent XSS if the third party provider is compromised.</p>
-<p>And while we’re at it: <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity" target="_blank" rel="noopener noreferrer">subresource integrity</a>
+<p>And while we’re at it: <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity" target="_blank">subresource integrity</a>
  (while cool) is also not a global solution to this issue. For most marketing tools, ad networks, etc. (which are by far the most commonly used types of third party JavaScript), subresource integrity is almost never used as the providers of those scripts <em>want</em> to change them frequently so they can silently update functionality for their users.</p>
-<p><strong>UPDATE</strong>: I’m not the only one who thinks you should never store anything sensitive in local storage. So does <a href="https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html#local-storage" target="_blank" rel="noopener noreferrer">OWASP</a>
+<p><strong>UPDATE</strong>: I’m not the only one who thinks you should never store anything sensitive in local storage. So does <a href="https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html#local-storage" target="_blank">OWASP</a>
 :</p>
 <blockquote>
 <p>… In other words, any authentication your application requires can be bypassed by a user with local privileges to the machine on which the data is stored. Therefore, it’s recommended not to store any sensitive information in local storage.</p>
@@ -486,7 +484,7 @@ RAZON YANG</a>
 </div></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
   repo="razonyang/blog"
   issue-term="pathname"
-  label="comment"
+  label=""
   theme="github-dark"
   crossorigin="anonymous"
   async>
@@ -502,13 +500,13 @@ RAZON YANG</a>
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<section class="profile surface row text-center">
-  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Razon Yang" src="https://xuzhijvn.github.io/images/profile.webp"
-   width="400" height="400" loading="lazy" />
-</div>
-  <div class="col-12 profile-meta"><div class="profile-name">Razon Yang</div><div class="profile-bio">Gopher, PHPer, Full Stack Engineer.</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>Null</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>China</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-tw/about/">關於</a></div></div>
-</section>
-  <section class="featured-posts row surface">
+<section class="profile surface row">
+  <div class="col-xl-6 d-flex align-items-center justify-content-center">
+    <img class="profile-avatar img-fluid" src="https://xuzhijvn.github.io/images/profile.webp" alt="Razon Yang" loading="lazy">
+  </div>
+  <div class="col-xl-6">
+    <h5 class="profile-name my-2">Razon Yang</h5><div class="profile-bio mb-2">Gopher, PHPer, Full Stack Engineer.</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>Null</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>China</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-tw/about/">關於</a></div></div>
+</section><section class="featured-posts row surface">
     <h4>精選文章</h4>
     <ul><li><a href="https://xuzhijvn.github.io/zh-tw/posts/go/custom-import-path-via-gopkgs/">利用 gopkgs 自定義 Go 庫的導入路徑
 </a></li></ul>
@@ -569,24 +567,36 @@ RAZON YANG</a>
 </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
+    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
-    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
+    </a>
+  </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
         <i class="fa-fw fa-2x fab fa-github"></i>
-      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
         <i class="fa-fw fa-2x fab fa-gitlab"></i>
-      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
         <i class="fa-fw fa-2x fab fa-qq"></i>
-      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+      </a>
+    </li><li class="nav-item">
+      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
         <i class="fa-fw fa-2x fab fa-twitter"></i>
-      </a></nav>
+      </a>
+    </li></nav>
 <div class="copyright mb-2">
   Copyright © 2016-2021 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
-  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
 </div><div class="mb-3">
   <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
   <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>

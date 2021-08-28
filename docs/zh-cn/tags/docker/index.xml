@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>docker on Razon Yang</title>
+    <link>https://xuzhijvn.github.io/zh-cn/tags/docker/</link>
+    <description>Recent content in docker on Razon Yang</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
+    <lastBuildDate>Fri, 27 Aug 2021 11:15:10 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/tags/docker/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/cicd/jenkins&#43;docker&#43;%E8%85%BE%E8%AE%AF%E4%BA%91%E5%AE%B9%E5%99%A8%E4%BB%93%E5%BA%93&#43;github%E6%90%AD%E5%BB%BAci_cd%E7%8E%AF%E5%A2%83/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/cicd/jenkins&#43;docker&#43;%E8%85%BE%E8%AE%AF%E4%BA%91%E5%AE%B9%E5%99%A8%E4%BB%93%E5%BA%93&#43;github%E6%90%AD%E5%BB%BAci_cd%E7%8E%AF%E5%A2%83/</guid>
+      <description>jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境
+持续集成/持续部署的重要性不必多言，都什么年代了，没有哪个正紧项目还在人工构建/测试/部署。本文手把手教你搭建jenkins+docker+腾讯云容器仓库+github的CI/CD环境。妥妥的干活，绝对是解放生产力的利器。架构图如下：
+step1: 程序猿git push代码到github step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像） step3: 推送镜像到容器仓库 step4: 应用服务器拉去镜像到本地运行
+为了不让文章篇幅过长，本系列tony徐老师将文章分成两个小章节：
+github webhooks+jenkins搭建持续集成环境 本文是jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境的第一子章节。意在教您通过github webhooks+jenkins搭建持续集成环境，如果您已经完成webhooks+jenkins的配置，可以直接调整到第二子章节jenkins+腾讯云容器仓库+docker持续部署1. github配置Personal access tokens 没什么好说的，按图操作： 记下生成的token，待会儿要用的。
+2. github配置webhooks 去到你的github项目仓库，按图操作： 这里的Payload URL = 你的jenkins地址+/github-webhook/
+至此，github上的配置全部完成。接下来，我们配置jenkins。
+ 3. jenkins配置凭据 这里的Secret就是在第1节配置的Personal access tokens
+ 添加一个github登陆凭据，username和password对应github的登陆账号密码。 添加一个宿主机登陆凭据，username和password对应登陆的账号密码（因为小编的jenkins是容器的方式运行的，因此后面需要这个凭据ssh到宿主机上执行命令）。  4. 配置ssh sites 接下来配置一个ssh sites，用于后面需要ssh到宿主机。 5. 配置jenkins运行环境 这里的环境取决与你的项目需要的环境。 如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。
+6. 新建一个maven项目 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。 请按图操作： 请按图操作： 请按图操作： 这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！</description>
+    </item>
+    
+    <item>
+      <title>为docker容器安装工具</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/cicd/%E4%B8%BAdocker%E5%AE%B9%E5%99%A8%E5%AE%89%E8%A3%85%E5%B7%A5%E5%85%B7/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/cicd/%E4%B8%BAdocker%E5%AE%B9%E5%99%A8%E5%AE%89%E8%A3%85%E5%B7%A5%E5%85%B7/</guid>
+      <description>为docker容器安装工具
+因为我的docker jenkins需要node环境，默认是没有的，所以最初想法是和maven一样，将宿主机的maven和docker一起共享使用，但是不管怎么操作就不行，很诡异，同样的操作，maven可以执行，jdk和node却不行，如下所示：
+version: &amp;#39;3&amp;#39; services: jenkins: image: jenkinsci/blueocean deploy: resources: limits: cpus: &amp;#39;0.50&amp;#39; memory: 1024M reservations: memory: 64M container_name: jenkins user: root ports: - &amp;#39;8080:8080&amp;#39; - &amp;#39;50000:50000&amp;#39; volumes: - &amp;#39;/docker/volumes/jenkins:/var/jenkins_home&amp;#39; - &amp;#39;/var/run/docker.sock:/var/run/docker.sock&amp;#39; - &amp;#39;/usr/local/jdk1.8.0_241:/usr/local/jdk1.8.0_241&amp;#39; - &amp;#39;/usr/local/apache-maven-3.6.3:/usr/local/apache-maven-3.6.3&amp;#39; - &amp;#39;/usr/bin/docker:/usr/bin/docker&amp;#39; - &amp;#39;/usr/local/node-v12.16.3-linux-x64:/usr/local/node-v12.16.3-linux-x64&amp;#39; restart: always  更诡异的是，虽然docker下无法执行node命令，jenkins却能调用：
+这里暂且不管，请当作docker没有node环境，继续往下阅读。
+ 经过彻夜未眠的排除，基本能定位为题的原因：本质不是node命令找不到，而是node的依赖在docker容器里面找不到，node依赖如下：
+所以要么进入到容器里面使用apk add，要么自己制作镜像（这样太麻烦了），我选择前者。
+进入到容器里面安装：
+apk add --no-cache nodejs  可能会遇到下载缓慢、找不到包等问题。
+ 解决办法如下：
+ 在 https://mirrors.alpinelinux.org/找到中国的镜像仓库，并添加到 etc/apk/repositories, 参考如下： A. 永久修改下载源
+vi etc/apk/repositories http://mirrors.aliyun.com/alpine/v3.8/main/ http://mirrors.</description>
+    </item>
+    
+  </channel>
+</rss>
