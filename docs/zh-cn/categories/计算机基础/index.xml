@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>计算机基础 on Razon Yang</title>
-    <link>https://razonyang.com/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/</link>
+    <link>https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/</link>
     <description>Recent content in 计算机基础 on Razon Yang</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
-    <lastBuildDate>Fri, 27 Aug 2021 11:15:10 +0800</lastBuildDate><atom:link href="https://razonyang.com/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 27 Aug 2021 11:15:10 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>5种IO模型</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/</guid>
       <description>1. 前言 W. Richard Stevens在 《Unix Network Programming Volume 1 3rd Edition - The Sockets Networking API》文中的6.2 I/O Models小节中对如下5中IO模型进行了详细的阐述：
  blocking I/O nonblocking I/O I/O multiplexing (select and poll) signal driven I/O (SIGIO) asynchronous I/O (the POSIX aio_functions)  由signal driven IO在实际中并不常用，所以主要介绍其余四种IO Model。
 再说一下IO发生时涉及的对象和步骤。对于一个network IO (这里我们以read举例)，它会涉及到两个系统对象，一个是调用这个IO的process (or thread)，另一个就是系统内核(kernel)。当一个read操作发生时，它会经历两个阶段：
@@ -22,10 +22,10 @@
     
     <item>
       <title>cache和buffer</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/system/cache%E5%92%8Cbuffer/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/system/cache%E5%92%8Cbuffer/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/system/cache%E5%92%8Cbuffer/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/system/cache%E5%92%8Cbuffer/</guid>
       <description>首先我们使用 free -m 查看系统内存的使用情况：
 可以看出，系统内存为 16G，Swap 内存 16G，mem free 虽然显示为 1118，因缓存的存在，不能认为系统目前内剩下这么多内存。而应该把 buffers、cached 的也算上，即 free+cached+buffers=1118+7110+430＝8658，总内存再减去 8658＝7314，与 buffers/cache 行中对应 free 列的 7312 和 8659 基本一致。
  这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念  Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
@@ -35,10 +35,10 @@
     
     <item>
       <title>Caffeine</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/caffeine/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/caffeine/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/caffeine/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/caffeine/</guid>
       <description>1. LRU 和 LFU 的缺点  LRU 实现简单，在一般情况下能够表现出很好的命中率，是一个“性价比”很高的算法，平时也很常用。虽然 LRU 对突发性的稀疏流量（sparse bursts）表现很好，但同时也会产生缓存污染，举例来说，如果偶然性的要对全量数据进行遍历，那么“历史访问记录”就会被刷走，造成污染。 如果数据的分布在一段时间内是固定的话，那么 LFU 可以达到最高的命中率。但是 LFU 有两个缺点，第一，它需要给每个记录项维护频率信息，每次访问都需要更新，这是个巨大的开销；第二，对突发性的稀疏流量无力，因为前期经常访问的记录已经占用了缓存，偶然的流量不太可能会被保留下来，而且过去的一些大量被访问的记录在将来也不一定会使用上，这样就一直把“坑”占着了。  无论 LRU 还是 LFU 都有其各自的缺点，不过，现在已经有很多针对其缺点而改良、优化出来的变种算法。
 2. TinyLFU TinyLFU 就是其中一个优化算法，它是专门为了解决 LFU 上述提到的两个问题而被设计出来的。
 解决第一个问题是采用了 Count–Min Sketch 算法。
@@ -51,19 +51,19 @@
     
     <item>
       <title>CPU缓存行</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/cpu%E7%BC%93%E5%AD%98%E8%A1%8C/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/cpu%E7%BC%93%E5%AD%98%E8%A1%8C/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/cpu%E7%BC%93%E5%AD%98%E8%A1%8C/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/cpu%E7%BC%93%E5%AD%98%E8%A1%8C/</guid>
       <description>JAVA 拾遗 — CPU Cache 与缓存行既然CPU有缓存一致性协议（MESI），为什么JMM还需要volatile关键字？CPU缓存行Java内存访问重排序的研究</description>
     </item>
     
     <item>
       <title>http2</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/http/http2/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/http/http2/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/http/http2/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/http/http2/</guid>
       <description>http/2在http/1系列的基础上优化了通信效率，主要得益于如下几点改进：
 一、 多路复用的单一长连接 1.单一长连接 在HTTP/2中，客户端向某个域名的服务器请求页面的过程中，只会创建一条TCP连接，即使这页面可能包含上百个资源。 单一的连接应该是HTTP2的主要优势，单一的连接能减少TCP握手（还有ssl握手的开销）带来的时延 。HTTP2中用一条单一的长连接，避免了创建多个TCP连接带来的网络开销，提高了吞吐量。
 2.多路复用 HTTP2虽然只有一条TCP连接，但是在逻辑上分成了很多stream。HTTP2把要传输的信息分割成一个个二进制帧，首部信息会被封装到HEADER Frame，相应的request body就放到DATA Frame,一个帧你可以看成路上的一辆车,只要给这些车编号，让1号车都走1号门出，2号车都走2号门出，就把不同的http请求或者响应区分开来了。但是，这里要求同一个请求或者响应的帧必须是有有序的，要保证FIFO的，但是不同的请求或者响应帧可以互相穿插。这就是HTTP2的多路复用，是不是充分利用了网络带宽，是不是提高了并发度？
@@ -74,10 +74,10 @@
     
     <item>
       <title>LRU和LFU</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/lru%E5%92%8Clfu/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/lru%E5%92%8Clfu/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/lru%E5%92%8Clfu/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/lru%E5%92%8Clfu/</guid>
       <description>LRU和LFU都是内存管理的页面置换算法。
 LRU，即：最近最少使用淘汰算法（Least Recently Used）。LRU是淘汰最长时间没有被使用的页面。
 LFU，即：最不经常使用淘汰算法（Least Frequently Used）。LFU是淘汰一段时间内，使用次数最少的页面。
@@ -95,10 +95,10 @@ LFU，即：最不经常使用淘汰算法（Least Frequently Used）。LFU是�
     
     <item>
       <title>OAuth2</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/oauth2/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/oauth2/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/oauth2/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/oauth2/</guid>
       <description>OAuth（开放授权）是一个开放标准，允许用户授权第三方移动应用访问他们存储在另外的服务提供者上的信息，而不需要将用户名和密码提供给第三方移动应用或分享他们数据的所有内容，OAuth2.0是OAuth协议的延续版本，但不向后兼容OAuth 1.0即完全废止了OAuth1.0。
 客户端必须得到用户的授权（authorization grant），才能获得令牌（access token）。OAuth 2.0定义了四种授权方式。
  授权码模式（authorization code） 简化模式（implicit） 密码模式（resource owner password credentials） 客户端模式（client credentials）  1、名词定义 在详细讲解OAuth 2.0之前，需要了解几个专用名词。
@@ -118,10 +118,10 @@ LFU，即：最不经常使用淘汰算法（Least Frequently Used）。LFU是�
     
     <item>
       <title>Oauth2的授权码模式为什么返回token之前先返回code，而不是直接返回token？</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/oauth2%E7%9A%84%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%94%E5%9B%9Etoken%E4%B9%8B%E5%89%8D%E5%85%88%E8%BF%94%E5%9B%9Ecode%E8%80%8C%E4%B8%8D%E6%98%AF%E7%9B%B4%E6%8E%A5%E8%BF%94%E5%9B%9Etoken/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/oauth2%E7%9A%84%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%94%E5%9B%9Etoken%E4%B9%8B%E5%89%8D%E5%85%88%E8%BF%94%E5%9B%9Ecode%E8%80%8C%E4%B8%8D%E6%98%AF%E7%9B%B4%E6%8E%A5%E8%BF%94%E5%9B%9Etoken/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/oauth2%E7%9A%84%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%94%E5%9B%9Etoken%E4%B9%8B%E5%89%8D%E5%85%88%E8%BF%94%E5%9B%9Ecode%E8%80%8C%E4%B8%8D%E6%98%AF%E7%9B%B4%E6%8E%A5%E8%BF%94%E5%9B%9Etoken/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/oauth2%E7%9A%84%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%94%E5%9B%9Etoken%E4%B9%8B%E5%89%8D%E5%85%88%E8%BF%94%E5%9B%9Ecode%E8%80%8C%E4%B8%8D%E6%98%AF%E7%9B%B4%E6%8E%A5%E8%BF%94%E5%9B%9Etoken/</guid>
       <description>所谓第三方登录，实质就是 OAuth 授权。用户想要登录 A 网站，A 网站让用户提供第三方网站的数据，证明自己的身份。获取第三方网站的身份数据，就需要 OAuth 授权。
 举例来说，A 网站允许 GitHub 登录，背后就是下面的流程。
   A 网站让用户跳转到 GitHub。 GitHub 要求用户登录，然后询问&amp;quot;A 网站要求获得 xx 权限，你是否同意？&amp;quot; 用户同意，GitHub 就会重定向回 A 网站，同时发回一个授权码。 A 网站使用授权码，向 GitHub 请求令牌。 GitHub 返回令牌. A 网站使用令牌，向 GitHub 请求用户数据。   那为什么不直接返回token？而要中间经过code再倒腾一遍呢？知乎上有位大哥回答得挺好。
@@ -137,10 +137,10 @@ LFU，即：最不经常使用淘汰算法（Least Frequently Used）。LFU是�
     
     <item>
       <title>post和get</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/http/post%E5%92%8Cget/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/http/post%E5%92%8Cget/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/http/post%E5%92%8Cget/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/http/post%E5%92%8Cget/</guid>
       <description>RFC标准区别 根据RFC定义的http标准，区别如下：
  GET 用于获取信息，是无副作用的，是幂等的，且可缓存 POST 用于修改服务器上的数据，有副作用，非幂等，不可缓存  实际区别 GET 和 POST 方法没有实质区别，只是报文格式不同。
 GET 和 POST 只是 HTTP 协议中两种请求方式，而 HTTP 协议是基于 TCP/IP 的应用层协议，无论 GET 还是 POST，用的都是同一个传输层协议，所以在传输上，没有区别。
@@ -153,20 +153,20 @@ HTTP 协议中没有明确说明 POST 会产生两个 TCP 数据包，而且实�
     
     <item>
       <title>SSL/TLS协议</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/ssl-tls%E5%8D%8F%E8%AE%AE/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/ssl-tls%E5%8D%8F%E8%AE%AE/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/ssl-tls%E5%8D%8F%E8%AE%AE/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/ssl-tls%E5%8D%8F%E8%AE%AE/</guid>
       <description>参考链接
 http://www.ruanyifeng.com/blog/2014/09/illustration-ssl.html</description>
     </item>
     
     <item>
       <title>TCP协议</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/tcp/tcp%E5%8D%8F%E8%AE%AE/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/tcp/tcp%E5%8D%8F%E8%AE%AE/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/tcp/tcp%E5%8D%8F%E8%AE%AE/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/tcp/tcp%E5%8D%8F%E8%AE%AE/</guid>
       <description>简介 数据在TCP层称为流（Stream），数据分组称为分段（Segment）。作为比较，数据在IP层称为Datagram，数据分组称为分片（Fragment）。 UDP 中分组称为Message。
 TCP 数据包的大小 以太网数据包（packet）的大小是固定的，最初是1518字节，后来增加到1522字节。其中， 1500 字节是负载（payload），22字节是头信息（head）。 IP 数据包在以太网数据包的负载里面，它也有自己的头信息，最少需要20字节，所以 IP 数据包的负载最多为1480字节。
 （图片说明：IP 数据包在以太网数据包里面，TCP 数据包在 IP 数据包里面。）
@@ -180,10 +180,10 @@ TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20�
     
     <item>
       <title>几种注册中心对比</title>
-      <link>https://razonyang.com/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%87%A0%E7%A7%8D%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%AF%B9%E6%AF%94/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%87%A0%E7%A7%8D%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%AF%B9%E6%AF%94/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%87%A0%E7%A7%8D%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%AF%B9%E6%AF%94/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%87%A0%E7%A7%8D%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%AF%B9%E6%AF%94/</guid>
       <description>前言 服务注册中心本质上是为了解耦服务提供者和服务消费者。对于任何一个微服务，原则上都应存在或者支持多个提供者，这是由微服务的分布式属性决定的。更进一步，为了支持弹性扩缩容特性，一个微服务的提供者的数量和分布往往是动态变化的，也是无法预先确定的。因此，原本在单体应用阶段常用的静态LB机制就不再适用了，需要引入额外的组件来管理微服务提供者的注册与发现，而这个组件就是服务注册中心。
 CAP理论 CAP理论是分布式架构中重要理论
  一致性(Consistency) (所有节点在同一时间具有相同的数据) 可用性(Availability) (保证每个请求不管成功或者失败都有响应) 分隔容忍(Partition tolerance) (系统中任意信息的丢失或失败不会影响系统的继续运作)  关于
@@ -210,10 +210,10 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
     
     <item>
       <title>分布式ID生成方式</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E5%88%86%E5%B8%83%E5%BC%8Fid%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E5%88%86%E5%B8%83%E5%BC%8Fid%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E5%88%86%E5%B8%83%E5%BC%8Fid%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E5%88%86%E5%B8%83%E5%BC%8Fid%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/</guid>
       <description>分布式ID生成方式 一、为什么要用分布式ID？ 在说分布式ID的具体实现之前，我们来简单分析一下为什么用分布式ID？分布式ID应该满足哪些特征？
 1、什么是分布式ID？ 拿MySQL数据库举个栗子：
 在我们业务数据量不大的时候，单库单表完全可以支撑现有业务，数据再大一点搞个MySQL主从同步读写分离也能对付。
@@ -231,10 +231,10 @@ CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.</description>
     
     <item>
       <title>分布式事务</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/</guid>
       <description>分布式事务 分布式事务顾名思义就是要在分布式系统中实现事务，它其实是由多个本地事务组合而成。对于分布式事务而言几乎满足不了 ACID，其实对于单机事务而言大部分情况下也没有满足 ACID，不然怎么会有四种隔离级别呢？所以更别说分布在不同数据库或者不同应用上的分布式事务了。
 2PC 2PC（Two-phase commit protocol），中文叫二阶段提交。 二阶段提交是一种强一致性设计，2PC 引入一个事务协调者的角色来协调管理各参与者（也可称之为各本地资源）的提交和回滚，二阶段分别指的是准备（投票）和提交两个阶段。
 **准备阶段**协调者会给各参与者发送准备命令，你可以把准备命令理解成除了提交事务之外啥事都做完了。
@@ -261,10 +261,10 @@ CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.</description>
     
     <item>
       <title>常用缓存淘汰算法</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E5%B8%B8%E7%94%A8%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AE%97%E6%B3%95/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E5%B8%B8%E7%94%A8%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AE%97%E6%B3%95/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E5%B8%B8%E7%94%A8%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AE%97%E6%B3%95/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E5%B8%B8%E7%94%A8%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AE%97%E6%B3%95/</guid>
       <description>常见类型包括LFU、LRU、ARC、FIFO、MRU。
  最不经常使用算法（LFU, Least Frequently Used）：  这个缓存算法使用一个计数器来记录条目被访问的频率。通过使用LFU缓存算法，最低访问数的条目首先被移除。这个方法并不经常使用，因为它无法对一个拥有最初高访问率之后长时间没有被访问的条目缓存负责。
  最近最少使用算法（LRU, Least Recently Used）  LRU是首先淘汰最长时间未被使用的页面。这种算法把近期最久没有被访问过的页面作为被替换的页面。它把LFU算法中要记录数量上的&amp;quot;多&amp;quot;与&amp;quot;少&amp;quot;简化成判断&amp;quot;有&amp;quot;与&amp;quot;无&amp;quot;，因此，实现起来比较容易。
@@ -273,10 +273,10 @@ CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.</description>
     
     <item>
       <title>常见知识点</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/tcp/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/tcp/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/tcp/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/tcp/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9/</guid>
       <description>前言 网络层只把分组发送到目的主机，但是真正通信的并不是主机而是主机中的进程。传输层提供了进程间的逻辑通信，传输层向高层用户屏蔽了下面网络层的核心细节，使应用程序看起来像是在两个传输层实体之间有一条端到端的逻辑通信信道。
 UDP 和 TCP 的特点与区别 用户数据报协议 UDP（User Datagram Protocol）是无连接的，尽最大可能交付，没有拥塞控制，面向报文（对于应用程序传下来的报文不合并也不拆分，只是添加 UDP 首部），支持一对一、一对多、多对一和多对多的交互通信。
 传输控制协议 TCP（Transmission Control Protocol）是面向连接的，提供可靠交付，有流量控制，拥塞控制，提供全双工通信，面向字节流（把应用层传下来的报文看成字节流，把字节流组织成大小不等的数据块），每一条 TCP 连接只能是点对点的（一对一）。
@@ -292,10 +292,10 @@ ECE：若其值为 1 则会通知对方，从对方到这边的网络有阻塞�
     
     <item>
       <title>指令重排</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E6%8C%87%E4%BB%A4%E9%87%8D%E6%8E%92/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E6%8C%87%E4%BB%A4%E9%87%8D%E6%8E%92/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E6%8C%87%E4%BB%A4%E9%87%8D%E6%8E%92/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E6%8C%87%E4%BB%A4%E9%87%8D%E6%8E%92/</guid>
       <description>我们知道java在运行的时候有两个地方可能用到重排序，一个是编译器编译的的时候，一个是处理器运行的时候。
 那么我们就应该问问为啥要用指令重排序呢？
 编译期重排序有啥好处？
@@ -313,10 +313,10 @@ int a = 1; a = a + 1; int b = 1; b = b +1 ; 性能好，因为后者的a或b可�
     
     <item>
       <title>数据库和缓存双写一致性</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%BC%93%E5%AD%98%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%BC%93%E5%AD%98%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%BC%93%E5%AD%98%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%BC%93%E5%AD%98%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7/</guid>
       <description>数据库和缓存双写一致性 首先，缓存由于其高并发和高性能的特性，已经在项目中被广泛使用。在读取缓存方面，大家没啥疑问，都是按照下图的流程来进行业务操作。
 、
 双写可分为：更新缓存-&amp;gt;更新db、更新db-&amp;gt;更新缓存、删除缓存-&amp;gt;更新db、更新db-&amp;gt;删除缓存 四种策略。
@@ -329,19 +329,19 @@ int a = 1; a = a + 1; int b = 1; b = b +1 ; 性能好，因为后者的a或b可�
     
     <item>
       <title>服务之间的调用为啥不直接用 HTTP 而用 RPC？</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E7%9A%84%E8%B0%83%E7%94%A8%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E7%94%A8-http-%E8%80%8C%E7%94%A8-rpc/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E7%9A%84%E8%B0%83%E7%94%A8%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E7%94%A8-http-%E8%80%8C%E7%94%A8-rpc/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E7%9A%84%E8%B0%83%E7%94%A8%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E7%94%A8-http-%E8%80%8C%E7%94%A8-rpc/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E7%9A%84%E8%B0%83%E7%94%A8%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E7%94%A8-http-%E8%80%8C%E7%94%A8-rpc/</guid>
       <description> 使用自定义 TCP 协议进行传输就会避免上面这个问题，极大地减轻了传输数据的开销。 这也就是为什么通常会采用自定义 TCP 协议的 RPC 来进行进行服务调用的真正原因。 除此之外，成熟的 RPC 框架还提供好了“服务自动注册与发现”、&amp;ldquo;智能负载均衡&amp;rdquo;、“可视化的服务治理和运维”、“运行期流量调度”等等功能，这些也算是选择 RPC 进行服务注册和发现的一方面原因吧！  </description>
     </item>
     
     <item>
       <title>死记硬背</title>
-      <link>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E6%AD%BB%E8%AE%B0%E7%A1%AC%E8%83%8C/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E6%AD%BB%E8%AE%B0%E7%A1%AC%E8%83%8C/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E6%AD%BB%E8%AE%B0%E7%A1%AC%E8%83%8C/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%8B%BE%E9%81%97/%E6%AD%BB%E8%AE%B0%E7%A1%AC%E8%83%8C/</guid>
       <description>1. redis可以容纳多少个键值对？单个键值的大小限制是？ 最多容纳 2^32 个key
 redis的key和string类型value限制均为512MB。
 string类型：一个String类型的value最大可以存储512M

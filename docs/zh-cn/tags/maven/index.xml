@@ -2,27 +2,27 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Maven on Razon Yang</title>
-    <link>https://razonyang.com/zh-cn/tags/maven/</link>
+    <link>https://xuzhijvn.github.io/zh-cn/tags/maven/</link>
     <description>Recent content in Maven on Razon Yang</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
-    <lastBuildDate>Fri, 27 Aug 2021 11:15:10 +0800</lastBuildDate><atom:link href="https://razonyang.com/zh-cn/tags/maven/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 27 Aug 2021 11:15:10 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/tags/maven/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>dockerfile-maven-plugin使用</title>
-      <link>https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/maven/dockerfile-maven-plugin%E4%BD%BF%E7%94%A8/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/maven/dockerfile-maven-plugin%E4%BD%BF%E7%94%A8/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/maven/dockerfile-maven-plugin%E4%BD%BF%E7%94%A8/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/maven/dockerfile-maven-plugin%E4%BD%BF%E7%94%A8/</guid>
       <description>&amp;lt;properties&amp;gt; &amp;lt;docker.image.prefix&amp;gt;anaham-docker.pkg.coding.net/cereshop/ceres&amp;lt;/docker.image.prefix&amp;gt; &amp;lt;anaham-docker.username&amp;gt;用户名&amp;lt;/anaham-docker.username&amp;gt; &amp;lt;anaham-docker.password&amp;gt;密码&amp;lt;/anaham-docker.password&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;build&amp;gt; &amp;lt;plugins&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;executions&amp;gt; &amp;lt;execution&amp;gt; &amp;lt;goals&amp;gt; &amp;lt;goal&amp;gt;repackage&amp;lt;/goal&amp;gt; &amp;lt;/goals&amp;gt; &amp;lt;/execution&amp;gt; &amp;lt;/executions&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;!-- docker打包插件 --&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;com.spotify&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;dockerfile-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${dockerfile-maven-plugin.version}&amp;lt;/version&amp;gt; &amp;lt;configuration&amp;gt; &amp;lt;username&amp;gt;${anaham-docker.username}&amp;lt;/username&amp;gt; &amp;lt;password&amp;gt;${anaham-docker.password}&amp;lt;/password&amp;gt; &amp;lt;repository&amp;gt;${docker.image.prefix}/${project.artifactId}&amp;lt;/repository&amp;gt; &amp;lt;tag&amp;gt;${ceres.version}&amp;lt;/tag&amp;gt; &amp;lt;!-- 不指定tag默认为latest --&amp;gt; &amp;lt;buildArgs&amp;gt; &amp;lt;JAR_FILE&amp;gt;target/${project.build.finalName}.jar&amp;lt;/JAR_FILE&amp;gt; &amp;lt;/buildArgs&amp;gt; &amp;lt;/configuration&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;/plugins&amp;gt; &amp;lt;/build&amp;gt;  构建镜像  mvn clean package -Dmaven.计算机基础.skip=true dockerfile:build -Ddockerfile.tag=latest 因为上面pom.xml已经指定了tag，也可以直接使用：mvn dockerfile:build 会优先选择pom.xml配置的tag
 上传镜像  mvn dockerfile:push -Ddockerfile.username=[镜像仓库账号] -Ddockerfile.password=[镜像仓库密码] 因为上面pom.xml已经指定了username和password，也可以直接使用：mvn dockerfile:push</description>
     </item>
     
     <item>
       <title>maven基础</title>
-      <link>https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/maven/maven%E5%9F%BA%E7%A1%80/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/maven/maven%E5%9F%BA%E7%A1%80/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://razonyang.com/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/maven/maven%E5%9F%BA%E7%A1%80/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/maven/maven%E5%9F%BA%E7%A1%80/</guid>
       <description>1. 问题 项目开发过程中，经常会遇到jar冲突，然后maven根据自己的规则进行冲突解决，导致项目在运行的过程中报错。
 1、maven自动解决依赖冲突的规则是什么？
 2、如何查看当前项目的maven的依赖树？
