@@ -6,7 +6,34 @@
     <description>Recent content in 编程思想 on 唯有光頭才能變強</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
-    <lastBuildDate>Fri, 27 Aug 2021 11:15:10 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 29 Aug 2021 23:33:21 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>基于keepalived实现nginx高可用</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/</link>
+      <pubDate>Sun, 29 Aug 2021 23:33:21 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Nginx负载均衡</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</link>
+      <pubDate>Sun, 29 Aug 2021 23:29:12 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>字节码实战</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E6%88%98/</link>
+      <pubDate>Sun, 29 Aug 2021 13:28:08 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E6%88%98/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>300. 最长递增子序列</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/</link>
@@ -213,13 +240,20 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
     </item>
     
     <item>
-      <title>java agent</title>
+      <title>Java agent</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/java-agent/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/java-agent/</guid>
       <description>**开发者可以构建一个独立于应用程序的代理程序（Agent），用来监测和协助运行在 JVM 上的程序，甚至能够替换和修改某些类的定义。**有了这样的功能，开发者就可以实现更为灵活的运行时虚拟机监控和 Java 类操作了，这样的特性实际上提供了 一种虚拟机级别支持的 AOP 实现方式，使得开发者无需对 JDK 做任何升级和改动，就可以实现某些 AOP 的功能了。
-1.1 JVM启动前静态Instrument 未完待续。。。</description>
+1.1 JVM启动前静态Instrument 通过启动命令 java -javaagent:agent1.jar -javaagent:agent2.jar -jar MyProgram.jar 在目标程序main方法执行前，先执行agent中定义的 premain 方法
+1.2 JVM启动后动态Instrument Java6 以后提供了在目标程序main方法执行后，执行agent的agentmain方法的机制，通过这种机制，我们可以动态修改目标程序已经加载过的字节码。
+在Java6 以后实现启动后加载的新实现是Attach API 。Attach API 很简单，只有 2 个主要的类，即VirtualMachine 和 VirtualMachineDescriptor，都在tool.jar 的 com.sun.tools.attach 包里面。
+attach实现动态注入的原理如下：
+通过VirtualMachine类的attach(pid)方法，便可以attach到一个运行中的java进程上，之后便可以通过loadAgent(agentJarPath)来将agent的jar包注入到对应的进程，然后对应的进程会调用agentmain方法。
+既然是两个进程之间通信那肯定的建立起连接，VirtualMachine.attach动作类似TCP创建连接的三次握手，目的就是搭建attach通信的连接。而后面执行的操作，例如vm.loadAgent，其实就是向这个socket写入数据流，接收方target VM会针对不同的传入数据来做不同的处理。
+例如：找到当前JVM并加载agent.jar（即attach JVM 和 runing JVM 是同一个 JVM，真正的应用中更多的是不同的两个JVM，这里仅为了测试方便。）
+package com.rickiyang.learn.job; import com.sun.tools.attach.*; import java.io.IOException; import java.util.List; /** * @author rickiyang * @date 2019-08-16 * @Desc */ public class TestAgentMain { public static void main(String[] args) throws IOException, AttachNotSupportedException, AgentLoadException, AgentInitializationException { //获取当前系统中所有 运行中的 虚拟机  System.</description>
     </item>
     
     <item>
