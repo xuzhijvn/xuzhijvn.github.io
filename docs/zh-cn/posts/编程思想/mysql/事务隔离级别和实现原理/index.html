@@ -60,7 +60,8 @@
 3. 标准SQL事务隔离级别实现原理 我们上面遇到的问题其实就是并发事务下的控制问题，解决并发事务的最常见方式就是悲观并发控制了（也就是数据库中的锁）。标准SQL事务隔离级别的实现是依赖锁的，我们来看下具体是怎么实现的：
    事务隔离级别 实现方式     未提交读（RU） 事务对当前被读取的数据不加锁；事务在更新某数据的瞬间（就是发生更新的瞬间），必须先对其加行级共享锁，直到事务结束才释放。   提交读（RC） 事务对当前被读取的数据加行级共享锁（当读到时才加锁），一旦读完该行，立即释放该行级共享锁；事务在更新某数据的瞬间（就是发生更新的瞬间），必须先对其加行级排他锁，直到事务结束才释放。   可重复读（RR） 事务在读取某数据的瞬间（就是开始读取的瞬间），必须先对其加行级共享锁，直到事务结束才释放；事务在更新某数据的瞬间（就是发生更新的瞬间），必须先对其加行级排他锁，直到事务结束才释放。   序列化读（S） 事务在读取数据时，必须先对其加表级共享锁 ，直到事务结束才释放；事务在更新数据时，必须先对其加表级排他锁 ，直到事务结束才释放。    可以看到，在只使用锁来实现隔离级别的控制的时候，需要频繁的加锁解锁，而且很容易发生读写的冲突（例如在RC级别下，事务A更新了数据行1，事务B则在事务A提交前读取数据行1都要等待事务A提交并释放锁）。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://xuzhijvn.github.io/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://xuzhijvn.github.io/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
@@ -83,14 +84,16 @@ if (!doNotTrack) {
 </script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
-      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy">唯有光頭才能變強</a>
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
+   width="400" height="400" loading="lazy" />
+唯有光頭才能變強</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
   <div class="input-group input-group-sm">
-    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
     <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
   </div>
 </form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
@@ -172,22 +175,22 @@ if (!doNotTrack) {
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
               <a class="dropdown-item"
-                href="https://clevergo.tech/" target="_blank">
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
                 CleverGo
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://gopkgs.net/" target="_blank">
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
                 GOPKGS
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
                 Hugo Bootstrap 主题
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://admin.yii2.razonyang.com/" target="_blank">
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
                 Yii 2 管理后台
               </a>
             </li></ul>
@@ -287,13 +290,12 @@ if (!doNotTrack) {
   </div>
 </div>
 <h1 class="post-title my-3">事务隔离级别和实现原理
-</h1><div class="post-meta mb-3">
-  <span class="post-date me-2">
+</h1><div class="post-meta mb-3"><span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
-  </span>
-  <span class="post-reading-time me-2">
+  </span><span class="post-reading-time me-2">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy">#编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">#Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="post-taxonomy">#MySQL</a></div>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="post-taxonomy">MySQL</a></span>
+</div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>事务具有<code>原子性（Atomicity）</code>、<code>一致性（Consistency</code>）、<code>隔离性（Isolation）</code>、<code>持久性（Durability）</code>四个特性，简称 ACID，缺一不可。今天要说的就是隔离性。</p>
 <h2 id="1-概念说明">1. 概念说明</h2>
 <p>以下几个概念是事务隔离级别要实际解决的问题，所以需要搞清楚都是什么意思。</p>
@@ -315,7 +317,9 @@ if (!doNotTrack) {
 </ol>
 <p>从上往下，隔离强度逐渐增强，性能逐渐变差。采用哪种隔离级别要根据系统需求权衡决定，其中，<strong>可重复读</strong>是 MySQL 的默认级别。</p>
 <p>事务隔离其实就是为了解决上面提到的脏读、不可重复读、幻读这几个问题，下面展示了 4 种隔离级别对这三个问题的解决程度。</p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/img_6002c65a63f45.png" alt="img"  loading="lazy" />
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_6002c65a63f45.png"
+   loading="lazy" />
+
 </p>
 <p>只有串行化的隔离级别解决了全部这 3 个问题，其他的 3 个隔离级别都有缺陷。</p>
 <h2 id="3-标准sql事务隔离级别实现原理">3. 标准SQL事务隔离级别实现原理</h2>
@@ -347,7 +351,7 @@ if (!doNotTrack) {
 </tbody>
 </table>
 <p>可以看到，在只使用锁来实现隔离级别的控制的时候，需要频繁的加锁解锁，而且很容易发生读写的冲突（例如在RC级别下，事务A更新了数据行1，事务B则在事务A提交前读取数据行1都要等待事务A提交并释放锁）。</p>
-<p>为了不加锁解决读写冲突的问题，MySQL引入了MVCC机制，详细可见我以前的分析文章：<a href="https://segmentfault.com/a/1190000023332101" target="_blank">一文读懂数据库中的乐观锁和悲观锁和MVCC</a>
+<p>为了不加锁解决读写冲突的问题，MySQL引入了MVCC机制，详细可见我以前的分析文章：<a href="https://segmentfault.com/a/1190000023332101" target="_blank" rel="noopener noreferrer">一文读懂数据库中的乐观锁和悲观锁和MVCC</a>
 。</p>
 <blockquote>
 <p>共享锁、排他锁都是悲观锁。</p>
@@ -355,10 +359,10 @@ if (!doNotTrack) {
 <h2 id="4-innodb事务隔离级别实现原理">4. InnoDB事务隔离级别实现原理</h2>
 <p>在往下分析之前，我们有几个概念需要先了解下：</p>
 <h3 id="1锁定读和一致性非锁定读">1、锁定读和一致性非锁定读</h3>
-<p><strong>锁定读</strong>：在一个事务中，主动给读加锁，如SELECT &hellip; LOCK IN SHARE MODE 和 SELECT &hellip; FOR UPDATE。分别加上了行共享锁和行排他锁。<a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking-reads.html" target="_blank">15.7.2.4 Locking Reads</a>
+<p><strong>锁定读</strong>：在一个事务中，主动给读加锁，如SELECT &hellip; LOCK IN SHARE MODE 和 SELECT &hellip; FOR UPDATE。分别加上了行共享锁和行排他锁。<a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking-reads.html" target="_blank" rel="noopener noreferrer">15.7.2.4 Locking Reads</a>
 </p>
 <p><strong>一致性非锁定读</strong>：InnoDB使用MVCC向事务的查询提供某个时间点的数据库快照。查询会看到在该时间点之前提交的事务所做的更改，而不会看到稍后或未提交的事务所做的更改（本事务除外）。也就是说在开始了事务之后，事务看到的数据就都是事务开启那一刻的数据了，其他事务的后续修改不会在本次事务中可见。</p>
-<p>Consistent read是InnoDB在RC和RR隔离级别处理SELECT语句的默认模式。一致性非锁定读不会对其访问的表设置任何锁，因此，在对表执行一致性非锁定读的同时，其它事务可以同时并发的读取或者修改它们。<a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-consistent-read.html" target="_blank">15.7.2.3 Consistent Nonlocking Reads</a>
+<p>Consistent read是InnoDB在RC和RR隔离级别处理SELECT语句的默认模式。一致性非锁定读不会对其访问的表设置任何锁，因此，在对表执行一致性非锁定读的同时，其它事务可以同时并发的读取或者修改它们。<a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-consistent-read.html" target="_blank" rel="noopener noreferrer">15.7.2.3 Consistent Nonlocking Reads</a>
 </p>
 <h3 id="2当前读和快照读">2、当前读和快照读</h3>
 <p><strong>当前读</strong></p>
@@ -412,11 +416,11 @@ unlock table
 </table>
 <p>可以看到，InnoDB通过MVCC很好的解决了读写冲突的问题，而且提前一个级别就解决了标准级别下会出现的幻读和不可重复读问题，大大提升了数据库的并发能力。</p>
 <p>参考连接：</p>
-<p><a href="https://segmentfault.com/a/1190000025156465" target="_blank">深入理解MySQL中事务隔离级别的实现原理</a>
+<p><a href="https://segmentfault.com/a/1190000025156465" target="_blank" rel="noopener noreferrer">深入理解MySQL中事务隔离级别的实现原理</a>
 </p>
-<p><a href="https://zhuanlan.zhihu.com/p/117476959" target="_blank">MySQL事务隔离级别和实现原理（看这一篇文章就够了！）</a>
+<p><a href="https://zhuanlan.zhihu.com/p/117476959" target="_blank" rel="noopener noreferrer">MySQL事务隔离级别和实现原理（看这一篇文章就够了！）</a>
 </p>
-<p><a href="https://tech.meituan.com/2014/08/20/innodb-lock.html" target="_blank">Innodb中的事务隔离级别和锁的关系</a>
+<p><a href="https://tech.meituan.com/2014/08/20/innodb-lock.html" target="_blank" rel="noopener noreferrer">Innodb中的事务隔离级别和锁的关系</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -463,7 +467,7 @@ unlock table
   </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
   repo="razonyang/blog"
   issue-term="pathname"
-  label=""
+  label="comment"
   theme="github-dark"
   crossorigin="anonymous"
   async>
@@ -479,13 +483,13 @@ unlock table
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<section class="profile surface row">
-  <div class="col-xl-6 d-flex align-items-center justify-content-center">
-    <img class="profile-avatar img-fluid" src="https://xuzhijvn.github.io/images/profile.webp" alt="Tony Xu" loading="lazy">
-  </div>
-  <div class="col-xl-6">
-    <h5 class="profile-name my-2">Tony Xu</h5><div class="profile-bio mb-2">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
-</section><section class="recent-posts row surface">
+<section class="profile surface row text-center">
+  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony Xu" src="https://xuzhijvn.github.io/images/profile.webp"
+   width="400" height="400" loading="lazy" />
+</div>
+  <div class="col-12 profile-meta"><div class="profile-name">Tony Xu</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section>
+  <section class="recent-posts row surface">
   <h4>最近文章</h4>
   <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/">MyBatis缓存机制
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/">基于keepalived实现nginx高可用
@@ -551,6 +555,58 @@ unlock table
           剑指offer <span class="badge rounded-pill">8</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="WordPress">
           WordPress <span class="badge rounded-pill">7</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="istio">
+          istio <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="nginx">
+          nginx <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ZK">
+          ZK <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Jenkins">
+          Jenkins <span class="badge rounded-pill">4</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CNN">
+          CNN <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MQ">
+          MQ <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SA">
+          SA <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="分布式">
+          分布式 <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="BlockChain">
+          BlockChain <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="docker">
+          docker <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="GO">
+          GO <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Maven">
+          Maven <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ClickHouse">
+          ClickHouse <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="docker-compose">
+          docker-compose <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ES">
+          ES <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="github">
+          github <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="IO">
+          IO <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Kafka">
+          Kafka <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="LeetCode">
+          LeetCode <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MongoDB">
+          MongoDB <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MyBatis">
+          MyBatis <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="openresty">
+          openresty <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SpringBoot">
+          SpringBoot <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="System">
+          System <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="牛客">
+          牛客 <span class="badge rounded-pill">1</span>
         </a></div>
     </section><section class="ad ad-sticky row surface justify-content-center">
   <ins class="adsbygoogle sidebar-ad"
@@ -565,36 +621,24 @@ unlock table
 </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
-    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
-    </a>
-  </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-gitlab"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-qq"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-twitter"></i>
-      </a>
-    </li></nav>
+      </a></nav>
 <div class="copyright mb-2">
   Copyright © 2016-2021 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
-  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
 </div><div class="mb-3">
   <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
   <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>

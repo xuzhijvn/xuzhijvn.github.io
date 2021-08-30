@@ -33,7 +33,8 @@
 0. 准备条件  部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S     名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上     应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库：   理解k8s基础概念，可以参考Kubernetes: 基础概念介绍  1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
 1.2 生成拉取镜像的密钥 kubectl create secret docker-registry registry-secret-tencent --docker-server=ccr."/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel=stylesheet href="https://xuzhijvn.github.io/css/bundle.min.120cd278725330bacf892c23f75f625397123aac51c2ea0e5c4a34c61e96738d.css" integrity="sha256-EgzSeHJTMLrPiSwj919iU5cSOqxRwuoOXEo0xh6Wc40=" crossorigin="anonymous"><script src="https://xuzhijvn.github.io/js/bundle.min.e32615bc744413570374d5b28e8c02ec03c7b28c31485b6fcc5b6174a08766d9.js" integrity="sha256-4yYVvHREE1cDdNWyjowC7APHsowxSFtvzFthdKCHZtk=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script type="application/javascript">
 var doNotTrack = false;
 if (!doNotTrack) {
@@ -56,14 +57,16 @@ if (!doNotTrack) {
 </script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
-      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy">唯有光頭才能變強</a>
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
+   width="400" height="400" loading="lazy" />
+唯有光頭才能變強</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
   <div class="input-group input-group-sm">
-    <button class="btn btn-search disabled position-absolute left-0" type="submit"><i class="fas fa-fw fa-search"></i></button>
+    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
     <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
   </div>
 </form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
@@ -145,22 +148,22 @@ if (!doNotTrack) {
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
               <a class="dropdown-item"
-                href="https://clevergo.tech/" target="_blank">
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
                 CleverGo
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://gopkgs.net/" target="_blank">
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
                 GOPKGS
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
                 Hugo Bootstrap 主题
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://admin.yii2.razonyang.com/" target="_blank">
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
                 Yii 2 管理后台
               </a>
             </li></ul>
@@ -260,17 +263,16 @@ if (!doNotTrack) {
   </div>
 </div>
 <h1 class="post-title my-3">k8s部署应用(前端静态)
-</h1><div class="post-meta mb-3">
-  <span class="post-date me-2">
+</h1><div class="post-meta mb-3"><span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
-  </span>
-  <span class="post-reading-time me-2">
+  </span><span class="post-reading-time me-2">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">#云原生</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy">#k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">#云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="post-taxonomy">#k8s</a></div>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy">k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="post-taxonomy">k8s</a></span>
+</div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>k8s部署应用(前端静态)</p>
 <h2 id="0-准备条件">0. 准备条件</h2>
 <ol>
-<li>部署好了k8s集群，部署可以参考<a href="http://106.55.152.92:30989/archives/834" target="_blank">Kubernetes: 从零搭建K8S</a>
+<li>部署好了k8s集群，部署可以参考<a href="http://106.55.152.92:30989/archives/834" target="_blank" rel="noopener noreferrer">Kubernetes: 从零搭建K8S</a>
 </li>
 </ol>
 <table>
@@ -306,11 +308,13 @@ if (!doNotTrack) {
 <ol start="2">
 <li>
 <p>应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库：
-<img class="img-fluid" src="https://picgo.6and.ltd/img/img_5efcb24401ad0-20210621141634123.png" alt="img"  loading="lazy" />
+<img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5efcb24401ad0-20210621141634123.png"
+   loading="lazy" />
+
 </p>
 </li>
 <li>
-<p>理解k8s基础概念，可以参考<a href="http://106.55.152.92:30989/archives/874" target="_blank">Kubernetes: 基础概念介绍</a>
+<p>理解k8s基础概念，可以参考<a href="http://106.55.152.92:30989/archives/874" target="_blank" rel="noopener noreferrer">Kubernetes: 基础概念介绍</a>
 </p>
 </li>
 </ol>
@@ -328,12 +332,16 @@ if (!doNotTrack) {
 <p>可以运行：<code>kubectl get secret registry-secret-tencent --output=yaml</code> 查看生成的密钥</p>
 <h3 id="13-配置密钥">1.3 配置密钥</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">vi yshop-h5.yaml
-</code></pre></div><p><img class="img-fluid" src="https://picgo.6and.ltd/img/img_5efcb55bacecd-20210621141721477.png" alt="img"  loading="lazy" />
+</code></pre></div><p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5efcb55bacecd-20210621141721477.png"
+   loading="lazy" />
+
 </p>
 <h3 id="14-运行deployment">1.4 运行<code>deployment</code></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f yshop-h5.yaml
 </code></pre></div><p>查看启动的pods：<code>kubectl get pods</code></p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/img_5efcb676f200d-20210621141730179.png" alt="img"  loading="lazy" />
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5efcb676f200d-20210621141730179.png"
+   loading="lazy" />
+
 </p>
 <p>查看启动日志：<code>kubectl logs yshop-h5-cd4dc8c5b-562g5</code></p>
 <h2 id="2-暴露应用">2. 暴露应用</h2>
@@ -346,10 +354,14 @@ if (!doNotTrack) {
 <h3 id="22-运行service">2.2 运行<code>service</code></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f yshop-h5-svc.yaml
 </code></pre></div><p>查看pods和svc：<code>kubectl get pods,svc</code></p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/img_5efcb91e43add-20210621141742027.png" alt="img"  loading="lazy" />
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5efcb91e43add-20210621141742027.png"
+   loading="lazy" />
+
 </p>
 <p>查看pods分布的节点： <code>kubectl get pods -o wide</code></p>
-<p><img class="img-fluid" src="https://picgo.6and.ltd/img/img_5efcb8975f615-20210621141745982.png" alt="img"  loading="lazy" />
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5efcb8975f615-20210621141745982.png"
+   loading="lazy" />
+
 </p>
 <h2 id="3-访问应用">3. 访问应用</h2>
 <h3 id="31-外部访问">3.1 外部访问</h3>
@@ -357,11 +369,15 @@ if (!doNotTrack) {
 </code></pre></div><h3 id="32-内部访问">3.2 内部访问</h3>
 <p>通过service ip:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl http://10.108.253.217
-</code></pre></div><p><img class="img-fluid" src="https://picgo.6and.ltd/img/img_5efcbb070be4f.png" alt="img"  loading="lazy" />
+</code></pre></div><p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5efcbb070be4f.png"
+   loading="lazy" />
+
 </p>
 <p>通过节点ip:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"> curl http://<span style="color:#f92672">{</span>master的内网ip/node1的内网ip/node2的内网ip<span style="color:#f92672">}</span>:32585
-</code></pre></div><p><img class="img-fluid" src="https://picgo.6and.ltd/img/img_5efcbb9ab0aef.png" alt="img"  loading="lazy" />
+</code></pre></div><p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5efcbb9ab0aef.png"
+   loading="lazy" />
+
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -408,7 +424,7 @@ if (!doNotTrack) {
   </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
   repo="razonyang/blog"
   issue-term="pathname"
-  label=""
+  label="comment"
   theme="github-dark"
   crossorigin="anonymous"
   async>
@@ -424,13 +440,13 @@ if (!doNotTrack) {
 <script>
   (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-<section class="profile surface row">
-  <div class="col-xl-6 d-flex align-items-center justify-content-center">
-    <img class="profile-avatar img-fluid" src="https://xuzhijvn.github.io/images/profile.webp" alt="Tony Xu" loading="lazy">
-  </div>
-  <div class="col-xl-6">
-    <h5 class="profile-name my-2">Tony Xu</h5><div class="profile-bio mb-2">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company mb-2"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location mb-2"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about mb-2"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
-</section><section class="recent-posts row surface">
+<section class="profile surface row text-center">
+  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony Xu" src="https://xuzhijvn.github.io/images/profile.webp"
+   width="400" height="400" loading="lazy" />
+</div>
+  <div class="col-12 profile-meta"><div class="profile-name">Tony Xu</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section>
+  <section class="recent-posts row surface">
   <h4>最近文章</h4>
   <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/">MyBatis缓存机制
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/">基于keepalived实现nginx高可用
@@ -496,6 +512,58 @@ if (!doNotTrack) {
           剑指offer <span class="badge rounded-pill">8</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="WordPress">
           WordPress <span class="badge rounded-pill">7</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="istio">
+          istio <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="nginx">
+          nginx <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ZK">
+          ZK <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Jenkins">
+          Jenkins <span class="badge rounded-pill">4</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CNN">
+          CNN <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MQ">
+          MQ <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SA">
+          SA <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="分布式">
+          分布式 <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="BlockChain">
+          BlockChain <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="docker">
+          docker <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="GO">
+          GO <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Maven">
+          Maven <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ClickHouse">
+          ClickHouse <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="docker-compose">
+          docker-compose <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ES">
+          ES <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="github">
+          github <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="IO">
+          IO <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Kafka">
+          Kafka <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="LeetCode">
+          LeetCode <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MongoDB">
+          MongoDB <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MyBatis">
+          MyBatis <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="openresty">
+          openresty <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SpringBoot">
+          SpringBoot <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="System">
+          System <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="牛客">
+          牛客 <span class="badge rounded-pill">1</span>
         </a></div>
     </section><section class="ad ad-sticky row surface justify-content-center">
   <ins class="adsbygoogle sidebar-ad"
@@ -510,36 +578,24 @@ if (!doNotTrack) {
 </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><li class="nav-item">
-    <a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
-    </a>
-  </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub">
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab">
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-gitlab"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ">
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-qq"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram">
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a>
-    </li><li class="nav-item">
-      <a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter">
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-twitter"></i>
-      </a>
-    </li></nav>
+      </a></nav>
 <div class="copyright mb-2">
   Copyright © 2016-2021 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
-  Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank">Bootstrap</a> theme.
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
 </div><div class="mb-3">
   <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
   <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
