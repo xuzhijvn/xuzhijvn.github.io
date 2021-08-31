@@ -17,7 +17,7 @@
 重试机制：方案一 流程如下所示 （1）更新数据库数据； （2）缓存因为种种问题删除失败 （3）将需要删除的key发送至消息队列 （4）自己消费消息，获得需要删除的key （5）继续重试删除操作，直到成功 然而，该方案有一个缺点，对业务线代码造成大量的侵入。于是有了方案二，在方案二中，启动一个订阅程序去订阅数据库的binlog，获得需要操作的数据。在应用程序中，另起一段程序，获得这个订阅程序传来的信息，进行删除缓存操作。
 重试机制：方案二 流程如下图所示： （1）更新数据库数据 （2）数据库会将操作信息写入binlog日志当中 （3）订阅程序提取出所需要的数据以及key （4）另起一段非业务代码，获得该信息 （5）尝试删除缓存操作，发现删除失败 （6）将这些信息发送至消息队列 （7）重新从消息队列中获得该数据，重试操作。
 上述的订阅binlog程序在mysql中有现成的中间件叫canal，可以完成订阅binlog日志的功能。至于oracle中，博主目前不知道有没有现成中间件可以使用。另外，重试机制，博主是采用的是消息队列的方式。如果对一致性要求不是很高，直接在程序中另起一个线程，每隔一段时间去重试即可，这些大家可以灵活自由发挥，只是提供一个思路。
-参考链接： 分布式之数据库和缓存双写一致性方案解析"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+参考链接： 分布式之数据库和缓存双写一致性方案解析 "><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="26"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="分布式,CS," /><meta property="og:title" content="数据库和缓存双写一致性" />
@@ -28,7 +28,7 @@
 重试机制：方案一 流程如下所示 （1）更新数据库数据； （2）缓存因为种种问题删除失败 （3）将需要删除的key发送至消息队列 （4）自己消费消息，获得需要删除的key （5）继续重试删除操作，直到成功 然而，该方案有一个缺点，对业务线代码造成大量的侵入。于是有了方案二，在方案二中，启动一个订阅程序去订阅数据库的binlog，获得需要操作的数据。在应用程序中，另起一段程序，获得这个订阅程序传来的信息，进行删除缓存操作。
 重试机制：方案二 流程如下图所示： （1）更新数据库数据 （2）数据库会将操作信息写入binlog日志当中 （3）订阅程序提取出所需要的数据以及key （4）另起一段非业务代码，获得该信息 （5）尝试删除缓存操作，发现删除失败 （6）将这些信息发送至消息队列 （7）重新从消息队列中获得该数据，重试操作。
 上述的订阅binlog程序在mysql中有现成的中间件叫canal，可以完成订阅binlog日志的功能。至于oracle中，博主目前不知道有没有现成中间件可以使用。另外，重试机制，博主是采用的是消息队列的方式。如果对一致性要求不是很高，直接在程序中另起一个线程，每隔一段时间去重试即可，这些大家可以灵活自由发挥，只是提供一个思路。
-参考链接： 分布式之数据库和缓存双写一致性方案解析" />
+参考链接： 分布式之数据库和缓存双写一致性方案解析 " />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E5%88%86%E5%B8%83%E5%BC%8F/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%BC%93%E5%AD%98%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -46,21 +46,10 @@
 重试机制：方案一 流程如下所示 （1）更新数据库数据； （2）缓存因为种种问题删除失败 （3）将需要删除的key发送至消息队列 （4）自己消费消息，获得需要删除的key （5）继续重试删除操作，直到成功 然而，该方案有一个缺点，对业务线代码造成大量的侵入。于是有了方案二，在方案二中，启动一个订阅程序去订阅数据库的binlog，获得需要操作的数据。在应用程序中，另起一段程序，获得这个订阅程序传来的信息，进行删除缓存操作。
 重试机制：方案二 流程如下图所示： （1）更新数据库数据 （2）数据库会将操作信息写入binlog日志当中 （3）订阅程序提取出所需要的数据以及key （4）另起一段非业务代码，获得该信息 （5）尝试删除缓存操作，发现删除失败 （6）将这些信息发送至消息队列 （7）重新从消息队列中获得该数据，重试操作。
 上述的订阅binlog程序在mysql中有现成的中间件叫canal，可以完成订阅binlog日志的功能。至于oracle中，博主目前不知道有没有现成中间件可以使用。另外，重试机制，博主是采用的是消息队列的方式。如果对一致性要求不是很高，直接在程序中另起一个线程，每隔一段时间去重试即可，这些大家可以灵活自由发挥，只是提供一个思路。
-参考链接： 分布式之数据库和缓存双写一致性方案解析"/>
+参考链接： 分布式之数据库和缓存双写一致性方案解析 "/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-97403777-3', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
@@ -69,7 +58,7 @@ if (!doNotTrack) {
     var s = document.getElementsByTagName("script")[0]; 
     s.parentNode.insertBefore(hm, s);
   })();
-</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+</script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
       <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
@@ -286,14 +275,14 @@ if (!doNotTrack) {
 </div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><h1 id="数据库和缓存双写一致性">数据库和缓存双写一致性</h1>
 <p>首先，缓存由于其高并发和高性能的特性，已经在项目中被广泛使用。在读取缓存方面，大家没啥疑问，都是按照下图的流程来进行业务操作。</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_600b87fb57b50.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 、</p>
 <p>双写可分为：<code>更新缓存-&gt;更新db</code>、<code>更新db-&gt;更新缓存</code>、<code>删除缓存-&gt;更新db</code>、<code>更新db-&gt;删除缓存</code> 四种策略。</p>
 <p>并发事务时，前两种策略不仅存在数据不一致的，而且在写多读少的场景下会白白消耗缓存的性能（因为数据还没被读就又被更新了，尤其是在更新的缓存需要通过复杂计算才能得到时，这种消耗更加严重）。后两种策略情况相似，只是<code>更新db-&gt;删除缓存</code>相较于<code>删除缓存-&gt;更新db</code>发生数据不一致的概率更低（因为只有在<code>写操作</code>先于<code>读操作</code>完成才会不一致，而一般来说一个<code>写操作</code>是要比<code>读操作</code>慢的），为防止不一致发生，它们都采用<code>异步延迟双删</code>+<code>删除重试机制</code>的策略，下面详述常见<code>删除重试机制</code>。</p>
 <h3 id="重试机制方案一">重试机制：方案一</h3>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_600ceac4dfabc.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
@@ -305,7 +294,7 @@ if (!doNotTrack) {
 （5）继续重试删除操作，直到成功
 然而，该方案有一个缺点，对业务线代码造成大量的侵入。于是有了方案二，在方案二中，启动一个订阅程序去订阅数据库的binlog，获得需要操作的数据。在应用程序中，另起一段程序，获得这个订阅程序传来的信息，进行删除缓存操作。</p>
 <h3 id="重试机制方案二">重试机制：方案二</h3>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_600ceae5885c7.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>

@@ -13,7 +13,7 @@
 <meta itemprop="description" content="暴露grafana等内部组件服务
 在安装完成istio后，默认状态下，集群外用户不能直接访问istio集群内的grafana等管理、监控服务。
 有两种方法可以将集群内服务开放出来。一种是使用port-forward方式将本地端口流量转发到pod端口，实现集群内服务的访问；另一种方式是采用istio gateway方式，将集群内服务暴露到外网。
-第一种方式（以暴露Prometheus为例，官方教程也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
+第一种方式（以暴露Prometheus为例，官方教程 也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
 kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=prometheus -o jsonpath=&#39;{.items[0].metadata.name}&#39;) 9090:9090 &amp; 第二种方式需要将集群的默认网关服务ingressgateway的网络模式设置为LB/nodeport模式，作为代理实现对外服务。
 1. 设置ingress gateway的工作模式 安装istio的时候默认就是LB的
 2. 验证ingress gateway的网络模式 [root@k8s-master ~]# kubectl get svc -n Istio-system NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE grafana ClusterIP 10.101.122.19 &lt;none&gt; 3000/TCP 11h Istio-egressgateway ClusterIP 10.106.2.83 &lt;none&gt; 80/TCP,443/TCP,15443/TCP 11h Istio-ingressgateway LoadBalancer 10.110.238.41 &lt;pending&gt; 15020:31598/TCP,80:30299/TCP,443:31413/TCP,15029:30249/TCP,15030:32499/TCP,15031:31399/TCP,15032:32373/TCP,31400:30156/TCP,15443:30319/TCP 11h Istio-pilot ClusterIP 10.103.43.172 &lt;none&gt; 15010/TCP,15011/TCP,15012/TCP,8080/TCP,15014/TCP,443/TCP 11h istiod ClusterIP 10.105.251.21 &lt;none&gt; 15012/TCP,443/TCP 11h jaeger-agent ClusterIP None &lt;none&gt; 5775/UDP,6831/UDP,6832/UDP 11h jaeger-collector ClusterIP 10."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
@@ -23,7 +23,7 @@ kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=pr
 <meta property="og:description" content="暴露grafana等内部组件服务
 在安装完成istio后，默认状态下，集群外用户不能直接访问istio集群内的grafana等管理、监控服务。
 有两种方法可以将集群内服务开放出来。一种是使用port-forward方式将本地端口流量转发到pod端口，实现集群内服务的访问；另一种方式是采用istio gateway方式，将集群内服务暴露到外网。
-第一种方式（以暴露Prometheus为例，官方教程也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
+第一种方式（以暴露Prometheus为例，官方教程 也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
 kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=prometheus -o jsonpath=&#39;{.items[0].metadata.name}&#39;) 9090:9090 &amp; 第二种方式需要将集群的默认网关服务ingressgateway的网络模式设置为LB/nodeport模式，作为代理实现对外服务。
 1. 设置ingress gateway的工作模式 安装istio的时候默认就是LB的
 2. 验证ingress gateway的网络模式 [root@k8s-master ~]# kubectl get svc -n Istio-system NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE grafana ClusterIP 10.101.122.19 &lt;none&gt; 3000/TCP 11h Istio-egressgateway ClusterIP 10.106.2.83 &lt;none&gt; 80/TCP,443/TCP,15443/TCP 11h Istio-ingressgateway LoadBalancer 10.110.238.41 &lt;pending&gt; 15020:31598/TCP,80:30299/TCP,443:31413/TCP,15029:30249/TCP,15030:32499/TCP,15031:31399/TCP,15032:32373/TCP,31400:30156/TCP,15443:30319/TCP 11h Istio-pilot ClusterIP 10.103.43.172 &lt;none&gt; 15010/TCP,15011/TCP,15012/TCP,8080/TCP,15014/TCP,443/TCP 11h istiod ClusterIP 10.105.251.21 &lt;none&gt; 15012/TCP,443/TCP 11h jaeger-agent ClusterIP None &lt;none&gt; 5775/UDP,6831/UDP,6832/UDP 11h jaeger-collector ClusterIP 10." />
@@ -40,24 +40,13 @@ kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=pr
 <meta name="twitter:description" content="暴露grafana等内部组件服务
 在安装完成istio后，默认状态下，集群外用户不能直接访问istio集群内的grafana等管理、监控服务。
 有两种方法可以将集群内服务开放出来。一种是使用port-forward方式将本地端口流量转发到pod端口，实现集群内服务的访问；另一种方式是采用istio gateway方式，将集群内服务暴露到外网。
-第一种方式（以暴露Prometheus为例，官方教程也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
+第一种方式（以暴露Prometheus为例，官方教程 也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
 kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=prometheus -o jsonpath=&#39;{.items[0].metadata.name}&#39;) 9090:9090 &amp; 第二种方式需要将集群的默认网关服务ingressgateway的网络模式设置为LB/nodeport模式，作为代理实现对外服务。
 1. 设置ingress gateway的工作模式 安装istio的时候默认就是LB的
 2. 验证ingress gateway的网络模式 [root@k8s-master ~]# kubectl get svc -n Istio-system NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE grafana ClusterIP 10.101.122.19 &lt;none&gt; 3000/TCP 11h Istio-egressgateway ClusterIP 10.106.2.83 &lt;none&gt; 80/TCP,443/TCP,15443/TCP 11h Istio-ingressgateway LoadBalancer 10.110.238.41 &lt;pending&gt; 15020:31598/TCP,80:30299/TCP,443:31413/TCP,15029:30249/TCP,15030:32499/TCP,15031:31399/TCP,15032:32373/TCP,31400:30156/TCP,15443:30319/TCP 11h Istio-pilot ClusterIP 10.103.43.172 &lt;none&gt; 15010/TCP,15011/TCP,15012/TCP,8080/TCP,15014/TCP,443/TCP 11h istiod ClusterIP 10.105.251.21 &lt;none&gt; 15012/TCP,443/TCP 11h jaeger-agent ClusterIP None &lt;none&gt; 5775/UDP,6831/UDP,6832/UDP 11h jaeger-collector ClusterIP 10."/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-97403777-3', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
@@ -66,7 +55,7 @@ if (!doNotTrack) {
     var s = document.getElementsByTagName("script")[0]; 
     s.parentNode.insertBefore(hm, s);
   })();
-</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+</script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
       <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"

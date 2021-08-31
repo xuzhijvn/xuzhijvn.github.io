@@ -51,19 +51,8 @@ Topic 实现了发布和订阅，当你发布一个消息，所有订阅这个 T
 优点：可靠、通用
  JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS 的客户端之间可以通过 JMS 服务进行异步的消息传输。JMS（JAVA Message Service，Java 消息服务）API 是一个消息服务的标准或者说是规范，允许应用程序组件基于 JavaEE 平台创建、发送、接收和读取消息。它使分布式通信耦合度更低，消息服务更加可靠以及异步性。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-97403777-3', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
@@ -72,7 +61,7 @@ if (!doNotTrack) {
     var s = document.getElementsByTagName("script")[0]; 
     s.parentNode.insertBefore(hm, s);
   })();
-</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+</script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
       <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
@@ -351,14 +340,14 @@ if (!doNotTrack) {
 <h2 id="2-模式">2. 模式</h2>
 <h3 id="21-点对点">2.1. 点对点</h3>
 <p>PTP 点对点: 使用 Queue 作为通信载体</p>
-<p><img class="img-fluid" alt="点对点" src="https://picgo.6and.ltd/img/20200116001.png"
+<p><img class="img-fluid" alt="点对点" src=""
    loading="lazy" />
 
 </p>
 <p>消息生产者生产消息发送到 Queue 中，然后消息消费者从 Queue 中取出并且消费消息。消息被消费以后，Queue 中不再存储，所以消息消费者不可能消费到已经被消费的消息。Queue 支持存在多个消费者，但是对一个消息而言，只会有一个消费者可以消费</p>
 <h3 id="22-发布订阅">2.2. 发布/订阅</h3>
 <p>Pub/Sub 发布订阅(广播): 使用 Topic 作为通信载体</p>
-<p><img class="img-fluid" alt="发布订阅" src="https://picgo.6and.ltd/img/20200116002.png"
+<p><img class="img-fluid" alt="发布订阅" src=""
    loading="lazy" />
 
 </p>
@@ -441,7 +430,7 @@ if (!doNotTrack) {
 <h5 id="2-普通集群模式">2. 普通集群模式</h5>
 <p>无高可用性。</p>
 <p>普通集群模式，意思就是在多台机器上启动多个 RabbitMQ 实例，每个机器启动一个。你<strong>创建的 queue，只会放在一个 RabbitMQ 实例上</strong>，但是每个实例都同步 queue 的元数据（元数据可以认为是 queue 的一些配置信息，通过元数据，可以找到 queue 所在实例）。你消费的时候，实际上如果连接到了另外一个实例，那么那个实例会从 queue 所在实例上拉取数据过来。</p>
-<p><img class="img-fluid" alt="RabbitMQ-普通集群模式" src="https://picgo.6and.ltd/img/mq-7.png"
+<p><img class="img-fluid" alt="RabbitMQ-普通集群模式" src=""
    loading="lazy" />
 
 </p>
@@ -451,7 +440,7 @@ if (!doNotTrack) {
 <h5 id="3-镜像集群模式">3. 镜像集群模式</h5>
 <p>有高可用性。</p>
 <p>这种模式，才是所谓的 RabbitMQ 的高可用模式。跟普通集群模式不一样的是，在镜像集群模式下，你创建的 queue，无论元数据还是 queue 里的消息都会<strong>存在于多个实例上</strong>，就是说，每个 RabbitMQ 节点都有这个 queue 的一个<strong>完整镜像</strong>，包含 queue 的全部数据的意思。然后每次你写消息到 queue 的时候，都会自动把<strong>消息同步</strong>到多个实例的 queue 上。</p>
-<p><img class="img-fluid" alt="RabbitMQ-镜像集群模式" src="https://picgo.6and.ltd/img/mq-8.png"
+<p><img class="img-fluid" alt="RabbitMQ-镜像集群模式" src=""
    loading="lazy" />
 
 </p>
@@ -475,7 +464,7 @@ if (!doNotTrack) {
 <h3 id="63-如何保证消息的可靠性传输">6.3 如何保证消息的可靠性传输？</h3>
 <p>如何保证消息的可靠性传输？或者说，如何处理消息丢失的问题？</p>
 <h4 id="631-rabbitmq">6.3.1 RabbitMQ</h4>
-<p><img class="img-fluid" alt="rabbitmq-message-lose" src="https://picgo.6and.ltd/img/rabbitmq-message-lose.png"
+<p><img class="img-fluid" alt="rabbitmq-message-lose" src=""
    loading="lazy" />
 
 </p>
@@ -485,7 +474,7 @@ if (!doNotTrack) {
 <p>开启 RabbitMQ 的持久化，持久化可以跟生产者那边的 <code>confirm</code> 机制配合起来，只有消息被持久化到磁盘之后，才会通知生产者 <code>ack</code> 了，所以哪怕是在持久化到磁盘之前，RabbitMQ 挂了，数据丢了，生产者收不到 <code>ack</code> ，你也是可以自己重发的。</p>
 <h5 id="3-消费端弄丢了数据">3. 消费端弄丢了数据</h5>
 <p>关闭 RabbitMQ 的自动 <code>ack</code> ，然后每次你自己代码里确保处理完的时候，再在程序里 <code>ack</code> 一把。这样的话，如果你还没处理完，不就没有 <code>ack</code> 了？那 RabbitMQ 就认为你还没处理完，这个时候 RabbitMQ 会把这个消费分配给别的 consumer 去处理，消息是不会丢的。</p>
-<p><img class="img-fluid" alt="rabbitmq-message-lose-solution" src="https://picgo.6and.ltd/img/rabbitmq-message-lose-solution.png"
+<p><img class="img-fluid" alt="rabbitmq-message-lose-solution" src=""
    loading="lazy" />
 
 </p>

@@ -16,7 +16,7 @@
 1. 为什么需要Redis Cluster 的确，在数据上，有replication副本做保证；可用性上，master宕机会自动的执行failover。
  那问题在哪儿呢？
  首先Redis Sentinel说白了也是基于主从复制，在主从复制中slave的数据是完全来自于master。
-假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
+假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制 文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
 所以，当你只需要存储4G的数据时候的，基于主从复制和基于Sentinel的高可用架构是完全够用的。
 但是如果当你面临的是海量的数据的时候呢？16G、64G、256G甚至1T呢？现在互联网的业务里面，如果你的体量足够大，我觉得是肯定会面临缓存海量缓存数据的场景的。
 这就是为什么我们需要引入Redis Cluster。
@@ -51,7 +51,7 @@ Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点�
 1. 为什么需要Redis Cluster 的确，在数据上，有replication副本做保证；可用性上，master宕机会自动的执行failover。
  那问题在哪儿呢？
  首先Redis Sentinel说白了也是基于主从复制，在主从复制中slave的数据是完全来自于master。
-假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
+假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制 文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
 所以，当你只需要存储4G的数据时候的，基于主从复制和基于Sentinel的高可用架构是完全够用的。
 但是如果当你面临的是海量的数据的时候呢？16G、64G、256G甚至1T呢？现在互联网的业务里面，如果你的体量足够大，我觉得是肯定会面临缓存海量缓存数据的场景的。
 这就是为什么我们需要引入Redis Cluster。
@@ -93,7 +93,7 @@ Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点�
 1. 为什么需要Redis Cluster 的确，在数据上，有replication副本做保证；可用性上，master宕机会自动的执行failover。
  那问题在哪儿呢？
  首先Redis Sentinel说白了也是基于主从复制，在主从复制中slave的数据是完全来自于master。
-假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
+假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制 文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
 所以，当你只需要存储4G的数据时候的，基于主从复制和基于Sentinel的高可用架构是完全够用的。
 但是如果当你面临的是海量的数据的时候呢？16G、64G、256G甚至1T呢？现在互联网的业务里面，如果你的体量足够大，我觉得是肯定会面临缓存海量缓存数据的场景的。
 这就是为什么我们需要引入Redis Cluster。
@@ -120,19 +120,8 @@ Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点�
 此时数据落在节点A上的概率明显是大于其他两个节点的，其次落在节点C上的概率最小。这样一来会导致整个集群的数据存储不平衡，AB节点压力较大，而C节点资源利用不充分。为了解决这个问题，一致性哈希算法引入了虚拟节点机制。
 在圆环中，增加了对应节点的虚拟节点，然后完成了虚拟节点到真实节点的映射。假设现在计算得出了位置D，那么按照顺时针的顺序，我们找到的第一个节点就是C #1，最终数据实际还是会落在节点C上。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-97403777-3', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
@@ -141,7 +130,7 @@ if (!doNotTrack) {
     var s = document.getElementsByTagName("script")[0]; 
     s.parentNode.insertBefore(hm, s);
   })();
-</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+</script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
       <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
@@ -366,7 +355,7 @@ if (!doNotTrack) {
 <p>那问题在哪儿呢？</p>
 </blockquote>
 <p>首先Redis Sentinel说白了也是基于<strong>主从复制</strong>，在主从复制中slave的数据是完全来自于master。</p>
-<p><img class="img-fluid" alt="redis-capacity" src="https://picgo.6and.ltd/img/0081Kckwly1gll2khn7srj30el03vt8o.jpg"
+<p><img class="img-fluid" alt="redis-capacity" src=""
    loading="lazy" />
 
 </p>
@@ -381,7 +370,7 @@ if (!doNotTrack) {
 <p>那什么是Redis Cluster呢？</p>
 </blockquote>
 <p>很简单，你就可以理解为n个主从架构组合在一起对外服务。Redis Cluster要求至少需要3个master才能组成一个集群，同时每个master至少需要有一个slave节点。</p>
-<p><img class="img-fluid" alt="redis-cluster" src="https://picgo.6and.ltd/img/0081Kckwly1gll36kwg27j30qr0i3myk.jpg"
+<p><img class="img-fluid" alt="redis-cluster" src=""
    loading="lazy" />
 
 </p>
@@ -391,7 +380,7 @@ if (!doNotTrack) {
 <h2 id="3-节点负载均衡">3. 节点负载均衡</h2>
 <p>知道了什么是Redis Cluster，我们就可以继续下面的讨论了。</p>
 <p>不知道你思考过一个问题没，这么多的master节点。我存储的时候，到底该选择哪个节点呢？一般这种负载均衡算法，会选择<strong>哈希算法</strong>。哈希算法是怎么做的呢？</p>
-<p><img class="img-fluid" alt="redis-master-select" src="https://picgo.6and.ltd/img/0081Kckwly1gll3oxx5iqj30d80dhaag.jpg"
+<p><img class="img-fluid" alt="redis-master-select" src=""
    loading="lazy" />
 
 </p>
@@ -403,13 +392,13 @@ if (!doNotTrack) {
 <p>知道了通过传统哈希算法来实现对节点的负载均衡的弊端，我们就需要进一步了解<strong>什么是一致性哈希</strong>。</p>
 <p>我们上面提过哈希算法是对master实例数量来取模，而<strong>一致性哈希</strong>则是对2^32取模，也就是值的范围在[0, 2^32 -1]。一致性哈希将其范围抽象成了一个圆环，使用CRC16算法计算出来的哈希值会落到圆环上的某个地方。</p>
 <p>然后我们的Redis实例也分布在圆环上，我们在圆环上按照顺时针的顺序找到第一个Redis实例，这样就完成了对key的节点分配。我们举个例子。</p>
-<p><img class="img-fluid" alt="hash" src="https://picgo.6and.ltd/img/0081Kckwgy1glmcvvmyvkj30ee0jdmy3.jpg"
+<p><img class="img-fluid" alt="hash" src=""
    loading="lazy" />
 
 </p>
 <p>假设我们有A、B、C三个Redis实例按照如图所示的位置分布在圆环上，此时计算出来的hash值，取模之后位置落在了<strong>位置D</strong>，那么我们按照顺时针的顺序，就能够找到我们这个key应该分配的Redis实例B。同理如果我们计算出来位置在E，那么对应选择的Redis的实例就是A。</p>
 <p>即使这个时候Redis实例B挂了，也不会影响到实例A和C的缓存。</p>
-<p><img class="img-fluid" alt="hash-down" src="https://picgo.6and.ltd/img/0081Kckwgy1gln53ifhuwj30ee0jdt9p.jpg"
+<p><img class="img-fluid" alt="hash-down" src=""
    loading="lazy" />
 
 </p>
@@ -417,12 +406,12 @@ if (!doNotTrack) {
 <p>这就是一致性哈希，能够在我们后续需要新增节点或者删除节点的时候，不影响其他节点的正常运行。</p>
 <h2 id="5-虚拟节点机制">5. 虚拟节点机制</h2>
 <p>但是一致性哈希也存在自身的小问题，例如当我们的Redis节点分布如下时，就有问题了。</p>
-<p><img class="img-fluid" alt="hash-unevently" src="https://picgo.6and.ltd/img/0081Kckwgy1gln5gdf877j30ee0jd0to.jpg"
+<p><img class="img-fluid" alt="hash-unevently" src=""
    loading="lazy" />
 
 </p>
 <p>此时数据落在节点A上的概率明显是大于其他两个节点的，其次落在节点C上的概率最小。这样一来会导致整个集群的数据存储不平衡，AB节点压力较大，而C节点资源利用不充分。为了解决这个问题，一致性哈希算法引入了<strong>虚拟节点机制</strong>。</p>
-<p><img class="img-fluid" alt="virtual-dom" src="https://picgo.6and.ltd/img/0081Kckwgy1gln5lb847oj30ee0k2my8.jpg"
+<p><img class="img-fluid" alt="virtual-dom" src=""
    loading="lazy" />
 
 </p>
@@ -454,7 +443,7 @@ if (!doNotTrack) {
 </tbody>
 </table>
 <p>每个Redis实例会自己维护一份<strong>slot - Redis节点</strong>的映射关系，假设你在节点A上设置了某个key，但是这个key通过CRC16计算出来的槽位是由节点B维护的，那么就会提示你需要去节点B上进行操作。</p>
-<p><img class="img-fluid" alt="slot-to-node" src="https://picgo.6and.ltd/img/0081Kckwgy1glnlpufb7yj30f50bmjry.jpg"
+<p><img class="img-fluid" alt="slot-to-node" src=""
    loading="lazy" />
 
 </p>
@@ -470,7 +459,7 @@ if (!doNotTrack) {
 。</p>
 <p>简单来说，针对A节点，某一个节点认为A宕机了，那么此时是<strong>主观宕机</strong>。而如果集群内超过半数的节点认为A挂了， 那么此时A就会被标记为<strong>客观宕机</strong>。</p>
 <p>一旦节点A被标记为了客观宕机，集群就会开始执行<strong>故障转移</strong>。其余正常运行的master节点会进行投票选举，从A节点的slave节点中选举出一个，将其切换成新的master对外提供服务。当某个slave获得了超过半数的master节点投票，就成功当选。</p>
-<p><img class="img-fluid" alt="cluster-failover" src="https://picgo.6and.ltd/img/0081Kckwgy1glqmfywf8jj30920f3mxp.jpg"
+<p><img class="img-fluid" alt="cluster-failover" src=""
    loading="lazy" />
 
 </p>
@@ -482,14 +471,14 @@ if (!doNotTrack) {
 <p>这就是Redis Cluster各个节点之间交换数据、通信所采用的一种协议，叫做<strong>gossip</strong>。</p>
 <pre><code>gossip: 流言、八卦、小道消息
 </code></pre><p>gossip是在1989年的论文上提出的，我看了一堆资料都说的是1987年发表的，但是文章里的时间明确是1989年1月份发表。</p>
-<p><img class="img-fluid" alt="image-20201215100703648" src="https://picgo.6and.ltd/img/0081Kckwgy1globdud52sj30p0044dfx.jpg"
+<p><img class="img-fluid" alt="image-20201215100703648" src=""
    loading="lazy" />
 
 </p>
 <p>感兴趣的可以去看看<a href="http://bitsavers.trailing-edge.com/pdf/xerox/parc/techReports/CSL-89-1_Epidemic_Algorithms_for_Replicated_Database_Maintenance.pdf" target="_blank" rel="noopener noreferrer">Epidemic Algorithms for Replicated . Database Maintenance</a>
 ，在当时提出gossip主要是为了解决在分布式数据库中，各个副本节点的数据同步问题。但随着技术的发展，gossip后续也被广泛运用于信息扩散、故障探测等等。</p>
 <p>Redis Cluster就是利用了gossip来实现自身的<strong>信息扩散</strong>的。那使用gossip具体是如何通信的呢？</p>
-<p><img class="img-fluid" alt="gossip" src="https://picgo.6and.ltd/img/0081Kckwgy1glob136uztj30hn0cwgmi.jpg"
+<p><img class="img-fluid" alt="gossip" src=""
    loading="lazy" />
 
 </p>

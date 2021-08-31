@@ -36,19 +36,8 @@
 1. 修改hostname [root@k8s-master ~]$ vim /etc/hostname # 修改hostname [root@k8s-master ~]$ vim /etc/hosts	# 将本机IP指向hostname [root@k8s-master ~]$ reboot -h # 重启(可以做完全部前期准备后再重启) 修改后：
 [root@k8s-master ~]# cat /etc/hosts ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6."/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-97403777-3', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
@@ -57,7 +46,7 @@ if (!doNotTrack) {
     var s = document.getElementsByTagName("script")[0]; 
     s.parentNode.insertBefore(hm, s);
   })();
-</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+</script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
       <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
@@ -494,7 +483,7 @@ k8s-master   NotReady   master   3m25s   v1.15.3
 <span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ cat kubeadm-init.yaml | grep serviceSubnet:
 serviceSubnet: 10.96.0.0/12
 </code></pre></div><p>打开calico.yaml, 将<code>192.168.0.0/16</code>修改为<code>10.96.0.0/12</code></p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5ef33afe955d8-20210621122448233.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
@@ -540,16 +529,16 @@ subjects:
 <span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ openssl pkcs12 -export -clcerts -inkey kubecfg.key -in kubecfg.crt -out kubecfg.p12 -name <span style="color:#e6db74">&#34;kubernetes-client&#34;</span>
 </code></pre></div><p>第三条命令生成证书时会提示输入密码, 可以直接两次回车跳过.</p>
 <p><code>kubecfg.p12</code>即需要导入客户端机器的证书. 将证书拷贝到客户端机器上, 导入即可. chrome浏览器按下图所示导入：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5ef33c7e9db84-20210621122443116.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
 <p>此时我们可以登录面板了, 访问地址: <code>https://{k8s-master-ip}:6443/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login</code></p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5ef33d17328d4.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5ef33d20519c2.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
@@ -570,7 +559,7 @@ ca.crt:     <span style="color:#ae81ff">1025</span> bytes
 namespace:  <span style="color:#ae81ff">11</span> bytes
 token:      eyJhbGciOiJSUzI1NiIsImtpZCI6Iks2dmRwalB5SWNKbWJTVUUxanVlVlAwbTk1OHR6QzhfN0FOZUw0V3huM0UifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLTZtcHg0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiJjYWJjYzg1OC04MjZhLTQyMzYtODUxNC01MWY0NzNiZjc3NTIiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06YWRtaW4tdXNlciJ9.jHAzmmOBRn5tfZBeukORLm--9_q879fTHPDzjjyCm42MbHP0TFrgbo2A8ZmN0Od4qe9rTHiD9pJl3BtUQ06pIMsly7LvENnuLAxGuK3oDqc5FCdqb8L-f9-9HmBo7nEAMy67i6Cv9TjfD9790ejfOg6ZI0PC8MDXInxSgY97hlwBlyJh_M5zz8SMnOOnMYyr8UFmHRZJjTO5pdIs7cdVBxLz27wzw4h0svJyOsi9MBqHskN6Hq7KOsEYP5wyDHXmU_iHqQJH64R9DA6dpHx6v3qV1dyhtXJE9tZECsvoVtvNlKQ-VirtX4sJX29a5wAXDqkcysDiClIXZGZKtg8tFw
 </code></pre></div><p>复制该Token到登录页, 点击登录即可, 效果如下:</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5ef33d9fd5224-20210621122422540.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
@@ -594,7 +583,7 @@ k8s-master   Ready    master   125m   v1.18.4
 k8s-node1    Ready    &lt;none&gt;   97m    v1.18.4
 k8s-node2    Ready    &lt;none&gt;   95m    v1.18.4
 </code></pre></div><p>在面板上也可查看:</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5ef33e6d5addd-20210621122430349.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>

@@ -90,19 +90,8 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
 考虑下面是两个场景，由此看出不同场景下我们关注的点是不一样的：
  对于地震的预测，我们希望的是Recall非常高，也就是说每次地震我们都希望预测出来。这个时候我们可以牺牲Precision。情愿发出1000次警报，把10次地震都预测正确了；也不要预测100次对了8次漏了两次。所以我们可以设定在合理的precision下，最高的recall作为最优点，找到这个对应的threshold点。 嫌疑人定罪基于不错怪一个好人的原则，对于嫌疑人的定罪我们希望是非常准确的。即使有时候放过了一些罪犯（Recall低），但也是值得的。  ROC和PRC在模型性能评估上效果都差不多，但需要注意的是，在正负样本分布得极不均匀(highly skewed datasets)的情况下，PRC比ROC能更有效地反应分类器的好坏。在数据极度不平衡的情况下，譬如说1万封邮件中只有1封垃圾邮件，那么如果我挑出10封，50封，100&hellip;封垃圾邮件（假设我们每次挑出的N封邮件中都包含真正的那封垃圾邮件），Recall都是100%，但是FPR分别是9/9999, 49/9999, 99/9999（数据都比较好看：FPR越低越好），而Precision却只有1/10，1/50， 1/100 （数据很差：Precision越高越好）。所以在数据非常不均衡的情况下，看ROC的AUC可能是看不出太多好坏的，而PR curve就要敏感的多。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-97403777-3', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
@@ -111,7 +100,7 @@ if (!doNotTrack) {
     var s = document.getElementsByTagName("script")[0]; 
     s.parentNode.insertBefore(hm, s);
   })();
-</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+</script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
       <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
@@ -338,7 +327,7 @@ if (!doNotTrack) {
 <h1 id="从混淆矩阵谈起">从混淆矩阵谈起</h1>
 <p>看一看下面这个例子：假定瓜农拉来一车西瓜，我们用训练好的模型对这些西瓜进行判别，显然我们可以使用错误率来衡量有多少比例的瓜被判别错误。但如果我们关心的是“挑出的西瓜中有多少比例是好瓜”，或者“所有好瓜中有多少比例被挑出来了”，那么错误率显然就不够用了，这时我们需要引入新的评估指标，比如“查准率”和查全率更适合此类需求的性能度量。</p>
 <p>在引入查全率和查准率之前我们必须先理解到什么是混淆矩阵（Confusion matrix）。这个名字起得是真的好，初学者很容易被这个矩阵搞得晕头转向。下图a就是有名的混淆矩阵，而下图b则是由混淆矩阵推出的一些有名的评估指标。</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/15752039601-20210606001019125.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
@@ -351,7 +340,7 @@ if (!doNotTrack) {
 </ul>
 <h1 id="precisionrecallprcf1-score">Precision、Recall、PRC、F1-score</h1>
 <p>Precision指标在中文里可以称为查准率或者是精确率，Recall指标在中卫里常被称为查全率或者是召回率，查准率 P和查全率 R分别定义为：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/15752040781-20210606001041338.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
@@ -365,31 +354,31 @@ if (!doNotTrack) {
 </li>
 </ul>
 <p>这里想强调一点，precision和accuracy（正确率）不一样的，accuracy针对所有样本，precision针对部分样本，即正确的预测/总的正反例：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/15752041511-20210606001050674.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
 <p>查准率和查全率是一对矛盾的度量，一般而言，查准率高时，查全率往往偏低；而查全率高时，查准率往往偏低。我们从直观理解确实如此：我们如果希望好瓜尽可能多地选出来，则可以通过增加选瓜的数量来实现，如果将所有瓜都选上了，那么所有好瓜也必然被选上，但是这样查准率就会越低；若希望选出的瓜中好瓜的比例尽可能高，则只选最有把握的瓜，但这样难免会漏掉不少好瓜，导致查全率较低。通常只有在一些简单任务中，才可能使查全率和查准率都很高。</p>
 <p>再说PRC， 其全称就是Precision Recall Curve，它以查准率为Y轴，、查全率为X轴做的图。它是综合评价整体结果的评估指标。所以，哪种类型（正或者负）样本多，权重就大。也就是通常说的『对样本不均衡敏感』，『容易被多的样品带走』。</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/15752042061-20210606001058431.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
 <p>上图就是一幅P-R图，它能直观地显示出学习器在样本总体上的查全率和查准率，显然它是一条总体趋势是递减的曲线。在进行比较时，若一个学习器的PR曲线被另一个学习器的曲线完全包住，则可断言后者的性能优于前者，比如上图中A优于C。但是B和A谁更好呢？因为AB两条曲线交叉了，所以很难比较，这时比较合理的判据就是比较PR曲线下的面积，该指标在一定程度上表征了学习器在查准率和查全率上取得相对“双高”的比例。因为这个值不容易估算，所以人们引入“平衡点”(BEP)来度量，他表示“查准率=查全率”时的取值，值越大表明分类器性能越好，以此比较我们一下子就能判断A较B好。</p>
 <p>BEP还是有点简化了，更常用的是F1度量：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1093303-20180224205027586-434414606-20210606001107596.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
 <p>F1-score 就是一个综合考虑precision和recall的指标，比BEP更为常用。</p>
 <h1 id="roc--auc">ROC &amp; AUC</h1>
 <p>ROC全称是“受试者工作特征”（Receiver Operating Characteristic）曲线，ROC曲线以“真正例率”（TPR）为Y轴，以“假正例率”（FPR）为X轴，对角线对应于“随机猜测”模型，而（0,1）则对应“理想模型”。ROC形式如下图所示。</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1093303-20180224204355006-1724131879-20210606001115340.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
 <p>TPR和FPR的定义如下：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1093303-20180224205043320-355960721-20210606001123917.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
@@ -407,17 +396,17 @@ if (!doNotTrack) {
 <h1 id="iou">IOU</h1>
 <p>上面讨论的是分类任务中的评价指标，这里想简单讲讲目标检测任务中常用的评价指标：IOU（Intersection over Union），中文翻译为交并比。</p>
 <p>这里是一个实际例子：下图绿色框是真实感兴趣区域，红色框是预测区域，这种情况下交集确实是最大的，但是红色框并不能准确预测物体位置。因为预测区域总是试图覆盖目标物体而不是正好预测物体位置。这时如果我们能除以一个并集的大小，就可以规避这种问题。这就是IOU要解决的问题了。</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1093303-20180224204408601-1945220368-20210606001133992.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
 <p>下图表示了IOU的具体意义，即：预测框与标注框的交集与并集之比，数值越大表示该检测器的性能越好。</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1093303-20180224204418589-582088419-300x225-20210606001143340.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
 <p>使用IOU评价指标后，上面提到的问题一下子解决了：我们控制并集不要让并集太大，对准确预测是有益的，这就有效抑制了“一味地追求交集最大”的情况的发生。下图的2,3小图就是目标检测效果比较好的情况。</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1093303-20180224204428523-871794088-20210606001152619.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>

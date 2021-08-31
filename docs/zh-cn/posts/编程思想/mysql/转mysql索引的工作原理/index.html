@@ -11,7 +11,7 @@
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="【转】MySQL索引的工作原理">
 <meta itemprop="description" content="【转】MySQL索引的工作原理 索引是一种加快查询的数据结构，在 MySQL 中，索引的数据结构选择的是 B&#43;Tree，至于 B&#43;Tree 是什么以及为什么 MySQL 为什么选择 B&#43;Tree 来作为索引，可以去查看公众号的前三篇文章。
-  索引数据结构之 B-Tree 与 B&#43;Tree（上篇）  索引数据结构之 B-Tree 与 B&#43;Tree（下篇）  MySQL 为什么不用数组、哈希表、二叉树等数据结构作为索引呢今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。
+  索引数据结构之 B-Tree 与 B&#43;Tree（上篇）   索引数据结构之 B-Tree 与 B&#43;Tree（下篇）   MySQL 为什么不用数组、哈希表、二叉树等数据结构作为索引呢 今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。
   首先需要说明的是，本文的所有讨论均是基于 InnoDB 存储引擎为前提。
 示例表 为了方便说明，我们先创建一个示例表。建表语句如下
 CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR ( 64 ) COMMENT &#39;姓名&#39;, `age` INT ( 4 ) COMMENT &#39;年龄&#39;, PRIMARY KEY ( `id` ), INDEX ( NAME ) ) ENGINE = INNODB COMMENT &#39;用户表&#39;; INSERT INTO `user` ( `name`, `age` ) VALUES ( &#39;AA&#39;, 30 ),( &#39;BB&#39;, 33 ),( &#39;CC&#39;, 31 ),( &#39;DD&#39;, 30 ),( &#39;EE&#39;, 29 ) 复制代码 在上面的 SQL 语句中，创建了一张 user 表，表中有三个字段，id 是主键，name 和 age 分别表示用户的姓名和年龄，同时还为字段 name 创建了一个普通索引。为了方便后面描述，因此还向表中插入了 5 条数据，由于主键 id 是自增的，所以这五行数据的 id 值分为是 1~5。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
@@ -19,7 +19,7 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
 <meta itemprop="wordCount" content="424"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="MQ," /><meta property="og:title" content="【转】MySQL索引的工作原理" />
 <meta property="og:description" content="【转】MySQL索引的工作原理 索引是一种加快查询的数据结构，在 MySQL 中，索引的数据结构选择的是 B&#43;Tree，至于 B&#43;Tree 是什么以及为什么 MySQL 为什么选择 B&#43;Tree 来作为索引，可以去查看公众号的前三篇文章。
-  索引数据结构之 B-Tree 与 B&#43;Tree（上篇）  索引数据结构之 B-Tree 与 B&#43;Tree（下篇）  MySQL 为什么不用数组、哈希表、二叉树等数据结构作为索引呢今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。
+  索引数据结构之 B-Tree 与 B&#43;Tree（上篇）   索引数据结构之 B-Tree 与 B&#43;Tree（下篇）   MySQL 为什么不用数组、哈希表、二叉树等数据结构作为索引呢 今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。
   首先需要说明的是，本文的所有讨论均是基于 InnoDB 存储引擎为前提。
 示例表 为了方便说明，我们先创建一个示例表。建表语句如下
 CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR ( 64 ) COMMENT &#39;姓名&#39;, `age` INT ( 4 ) COMMENT &#39;年龄&#39;, PRIMARY KEY ( `id` ), INDEX ( NAME ) ) ENGINE = INNODB COMMENT &#39;用户表&#39;; INSERT INTO `user` ( `name`, `age` ) VALUES ( &#39;AA&#39;, 30 ),( &#39;BB&#39;, 33 ),( &#39;CC&#39;, 31 ),( &#39;DD&#39;, 30 ),( &#39;EE&#39;, 29 ) 复制代码 在上面的 SQL 语句中，创建了一张 user 表，表中有三个字段，id 是主键，name 和 age 分别表示用户的姓名和年龄，同时还为字段 name 创建了一个普通索引。为了方便后面描述，因此还向表中插入了 5 条数据，由于主键 id 是自增的，所以这五行数据的 id 值分为是 1~5。" />
@@ -34,24 +34,13 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
 
 <meta name="twitter:title" content="【转】MySQL索引的工作原理"/>
 <meta name="twitter:description" content="【转】MySQL索引的工作原理 索引是一种加快查询的数据结构，在 MySQL 中，索引的数据结构选择的是 B&#43;Tree，至于 B&#43;Tree 是什么以及为什么 MySQL 为什么选择 B&#43;Tree 来作为索引，可以去查看公众号的前三篇文章。
-  索引数据结构之 B-Tree 与 B&#43;Tree（上篇）  索引数据结构之 B-Tree 与 B&#43;Tree（下篇）  MySQL 为什么不用数组、哈希表、二叉树等数据结构作为索引呢今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。
+  索引数据结构之 B-Tree 与 B&#43;Tree（上篇）   索引数据结构之 B-Tree 与 B&#43;Tree（下篇）   MySQL 为什么不用数组、哈希表、二叉树等数据结构作为索引呢 今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。
   首先需要说明的是，本文的所有讨论均是基于 InnoDB 存储引擎为前提。
 示例表 为了方便说明，我们先创建一个示例表。建表语句如下
 CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR ( 64 ) COMMENT &#39;姓名&#39;, `age` INT ( 4 ) COMMENT &#39;年龄&#39;, PRIMARY KEY ( `id` ), INDEX ( NAME ) ) ENGINE = INNODB COMMENT &#39;用户表&#39;; INSERT INTO `user` ( `name`, `age` ) VALUES ( &#39;AA&#39;, 30 ),( &#39;BB&#39;, 33 ),( &#39;CC&#39;, 31 ),( &#39;DD&#39;, 30 ),( &#39;EE&#39;, 29 ) 复制代码 在上面的 SQL 语句中，创建了一张 user 表，表中有三个字段，id 是主键，name 和 age 分别表示用户的姓名和年龄，同时还为字段 name 创建了一个普通索引。为了方便后面描述，因此还向表中插入了 5 条数据，由于主键 id 是自增的，所以这五行数据的 id 值分为是 1~5。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-97403777-3', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
@@ -60,7 +49,7 @@ if (!doNotTrack) {
     var s = document.getElementsByTagName("script")[0]; 
     s.parentNode.insertBefore(hm, s);
   })();
-</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+</script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
       <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
@@ -329,7 +318,7 @@ if (!doNotTrack) {
 </code></pre></div><p>在上面的 SQL 语句中，创建了一张 user 表，表中有三个字段，id 是主键，name 和 age 分别表示用户的姓名和年龄，同时还为字段 name 创建了一个普通索引。为了方便后面描述，因此还向表中插入了 5 条数据，由于主键 id 是自增的，所以这五行数据的 id 值分为是 1~5。</p>
 <h2 id="主键索引">主键索引</h2>
 <p>主键索引又称之为聚簇索引（cluster index），它的特点是叶子结点中会存放当前主键所对应行的数据。什么意思呢？拿上面的例子来说明，在表 user 中，id 为主键索引，所以会有一棵 id 的索引树，在该索引树的叶子结点中，不仅存放了主键 id 的值，还存放了 name 和 value 的值。例如：在 id=1 这一行的数据中，name 和 age 的值为 AA 和 30，那么在索引树中，在 id=1 的结点处，存放的是(1,&ldquo;AA&rdquo;,30)这三个值。id 索引树的示意图如下。</p>
-<p><img class="img-fluid" alt="图1" src="https://picgo.6and.ltd/img/1719c2d3191bcc77~tplv-t2oaga2asx-watermark.awebp"
+<p><img class="img-fluid" alt="图1" src=""
    loading="lazy" />
 
 </p>
@@ -344,7 +333,7 @@ if (!doNotTrack) {
 </ol>
 <h2 id="回表">回表</h2>
 <p>普通索引又称之为非聚簇索引，也叫做二级索引，它的特点是叶子结点中也会存放数据，与主键索引不同的是，普通索引中存放的数据只有主键的值，而非整行记录的数据。例如上面的示例表中，name 就是一个普通索引，它的索引树中，在叶子结点中存放的数据是主键 id 的值，示意图如下：</p>
-<p><img class="img-fluid" alt="图2" src="https://picgo.6and.ltd/img/1719c2da5a2c5d0a~tplv-t2oaga2asx-watermark.awebp"
+<p><img class="img-fluid" alt="图2" src=""
    loading="lazy" />
 
 </p>
@@ -375,7 +364,7 @@ if (!doNotTrack) {
 <span style="color:#66d9ef">alter</span> <span style="color:#66d9ef">table</span> <span style="color:#66d9ef">user</span> <span style="color:#66d9ef">add</span> <span style="color:#66d9ef">index</span>(<span style="color:#f92672">`</span>name<span style="color:#f92672">`</span>,<span style="color:#f92672">`</span>age<span style="color:#f92672">`</span>);
 <span style="color:#960050;background-color:#1e0010">复制代码</span>
 </code></pre></div><p>这个时候，这个联合索引的索引树上，每个结点上存放的不仅仅只有 name 字段的值了，还有 age 字段的值，示意图如下：</p>
-<p><img class="img-fluid" alt="图3" src="https://picgo.6and.ltd/img/1719c2e161c18dac~tplv-t2oaga2asx-watermark.awebp"
+<p><img class="img-fluid" alt="图3" src=""
    loading="lazy" />
 
 </p>

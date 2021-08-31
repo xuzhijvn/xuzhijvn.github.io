@@ -87,19 +87,8 @@ Merkle树具有下列特性:
  每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。  Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
 首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.0377bba773d740534f0afd39e5e2f4aa3f1d21fd3f93ae7ac74492d507e617fc.css" integrity="sha256-A3e7p3PXQFNPCv055eL0qj8dIf0/k656x0SS1QfmF/w=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-97403777-3', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
@@ -108,7 +97,7 @@ if (!doNotTrack) {
     var s = document.getElementsByTagName("script")[0]; 
     s.parentNode.insertBefore(hm, s);
   })();
-</script><script data-ad-client="ca-pub-7827859788508375" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+</script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
   <div class="container">
     <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
       <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
@@ -349,13 +338,13 @@ if (!doNotTrack) {
 <p>Trie树又称前缀树或字典树，是一种检索树，使用一个有序的树结构存储一个动态数据集或者关联数组，其中的键通常是字符串。与二叉查找树不同，键不是直接保存在节点中，而是由节点在树中的位置决定。一个节点的所有子孙相对于当前节点都有相同的前缀，而根节点为空字符串。一般情况下，不是所有的节点都有对应的值，只有叶子节点和部分内部节点所对应的键才有相关的值。</p>
 <p>Trie树中，key是从树根到对应value得真实的路径。即从根节点开始，key中的每个字符会标识走那个子节点从而到达相应value。Value被存储在叶子节点，是每条路径的终止。假如key来自一个包含N个字符的字母表，那么树中的每个节点都可能会有多达N个孩子，树的最大深度是key的最大长度。看个例子画个图就了然了。
 例子：关键字集合{“a”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/trie.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
  Trie树</p>
 <p>不理想情况下，数据集中存在一个很长的key，而这个key与其它key又没有太多的公共前缀，这就造成整个树的深度会加大，需要存储多个节点，存储比较稀疏而且极不平衡。
 例子：关键字集合{“algori”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/trie1-1024x796.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
  稀疏Trie树</p>
@@ -363,7 +352,7 @@ if (!doNotTrack) {
 <p>既然Trie树在某些情况下存储空间利用率不高，那就给压缩下，然后就出现了Patricia Trie树。</p>
 <p>Patricia Trie树是一种空间使用率经过优化的Trie树。与Trie树不同的是，Patricia Trie 里如果存在一个父节点只有一个子节点，那么这个父节点将与其子节点合并。这样压缩存储可以减少Trie树中不必要的深度，大大加快搜索节点速度。
 如下图所示</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/patricia-1024x650.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
  Patricia Trie树</p>
@@ -373,7 +362,7 @@ if (!doNotTrack) {
 <p>由于Merkle树是自底向上构建的，而且除叶子结点之外的其它节点都是其子节点的散列，这样每个节点的值发生变化都会一层一层的向上反映，最终在根节点上表现出来。也就是说只要对比两个Merkle树的根节点是否相等就能得到两份数据集是否一样，而且还可以验证Merkle树的某个分支。</p>
 <p>比特币使用Merkle树存储一个区块中的所有交易信息，一是为了防篡改，因为散列是向上的，伪造任何一个节点都会引起上层节点的改动，最终导致根节点的变化。二是为了允许区块的数据可以零散的传送，即节点可以从一个节点下载区块头，从另外的源下载与其相关的树的其他部分，而依然能够确认所有的数据都是正确的。</p>
 <p>看下图的例子，首先将L1-L4四个单元数据散列化，然后将散列值存储至相应的叶子节点。这些节点是Hash0-0, Hash0-1, Hash1-0, Hash1-1，然后将相邻两个节点的散列值合并成一个字符串，然后计算这个字符串的散列，得到的就是这两个节点的父节点的散列值。</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/merkle-1024x620.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
  Merkle树</p>
@@ -408,7 +397,7 @@ Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太�
 </ul>
 <p>也是[key，value]的一个键值对，但是这里的value是其他节点的hash值，这个hash可以被用来查询数据库中的节点。也就是说通过hash链接到其他节点。</p>
 <p>下面看个以太坊中MPT树的官方示例</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/e-mpt.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
@@ -500,7 +489,7 @@ HP编码: 16进制前缀编码，用于对数据库中树节点key进行编码�
 #68 6f 72 73 65
 [ 6, 8, 6, 15, 7, 2, 7, 3, 6, 5, 16 ] : horse =&gt; 'stallion'
 </code></pre><p>其构造MPT树如图：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/mpt-1024x972.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
  MPT</p>
@@ -516,28 +505,28 @@ hashG:    [ &lt;35&gt;, 'coin' ]
 <ol>
 <li>假设插入第一个kv对是do-&gt;verb，key根据Hex-Prefix编码为[‘0x20’, ‘0x64’, ‘0x6f’]，MPT树为：</li>
 </ol>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/leafA.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
  叶子节点</p>
 <ol start="2">
 <li>接着插入第二个kv对dog-&gt;puppy，dog和do的公共前缀为[‘64’, ‘6f’]，do是叶子结点A，将<em>叶子结点替换成扩展节点A</em>，并将新key与叶子节点A的公共前缀(646f)作为扩展节点的key，<em>扩展节点的value是新分支节点B的hash值</em>，然后将do和dog剩余的key插入到分支节点中，由于do没有剩余的key，则将对应的value写入分支节点B的value中，dog剩余的key为67，则分支节点B中的路径为6，指向叶子结点C。7为dog剩下的最后一个key值，是奇数叶子结点则前缀为3，所有最终的MPT树为：</li>
 </ol>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/two-1024x542.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
  叶子节点插入</p>
 <ol start="3">
 <li>再插入第三个kv对doge-&gt;coin，按照上面的步骤生成的MPT树是：</li>
 </ol>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/three-1024x745.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
 <ol start="4">
 <li>最后插入第四个kv对horse-&gt;stallion，horse与其它key的公共前缀只有6，则将扩展节点A新增一个分支节点F作为其孩子节点，将新key与扩展节点A的公共前缀6作为扩展节点A的key，A是扩展节点并且key为奇数，所以前缀为1，value为新增分支节点F的hash。原扩展节点A变成新扩展节点之后剩余的key，与新key剩下的key，插入到分支节点F中，分别放入4和8中，4指向新的扩展节点G，8指向叶子节点H。最终的MPT树为：</li>
 </ol>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/four-1024x659.png"
+<p><img class="img-fluid" alt="img" src=""
    loading="lazy" />
 
 </p>
