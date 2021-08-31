@@ -11,7 +11,7 @@
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="Golang的协程调度器原理及GMP设计思想">
 <meta itemprop="description" content="本节为重点章节 本章节含视频版:
-   一、Golang“调度器”的由来？ (1) 单进程时代不需要调度器 我们知道，一切的软件都是跑在操作系统上，真正用来干活(计算)的是CPU。早期的操作系统每个程序就是一个进程，直到一个程序运行完，才能进行下一个进程，就是“单进程时代”
+  一、Golang“调度器”的由来？ (1) 单进程时代不需要调度器 我们知道，一切的软件都是跑在操作系统上，真正用来干活(计算)的是CPU。早期的操作系统每个程序就是一个进程，直到一个程序运行完，才能进行下一个进程，就是“单进程时代”
 一切的程序只能串行发生。
 早期的单进程操作系统，面临2个问题：
 1.单一的执行流程，计算机只能一个任务一个任务处理。
@@ -46,7 +46,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <meta itemprop="wordCount" content="413"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="GO," /><meta property="og:title" content="Golang的协程调度器原理及GMP设计思想" />
 <meta property="og:description" content="本节为重点章节 本章节含视频版:
-   一、Golang“调度器”的由来？ (1) 单进程时代不需要调度器 我们知道，一切的软件都是跑在操作系统上，真正用来干活(计算)的是CPU。早期的操作系统每个程序就是一个进程，直到一个程序运行完，才能进行下一个进程，就是“单进程时代”
+  一、Golang“调度器”的由来？ (1) 单进程时代不需要调度器 我们知道，一切的软件都是跑在操作系统上，真正用来干活(计算)的是CPU。早期的操作系统每个程序就是一个进程，直到一个程序运行完，才能进行下一个进程，就是“单进程时代”
 一切的程序只能串行发生。
 早期的单进程操作系统，面临2个问题：
 1.单一的执行流程，计算机只能一个任务一个任务处理。
@@ -81,14 +81,14 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/go/golang%E7%9A%84%E5%8D%8F%E7%A8%8B%E8%B0%83%E5%BA%A6%E5%99%A8%E5%8E%9F%E7%90%86%E5%8F%8Agmp%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E6%88%98/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/git-submodule-update-init-recursive/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/springaop%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E6%88%98/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
 
 <meta name="twitter:title" content="Golang的协程调度器原理及GMP设计思想"/>
 <meta name="twitter:description" content="本节为重点章节 本章节含视频版:
-   一、Golang“调度器”的由来？ (1) 单进程时代不需要调度器 我们知道，一切的软件都是跑在操作系统上，真正用来干活(计算)的是CPU。早期的操作系统每个程序就是一个进程，直到一个程序运行完，才能进行下一个进程，就是“单进程时代”
+  一、Golang“调度器”的由来？ (1) 单进程时代不需要调度器 我们知道，一切的软件都是跑在操作系统上，真正用来干活(计算)的是CPU。早期的操作系统每个程序就是一个进程，直到一个程序运行完，才能进行下一个进程，就是“单进程时代”
 一切的程序只能串行发生。
 早期的单进程操作系统，面临2个问题：
 1.单一的执行流程，计算机只能一个任务一个任务处理。
@@ -120,8 +120,8 @@ Goroutine特点：
 Go目前使用的调度器是2012年重新设计的，因为之前的调度器性能存在问题，所以使用4年就被废弃了，那么我们先来分析一下被废弃的调度器是如何运作的？
  大部分文章都是会用G来表示Goroutine，用M来表示线程，那么我们也会用这种表达的对应关系。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.4faadf671b6c6e1b5c7f381853c31eac3dd832068a51c8d28b7d5a11a37c0a24.css" integrity="sha256-T6rfZxtsbhtcfzgYU8MerD3YMgaKUcjSi31aEaN8CiQ=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.4faadf671b6c6e1b5c7f381853c31eac3dd832068a51c8d28b7d5a11a37c0a24.css" integrity="sha256-T6rfZxtsbhtcfzgYU8MerD3YMgaKUcjSi31aEaN8CiQ=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
@@ -397,7 +397,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 </div><div class="post-content mb-3"><blockquote>
 <p>本节为<strong>重点</strong>章节 本章节含视频版:</p>
 </blockquote>
-<p><a href="https://www.bilibili.com/video/BV19r4y1w7Nx" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<p><a href="https://www.bilibili.com/video/BV19r4y1w7Nx" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/GPM%E5%B0%81%E9%9D%A2.png"
    loading="lazy" />
 
 </a>
@@ -407,7 +407,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <h3 id="1-单进程时代不需要调度器">(1) 单进程时代不需要调度器</h3>
 <p>我们知道，一切的软件都是跑在操作系统上，真正用来干活(计算)的是CPU。早期的操作系统每个程序就是一个进程，直到一个程序运行完，才能进行下一个进程，就是“单进程时代”</p>
 <p>一切的程序只能串行发生。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/5-%E5%8D%95%E8%BF%9B%E7%A8%8B%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.png"
    loading="lazy" />
 
 </p>
@@ -417,7 +417,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <p>那么能不能有多个进程来宏观一起来执行多个任务呢？</p>
 <p>后来操作系统就具有了<strong>最早的并发能力：多进程并发</strong>，当一个进程阻塞的时候，切换到另外等待执行的进程，这样就能尽量把CPU利用起来，CPU就不浪费了。</p>
 <h3 id="2多进程线程时代有了调度器需求">(2)多进程/线程时代有了调度器需求</h3>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/6-%E5%A4%9A%E8%BF%9B%E7%A8%8B%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.png"
    loading="lazy" />
 
 </p>
@@ -425,7 +425,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <p>但新的问题就又出现了，进程拥有太多的资源，进程的创建、切换、销毁，都会占用很长的时间，CPU虽然利用起来了，但如果进程过多，CPU有很大的一部分都被用来进行进程调度了。</p>
 <p><strong>怎么才能提高CPU的利用率呢？</strong></p>
 <p>但是对于Linux操作系统来讲，cpu对进程的态度和线程的态度是一样的。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/7-cpu%E5%88%87%E6%8D%A2%E6%B5%AA%E8%B4%B9%E6%88%90%E6%9C%AC.png"
    loading="lazy" />
 
 </p>
@@ -439,12 +439,12 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 </ul>
 <p>好了，然后工程师们就发现，其实一个线程分为“内核态“线程和”用户态“线程。</p>
 <p>一个“用户态线程”必须要绑定一个“内核态线程”，但是CPU并不知道有“用户态线程”的存在，它只知道它运行的是一个“内核态线程”(Linux的PCB进程控制块)。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/8-%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%86%85%E6%A0%B8%E5%92%8C%E7%94%A8%E6%88%B7%E6%80%81.png"
    loading="lazy" />
 
 </p>
 <p>这样，我们再去细化去分类一下，内核线程依然叫“线程(thread)”，用户线程叫“协程(co-routine)&quot;.</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/9-%E5%8D%8F%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B.png"
    loading="lazy" />
 
 </p>
@@ -459,7 +459,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <li>某个程序用不了硬件的多核加速能力</li>
 <li>一旦某协程阻塞，造成线程阻塞，本进程的其他协程都无法执行了，根本就没有并发的能力了。</li>
 </ul>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/10-N-1%E5%85%B3%E7%B3%BB.png"
    loading="lazy" />
 
 </p>
@@ -471,7 +471,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <ul>
 <li>协程的创建、删除和切换的代价都由CPU完成，有点略显昂贵了。</li>
 </ul>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/11-1-1.png"
    loading="lazy" />
 
 </p>
@@ -479,7 +479,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <h4 id="mn关系">M:N关系</h4>
 </blockquote>
 <p>M个协程绑定1个线程，是N:1和1:1类型的结合，克服了以上2种模型的缺点，但实现起来最为复杂。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/12-m-n.png"
    loading="lazy" />
 
 </p>
@@ -498,12 +498,12 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <blockquote>
 <p>大部分文章都是会用G来表示Goroutine，用M来表示线程，那么我们也会用这种表达的对应关系。</p>
 </blockquote>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/13-gm.png"
    loading="lazy" />
 
 </p>
 <p>下面我们来看看被废弃的golang调度器是如何实现的？</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/14-old%E8%B0%83%E5%BA%A6%E5%99%A8.png"
    loading="lazy" />
 
 </p>
@@ -517,14 +517,14 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <h2 id="二goroutine调度器的gmp模型的设计思想">二、Goroutine调度器的GMP模型的设计思想</h2>
 <p>面对之前调度器的问题，Go设计了新的调度器。</p>
 <p>在新调度器中，出列M(thread)和G(goroutine)，又引进了P(Processor)。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/15-gmp.png"
    loading="lazy" />
 
 </p>
 <p><strong>Processor，它包含了运行goroutine的资源</strong>，如果线程想运行goroutine，必须先获取P，P中还包含了可运行的G队列。</p>
 <h3 id="1gmp模型">(1)GMP模型</h3>
 <p>在Go中，<strong>线程是运行goroutine的实体，调度器的功能是把可运行的goroutine分配到工作线程上</strong>。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/16-GMP-%E8%B0%83%E5%BA%A6.png"
    loading="lazy" />
 
 </p>
@@ -564,7 +564,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <p><strong>抢占</strong>：在coroutine中要等待一个协程主动让出CPU才执行下一个协程，在Go中，一个goroutine最多占用CPU 10ms，防止其他goroutine被饿死，这就是goroutine不同于coroutine的一个地方。</p>
 <p><strong>全局G队列</strong>：在新的调度器中依然有全局G队列，但功能已经被弱化了，当M执行work stealing从其他P偷不到G时，它可以从全局G队列获取G。</p>
 <h3 id="3-go-func-调度流程">(3) go func() 调度流程</h3>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/18-go-func%E8%B0%83%E5%BA%A6%E5%91%A8%E6%9C%9F.jpeg"
    loading="lazy" />
 
 </p>
@@ -576,7 +576,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <p>5、当M执行某一个G时候如果发生了syscall或则其余阻塞操作，M会阻塞，如果当前有一些G在执行，runtime会把这个线程M从P中摘除(detach)，然后再创建一个新的操作系统的线程(如果有空闲的线程可用就复用空闲线程)来服务于这个P；</p>
 <p>6、当M系统调用结束时候，这个G会尝试获取一个空闲的P执行，并放入到这个P的本地队列。如果获取不到P，那么这个线程M变成休眠状态， 加入到空闲线程中，然后这个G会被放入全局队列中。</p>
 <h3 id="4调度器的生命周期">(4)调度器的生命周期</h3>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/17-pic-go%E8%B0%83%E5%BA%A6%E5%99%A8%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.png"
    loading="lazy" />
 
 </p>
@@ -650,17 +650,17 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <span style="color:#ae81ff">2020</span><span style="color:#f92672">/</span><span style="color:#ae81ff">02</span><span style="color:#f92672">/</span><span style="color:#ae81ff">23</span> <span style="color:#ae81ff">10</span>:<span style="color:#ae81ff">44</span>:<span style="color:#ae81ff">11</span> <span style="color:#a6e22e">Splitting</span> <span style="color:#a6e22e">trace</span><span style="color:#f92672">...</span>
 <span style="color:#ae81ff">2020</span><span style="color:#f92672">/</span><span style="color:#ae81ff">02</span><span style="color:#f92672">/</span><span style="color:#ae81ff">23</span> <span style="color:#ae81ff">10</span>:<span style="color:#ae81ff">44</span>:<span style="color:#ae81ff">11</span> <span style="color:#a6e22e">Opening</span> <span style="color:#a6e22e">browser</span>. <span style="color:#a6e22e">Trace</span> <span style="color:#a6e22e">viewer</span> <span style="color:#a6e22e">is</span> <span style="color:#a6e22e">listening</span> <span style="color:#a6e22e">on</span> <span style="color:#a6e22e">http</span>:<span style="color:#75715e">//127.0.0.1:33479
 </span></code></pre></div><p>我们可以通过浏览器打开<code>http://127.0.0.1:33479</code>网址，点击<code>view trace</code> 能够看见可视化的调度流程。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/19-go-trace1.png"
    loading="lazy" />
 
 </p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/20-go-trace2.png"
    loading="lazy" />
 
 
 <strong>G信息</strong></p>
 <p>点击Goroutines那一行可视化的数据条，我们会看到一些详细的信息。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/20-go-trace3.png"
    loading="lazy" />
 
 </p>
@@ -668,24 +668,24 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <p>其中G1应该就是main goroutine(执行main函数的协程)，在一段时间内处于可运行和运行的状态。</p>
 <p><strong>M信息</strong></p>
 <p>点击Threads那一行可视化的数据条，我们会看到一些详细的信息。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/22-go-trace4.png"
    loading="lazy" />
 
 </p>
 <p>一共有两个M在程序中，一个是特殊的M0，用于初始化使用，这个我们不必讨论。</p>
 <p><strong>P信息</strong></p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/23-go-trace5.png"
    loading="lazy" />
 
 </p>
 <p>G1中调用了<code>main.main</code>，创建了<code>trace goroutine g18</code>。G1运行在P1上，G18运行在P0上。</p>
 <p>这里有两个P，我们知道，一个P必须绑定一个M才能调度G。</p>
 <p>我们在来看看上面的M信息。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/24-go-trace6.png"
    loading="lazy" />
 
 </p>
-<p>我们会发现，确实G18在P0上被运行的时候，确实在Threads行多了一个M的数据，点击查看如下： <img class="img-fluid" alt="img" src=""
+<p>我们会发现，确实G18在P0上被运行的时候，确实在Threads行多了一个M的数据，点击查看如下： <img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/25-go-trace7.png"
    loading="lazy" />
 
 </p>
@@ -733,21 +733,21 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <h2 id="三go调度器调度场景过程全解析">三、Go调度器调度场景过程全解析</h2>
 <h3 id="1场景1">(1)场景1</h3>
 <p>P拥有G1，M1获取P后开始运行G1，G1使用<code>go func()</code>创建了G2，为了局部性G2优先加入到P1的本地队列。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/26-gmp%E5%9C%BA%E6%99%AF1.png"
    loading="lazy" />
 
 </p>
 <hr>
 <h3 id="2场景2">(2)场景2</h3>
 <p>G1运行完成后(函数：<code>goexit</code>)，M上运行的goroutine切换为G0，G0负责调度时协程的切换（函数：<code>schedule</code>）。从P的本地队列取G2，从G0切换到G2，并开始运行G2(函数：<code>execute</code>)。实现了线程M1的复用。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/27-gmp%E5%9C%BA%E6%99%AF2.png"
    loading="lazy" />
 
 </p>
 <hr>
 <h3 id="3场景3">(3)场景3</h3>
 <p>假设每个P的本地队列只能存4个G。G2要创建了6个G，前4个G（G3, G4, G5, G6）已经加入p1的本地队列，p1本地队列满了。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/28-gmp%E5%9C%BA%E6%99%AF3.png"
    loading="lazy" />
 
 </p>
@@ -757,7 +757,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <blockquote>
 <p>（实现中并不一定是新的G，如果G是G2之后就执行的，会被保存在本地队列，利用某个老的G替换新G加入全局队列）</p>
 </blockquote>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/29-gmp%E5%9C%BA%E6%99%AF4.png"
    loading="lazy" />
 
 </p>
@@ -765,7 +765,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <hr>
 <h3 id="5场景5">(5)场景5</h3>
 <p>G2创建G8时，P1的本地队列未满，所以G8会被加入到P1的本地队列。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/30-gmp%E5%9C%BA%E6%99%AF5.png"
    loading="lazy" />
 
 </p>
@@ -773,7 +773,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <hr>
 <h3 id="6场景6">(6)场景6</h3>
 <p>规定：<strong>在创建G时，运行的G会尝试唤醒其他空闲的P和M组合去执行</strong>。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/31-gmp%E5%9C%BA%E6%99%AF6.png"
    loading="lazy" />
 
 </p>
@@ -783,7 +783,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <p>M2尝试从全局队列(简称“GQ”)取一批G放到P2的本地队列（函数：<code>findrunnable()</code>）。M2从全局队列取的G数量符合下面的公式：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">n</span> = <span style="color:#a6e22e">min</span>(len(<span style="color:#a6e22e">GQ</span>)<span style="color:#f92672">/</span><span style="color:#a6e22e">GOMAXPROCS</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, len(<span style="color:#a6e22e">GQ</span><span style="color:#f92672">/</span><span style="color:#ae81ff">2</span>))
 </code></pre></div><p>至少从全局队列取1个g，但每次不要从全局队列移动太多的g到p本地队列，给其他p留点。这是<strong>从全局队列到P本地队列的负载均衡</strong>。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/32-gmp%E5%9C%BA%E6%99%AF7.001.jpeg"
    loading="lazy" />
 
 </p>
@@ -791,7 +791,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <hr>
 <h3 id="8场景8">(8)场景8</h3>
 <p>假设G2一直在M1上运行，经过2轮后，M2已经把G7、G4从全局队列获取到了P2的本地队列并完成运行，全局队列和P2的本地队列都空了,如场景8图的左半部分。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/33-gmp%E5%9C%BA%E6%99%AF8.png"
    loading="lazy" />
 
 </p>
@@ -799,7 +799,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <hr>
 <h3 id="9场景9">(9)场景9</h3>
 <p>G1本地队列G5、G6已经被其他M偷走并运行完成，当前M1和M2分别在运行G2和G8，M3和M4没有goroutine可以运行，M3和M4处于<strong>自旋状态</strong>，它们不断寻找goroutine。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/34-gmp%E5%9C%BA%E6%99%AF9.png"
    loading="lazy" />
 
 </p>
@@ -807,14 +807,14 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 <hr>
 <h3 id="10场景10">(10)场景10</h3>
 <p>假定当前除了M3和M4为自旋线程，还有M5和M6为空闲的线程(没有得到P的绑定，注意我们这里最多就只能够存在4个P，所以P的数量应该永远是M&gt;=P, 大部分都是M在抢占需要运行的P)，G8创建了G9，G8进行了<strong>阻塞的系统调用</strong>，M2和P2立即解绑，P2会执行以下判断：如果P2本地队列有G、全局队列有G或有空闲的M，P2都会立马唤醒1个M和它绑定，否则P2则会加入到空闲P列表，等待M来获取可用的p。本场景中，P2本地队列有G9，可以和其他空闲的线程M5绑定。</p>
-<p><img class="img-fluid" alt="35-gmp场景10.png" src=""
+<p><img class="img-fluid" alt="35-gmp场景10.png" src="https://picgo.6and.ltd/img/35-gmp%E5%9C%BA%E6%99%AF10-20210618113920213.png"
    loading="lazy" />
 
 </p>
 <hr>
 <h3 id="11场景11">(11)场景11</h3>
 <p>G8创建了G9，假如G8进行了<strong>非阻塞系统调用</strong>。</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/36-gmp%E5%9C%BA%E6%99%AF11.png"
    loading="lazy" />
 
 </p>
@@ -891,18 +891,18 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 </section>
   <section class="recent-posts row surface">
   <h4>最近文章</h4>
-  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/">MyBatis缓存机制
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">秒杀系统设计
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/springaop%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/">SpringAOP执行顺序
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/">MyBatis缓存机制
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/">基于keepalived实现nginx高可用
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">Nginx负载均衡
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E6%88%98/">字节码实战
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/git-submodule-update-init-recursive/">git submodule update --init --recursive
 </a></li></ul>
 </section><section class="taxonomy-categories row surface">
       <h4>
         <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
-          编程思想 <span class="badge rounded-pill">95</span>
+          编程思想 <span class="badge rounded-pill">96</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
           云原生 <span class="badge rounded-pill">32</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
@@ -912,7 +912,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="持续集成部署">
           持续集成部署 <span class="badge rounded-pill">5</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构演进">
-          架构演进 <span class="badge rounded-pill">4</span>
+          架构演进 <span class="badge rounded-pill">5</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="人工智能">
           人工智能 <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
@@ -923,7 +923,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
         <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
-          Manual <span class="badge rounded-pill">145</span>
+          Manual <span class="badge rounded-pill">147</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
           k8s <span class="badge rounded-pill">13</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s实战">
@@ -946,7 +946,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
           Other <span class="badge rounded-pill">18</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
-          spring <span class="badge rounded-pill">11</span>
+          spring <span class="badge rounded-pill">12</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
           redis <span class="badge rounded-pill">9</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
@@ -963,14 +963,14 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
           ZK <span class="badge rounded-pill">6</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Jenkins">
           Jenkins <span class="badge rounded-pill">4</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SA">
+          SA <span class="badge rounded-pill">4</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
           AI <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CNN">
           CNN <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MQ">
           MQ <span class="badge rounded-pill">3</span>
-        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SA">
-          SA <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="分布式">
           分布式 <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="BlockChain">

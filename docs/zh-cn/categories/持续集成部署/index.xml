@@ -28,14 +28,14 @@ jenkins官网提供了多种安装方式，唯独没有提供docker compose的�
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cicd/jenkins&#43;docker&#43;%E8%85%BE%E8%AE%AF%E4%BA%91%E5%AE%B9%E5%99%A8%E4%BB%93%E5%BA%93&#43;github%E6%90%AD%E5%BB%BAci_cd%E7%8E%AF%E5%A2%83/</guid>
       <description>jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境
 持续集成/持续部署的重要性不必多言，都什么年代了，没有哪个正紧项目还在人工构建/测试/部署。本文手把手教你搭建jenkins+docker+腾讯云容器仓库+github的CI/CD环境。妥妥的干活，绝对是解放生产力的利器。架构图如下：
- step1: 程序猿git push代码到github step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像） step3: 推送镜像到容器仓库 step4: 应用服务器拉去镜像到本地运行
+step1: 程序猿git push代码到github step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像） step3: 推送镜像到容器仓库 step4: 应用服务器拉去镜像到本地运行
 为了不让文章篇幅过长，本系列tony徐老师将文章分成两个小章节：
-github webhooks+jenkins搭建持续集成环境  本文是jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境 的第一子章节。意在教您通过github webhooks+jenkins搭建持续集成环境，如果您已经完成webhooks+jenkins的配置，可以直接调整到第二子章节jenkins+腾讯云容器仓库+docker持续部署  1. github配置Personal access tokens 没什么好说的，按图操作：   记下生成的token，待会儿要用的。
-2. github配置webhooks 去到你的github项目仓库，按图操作：   这里的Payload URL = 你的jenkins地址+/github-webhook/
+github webhooks+jenkins搭建持续集成环境 本文是jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境的第一子章节。意在教您通过github webhooks+jenkins搭建持续集成环境，如果您已经完成webhooks+jenkins的配置，可以直接调整到第二子章节jenkins+腾讯云容器仓库+docker持续部署1. github配置Personal access tokens 没什么好说的，按图操作： 记下生成的token，待会儿要用的。
+2. github配置webhooks 去到你的github项目仓库，按图操作： 这里的Payload URL = 你的jenkins地址+/github-webhook/
 至此，github上的配置全部完成。接下来，我们配置jenkins。
- 3. jenkins配置凭据   这里的Secret就是在第1节配置的Personal access tokens
-  添加一个github登陆凭据，username和password对应github的登陆账号密码。 添加一个宿主机登陆凭据，username和password对应登陆的账号密码（因为小编的jenkins是容器的方式运行的，因此后面需要这个凭据ssh到宿主机上执行命令）。  4. 配置ssh sites 接下来配置一个ssh sites，用于后面需要ssh到宿主机。  5. 配置jenkins运行环境 这里的环境取决与你的项目需要的环境。  如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。
-6. 新建一个maven项目 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。  请按图操作：  请按图操作：  请按图操作：  这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！</description>
+ 3. jenkins配置凭据 这里的Secret就是在第1节配置的Personal access tokens
+ 添加一个github登陆凭据，username和password对应github的登陆账号密码。 添加一个宿主机登陆凭据，username和password对应登陆的账号密码（因为小编的jenkins是容器的方式运行的，因此后面需要这个凭据ssh到宿主机上执行命令）。  4. 配置ssh sites 接下来配置一个ssh sites，用于后面需要ssh到宿主机。 5. 配置jenkins运行环境 这里的环境取决与你的项目需要的环境。 如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。
+6. 新建一个maven项目 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。 请按图操作： 请按图操作： 请按图操作： 这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！</description>
     </item>
     
     <item>
@@ -48,8 +48,8 @@ github webhooks+jenkins搭建持续集成环境  本文是jenkins+docker+腾讯�
 1. 无法通过execute shell启动进程 这是因为Jenkins默认会在Build结束后Kill掉所有的衍生进程。
 在执行shell前需要设置BUILD_ID=dontKillMe
 BUILD_ID=dontKillMe cd /data/wwwroot/yxshop chmod +x ./*.sh nohup ./restart.sh &amp;gt;/data/wwwroot/yxshop/nohup.out 2&amp;gt;&amp;amp;1 &amp;amp; 2. github向jenkins deliver失败 一开始填写的Payload URL形如，
-Payload URL = https://xxx.com/github-webhook 无论怎么修改再redeliver都失败，后来修改为形如，
-Payload URL = https://xxx.com/github-webhook/ 仅仅是在后面加了“/”。</description>
+Payload URL = https://xxx.com/github-webhook无论怎么修改再redeliver都失败，后来修改为形如，
+Payload URL = https://xxx.com/github-webhook/仅仅是在后面加了“/”。</description>
     </item>
     
     <item>
@@ -68,7 +68,7 @@ Payload URL = https://xxx.com/github-webhook/ 仅仅是在后面加了“/”。
 方法2 使用sed
 $ sed -i &amp;#39;s/http:\/\/updates.jenkins-ci.org\/download/https:\/\/mirrors.tuna.tsinghua.edu.cn\/jenkins/g&amp;#39; default.json &amp;amp;&amp;amp; sed -i &amp;#39;s/http:\/\/www.google.com/https:\/\/www.baidu.com/g&amp;#39; default.json 这是直接修改的配置文件，如果前边Jenkins用sudo启动的话，那么这里的两个sed前均需要加上sudo
 重启Jenkins，安装插件试试，简直超速！！
-https://www.cnblogs.com/hellxz/p/jenkins_install_plugins_faster.html </description>
+https://www.cnblogs.com/hellxz/p/jenkins_install_plugins_faster.html</description>
     </item>
     
     <item>
@@ -86,7 +86,7 @@ version: &amp;#39;3&amp;#39; services: jenkins: image: jenkinsci/blueocean deplo
 进入到容器里面安装：
 apk add --no-cache nodejs  可能会遇到下载缓慢、找不到包等问题。
  解决办法如下：
- 在 https://mirrors.alpinelinux.org/ 找到中国的镜像仓库，并添加到 etc/apk/repositories, 参考如下： A. 永久修改下载源
+ 在 https://mirrors.alpinelinux.org/找到中国的镜像仓库，并添加到 etc/apk/repositories, 参考如下： A. 永久修改下载源
 vi etc/apk/repositories http://mirrors.aliyun.com/alpine/v3.8/main/ http://mirrors.</description>
     </item>
     

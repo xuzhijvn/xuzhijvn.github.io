@@ -13,7 +13,7 @@
 <meta itemprop="description" content="1. ES 的分布式架构原理 ElasticSearch 设计的理念就是分布式搜索引擎，底层其实还是基于 lucene 的。核心思想就是在多台机器上启动多个 ES 进程实例，组成了一个 ES 集群。
 默认节点会去加入一个名称为 elasticsearch 的集群。如果直接启动一堆节点，那么它们会自动组成一个 elasticsearch 集群，当然一个节点也可以组成 elasticsearch 集群。
 1.1 ES数据结构 ES 中存储数据的基本单位是索引，比如说你现在要在 ES 中存储一些订单数据，你就应该在 ES 中创建一个索引 order_idx ，所有的订单数据就都写到这个索引里面去，一个索引差不多就是相当于是 mysql 里的一张表。
-index -&gt; type -&gt; mapping -&gt; document -&gt; field。 1.2 ES高可用 类似kafka将一个topic分成多个partition，es将一个index分成多个shard。
+index -&gt; type -&gt; mapping -&gt; document -&gt; field。1.2 ES高可用 类似kafka将一个topic分成多个partition，es将一个index分成多个shard。
  每个 shard 存储部分数据。拆分多个 shard 是有好处的，一是支持横向扩展，比如你数据量是 3T，3 个 shard，每个 shard 就 1T 的数据，若现在数据量增加到 4T，怎么扩展，很简单，重新建一个有 4 个 shard 的索引，将数据导进去；二是提高性能，数据分布在多个 shard，即多台服务器上，所有的操作，都会在多台机器上并行分布式执行，提高了吞吐量和性能。
  kafka的每个partition有多个replica副本，所有副本选出一个leader（依赖zookeeper完成选举）负责所有的读写请求。
 ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 primary shard ，负责写入数据，但是还有几个 replica shard 。 primary shard 写入数据之后，会将数据同步到其他几个 replica shard 上去。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
@@ -23,7 +23,7 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
 <meta property="og:description" content="1. ES 的分布式架构原理 ElasticSearch 设计的理念就是分布式搜索引擎，底层其实还是基于 lucene 的。核心思想就是在多台机器上启动多个 ES 进程实例，组成了一个 ES 集群。
 默认节点会去加入一个名称为 elasticsearch 的集群。如果直接启动一堆节点，那么它们会自动组成一个 elasticsearch 集群，当然一个节点也可以组成 elasticsearch 集群。
 1.1 ES数据结构 ES 中存储数据的基本单位是索引，比如说你现在要在 ES 中存储一些订单数据，你就应该在 ES 中创建一个索引 order_idx ，所有的订单数据就都写到这个索引里面去，一个索引差不多就是相当于是 mysql 里的一张表。
-index -&gt; type -&gt; mapping -&gt; document -&gt; field。 1.2 ES高可用 类似kafka将一个topic分成多个partition，es将一个index分成多个shard。
+index -&gt; type -&gt; mapping -&gt; document -&gt; field。1.2 ES高可用 类似kafka将一个topic分成多个partition，es将一个index分成多个shard。
  每个 shard 存储部分数据。拆分多个 shard 是有好处的，一是支持横向扩展，比如你数据量是 3T，3 个 shard，每个 shard 就 1T 的数据，若现在数据量增加到 4T，怎么扩展，很简单，重新建一个有 4 个 shard 的索引，将数据导进去；二是提高性能，数据分布在多个 shard，即多台服务器上，所有的操作，都会在多台机器上并行分布式执行，提高了吞吐量和性能。
  kafka的每个partition有多个replica副本，所有副本选出一个leader（依赖zookeeper完成选举）负责所有的读写请求。
 ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 primary shard ，负责写入数据，但是还有几个 replica shard 。 primary shard 写入数据之后，会将数据同步到其他几个 replica shard 上去。" />
@@ -31,7 +31,7 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/es/es%E7%BB%BC%E8%BF%B0/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E6%88%98/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/git-submodule-update-init-recursive/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/springaop%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E6%88%98/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
@@ -40,13 +40,13 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
 <meta name="twitter:description" content="1. ES 的分布式架构原理 ElasticSearch 设计的理念就是分布式搜索引擎，底层其实还是基于 lucene 的。核心思想就是在多台机器上启动多个 ES 进程实例，组成了一个 ES 集群。
 默认节点会去加入一个名称为 elasticsearch 的集群。如果直接启动一堆节点，那么它们会自动组成一个 elasticsearch 集群，当然一个节点也可以组成 elasticsearch 集群。
 1.1 ES数据结构 ES 中存储数据的基本单位是索引，比如说你现在要在 ES 中存储一些订单数据，你就应该在 ES 中创建一个索引 order_idx ，所有的订单数据就都写到这个索引里面去，一个索引差不多就是相当于是 mysql 里的一张表。
-index -&gt; type -&gt; mapping -&gt; document -&gt; field。 1.2 ES高可用 类似kafka将一个topic分成多个partition，es将一个index分成多个shard。
+index -&gt; type -&gt; mapping -&gt; document -&gt; field。1.2 ES高可用 类似kafka将一个topic分成多个partition，es将一个index分成多个shard。
  每个 shard 存储部分数据。拆分多个 shard 是有好处的，一是支持横向扩展，比如你数据量是 3T，3 个 shard，每个 shard 就 1T 的数据，若现在数据量增加到 4T，怎么扩展，很简单，重新建一个有 4 个 shard 的索引，将数据导进去；二是提高性能，数据分布在多个 shard，即多台服务器上，所有的操作，都会在多台机器上并行分布式执行，提高了吞吐量和性能。
  kafka的每个partition有多个replica副本，所有副本选出一个leader（依赖zookeeper完成选举）负责所有的读写请求。
 ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 primary shard ，负责写入数据，但是还有几个 replica shard 。 primary shard 写入数据之后，会将数据同步到其他几个 replica shard 上去。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.4faadf671b6c6e1b5c7f381853c31eac3dd832068a51c8d28b7d5a11a37c0a24.css" integrity="sha256-T6rfZxtsbhtcfzgYU8MerD3YMgaKUcjSi31aEaN8CiQ=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.4faadf671b6c6e1b5c7f381853c31eac3dd832068a51c8d28b7d5a11a37c0a24.css" integrity="sha256-T6rfZxtsbhtcfzgYU8MerD3YMgaKUcjSi31aEaN8CiQ=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
@@ -330,7 +330,7 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
 <p>primary shard（建立索引时一次设置，不能修改，默认 5 个），replica shard（随时修改数量，默认 1 个），默认每个索引 10 个 shard，5 个 primary shard，5 个 replica shard，最小的高可用配置，是 2 台服务器。</p>
 </blockquote>
 <p>与kafka partition副本不同的是，es不仅 <code>primary shard</code> 能读写，<code>replica shard</code> 也能读。</p>
-<p><img class="img-fluid" alt="es-cluster" src=""
+<p><img class="img-fluid" alt="es-cluster" src="https://picgo.6and.ltd/img/es-cluster.png"
    loading="lazy" />
 
 </p>
@@ -474,13 +474,13 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
 <li>实际的 node 上的 <code>primary shard</code> 处理请求，然后将数据同步到 <code>replica node</code> 。</li>
 <li><code>coordinating node</code> 如果发现 <code>primary node</code> 和所有 <code>replica node</code> 都搞定之后，就返回响应结果给客户端。</li>
 </ul>
-<p><img class="img-fluid" alt="es-write" src=""
+<p><img class="img-fluid" alt="es-write" src="https://picgo.6and.ltd/img/es-write.png"
    loading="lazy" />
 
 </p>
 <h3 id="32-es-读数据过程">3.2 ES 读数据过程</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-http" data-lang="http"><span style="color:#960050;background-color:#1e0010">GET my-index/_doc/0
-</span></code></pre></div><p><img class="img-fluid" alt="查询流程" src=""
+</span></code></pre></div><p><img class="img-fluid" alt="查询流程" src="https://picgo.6and.ltd/img/209c63fb760b19cb4e9c745c1e795045.png"
    loading="lazy" />
 
 </p>
@@ -514,7 +514,7 @@ j2ee特别牛
 <p><code>filesystem cache</code> 即<code>文件系统cache</code>，由文件系统进行热点数据缓存，不受进程自主控制。关于cache的详细介绍请 👉 <a href="https://huolala.gitbook.io/code/ji-suan-ji-ji-chu/cao-zuo-xi-tong/cache-he-buffer" target="_blank" rel="noopener noreferrer">cache和buffer</a>
 </p>
 <p>你往 es 里写的数据，实际上都写到磁盘文件里去了，<strong>查询的时候</strong>，操作系统会将磁盘文件里的数据自动缓存到 <code>filesystem cache</code> 里面去。</p>
-<p><img class="img-fluid" alt="es-search-process" src=""
+<p><img class="img-fluid" alt="es-search-process" src="https://picgo.6and.ltd/img/es-search-process.png"
    loading="lazy" />
 
 </p>
@@ -618,18 +618,18 @@ j2ee特别牛
 </section>
   <section class="recent-posts row surface">
   <h4>最近文章</h4>
-  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/">MyBatis缓存机制
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">秒杀系统设计
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/springaop%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/">SpringAOP执行顺序
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/">MyBatis缓存机制
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/">基于keepalived实现nginx高可用
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">Nginx负载均衡
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E6%88%98/">字节码实战
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/git-submodule-update-init-recursive/">git submodule update --init --recursive
 </a></li></ul>
 </section><section class="taxonomy-categories row surface">
       <h4>
         <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
-          编程思想 <span class="badge rounded-pill">95</span>
+          编程思想 <span class="badge rounded-pill">96</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
           云原生 <span class="badge rounded-pill">32</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
@@ -639,7 +639,7 @@ j2ee特别牛
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="持续集成部署">
           持续集成部署 <span class="badge rounded-pill">5</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构演进">
-          架构演进 <span class="badge rounded-pill">4</span>
+          架构演进 <span class="badge rounded-pill">5</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="人工智能">
           人工智能 <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
@@ -650,7 +650,7 @@ j2ee特别牛
         <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
-          Manual <span class="badge rounded-pill">145</span>
+          Manual <span class="badge rounded-pill">147</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
           k8s <span class="badge rounded-pill">13</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s实战">
@@ -673,7 +673,7 @@ j2ee特别牛
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
           Other <span class="badge rounded-pill">18</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
-          spring <span class="badge rounded-pill">11</span>
+          spring <span class="badge rounded-pill">12</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
           redis <span class="badge rounded-pill">9</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
@@ -690,14 +690,14 @@ j2ee特别牛
           ZK <span class="badge rounded-pill">6</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Jenkins">
           Jenkins <span class="badge rounded-pill">4</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SA">
+          SA <span class="badge rounded-pill">4</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
           AI <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CNN">
           CNN <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MQ">
           MQ <span class="badge rounded-pill">3</span>
-        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SA">
-          SA <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="分布式">
           分布式 <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="BlockChain">

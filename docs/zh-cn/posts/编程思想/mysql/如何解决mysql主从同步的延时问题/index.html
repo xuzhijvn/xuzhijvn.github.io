@@ -21,9 +21,9 @@ MySQL 主从复制原理的是啥？ 主库将变更写入 binlog 日志，然�
 MySQL 主从同步延时问题（精华） 以前线上确实处理过因为主从同步延时问题而导致的线上的 bug，属于小型的生产事故。
 是这个么场景。有个同学是这样写代码逻辑的。先插入一条数据，再把它查出来，然后更新这条数据。在生产环境高峰期，写并发达到了 2000/s，这个时候，主从复制延时大概是在小几十毫秒。线上会发现，每天总有那么一些数据，我们期望更新一些重要的数据状态，但在高峰期时候却没更新。用户跟客服反馈，而客服就会反馈给我们。
 我们通过 MySQL 命令：
-show slave status 查看 Seconds_Behind_Master ，可以看到从库复制主库的数据落后了几 ms。
+show slave status查看 Seconds_Behind_Master ，可以看到从库复制主库的数据落后了几 ms。
 一般来说，如果主从延迟较为严重，有以下解决方案：
- 分库，将一个主库拆分为多个主库，每个主库的写并发就减少了几倍，此时主从延迟可以忽略不计。 打开 MySQL 支持的并行复制，多个库并行复制。如果说某个库的写入并发就是特别高，单库写并发达到了 2000/s，并行复制还是没意义。 重写代码，写代码的同学，要慎重，插入数据时立马查询可能查不到。 如果确实是存在必须先插入，立马要求就查询到，然后立马就要反过来执行一些操作，对这个查询设置直连主库。不推荐这种方法，你要是这么搞，读写分离的意义就丧失了。  参考 你们有没有做 MySQL 读写分离？如何实现 MySQL 的读写分离？MySQL 主从复制原理的是啥？如何解决 MySQL 主从同步的延时问题？ "><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+ 分库，将一个主库拆分为多个主库，每个主库的写并发就减少了几倍，此时主从延迟可以忽略不计。 打开 MySQL 支持的并行复制，多个库并行复制。如果说某个库的写入并发就是特别高，单库写并发达到了 2000/s，并行复制还是没意义。 重写代码，写代码的同学，要慎重，插入数据时立马查询可能查不到。 如果确实是存在必须先插入，立马要求就查询到，然后立马就要反过来执行一些操作，对这个查询设置直连主库。不推荐这种方法，你要是这么搞，读写分离的意义就丧失了。  参考 你们有没有做 MySQL 读写分离？如何实现 MySQL 的读写分离？MySQL 主从复制原理的是啥？如何解决 MySQL 主从同步的延时问题？"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="85"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="MySQL," /><meta property="og:title" content="如何解决MySQL主从同步的延时问题" />
@@ -38,14 +38,14 @@ MySQL 主从复制原理的是啥？ 主库将变更写入 binlog 日志，然�
 MySQL 主从同步延时问题（精华） 以前线上确实处理过因为主从同步延时问题而导致的线上的 bug，属于小型的生产事故。
 是这个么场景。有个同学是这样写代码逻辑的。先插入一条数据，再把它查出来，然后更新这条数据。在生产环境高峰期，写并发达到了 2000/s，这个时候，主从复制延时大概是在小几十毫秒。线上会发现，每天总有那么一些数据，我们期望更新一些重要的数据状态，但在高峰期时候却没更新。用户跟客服反馈，而客服就会反馈给我们。
 我们通过 MySQL 命令：
-show slave status 查看 Seconds_Behind_Master ，可以看到从库复制主库的数据落后了几 ms。
+show slave status查看 Seconds_Behind_Master ，可以看到从库复制主库的数据落后了几 ms。
 一般来说，如果主从延迟较为严重，有以下解决方案：
- 分库，将一个主库拆分为多个主库，每个主库的写并发就减少了几倍，此时主从延迟可以忽略不计。 打开 MySQL 支持的并行复制，多个库并行复制。如果说某个库的写入并发就是特别高，单库写并发达到了 2000/s，并行复制还是没意义。 重写代码，写代码的同学，要慎重，插入数据时立马查询可能查不到。 如果确实是存在必须先插入，立马要求就查询到，然后立马就要反过来执行一些操作，对这个查询设置直连主库。不推荐这种方法，你要是这么搞，读写分离的意义就丧失了。  参考 你们有没有做 MySQL 读写分离？如何实现 MySQL 的读写分离？MySQL 主从复制原理的是啥？如何解决 MySQL 主从同步的延时问题？ " />
+ 分库，将一个主库拆分为多个主库，每个主库的写并发就减少了几倍，此时主从延迟可以忽略不计。 打开 MySQL 支持的并行复制，多个库并行复制。如果说某个库的写入并发就是特别高，单库写并发达到了 2000/s，并行复制还是没意义。 重写代码，写代码的同学，要慎重，插入数据时立马查询可能查不到。 如果确实是存在必须先插入，立马要求就查询到，然后立马就要反过来执行一些操作，对这个查询设置直连主库。不推荐这种方法，你要是这么搞，读写分离的意义就丧失了。  参考 你们有没有做 MySQL 读写分离？如何实现 MySQL 的读写分离？MySQL 主从复制原理的是啥？如何解决 MySQL 主从同步的延时问题？" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mysql/%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3mysql%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E7%9A%84%E5%BB%B6%E6%97%B6%E9%97%AE%E9%A2%98/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E6%88%98/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/git-submodule-update-init-recursive/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/springaop%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E6%88%98/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
@@ -62,12 +62,12 @@ MySQL 主从复制原理的是啥？ 主库将变更写入 binlog 日志，然�
 MySQL 主从同步延时问题（精华） 以前线上确实处理过因为主从同步延时问题而导致的线上的 bug，属于小型的生产事故。
 是这个么场景。有个同学是这样写代码逻辑的。先插入一条数据，再把它查出来，然后更新这条数据。在生产环境高峰期，写并发达到了 2000/s，这个时候，主从复制延时大概是在小几十毫秒。线上会发现，每天总有那么一些数据，我们期望更新一些重要的数据状态，但在高峰期时候却没更新。用户跟客服反馈，而客服就会反馈给我们。
 我们通过 MySQL 命令：
-show slave status 查看 Seconds_Behind_Master ，可以看到从库复制主库的数据落后了几 ms。
+show slave status查看 Seconds_Behind_Master ，可以看到从库复制主库的数据落后了几 ms。
 一般来说，如果主从延迟较为严重，有以下解决方案：
- 分库，将一个主库拆分为多个主库，每个主库的写并发就减少了几倍，此时主从延迟可以忽略不计。 打开 MySQL 支持的并行复制，多个库并行复制。如果说某个库的写入并发就是特别高，单库写并发达到了 2000/s，并行复制还是没意义。 重写代码，写代码的同学，要慎重，插入数据时立马查询可能查不到。 如果确实是存在必须先插入，立马要求就查询到，然后立马就要反过来执行一些操作，对这个查询设置直连主库。不推荐这种方法，你要是这么搞，读写分离的意义就丧失了。  参考 你们有没有做 MySQL 读写分离？如何实现 MySQL 的读写分离？MySQL 主从复制原理的是啥？如何解决 MySQL 主从同步的延时问题？ "/>
+ 分库，将一个主库拆分为多个主库，每个主库的写并发就减少了几倍，此时主从延迟可以忽略不计。 打开 MySQL 支持的并行复制，多个库并行复制。如果说某个库的写入并发就是特别高，单库写并发达到了 2000/s，并行复制还是没意义。 重写代码，写代码的同学，要慎重，插入数据时立马查询可能查不到。 如果确实是存在必须先插入，立马要求就查询到，然后立马就要反过来执行一些操作，对这个查询设置直连主库。不推荐这种方法，你要是这么搞，读写分离的意义就丧失了。  参考 你们有没有做 MySQL 读写分离？如何实现 MySQL 的读写分离？MySQL 主从复制原理的是啥？如何解决 MySQL 主从同步的延时问题？"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.4faadf671b6c6e1b5c7f381853c31eac3dd832068a51c8d28b7d5a11a37c0a24.css" integrity="sha256-T6rfZxtsbhtcfzgYU8MerD3YMgaKUcjSi31aEaN8CiQ=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.4faadf671b6c6e1b5c7f381853c31eac3dd832068a51c8d28b7d5a11a37c0a24.css" integrity="sha256-T6rfZxtsbhtcfzgYU8MerD3YMgaKUcjSi31aEaN8CiQ=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
@@ -296,7 +296,7 @@ show slave status 查看 Seconds_Behind_Master ，可以看到从库复制主库
 <p>其实很简单，就是基于主从复制架构，简单来说，就搞一个主库，挂多个从库，然后我们就单单只是写主库，然后主库会自动把数据给同步到从库上去。</p>
 <h3 id="mysql-主从复制原理的是啥">MySQL 主从复制原理的是啥？</h3>
 <p>主库将变更写入 binlog 日志，然后从库连接到主库之后，从库有一个 IO 线程，将主库的 binlog 日志拷贝到自己本地，写入一个 relay 中继日志中。接着从库中有一个 SQL 线程会从中继日志读取 binlog，然后执行 binlog 日志中的内容，也就是在自己本地再次执行一遍 SQL，这样就可以保证自己跟主库的数据是一样的。</p>
-<p><img class="img-fluid" alt="mysql-master-slave" src=""
+<p><img class="img-fluid" alt="mysql-master-slave" src="https://picgo.6and.ltd/img/mysql-master-slave.png"
    loading="lazy" />
 
 </p>
@@ -390,18 +390,18 @@ show slave status 查看 Seconds_Behind_Master ，可以看到从库复制主库
 </section>
   <section class="recent-posts row surface">
   <h4>最近文章</h4>
-  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/">MyBatis缓存机制
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">秒杀系统设计
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/springaop%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/">SpringAOP执行顺序
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/">MyBatis缓存机制
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/">基于keepalived实现nginx高可用
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">Nginx负载均衡
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E6%88%98/">字节码实战
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/git-submodule-update-init-recursive/">git submodule update --init --recursive
 </a></li></ul>
 </section><section class="taxonomy-categories row surface">
       <h4>
         <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
-          编程思想 <span class="badge rounded-pill">95</span>
+          编程思想 <span class="badge rounded-pill">96</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
           云原生 <span class="badge rounded-pill">32</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
@@ -411,7 +411,7 @@ show slave status 查看 Seconds_Behind_Master ，可以看到从库复制主库
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="持续集成部署">
           持续集成部署 <span class="badge rounded-pill">5</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构演进">
-          架构演进 <span class="badge rounded-pill">4</span>
+          架构演进 <span class="badge rounded-pill">5</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="人工智能">
           人工智能 <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
@@ -422,7 +422,7 @@ show slave status 查看 Seconds_Behind_Master ，可以看到从库复制主库
         <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
-          Manual <span class="badge rounded-pill">145</span>
+          Manual <span class="badge rounded-pill">147</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
           k8s <span class="badge rounded-pill">13</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s实战">
@@ -445,7 +445,7 @@ show slave status 查看 Seconds_Behind_Master ，可以看到从库复制主库
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
           Other <span class="badge rounded-pill">18</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
-          spring <span class="badge rounded-pill">11</span>
+          spring <span class="badge rounded-pill">12</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
           redis <span class="badge rounded-pill">9</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
@@ -462,14 +462,14 @@ show slave status 查看 Seconds_Behind_Master ，可以看到从库复制主库
           ZK <span class="badge rounded-pill">6</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Jenkins">
           Jenkins <span class="badge rounded-pill">4</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SA">
+          SA <span class="badge rounded-pill">4</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
           AI <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CNN">
           CNN <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MQ">
           MQ <span class="badge rounded-pill">3</span>
-        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SA">
-          SA <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="分布式">
           分布式 <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="BlockChain">

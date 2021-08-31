@@ -13,31 +13,31 @@
 <meta itemprop="description" content="1. 编译器与解释器 不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
- 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT  无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
+ 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
-编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
-解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果  特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：
- 至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行； 兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。  为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？  2. 解释型语言 很多资料会说，Python、Ruby、JavaScript都是“解释型语言”，是通过解释器来实现的。这么说其实很容易引起误解：语言一般只会定义其抽象语义，而不会强制性要求采用某种实现方式。
-例如说C一般被认为是“编译型语言”，但C的解释器也是存在的，例如Ch 。同样，C&#43;&#43;也有解释器版本的实现，例如Cint 。
-一般被称为“解释型语言”的是主流实现为解释器的语言，但并不是说它就无法编译。例如说经常被认为是“解释型语言”的Scheme 就有好几种编译器实现，其中率先支持R6RS 规范的大部分内容的是Ikarus ，支持在x86上编译Scheme；它最终不是生成某种虚拟机的字节码，而是直接生成x86机器码。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+编译流程：源码 [字符流]- 词法分析 -&gt; 单词（token）流- 语法分析 -&gt; 语法树 / 抽象语法树- 语义分析 -&gt; 标注了属性的抽象语法树- 代码生成 -&gt; 目标代码执行流程：目标代码- 操作系统/硬件 -&gt; 执行结果狭义的解释器处理步骤看起来：
+解释执行流程：源码 [字符流]- 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果 特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：
+ 至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行； 兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。  为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？ 2. 解释型语言 很多资料会说，Python、Ruby、JavaScript都是“解释型语言”，是通过解释器来实现的。这么说其实很容易引起误解：语言一般只会定义其抽象语义，而不会强制性要求采用某种实现方式。
+例如说C一般被认为是“编译型语言”，但C的解释器也是存在的，例如Ch。同样，C&#43;&#43;也有解释器版本的实现，例如Cint。
+一般被称为“解释型语言”的是主流实现为解释器的语言，但并不是说它就无法编译。例如说经常被认为是“解释型语言”的Scheme就有好几种编译器实现，其中率先支持R6RS规范的大部分内容的是Ikarus，支持在x86上编译Scheme；它最终不是生成某种虚拟机的字节码，而是直接生成x86机器码。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="638"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="Java," /><meta property="og:title" content="JIT即时编译" />
 <meta property="og:description" content="1. 编译器与解释器 不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
- 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT  无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
+ 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
-编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
-解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果  特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：
- 至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行； 兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。  为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？  2. 解释型语言 很多资料会说，Python、Ruby、JavaScript都是“解释型语言”，是通过解释器来实现的。这么说其实很容易引起误解：语言一般只会定义其抽象语义，而不会强制性要求采用某种实现方式。
-例如说C一般被认为是“编译型语言”，但C的解释器也是存在的，例如Ch 。同样，C&#43;&#43;也有解释器版本的实现，例如Cint 。
-一般被称为“解释型语言”的是主流实现为解释器的语言，但并不是说它就无法编译。例如说经常被认为是“解释型语言”的Scheme 就有好几种编译器实现，其中率先支持R6RS 规范的大部分内容的是Ikarus ，支持在x86上编译Scheme；它最终不是生成某种虚拟机的字节码，而是直接生成x86机器码。" />
+编译流程：源码 [字符流]- 词法分析 -&gt; 单词（token）流- 语法分析 -&gt; 语法树 / 抽象语法树- 语义分析 -&gt; 标注了属性的抽象语法树- 代码生成 -&gt; 目标代码执行流程：目标代码- 操作系统/硬件 -&gt; 执行结果狭义的解释器处理步骤看起来：
+解释执行流程：源码 [字符流]- 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果 特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：
+ 至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行； 兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。  为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？ 2. 解释型语言 很多资料会说，Python、Ruby、JavaScript都是“解释型语言”，是通过解释器来实现的。这么说其实很容易引起误解：语言一般只会定义其抽象语义，而不会强制性要求采用某种实现方式。
+例如说C一般被认为是“编译型语言”，但C的解释器也是存在的，例如Ch。同样，C&#43;&#43;也有解释器版本的实现，例如Cint。
+一般被称为“解释型语言”的是主流实现为解释器的语言，但并不是说它就无法编译。例如说经常被认为是“解释型语言”的Scheme就有好几种编译器实现，其中率先支持R6RS规范的大部分内容的是Ikarus，支持在x86上编译Scheme；它最终不是生成某种虚拟机的字节码，而是直接生成x86机器码。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/jit%E5%8D%B3%E6%97%B6%E7%BC%96%E8%AF%91/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E6%88%98/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/git-submodule-update-init-recursive/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/springaop%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E6%88%98/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
@@ -46,16 +46,16 @@
 <meta name="twitter:description" content="1. 编译器与解释器 不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
- 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT  无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
+ 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
-编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
-解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果  特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：
- 至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行； 兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。  为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？  2. 解释型语言 很多资料会说，Python、Ruby、JavaScript都是“解释型语言”，是通过解释器来实现的。这么说其实很容易引起误解：语言一般只会定义其抽象语义，而不会强制性要求采用某种实现方式。
-例如说C一般被认为是“编译型语言”，但C的解释器也是存在的，例如Ch 。同样，C&#43;&#43;也有解释器版本的实现，例如Cint 。
-一般被称为“解释型语言”的是主流实现为解释器的语言，但并不是说它就无法编译。例如说经常被认为是“解释型语言”的Scheme 就有好几种编译器实现，其中率先支持R6RS 规范的大部分内容的是Ikarus ，支持在x86上编译Scheme；它最终不是生成某种虚拟机的字节码，而是直接生成x86机器码。"/>
+编译流程：源码 [字符流]- 词法分析 -&gt; 单词（token）流- 语法分析 -&gt; 语法树 / 抽象语法树- 语义分析 -&gt; 标注了属性的抽象语法树- 代码生成 -&gt; 目标代码执行流程：目标代码- 操作系统/硬件 -&gt; 执行结果狭义的解释器处理步骤看起来：
+解释执行流程：源码 [字符流]- 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果 特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：
+ 至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行； 兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。  为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？ 2. 解释型语言 很多资料会说，Python、Ruby、JavaScript都是“解释型语言”，是通过解释器来实现的。这么说其实很容易引起误解：语言一般只会定义其抽象语义，而不会强制性要求采用某种实现方式。
+例如说C一般被认为是“编译型语言”，但C的解释器也是存在的，例如Ch。同样，C&#43;&#43;也有解释器版本的实现，例如Cint。
+一般被称为“解释型语言”的是主流实现为解释器的语言，但并不是说它就无法编译。例如说经常被认为是“解释型语言”的Scheme就有好几种编译器实现，其中率先支持R6RS规范的大部分内容的是Ikarus，支持在x86上编译Scheme；它最终不是生成某种虚拟机的字节码，而是直接生成x86机器码。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.4faadf671b6c6e1b5c7f381853c31eac3dd832068a51c8d28b7d5a11a37c0a24.css" integrity="sha256-T6rfZxtsbhtcfzgYU8MerD3YMgaKUcjSi31aEaN8CiQ=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.4faadf671b6c6e1b5c7f381853c31eac3dd832068a51c8d28b7d5a11a37c0a24.css" integrity="sha256-T6rfZxtsbhtcfzgYU8MerD3YMgaKUcjSi31aEaN8CiQ=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
@@ -450,12 +450,12 @@
 <h2 id="5-java的执行过程">5. Java的执行过程</h2>
 <p>Java的执行过程整体可以分为两个部分，第一步由javac将源码编译成字节码，在这个过程中会进行词法分析、语法分析、语义分析，编译原理中这部分的编译称为前端编译。接下来无需编译直接逐条将字节码解释执行，在解释执行的过程中，虚拟机同时对程序运行的信息进行收集，在这些信息的基础上，编译器会逐渐发挥作用，它会进行后端编译——把字节码编译成机器码，但不是所有的代码都会被编译，只有被JVM认定为的热点代码，才可能被编译。</p>
 <p>怎么样才会被认为是热点代码呢？JVM中会设置一个阈值，当方法或者代码块的在一定时间内的调用次数超过这个阈值时就会被编译，存入codeCache中。当下次执行时，再遇到这段代码，就会从codeCache中读取机器码，直接执行，以此来提升程序运行的性能。整体的执行过程大致如下图所示：</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/ba83857ecf9f344e4972fd551c4973d653952.png@648w_454h_80q"
    loading="lazy" />
 
 </p>
 <h2 id="6-jvm-client-模式和-server模式的区别">6. JVM Client 模式和 Server模式的区别</h2>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/16453677b5ddbb34"
    loading="lazy" />
 
 </p>
@@ -539,12 +539,12 @@
     <span style="color:#66d9ef">return</span> flag <span style="color:#f92672">?</span> value0 <span style="color:#f92672">:</span> value1<span style="color:#f92672">;</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>bar方法的IR图：</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/857398429cf23f82f291a9cbaceecea122617.png@794w_480h_80q"
    loading="lazy" />
 
 </p>
 <p>内联后的IR图：</p>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/524631fb0c1db243b5b1fd08b185c23f59399.png@802w_1202h_80q"
    loading="lazy" />
 
 </p>
@@ -704,18 +704,18 @@
 </section>
   <section class="recent-posts row surface">
   <h4>最近文章</h4>
-  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/">MyBatis缓存机制
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">秒杀系统设计
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/springaop%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/">SpringAOP执行顺序
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/">MyBatis缓存机制
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/">基于keepalived实现nginx高可用
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">Nginx负载均衡
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E6%88%98/">字节码实战
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/git-submodule-update-init-recursive/">git submodule update --init --recursive
 </a></li></ul>
 </section><section class="taxonomy-categories row surface">
       <h4>
         <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
-          编程思想 <span class="badge rounded-pill">95</span>
+          编程思想 <span class="badge rounded-pill">96</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
           云原生 <span class="badge rounded-pill">32</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
@@ -725,7 +725,7 @@
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="持续集成部署">
           持续集成部署 <span class="badge rounded-pill">5</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构演进">
-          架构演进 <span class="badge rounded-pill">4</span>
+          架构演进 <span class="badge rounded-pill">5</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="人工智能">
           人工智能 <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
@@ -736,7 +736,7 @@
         <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
-          Manual <span class="badge rounded-pill">145</span>
+          Manual <span class="badge rounded-pill">147</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
           k8s <span class="badge rounded-pill">13</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s实战">
@@ -759,7 +759,7 @@
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
           Other <span class="badge rounded-pill">18</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
-          spring <span class="badge rounded-pill">11</span>
+          spring <span class="badge rounded-pill">12</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
           redis <span class="badge rounded-pill">9</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
@@ -776,14 +776,14 @@
           ZK <span class="badge rounded-pill">6</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Jenkins">
           Jenkins <span class="badge rounded-pill">4</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SA">
+          SA <span class="badge rounded-pill">4</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
           AI <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CNN">
           CNN <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MQ">
           MQ <span class="badge rounded-pill">3</span>
-        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SA">
-          SA <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="分布式">
           分布式 <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="BlockChain">

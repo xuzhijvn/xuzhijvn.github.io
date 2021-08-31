@@ -12,27 +12,27 @@
 <meta name="description" content="" /><meta itemprop="name" content="jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境">
 <meta itemprop="description" content="jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境
 持续集成/持续部署的重要性不必多言，都什么年代了，没有哪个正紧项目还在人工构建/测试/部署。本文手把手教你搭建jenkins&#43;docker&#43;腾讯云容器仓库&#43;github的CI/CD环境。妥妥的干活，绝对是解放生产力的利器。架构图如下：
- step1: 程序猿git push代码到github step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像） step3: 推送镜像到容器仓库 step4: 应用服务器拉去镜像到本地运行
+step1: 程序猿git push代码到github step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像） step3: 推送镜像到容器仓库 step4: 应用服务器拉去镜像到本地运行
 为了不让文章篇幅过长，本系列tony徐老师将文章分成两个小章节：
-github webhooks&#43;jenkins搭建持续集成环境  本文是jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境 的第一子章节。意在教您通过github webhooks&#43;jenkins搭建持续集成环境，如果您已经完成webhooks&#43;jenkins的配置，可以直接调整到第二子章节jenkins&#43;腾讯云容器仓库&#43;docker持续部署  1. github配置Personal access tokens 没什么好说的，按图操作：   记下生成的token，待会儿要用的。
-2. github配置webhooks 去到你的github项目仓库，按图操作：   这里的Payload URL = 你的jenkins地址&#43;/github-webhook/
+github webhooks&#43;jenkins搭建持续集成环境 本文是jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境的第一子章节。意在教您通过github webhooks&#43;jenkins搭建持续集成环境，如果您已经完成webhooks&#43;jenkins的配置，可以直接调整到第二子章节jenkins&#43;腾讯云容器仓库&#43;docker持续部署1. github配置Personal access tokens 没什么好说的，按图操作： 记下生成的token，待会儿要用的。
+2. github配置webhooks 去到你的github项目仓库，按图操作： 这里的Payload URL = 你的jenkins地址&#43;/github-webhook/
 至此，github上的配置全部完成。接下来，我们配置jenkins。
- 3. jenkins配置凭据   这里的Secret就是在第1节配置的Personal access tokens
-  添加一个github登陆凭据，username和password对应github的登陆账号密码。 添加一个宿主机登陆凭据，username和password对应登陆的账号密码（因为小编的jenkins是容器的方式运行的，因此后面需要这个凭据ssh到宿主机上执行命令）。  4. 配置ssh sites 接下来配置一个ssh sites，用于后面需要ssh到宿主机。  5. 配置jenkins运行环境 这里的环境取决与你的项目需要的环境。  如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。
-6. 新建一个maven项目 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。  请按图操作：  请按图操作：  请按图操作：  这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+ 3. jenkins配置凭据 这里的Secret就是在第1节配置的Personal access tokens
+ 添加一个github登陆凭据，username和password对应github的登陆账号密码。 添加一个宿主机登陆凭据，username和password对应登陆的账号密码（因为小编的jenkins是容器的方式运行的，因此后面需要这个凭据ssh到宿主机上执行命令）。  4. 配置ssh sites 接下来配置一个ssh sites，用于后面需要ssh到宿主机。 5. 配置jenkins运行环境 这里的环境取决与你的项目需要的环境。 如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。
+6. 新建一个maven项目 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。 请按图操作： 请按图操作： 请按图操作： 这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="203"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="Jenkins,docker," /><meta property="og:title" content="jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境" />
 <meta property="og:description" content="jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境
 持续集成/持续部署的重要性不必多言，都什么年代了，没有哪个正紧项目还在人工构建/测试/部署。本文手把手教你搭建jenkins&#43;docker&#43;腾讯云容器仓库&#43;github的CI/CD环境。妥妥的干活，绝对是解放生产力的利器。架构图如下：
- step1: 程序猿git push代码到github step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像） step3: 推送镜像到容器仓库 step4: 应用服务器拉去镜像到本地运行
+step1: 程序猿git push代码到github step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像） step3: 推送镜像到容器仓库 step4: 应用服务器拉去镜像到本地运行
 为了不让文章篇幅过长，本系列tony徐老师将文章分成两个小章节：
-github webhooks&#43;jenkins搭建持续集成环境  本文是jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境 的第一子章节。意在教您通过github webhooks&#43;jenkins搭建持续集成环境，如果您已经完成webhooks&#43;jenkins的配置，可以直接调整到第二子章节jenkins&#43;腾讯云容器仓库&#43;docker持续部署  1. github配置Personal access tokens 没什么好说的，按图操作：   记下生成的token，待会儿要用的。
-2. github配置webhooks 去到你的github项目仓库，按图操作：   这里的Payload URL = 你的jenkins地址&#43;/github-webhook/
+github webhooks&#43;jenkins搭建持续集成环境 本文是jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境的第一子章节。意在教您通过github webhooks&#43;jenkins搭建持续集成环境，如果您已经完成webhooks&#43;jenkins的配置，可以直接调整到第二子章节jenkins&#43;腾讯云容器仓库&#43;docker持续部署1. github配置Personal access tokens 没什么好说的，按图操作： 记下生成的token，待会儿要用的。
+2. github配置webhooks 去到你的github项目仓库，按图操作： 这里的Payload URL = 你的jenkins地址&#43;/github-webhook/
 至此，github上的配置全部完成。接下来，我们配置jenkins。
- 3. jenkins配置凭据   这里的Secret就是在第1节配置的Personal access tokens
-  添加一个github登陆凭据，username和password对应github的登陆账号密码。 添加一个宿主机登陆凭据，username和password对应登陆的账号密码（因为小编的jenkins是容器的方式运行的，因此后面需要这个凭据ssh到宿主机上执行命令）。  4. 配置ssh sites 接下来配置一个ssh sites，用于后面需要ssh到宿主机。  5. 配置jenkins运行环境 这里的环境取决与你的项目需要的环境。  如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。
-6. 新建一个maven项目 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。  请按图操作：  请按图操作：  请按图操作：  这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！" />
+ 3. jenkins配置凭据 这里的Secret就是在第1节配置的Personal access tokens
+ 添加一个github登陆凭据，username和password对应github的登陆账号密码。 添加一个宿主机登陆凭据，username和password对应登陆的账号密码（因为小编的jenkins是容器的方式运行的，因此后面需要这个凭据ssh到宿主机上执行命令）。  4. 配置ssh sites 接下来配置一个ssh sites，用于后面需要ssh到宿主机。 5. 配置jenkins运行环境 这里的环境取决与你的项目需要的环境。 如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。
+6. 新建一个maven项目 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。 请按图操作： 请按图操作： 请按图操作： 这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/cicd/jenkins&#43;docker&#43;%E8%85%BE%E8%AE%AF%E4%BA%91%E5%AE%B9%E5%99%A8%E4%BB%93%E5%BA%93&#43;github%E6%90%AD%E5%BB%BAci_cd%E7%8E%AF%E5%A2%83/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -44,17 +44,17 @@ github webhooks&#43;jenkins搭建持续集成环境  本文是jenkins&#43;docker
 <meta name="twitter:title" content="jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境"/>
 <meta name="twitter:description" content="jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境
 持续集成/持续部署的重要性不必多言，都什么年代了，没有哪个正紧项目还在人工构建/测试/部署。本文手把手教你搭建jenkins&#43;docker&#43;腾讯云容器仓库&#43;github的CI/CD环境。妥妥的干活，绝对是解放生产力的利器。架构图如下：
- step1: 程序猿git push代码到github step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像） step3: 推送镜像到容器仓库 step4: 应用服务器拉去镜像到本地运行
+step1: 程序猿git push代码到github step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像） step3: 推送镜像到容器仓库 step4: 应用服务器拉去镜像到本地运行
 为了不让文章篇幅过长，本系列tony徐老师将文章分成两个小章节：
-github webhooks&#43;jenkins搭建持续集成环境  本文是jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境 的第一子章节。意在教您通过github webhooks&#43;jenkins搭建持续集成环境，如果您已经完成webhooks&#43;jenkins的配置，可以直接调整到第二子章节jenkins&#43;腾讯云容器仓库&#43;docker持续部署  1. github配置Personal access tokens 没什么好说的，按图操作：   记下生成的token，待会儿要用的。
-2. github配置webhooks 去到你的github项目仓库，按图操作：   这里的Payload URL = 你的jenkins地址&#43;/github-webhook/
+github webhooks&#43;jenkins搭建持续集成环境 本文是jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境的第一子章节。意在教您通过github webhooks&#43;jenkins搭建持续集成环境，如果您已经完成webhooks&#43;jenkins的配置，可以直接调整到第二子章节jenkins&#43;腾讯云容器仓库&#43;docker持续部署1. github配置Personal access tokens 没什么好说的，按图操作： 记下生成的token，待会儿要用的。
+2. github配置webhooks 去到你的github项目仓库，按图操作： 这里的Payload URL = 你的jenkins地址&#43;/github-webhook/
 至此，github上的配置全部完成。接下来，我们配置jenkins。
- 3. jenkins配置凭据   这里的Secret就是在第1节配置的Personal access tokens
-  添加一个github登陆凭据，username和password对应github的登陆账号密码。 添加一个宿主机登陆凭据，username和password对应登陆的账号密码（因为小编的jenkins是容器的方式运行的，因此后面需要这个凭据ssh到宿主机上执行命令）。  4. 配置ssh sites 接下来配置一个ssh sites，用于后面需要ssh到宿主机。  5. 配置jenkins运行环境 这里的环境取决与你的项目需要的环境。  如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。
-6. 新建一个maven项目 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。  请按图操作：  请按图操作：  请按图操作：  这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！"/>
+ 3. jenkins配置凭据 这里的Secret就是在第1节配置的Personal access tokens
+ 添加一个github登陆凭据，username和password对应github的登陆账号密码。 添加一个宿主机登陆凭据，username和password对应登陆的账号密码（因为小编的jenkins是容器的方式运行的，因此后面需要这个凭据ssh到宿主机上执行命令）。  4. 配置ssh sites 接下来配置一个ssh sites，用于后面需要ssh到宿主机。 5. 配置jenkins运行环境 这里的环境取决与你的项目需要的环境。 如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。
+6. 新建一个maven项目 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。 请按图操作： 请按图操作： 请按图操作： 这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！"/>
 <meta name="twitter:site" content="@razonyang"/>
-<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.f57b52ac56fca40f120637e1bf553c6cb2c80ddcc3489fbc8790b312b6efe398.css" integrity="sha256-9XtSrFb8pA8SBjfhv1U8bLLIDdzDSJ&#43;8h5CzErbv45g=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.4faadf671b6c6e1b5c7f381853c31eac3dd832068a51c8d28b7d5a11a37c0a24.css" integrity="sha256-T6rfZxtsbhtcfzgYU8MerD3YMgaKUcjSi31aEaN8CiQ=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.4faadf671b6c6e1b5c7f381853c31eac3dd832068a51c8d28b7d5a11a37c0a24.css" integrity="sha256-T6rfZxtsbhtcfzgYU8MerD3YMgaKUcjSi31aEaN8CiQ=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.e30cf281ba69e9bf65b44b22f029d4a6c409b60de4397e0f8494c48a6bcbc388.js" integrity="sha256-4wzygbpp6b9ltEsi8CnUpsQJtg3kOX4PhJTEimvLw4g=" crossorigin="anonymous"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
@@ -280,7 +280,7 @@ github webhooks&#43;jenkins搭建持续集成环境  本文是jenkins&#43;docker
 </div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境</p>
 <p>持续集成/持续部署的重要性不必多言，都什么年代了，没有哪个正紧项目还在人工构建/测试/部署。本文手把手教你搭建jenkins+docker+腾讯云容器仓库+github的CI/CD环境。妥妥的干活，绝对是解放生产力的利器。架构图如下：</p>
-<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/20200510052839100.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境" src=""
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/20200510052839100.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境" src="https://picgo.6and.ltd/img/20200510052839100.png"
    loading="lazy" />
 
 </a>
@@ -295,19 +295,19 @@ step4: 应用服务器拉去镜像到本地运行</p>
 <p>本文是<a href="https://xuzhijun.ltd/archives/626" target="_blank" rel="noopener noreferrer">jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境</a>
 的第一子章节。意在教您通过github webhooks+jenkins搭建持续集成环境，如果您已经完成webhooks+jenkins的配置，可以直接调整到第二子章节<a href="https://xuzhijun.ltd/archives/677" target="_blank" rel="noopener noreferrer">jenkins+腾讯云容器仓库+docker持续部署</a>
 </p>
-<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008240188.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008240188.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008240188.png"
    loading="lazy" />
 
 </a>
 </p>
 <h2 id="1-github配置personal-access-tokens">1. github配置Personal access tokens</h2>
 <p>没什么好说的，按图操作：
-<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008301081.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008301081.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008301081.png"
    loading="lazy" />
 
 </a>
 </p>
-<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008320846.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008320846.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008320846.png"
    loading="lazy" />
 
 </a>
@@ -315,12 +315,12 @@ step4: 应用服务器拉去镜像到本地运行</p>
 <p>记下生成的token，待会儿要用的。</p>
 <h2 id="2-github配置webhooks">2. github配置webhooks</h2>
 <p>去到你的github项目仓库，按图操作：
-<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008353493.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008353493.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008353493.png"
    loading="lazy" />
 
 </a>
 </p>
-<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008384728.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008384728.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008384728.png"
    loading="lazy" />
 
 </a>
@@ -329,18 +329,18 @@ step4: 应用服务器拉去镜像到本地运行</p>
 <p>至此，github上的配置全部完成。接下来，我们配置jenkins。</p>
 <hr>
 <h2 id="3-jenkins配置凭据">3. jenkins配置凭据</h2>
-<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008473068.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008473068.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008473068.png"
    loading="lazy" />
 
 </a>
 </p>
-<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008483017.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008483017.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008483017.png"
    loading="lazy" />
 
 </a>
 </p>
 <p>这里的Secret就是在第1节配置的Personal access tokens</p>
-<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008512188.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008512188.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008512188.png"
    loading="lazy" />
 
 </a>
@@ -351,14 +351,14 @@ step4: 应用服务器拉去镜像到本地运行</p>
 </ol>
 <h2 id="4-配置ssh-sites">4. 配置ssh sites</h2>
 <p>接下来配置一个ssh sites，用于后面需要ssh到宿主机。
-<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009070887.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009070887.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009070887.png"
    loading="lazy" />
 
 </a>
 </p>
 <h2 id="5-配置jenkins运行环境">5. 配置jenkins运行环境</h2>
 <p>这里的环境取决与你的项目需要的环境。
-<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009254533.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009254533.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009254533.png"
    loading="lazy" />
 
 </a>
@@ -366,25 +366,25 @@ step4: 应用服务器拉去镜像到本地运行</p>
 如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。</p>
 <h2 id="6-新建一个maven项目">6. 新建一个maven项目</h2>
 <p>本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。
-<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/202005100909402.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/202005100909402.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/202005100909402.png"
    loading="lazy" />
 
 </a>
 
 请按图操作：
-<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009372456.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009372456.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/2020051009372456.png"
    loading="lazy" />
 
 </a>
 </p>
 <p>请按图操作：
-<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009154947.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009154947.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/2020051009154947.png"
    loading="lazy" />
 
 </a>
 
 请按图操作：
-<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009181624.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009181624.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/2020051009181624.png"
    loading="lazy" />
 
 </a>
@@ -392,13 +392,13 @@ step4: 应用服务器拉去镜像到本地运行</p>
 <p>这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！</p>
 <h2 id="7-新建一个vue项目">7. 新建一个vue项目</h2>
 <p>你的前端可能是通过vue实现前后端分离的，那么你肯定也存在对vue编译构建的需求。</p>
-<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009305674.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009305674.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/2020051009305674.png"
    loading="lazy" />
 
 </a>
 </p>
 <p>这里大部分配置和第5小节是一样的，不再赘述，需要注意的是：</p>
-<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009404851.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009404851.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/2020051009404851.png"
    loading="lazy" />
 
 </a>
@@ -412,7 +412,7 @@ step4: 应用服务器拉去镜像到本地运行</p>
 <p>本文是<a href="https://xuzhijun.ltd/archives/626" target="_blank" rel="noopener noreferrer">jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境</a>
 的第二子章节。意在教您通过jenkins+腾讯云容器仓库+docker搭建持续部署环境，如果您还没有完成webhooks+jenkins的配置，请完成第一章节的学习<a href="https://xuzhijun.ltd/archives/670" target="_blank" rel="noopener noreferrer">github webhooks+jenkins搭建持续集成环境</a>
 </p>
-<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008231993.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008231993.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/2020051008231993.png"
    loading="lazy" />
 
 </a>
@@ -432,7 +432,7 @@ step4: 应用服务器拉去镜像到本地运行</p>
 <h2 id="2-项目增加docker配置">2. 项目增加docker配置</h2>
 <h3 id="21-h5项目新增docker配置">2.1 h5项目新增docker配置</h3>
 <p>新增如下3个配置：构建镜像脚本build-image.sh、镜像定义Dockerfile-h5、推送到容器仓库脚本push.sh
-<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051010202528.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051010202528.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051010202528.png"
    loading="lazy" />
 
 </a>
@@ -440,7 +440,7 @@ step4: 应用服务器拉去镜像到本地运行</p>
 <p>[v_notice]文章末尾获取配置文件！[/v_notice]</p>
 <h3 id="22-后台管理前端项目新增docker配置">2.2 后台管理前端项目新增docker配置</h3>
 <p>新增如下3个配置：
-<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051010334163.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051010334163.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051010334163.png"
    loading="lazy" />
 
 </a>
@@ -448,7 +448,7 @@ step4: 应用服务器拉去镜像到本地运行</p>
 [v_notice]文章末尾获取配置文件！[/v_notice]</p>
 <h3 id="23-后台项目新增docker配置">2.3 后台项目新增docker配置</h3>
 <p>新增如下10个配置：
-<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051010521993.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051010521993.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/2020051010521993.png"
    loading="lazy" />
 
 </a>
@@ -456,12 +456,12 @@ step4: 应用服务器拉去镜像到本地运行</p>
 [v_notice]文章末尾获取配置文件！[/v_notice]</p>
 <h2 id="3-修改项目配置文件">3. 修改项目配置文件</h2>
 <p>修改mysql的地址为“db”,redis的地址为“redis”,mysql链接新增 allowPublicKeyRetrieval=true&amp;useSSL=false参数
-<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011013955.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011013955.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/2020051011013955.png"
    loading="lazy" />
 
 </a>
 </p>
-<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011035934.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011035934.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011035934.png"
    loading="lazy" />
 
 </a>
@@ -470,7 +470,7 @@ step4: 应用服务器拉去镜像到本地运行</p>
 <p>如果您已经完成了<a href="https://xuzhijun.ltd/archives/670" target="_blank" rel="noopener noreferrer">github webhooks+jenkins搭建持续集成环境</a>
 中的配置，那您只需要新增一小部分配置即可。</p>
 <h3 id="41-新增h5项目的execute-shell-script-on-remote-host-using-ssh">4.1 新增h5项目的Execute shell script on remote host using ssh</h3>
-<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/202005101117138.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/202005101117138.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://xuzhijun.ltd/wp-content/uploads/2020/05/202005101117138.png"
    loading="lazy" />
 
 </a>
@@ -480,7 +480,7 @@ step4: 应用服务器拉去镜像到本地运行</p>
 <li>ssh到应用服务器下载镜像并启动项目</li>
 </ol>
 <h3 id="42-新增前端项目的execute-shell-script-on-remote-host-using-ssh">4.2 新增前端项目的Execute shell script on remote host using ssh</h3>
-<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011214721.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011214721.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/2020051011214721.png"
    loading="lazy" />
 
 </a>
@@ -490,7 +490,7 @@ step4: 应用服务器拉去镜像到本地运行</p>
 <li>ssh到应用服务器下载镜像并启动项目</li>
 </ol>
 <h3 id="43-新增后台项目的execute-shell-script-on-remote-host-using-ssh">4.3 新增后台项目的Execute shell script on remote host using ssh</h3>
-<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011255759.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011255759.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/2020051011255759.png"
    loading="lazy" />
 
 </a>
@@ -525,11 +525,11 @@ docker-compose -f docker-compose-app.yml up &amp;
 <p>需要替换server_name成你自己域名
 项目源码中的api默认是https的，如果你没有ssl证书，或者嫌麻烦，请自行改成http。</p>
 </blockquote>
-<p><img class="img-fluid" alt="img" src=""
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5eb7f8bbad443-20210604143620981.png"
    loading="lazy" />
 
 
-<img class="img-fluid" alt="img" src=""
+<img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5eb7f8db1dd68-20210604143629235.png"
    loading="lazy" />
 
 </p>
@@ -539,7 +539,7 @@ docker-compose -f docker-compose-app.yml up &amp;
 <p><a href="https://pan.baidu.com/s/1KQT3vRgYXby3FHPViejzhQ" target="_blank" rel="noopener noreferrer">https://pan.baidu.com/s/1KQT3vRgYXby3FHPViejzhQ</a>
 </p>
 <p>提取码：hrqs</p>
-<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011572178.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src=""
+<p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011572178.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/2020051011572178.png"
    loading="lazy" />
 
 </a>
@@ -612,18 +612,18 @@ docker-compose -f docker-compose-app.yml up &amp;
 </section>
   <section class="recent-posts row surface">
   <h4>最近文章</h4>
-  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/">MyBatis缓存机制
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">秒杀系统设计
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/spring/springaop%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/">SpringAOP执行顺序
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/">MyBatis缓存机制
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/">基于keepalived实现nginx高可用
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">Nginx负载均衡
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E6%88%98/">字节码实战
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E5%85%B6%E4%BB%96/git-submodule-update-init-recursive/">git submodule update --init --recursive
 </a></li></ul>
 </section><section class="taxonomy-categories row surface">
       <h4>
         <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
-          编程思想 <span class="badge rounded-pill">95</span>
+          编程思想 <span class="badge rounded-pill">96</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
           云原生 <span class="badge rounded-pill">32</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
@@ -633,7 +633,7 @@ docker-compose -f docker-compose-app.yml up &amp;
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="持续集成部署">
           持续集成部署 <span class="badge rounded-pill">5</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构演进">
-          架构演进 <span class="badge rounded-pill">4</span>
+          架构演进 <span class="badge rounded-pill">5</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="人工智能">
           人工智能 <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
@@ -644,7 +644,7 @@ docker-compose -f docker-compose-app.yml up &amp;
         <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
-          Manual <span class="badge rounded-pill">145</span>
+          Manual <span class="badge rounded-pill">147</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
           k8s <span class="badge rounded-pill">13</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s实战">
@@ -667,7 +667,7 @@ docker-compose -f docker-compose-app.yml up &amp;
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
           Other <span class="badge rounded-pill">18</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
-          spring <span class="badge rounded-pill">11</span>
+          spring <span class="badge rounded-pill">12</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
           redis <span class="badge rounded-pill">9</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
@@ -684,14 +684,14 @@ docker-compose -f docker-compose-app.yml up &amp;
           ZK <span class="badge rounded-pill">6</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Jenkins">
           Jenkins <span class="badge rounded-pill">4</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SA">
+          SA <span class="badge rounded-pill">4</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
           AI <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CNN">
           CNN <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MQ">
           MQ <span class="badge rounded-pill">3</span>
-        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SA">
-          SA <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="分布式">
           分布式 <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="BlockChain">
