@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="WordPress更换域名">
 <meta itemprop="description" content="WordPress更换域名
 在更换的域名过程中遇到很多坑，主要还是我的架构比较特殊的原因，导致跟以往配置不太一样，架构如下：
-1. 无法通过nginx转发请求到容器端口 原因：nginx配置不正确
+ 1. 无法通过nginx转发请求到容器端口 原因：nginx配置不正确
 解决：补充缺失的如下配置
 add_header X-Frame-Options SAMEORIGIN; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_hide_header X-Frame-Options; 最终类似：
 server { listen 443 ssl; listen [::]:443 ssl; include snippets/ssl-params.conf; server_name wptest.your-awesome-domain.com; # domain當然要用自己的，subdomain請隨自己喜好 location / { add_header X-Frame-Options SAMEORIGIN; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_hide_header X-Frame-Options; proxy_pass http://localhost:8000; # 注意這邊跟上面docker-compose設定的port相同 } } 2. 提示“重定向次数过多” 修改wordpress根目录下的wp-config.php：
@@ -22,7 +22,7 @@ $_SERVER[&#39;HTTPS&#39;] = &#39;on&#39;; define(&#39;FORCE_SSL_LOGIN&#39;, true
 <meta itemprop="keywords" content="WordPress," /><meta property="og:title" content="WordPress更换域名" />
 <meta property="og:description" content="WordPress更换域名
 在更换的域名过程中遇到很多坑，主要还是我的架构比较特殊的原因，导致跟以往配置不太一样，架构如下：
-1. 无法通过nginx转发请求到容器端口 原因：nginx配置不正确
+ 1. 无法通过nginx转发请求到容器端口 原因：nginx配置不正确
 解决：补充缺失的如下配置
 add_header X-Frame-Options SAMEORIGIN; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_hide_header X-Frame-Options; 最终类似：
 server { listen 443 ssl; listen [::]:443 ssl; include snippets/ssl-params.conf; server_name wptest.your-awesome-domain.com; # domain當然要用自己的，subdomain請隨自己喜好 location / { add_header X-Frame-Options SAMEORIGIN; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_hide_header X-Frame-Options; proxy_pass http://localhost:8000; # 注意這邊跟上面docker-compose設定的port相同 } } 2. 提示“重定向次数过多” 修改wordpress根目录下的wp-config.php：
@@ -39,7 +39,7 @@ $_SERVER[&#39;HTTPS&#39;] = &#39;on&#39;; define(&#39;FORCE_SSL_LOGIN&#39;, true
 <meta name="twitter:title" content="WordPress更换域名"/>
 <meta name="twitter:description" content="WordPress更换域名
 在更换的域名过程中遇到很多坑，主要还是我的架构比较特殊的原因，导致跟以往配置不太一样，架构如下：
-1. 无法通过nginx转发请求到容器端口 原因：nginx配置不正确
+ 1. 无法通过nginx转发请求到容器端口 原因：nginx配置不正确
 解决：补充缺失的如下配置
 add_header X-Frame-Options SAMEORIGIN; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_hide_header X-Frame-Options; 最终类似：
 server { listen 443 ssl; listen [::]:443 ssl; include snippets/ssl-params.conf; server_name wptest.your-awesome-domain.com; # domain當然要用自己的，subdomain請隨自己喜好 location / { add_header X-Frame-Options SAMEORIGIN; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_hide_header X-Frame-Options; proxy_pass http://localhost:8000; # 注意這邊跟上面docker-compose設定的port相同 } } 2. 提示“重定向次数过多” 修改wordpress根目录下的wp-config.php：

@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="秒杀系统设计">
 <meta itemprop="description" content=""><meta itemprop="datePublished" content="2021-08-31T21:27:50+08:00" />
 <meta itemprop="dateModified" content="2021-08-31T21:27:50+08:00" />
-<meta itemprop="wordCount" content="90"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="wordCount" content="98"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="SA," /><meta property="og:title" content="秒杀系统设计" />
 <meta property="og:description" content="" />
 <meta property="og:type" content="article" />
@@ -292,7 +292,15 @@
 <h3 id="31-预扣库存">3.1 预扣库存</h3>
 <p>虽然前面我们我做了分布式锁、缓存等措施，防止过多查询请求直接去到数据库，但是这些措施都是针对查询请求的，扣减库存的时候仍然可能有大量请求并发去到数据库，例如：同时有10万个请求查询缓存得到当前库存量不等于0，它们接下来全都要去数据库扣减库存。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">update</span> product <span style="color:#66d9ef">set</span> stock<span style="color:#f92672">=</span>stock<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#66d9ef">where</span> id<span style="color:#f92672">=</span>product <span style="color:#66d9ef">and</span> stock <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>;
-</code></pre></div><p>这里我们可以采取限流措施，例如：虽然有10万个请求将要扣减库存，但是我们只分配1000个数据库扣减名额，（可以用sentinel等），甚至都不用分配1000个名额，因为秒杀商品数量肯定是已知的，假设秒杀商品数量为10个，那我们只需要放行10个扣减库存的请求去到数据库即可。</p>
+</code></pre></div><blockquote>
+<p>上面的sql有点类似数据库乐观锁的思想，保证不会超卖。</p>
+</blockquote>
+<p>这里我们可以采取<code>限流</code>措施（可以用sentinel等），例如：虽然有10万个请求将要扣减库存，但是我们只分配1000个数据库扣减名额（sentinel令牌桶🪣），甚至都不用分配1000个名额，因为秒杀商品数量肯定是已知的，假设秒杀商品数量为10个，那我们只需要放行10个扣减库存的请求去到数据库即可。</p>
+<p>但是，还有一类情况，就是参与秒杀的商品数量确实很多（比如小米手机刚面世的时候经常搞饥饿营销，几百万甚至几千万的请求去抢几十万的手机😔），远大于数据库能承受的并发能力。</p>
+<p>这里我们可以采取 <code>限流</code> + <code>延迟重试</code> ，例如：我们的秒杀商品有1万个，100万个请求要去扣减库存，但是数据库只能承受1000个并发，那我们就限流每秒只有1000个请求去到数据库，让剩下的请求延迟50毫秒再重试，如果业务能允许用户一直等待秒杀结果，那就一直循环重试到有资格去数据库扣减库存或者1万个秒杀商品被抢完，抢购时间可能持续几分钟甚至更久，让用户一直等待结果也不合理，这时我们循环重试一定次数后如果还没有资格，那就先响应这个请求，并且把这个请求扔到延迟队列继续重试。</p>
+<blockquote>
+<p>这里为什么不直接响应没获取到数据库扣减库存资格的请求呢？为什么不让其稍后再试呢？这主要是考虑到<code>秒杀公平</code>的问题，例如：小明在第1秒发起秒杀请求，但是因为秒杀系统数据库并发能力不够，你让小明稍后重试，但是注意这个时候秒杀的商品是足够的，第2秒小王发起秒杀并成功，第3秒小明再次秒杀发现商品已经被抢光，这对小明来说明显不公平的。</p>
+</blockquote>
 <h3 id="32-回退库存">3.2 回退库存</h3>
 <p>通常情况下，如果用户秒杀成功了，下单之后，在15分钟之内还未完成支付的话，该订单会被自动取消，回退库存。</p>
 <p>那么，在15分钟内未完成支付，订单被自动取消的功能，要如何实现呢？</p>
@@ -311,7 +319,7 @@
    loading="lazy" />
 
 </p>
-<h2 id="4-限流">4. 限流</h2>
+<h2 id="4-接口限流">4. 接口限流</h2>
 <p>通过秒杀活动，如果我们运气爆棚，可能会用非常低的价格买到不错的商品（这种概率堪比买福利彩票中大奖）。</p>
 <p>但有些高手，并不会像我们一样老老实实，通过秒杀页面点击秒杀按钮，抢购商品。他们可能在自己的服务器上，模拟正常用户登录系统，跳过秒杀页面，直接调用秒杀接口。</p>
 <p>如果是我们手动操作，一般情况下，一秒钟只能点击一次秒杀按钮。</p>

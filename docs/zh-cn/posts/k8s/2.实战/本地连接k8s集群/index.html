@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="本地连接k8s集群">
 <meta itemprop="description" content="本地连接k8s集群 在日常开发的过程中，经常会需要在本地开发的程序需要在k8s中调试的场景，比如，写了一个operator。
 如果此时，本地又没有可以直接可达的k8s集群，
-比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
+比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群 再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
 1⃣️ 重新生成config文件 默认下，~/.kube/config 生成配置文件的时候只包含了k8s集群ip和这个节点的局域网ip，本地如果想远程操作k8s的话，必定要通过公网ip连接到k8s集群，所以我们需要把节点绑定的公网ip也放到证书里面去，即我们需要重新生成证书。如果不这样做，本地直接访问的话，会报如下提示：
 tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate is valid for 10.96.0.1, 172.17.0.14, not 106.55.152.92 先备份证书：
 [root@k8s-master .kube]# mkdir -p /etc/kubernetes/pki.bak [root@k8s-master .kube]# mv /etc/kubernetes/pki/apiserver.* /etc/kubernetes/pki.bak 重新生成证书：
@@ -22,7 +22,7 @@ tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate 
 <meta itemprop="keywords" content="云原生,k8s," /><meta property="og:title" content="本地连接k8s集群" />
 <meta property="og:description" content="本地连接k8s集群 在日常开发的过程中，经常会需要在本地开发的程序需要在k8s中调试的场景，比如，写了一个operator。
 如果此时，本地又没有可以直接可达的k8s集群，
-比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
+比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群 再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
 1⃣️ 重新生成config文件 默认下，~/.kube/config 生成配置文件的时候只包含了k8s集群ip和这个节点的局域网ip，本地如果想远程操作k8s的话，必定要通过公网ip连接到k8s集群，所以我们需要把节点绑定的公网ip也放到证书里面去，即我们需要重新生成证书。如果不这样做，本地直接访问的话，会报如下提示：
 tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate is valid for 10.96.0.1, 172.17.0.14, not 106.55.152.92 先备份证书：
 [root@k8s-master .kube]# mkdir -p /etc/kubernetes/pki.bak [root@k8s-master .kube]# mv /etc/kubernetes/pki/apiserver.* /etc/kubernetes/pki.bak 重新生成证书：
@@ -39,7 +39,7 @@ tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate 
 <meta name="twitter:title" content="本地连接k8s集群"/>
 <meta name="twitter:description" content="本地连接k8s集群 在日常开发的过程中，经常会需要在本地开发的程序需要在k8s中调试的场景，比如，写了一个operator。
 如果此时，本地又没有可以直接可达的k8s集群，
-比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
+比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群 再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
 1⃣️ 重新生成config文件 默认下，~/.kube/config 生成配置文件的时候只包含了k8s集群ip和这个节点的局域网ip，本地如果想远程操作k8s的话，必定要通过公网ip连接到k8s集群，所以我们需要把节点绑定的公网ip也放到证书里面去，即我们需要重新生成证书。如果不这样做，本地直接访问的话，会报如下提示：
 tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate is valid for 10.96.0.1, 172.17.0.14, not 106.55.152.92 先备份证书：
 [root@k8s-master .kube]# mkdir -p /etc/kubernetes/pki.bak [root@k8s-master .kube]# mv /etc/kubernetes/pki/apiserver.* /etc/kubernetes/pki.bak 重新生成证书：
