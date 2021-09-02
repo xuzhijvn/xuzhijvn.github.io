@@ -7,7 +7,7 @@ categories: [
 "编程思想"
 ]
 tags : [
-"MQ"
+"MySQL"
 ]
 series : [
 "Manual"
