@@ -16,7 +16,7 @@
       <description>lettuce连接redis报错io.lettuce.core.RedisCommandTimeoutException: Command timed out after 5 second(s)，我的spring.redis.timeout = 5000。
 解决办法：
 1、登陆redis容器 2、输入redis-cli进入redis控制台 3、设置 CONFIG SET timeout &amp;quot;60&amp;quot; 4、设置 CONFIG SET tcp-keepalive &amp;quot;300&amp;quot;
-参考链接：Redis 配置 </description>
+参考链接：Redis 配置</description>
     </item>
     
     <item>
@@ -40,7 +40,7 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
       <description>redis 分布式锁和 zk 分布式锁的对比  redis 分布式锁，其实需要自己不断去尝试获取锁，比较消耗性能。 zk 分布式锁，获取不到锁，注册个监听器即可，不需要不断主动尝试获取锁，性能开销较小。  另外一点就是，如果是 Redis 获取锁的那个客户端 出现 bug 挂了，那么只能等待超时时间之后才能释放锁；而 zk 的话，因为创建的是临时 znode，只要客户端挂了，znode 就没了，此时就自动释放锁。
 Redis 分布式锁大家没发现好麻烦吗？遍历上锁，计算时间等等&amp;hellip;&amp;hellip;zk 的分布式锁语义清晰实现简单。
 所以先不分析太多的东西，就说这两点，我个人实践认为 zk 的分布式锁比 Redis 的分布式锁牢靠、而且模型简单易用。
-参考 一般实现分布式锁都有哪些方式？使用 Redis 如何设计分布式锁？使用 zk 来设计分布式锁可以吗？这两种分布式锁的实现方式哪种效率比较高？ </description>
+参考 一般实现分布式锁都有哪些方式？使用 Redis 如何设计分布式锁？使用 zk 来设计分布式锁可以吗？这两种分布式锁的实现方式哪种效率比较高？</description>
     </item>
     
     <item>
@@ -68,9 +68,11 @@ redis-cli -h 193.112.37.xxx -p 6379 -a xxxpassword </description>
 1. 建立复制 需要注意，主从复制的开启，完全是在从节点发起的；不需要我们在主节点做任何事情。
 从节点开启主从复制，有3种方式：
 （1）配置文件
-在从服务器的配置文件中加入：slaveof （2）启动命令
-redis-server启动命令后加入 &amp;ndash;slaveof （3）客户端命令
-Redis服务器启动后，直接通过客户端执行命令：slaveof ，则该Redis实例成为从节点。
+在从服务器的配置文件中加入：slaveof  
+（2）启动命令
+redis-server启动命令后加入 &amp;ndash;slaveof  
+（3）客户端命令
+Redis服务器启动后，直接通过客户端执行命令：slaveof  ，则该Redis实例成为从节点。
 上述3种方式是等效的，下面以客户端命令的方式为例，看一下当执行了slaveof后，Redis主节点和从节点的变化。
 2. 实例 准备工作：启动两个节点 方便起见，实验所使用的主从节点是在一台机器上的不同Redis实例，其中主节点监听6379端口，从节点监听6380端口；从节点监听的端口号可以在配置文件中修改：
 启动后可以看到：
@@ -82,7 +84,7 @@ Redis服务器启动后，直接通过客户端执行命令：slaveof ，则该R
 （3）此时在从节点中再次查询这个key，会发现主节点的操作已经同步至从节点：
 （4）然后在主节点删除这个key：
 （5）此时在从节点中再次查询这个key，会发现主节点的操作已经同步至从节点：
-3. 断开复制 通过slaveof 命令建立主从复制关系以后，可以通过slaveof no one断开。需要注意的是，从节点断开复制后，不会删除已有的数据，只是不再接受主节点新的数据变化。
+3. 断开复制 通过slaveof  命令建立主从复制关系以后，可以通过slaveof no one断开。需要注意的是，从节点断开复制后，不会删除已有的数据，只是不再接受主节点新的数据变化。
 从节点执行slaveof no one后，打印日志如下所示；可以看出断开复制后，从节点又变回为主节点。
 主节点打印日志如下：
 三、主从复制的实现原理 上面一节中，介绍了如何操作可以建立主从关系；本小节将介绍主从复制的实现原理。
@@ -92,12 +94,7 @@ Redis服务器启动后，直接通过客户端执行命令：slaveof ，则该R
 需要注意的是，slaveof是异步命令，从节点完成主节点ip和port的保存后，向发送slaveof命令的客户端直接返回OK**，实际的复制操作在这之后才开始进行。**
 这个过程中，可以看到从节点打印日志如下：
 步骤2：建立socket连接 从节点每秒1次调用复制定时函数replicationCron()，如果发现了有主节点可以连接，便会根据主节点的ip和port，创建socket连接。如果连接成功，则：
-从节点：为该socket建立一个专门处理复制工作的文件事件处理器，负责后续的复制工作，如接收RDB文件、接收命令传播等。
-主节点：接收到从节点的socket连接后（即accept之后），为该socket创建相应的客户端状态，并将从节点看做是连接到主节点的一个客户端，后面的步骤会以从节点向主节点发送命令请求的形式来进行。
-这个过程中，从节点打印日志如下：
-步骤3：发送ping命令 从节点成为主节点的客户端之后，发送ping命令进行首次请求，目的是：检查socket连接是否可用，以及主节点当前是否能够处理请求。
-从节点发送ping命令后，可能出现3种情况：
-（1）返回pong：说明socket连接正常，且主节点当前可以处理请求，复制过程继续。</description>
+从节点：为该socket建立一个专门处理复制工作的文件事件处理器，负责后续的复制工作，如接收RDB文件、接收命令传播等。</description>
     </item>
     
     <item>
@@ -115,7 +112,7 @@ Redis服务器启动后，直接通过客户端执行命令：slaveof ，则该R
  基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
 Redis的分布式锁实现 1. 利用setnx+expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
 因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx+expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.expire(key, timeout) == 1L; } else { return false; } } 复制代码 实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。</description>
+public boolean tryLock(String key,String requset,int timeout) {Long result = jedis.setnx(key, requset);// result = 1时，设置成功，否则设置失败if (result == 1L) {return jedis.expire(key, timeout) == 1L;} else {return false;}}复制代码实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。</description>
     </item>
     
     <item>
@@ -125,11 +122,11 @@ public boolean tryLock(String key,String requset,int timeout) { Long result = je
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</guid>
       <description>什么是跳跃表？
-答：跳表这种高效的数据结构，值得每一个程序员掌握 为什么使用ziplist？
+答：跳表这种高效的数据结构，值得每一个程序员掌握为什么使用ziplist？
 答：相较于双链表，节省了两个指针的空间。（pre_entry_length前驱数据项的大小。因为不用描述前驱的数据类型，描述较为简单）。相较于数组，ziplist的每个entry所占的内存大小可以不同，便于节省空间。
 为什么list  hash  zset 在数据两大的时候不再使用ziplist？
 答：难以获得大的连续的内存空间。
-参考链接 图解redis五种数据结构底层实现(动图哦) Redis 数据结构 ziplist Redis源码分析-压缩列表ziplist </description>
+参考链接 图解redis五种数据结构底层实现(动图哦)Redis 数据结构 ziplistRedis源码分析-压缩列表ziplist</description>
     </item>
     
     <item>
@@ -144,7 +141,7 @@ public boolean tryLock(String key,String requset,int timeout) { Long result = je
 1. 为什么需要Redis Cluster 的确，在数据上，有replication副本做保证；可用性上，master宕机会自动的执行failover。
  那问题在哪儿呢？
  首先Redis Sentinel说白了也是基于主从复制，在主从复制中slave的数据是完全来自于master。
-假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制 文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
+假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
 所以，当你只需要存储4G的数据时候的，基于主从复制和基于Sentinel的高可用架构是完全够用的。
 但是如果当你面临的是海量的数据的时候呢？16G、64G、256G甚至1T呢？现在互联网的业务里面，如果你的体量足够大，我觉得是肯定会面临缓存海量缓存数据的场景的。
 这就是为什么我们需要引入Redis Cluster。

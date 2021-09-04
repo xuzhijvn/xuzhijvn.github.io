@@ -27,8 +27,8 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/java%E5%BA%94%E7%94%A8%E4%BB%8Enfs%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</guid>
       <description>java应用从nfs加载配置文件
 背景 配置文件变化，无需重新构建镜像部署。
-1. 准备nfs 1、准备好nfs服务器。参考：nfs安装 的nfs服务端配置。 2、k8s node节点可以不启用rpcbind服务，但是必须安装nfs-utils（yum install nfs-utils），否则nfs-client-provisioner pod无法启动，因为nfs-client.yaml里面有nfs的相关配置，而这些nfs配置要生效需依赖nfs-utils。参考：nfs安装 的nfs客户端配置。
-2. 创建StorageClass对象 理论部分参考：StorageClass 2.1 nfs-client.yaml kind: Deployment apiVersion: apps/v1 metadata: name: nfs-client-provisioner spec: replicas: 1 strategy: type: Recreate selector: matchLabels: app: nfs-client-provisioner template: metadata: labels: app: nfs-client-provisioner spec: serviceAccountName: nfs-client-provisioner containers: - name: nfs-client-provisioner image: quay.io/external_storage/nfs-client-provisioner:latest volumeMounts: - name: nfs-client-root mountPath: /persistentvolumes env: - name: PROVISIONER_NAME value: fuseim.pri/ifs - name: NFS_SERVER value: nfs - name: NFS_PATH value: /mnt/nfs/k8s volumes: - name: nfs-client-root nfs: server: nfs path: /mnt/nfs/k8s [v_warn]k8s node节点可以不启用rpcbind服务，但必须安装nfs-utils。[/v_warn]</description>
+1. 准备nfs 1、准备好nfs服务器。参考：nfs安装的nfs服务端配置。 2、k8s node节点可以不启用rpcbind服务，但是必须安装nfs-utils（yum install nfs-utils），否则nfs-client-provisioner pod无法启动，因为nfs-client.yaml里面有nfs的相关配置，而这些nfs配置要生效需依赖nfs-utils。参考：nfs安装的nfs客户端配置。
+2. 创建StorageClass对象 理论部分参考：StorageClass2.1 nfs-client.yaml kind: Deployment apiVersion: apps/v1 metadata: name: nfs-client-provisioner spec: replicas: 1 strategy: type: Recreate selector: matchLabels: app: nfs-client-provisioner template: metadata: labels: app: nfs-client-provisioner spec: serviceAccountName: nfs-client-provisioner containers: - name: nfs-client-provisioner image: quay.io/external_storage/nfs-client-provisioner:latest volumeMounts: - name: nfs-client-root mountPath: /persistentvolumes env: - name: PROVISIONER_NAME value: fuseim.pri/ifs - name: NFS_SERVER value: nfs - name: NFS_PATH value: /mnt/nfs/k8s volumes: - name: nfs-client-root nfs: server: nfs path: /mnt/nfs/k8s [v_warn]k8s node节点可以不启用rpcbind服务，但必须安装nfs-utils。[/v_warn]</description>
     </item>
     
     <item>
@@ -38,7 +38,7 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/k8s%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81/</guid>
       <description>k8s部署应用(前端静态)
-0. 准备条件  部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S      名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上     应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库：   理解k8s基础概念，可以参考Kubernetes: 基础概念介绍   1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &amp;gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
+0. 准备条件  部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S     名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上     应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库：   理解k8s基础概念，可以参考Kubernetes: 基础概念介绍  1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &amp;gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
 1.2 生成拉取镜像的密钥 kubectl create secret docker-registry registry-secret-tencent --docker-server=ccr.</description>
     </item>
     
@@ -61,7 +61,7 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/operator%E5%AE%9E%E6%88%98/</guid>
       <description>operator实战 1⃣️ 需求 我们将定义一个 crd ，spec 包含以下信息：
-Replicas	# 副本数 Image	# 镜像 Resources	# 资源限制 Envs	# 环境变量 Ports	# 服务端口 2⃣️ 编码 初始化项目目录：
+Replicas	# 副本数Image	# 镜像Resources	# 资源限制Envs	# 环境变量Ports	# 服务端口2⃣️ 编码 初始化项目目录：
 tony@192 k8s % pwd /Users/tony/workspace/k8s tony@192 k8s % mkdir -p app-operator/src/github.com/xuzhijvn/app cd app-operator/src/github.com/xuzhijvn/app 初始化operator项目结构，并创建api：
 operator-sdk init --domain=huolala.cn --repo=github.com/xuzhijvn/app operator-sdk create api --group app --version v1 --kind App --resource=true --controller=true 修改 CRD 类型定义代码 api/v1/app_types.go:
 /* Copyright 2021. Licensed under the Apache License, Version 2.0 (the &amp;#34;License&amp;#34;); you may not use this file except in compliance with the License.</description>
@@ -109,7 +109,7 @@ Unable to connect to the server: x509: certificate has expired or is not yet val
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/%E5%88%87%E6%8D%A2namespace/</guid>
       <description>切换namespace
 0. 背景 k8s如何切换namespace？？而不必每次执行命令的时候在后面指定namespace？k8s并没有直接提供切换namespace的命令。不过可以通过：
- 切换context达到切换namespace的目的，这需要提前创建好context和namespace的绑定关系（如：kubectl config set-context test --namespace=test）,然后使用 kubectl config use-context test 切换context，从而间接的达到切换namespace的目的。这方法属实是太别扭了，强迫症患者都不喜欢。 或者使用kubectx工具，其本质是动态的修改context和namespace的绑定关系。使用形如：kubens test 即可切换。这样才是切换namespace的正确打开方式，优雅多了。  参考资料： Kubernetes命名空间 一条命令解决Kubernetes更改默认的namespace Kubernetes 切换context和namespace k8s集群namespace和context使用 ahmetb / kubectx 提高您的kubectl生产力（第三部分）：集群上下文切换、使用别名减少输入和插件扩展 </description>
+ 切换context达到切换namespace的目的，这需要提前创建好context和namespace的绑定关系（如：kubectl config set-context test --namespace=test）,然后使用 kubectl config use-context test 切换context，从而间接的达到切换namespace的目的。这方法属实是太别扭了，强迫症患者都不喜欢。 或者使用kubectx工具，其本质是动态的修改context和namespace的绑定关系。使用形如：kubens test 即可切换。这样才是切换namespace的正确打开方式，优雅多了。  参考资料： Kubernetes命名空间一条命令解决Kubernetes更改默认的namespaceKubernetes 切换context和namespacek8s集群namespace和context使用ahmetb / kubectx提高您的kubectl生产力（第三部分）：集群上下文切换、使用别名减少输入和插件扩展</description>
     </item>
     
     <item>
@@ -120,9 +120,9 @@ Unable to connect to the server: x509: certificate has expired or is not yet val
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/%E5%90%8C%E6%AD%A5%E9%95%9C%E5%83%8F%E5%88%B0%E8%87%AA%E5%B7%B1%E7%9A%84%E4%BB%93%E5%BA%93/</guid>
       <description>同步镜像到自己的仓库 经常有一些国外的镜像仓库，在国内无法拉取，此时我们可以先找台国外的服务器拉取下来，重新打tag后推送到自己的镜像仓库。
 1⃣️ 免费服务器
-https://labs.play-with-k8s.com/ 2⃣️ 拉取-打tag-推送
+https://labs.play-with-k8s.com/2⃣️ 拉取-打tag-推送
 3⃣️ 验证
-参考链接🔗 如何拉取k8s.grc.io、quay.io的镜像 </description>
+参考链接🔗 如何拉取k8s.grc.io、quay.io的镜像</description>
     </item>
     
     <item>
@@ -133,7 +133,7 @@ https://labs.play-with-k8s.com/ 2⃣️ 拉取-打tag-推送
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/%E5%9C%A8namespace%E4%B9%8B%E9%97%B4%E5%85%B1%E4%BA%ABsecret/</guid>
       <description>在namespace之间共享secret
 有的时候在default空间下创建了拉取镜像的secret，当部署k8s的资源到其他namespace的时候，如果部署的的是deployment的之类的势必会要拉取镜像，这个时候必然失败，因为secret创建在default空间下，所以我们需要将secret复制一份到需要的namespace下面：
-kubectl get secret coding-regcred --namespace=default -oyaml | grep -v &amp;#39;^\s*namespace:\s&amp;#39; | kubectl apply --namespace=tkb -f - 参考链接：Kubernetes - sharing secret across namespaces </description>
+kubectl get secret coding-regcred --namespace=default -oyaml | grep -v &amp;#39;^\s*namespace:\s&amp;#39; | kubectl apply --namespace=tkb -f - 参考链接：Kubernetes - sharing secret across namespaces</description>
     </item>
     
     <item>
@@ -144,7 +144,7 @@ kubectl get secret coding-regcred --namespace=default -oyaml | grep -v &amp;#39;
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/%E6%9C%AC%E5%9C%B0%E8%BF%9E%E6%8E%A5k8s%E9%9B%86%E7%BE%A4/</guid>
       <description>本地连接k8s集群 在日常开发的过程中，经常会需要在本地开发的程序需要在k8s中调试的场景，比如，写了一个operator。
 如果此时，本地又没有可以直接可达的k8s集群，
-比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群 再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
+比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
 1⃣️ 重新生成config文件 默认下，~/.kube/config 生成配置文件的时候只包含了k8s集群ip和这个节点的局域网ip，本地如果想远程操作k8s的话，必定要通过公网ip连接到k8s集群，所以我们需要把节点绑定的公网ip也放到证书里面去，即我们需要重新生成证书。如果不这样做，本地直接访问的话，会报如下提示：
 tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate is valid for 10.96.0.1, 172.17.0.14, not 106.55.152.92 先备份证书：
 [root@k8s-master .kube]# mkdir -p /etc/kubernetes/pki.bak [root@k8s-master .kube]# mv /etc/kubernetes/pki/apiserver.* /etc/kubernetes/pki.bak 重新生成证书：

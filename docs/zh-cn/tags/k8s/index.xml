@@ -13,12 +13,12 @@
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.1-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/</guid>
-      <description>1.1.1 什么是云原生？  云原生是一种构建和运行应用程序的方法，是一套技术体系和方法论。云原生（CloudNative）是一个组合词，Cloud+Native。Cloud表示应用程序位于云中，而不是传统的数据中心；Native表示应用程序从设计之初即考虑到云的环境，原生为云而设计，在云上以最佳姿势运行，充分利用和发挥云平台的弹性+分布式优势。
+      <description>1.1.1 什么是云原生？ 云原生是一种构建和运行应用程序的方法，是一套技术体系和方法论。云原生（CloudNative）是一个组合词，Cloud+Native。Cloud表示应用程序位于云中，而不是传统的数据中心；Native表示应用程序从设计之初即考虑到云的环境，原生为云而设计，在云上以最佳姿势运行，充分利用和发挥云平台的弹性+分布式优势。
  什么是云原生架构？ 采用开源堆栈（K8S+Docker）进行容器化，基于微服务架构提高灵活性和可维护性，借助敏捷方法、DevOps支持持续迭代和运维自动化，利用云平台设施实现弹性伸缩、动态调度、优化资源利用率。
 什么是云原生应用？ 在架构设计、开发方式、部署维护等各个阶段和方面都基于云的特点建设的应用。
- 1.1.2 什么是容器编排？  容器编排是指自动化容器的部署、管理、扩展和联网。
+ 1.1.2 什么是容器编排？ 容器编排是指自动化容器的部署、管理、扩展和联网。
  k8s周边：
- k3s : 轻量化k8s k9s : kubectl命令的封装 KubeOperator : 国产k8s发行版 Kubesphere : k8s企业级别增强（多云、多集群） kubeedge : 边缘计算 Kubeless : 面向serverless的k8s   1.1.3 什么是服务网格？ 1.1.4 k8s/istio与云原生的关系？ </description>
+ k3s: 轻量化k8s k9s: kubectl命令的封装 KubeOperator : 国产k8s发行版 Kubesphere : k8s企业级别增强（多云、多集群） kubeedge : 边缘计算 Kubeless : 面向serverless的k8s   1.1.3 什么是服务网格？ 1.1.4 k8s/istio与云原生的关系？ </description>
     </item>
     
     <item>
@@ -39,7 +39,7 @@ $ kubectl autoscale deployment wordpress --namespace kube-example --cpu-percent=
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.2k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/1.2.2.1k8s%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</guid>
       <description>1.2.2.1 k8s基本概念 1⃣️ Container Container（容器）是一种便携式、轻量级的操作系统级虚拟化技术。它使用 namespace 隔离不同的软件运行环境，并通过镜像自包含软件的运行环境，从而使得容器可以很方便的在任何地方运行。
-2⃣️ Pod  Kubernetes 使用 Pod 来管理容器，每个 Pod 可以包含一个或多个紧密关联的容器。
+2⃣️ Pod Kubernetes 使用 Pod 来管理容器，每个 Pod 可以包含一个或多个紧密关联的容器。
 Pod 是一组紧密关联的容器集合，它们共享 PID（同一个Pod中应用可以看到其它进程）、IPC（同一个Pod中的应用可以通过VPC或者POSIX进行通信）、Network （同一个Pod的中的应用对相同的IP地址和端口有权限）和 UTS namespace（同一个Pod中的应用共享一个主机名称），是 Kubernetes 调度的基本单位。Pod 内的多个容器共享网络和文件系统，可以通过进程间通信和文件共享这种简单高效的方式组合完成服务。
 在 Kubernetes 中，所有对象都使用 manifest（yaml 或 json）来定义，比如一个简单的 nginx 服务可以定义为 nginx.yaml，它包含一个镜像为 nginx 的容器：
 apiVersion: v1 kind: Pod metadata: name: nginx labels: app: nginx spec: containers: - name: nginx image: nginx ports: - containerPort: 80 3⃣️ Node Node 是 Pod 真正运行的主机，可以是物理机，也可以是虚拟机。为了管理 Pod，每个 Node 节点上至少要运行 container runtime（比如 docker 或者 rkt）、kubelet 和 kube-proxy 服务。</description>
@@ -95,9 +95,9 @@ DaemonSet 用于每个 Node 最多只运行一个 Pod 副本的场景。正如�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.5k8s%E6%8E%A5%E5%8F%A3/</guid>
-      <description>1.2.5 k8s接口  几种接口解释：
+      <description>1.2.5 k8s接口 几种接口解释：
   CRI（Container Runtime Interface）。容器运行时接口。Kubernetes项目并不关心你部署的是什么容器运行时、使用的什么技术实现，只要你的这个容器运行时能够运行标准的容器镜像，它就可以通过实现CRI接入到Kubernetes项目当中。Kubernetes是通过kubelet跟CRI进行通信。
-  OCI（Open Container Initiative） ：具体的容器运行时，比如Docker项目，则一般通过OCI这个容器运行时规范同底层的Linux操作系统进行交互，即：把CRI请求翻译成对Linux操作系统的调用（操作Linux Namespace和Cgroups等）。
+  OCI（Open Container Initiative）：具体的容器运行时，比如Docker项目，则一般通过OCI这个容器运行时规范同底层的Linux操作系统进行交互，即：把CRI请求翻译成对Linux操作系统的调用（操作Linux Namespace和Cgroups等）。
  CRI是k8s对外暴露的抽象容器接口，OCI是开发容器倡议，最终CRI接口会调用符合OCI的系统内核接口
 容器生态三层抽象:
  Orchestration API -&amp;gt; Container API -&amp;gt; Kernel API
@@ -114,10 +114,10 @@ DaemonSet 用于每个 Node 最多只运行一个 Pod 副本的场景。正如�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.6k8s%E7%BB%84%E4%BB%B6/</guid>
-      <description>1.2.6 k8s组件 Master（控制平面）组件 1⃣️ kube-apiserver   提供集群管理的 REST API 接口，包括认证授权、数据校验以及集群状态变更等 提供其他模块之间的数据交互和通信的枢纽（其他模块通过 API Server 查询或修改数据，只有 API Server 才直接操作 etcd）  2⃣️ etcd  etcd 是 CoreOS 基于 Raft 开发的分布式 key-value 存储，可用于服务发现、共享配置以及一致性保障（如数据库选主、分布式锁等）。
+      <description>1.2.6 k8s组件 Master（控制平面）组件 1⃣️ kube-apiserver  提供集群管理的 REST API接口，包括认证授权、数据校验以及集群状态变更等 提供其他模块之间的数据交互和通信的枢纽（其他模块通过 API Server 查询或修改数据，只有 API Server 才直接操作 etcd）  2⃣️ etcd etcd 是 CoreOS 基于 Raft 开发的分布式 key-value 存储，可用于服务发现、共享配置以及一致性保障（如数据库选主、分布式锁等）。
 主要功能🔧包括：
  基本的 key-value 存储 监听机制 key 的过期及续约机制，用于监控和服务发现 原子 CAS 和 CAD，用于分布式锁和 leader 选举  Etcd，Zookeeper，Consul 比较 🆚：
- Etcd 和 Zookeeper 提供的能力非常相似，都是通用的一致性元信息存储，都提供 watch 机制用于变更通知和分发，也都被分布式系统用来作为共享信息存储，在软件生态中所处的位置也几乎是一样的，可以互相替代的。二者除了实现细节，语言，一致性协议上的区别，最大的区别在周边生态圈。Zookeeper 是 apache 下的，用 java 写的，提供 rpc 接口，最早从 hadoop 项目中孵化出来，在分布式系统中得到广泛使用（hadoop, solr, kafka, mesos 等）。Etcd 是 coreos 公司旗下的开源产品，比较新，以其简单好用的 rest 接口以及活跃的社区俘获了一批用户，在新的一些集群中得到使用（比如 kubernetes）。虽然 v3 为了性能也改成二进制 rpc 接口了，但其易用性上比 Zookeeper 还是好一些。 而 Consul 的目标则更为具体一些，Etcd 和 Zookeeper 提供的是分布式一致性存储能力，具体的业务场景需要用户自己实现，比如服务发现，比如配置变更。而 Consul 则以服务发现和配置变更为主要目标，同时附带了 kv 存储。  3⃣️ kube-scheduler  kube-scheduler 负责分配调度 Pod 到集群内的节点上，它监听 kube-apiserver，查询还未分配 Node 的 Pod，然后根据调度策略为这些 Pod 分配节点（更新 Pod 的 NodeName 字段）。</description>
+ Etcd 和 Zookeeper 提供的能力非常相似，都是通用的一致性元信息存储，都提供 watch 机制用于变更通知和分发，也都被分布式系统用来作为共享信息存储，在软件生态中所处的位置也几乎是一样的，可以互相替代的。二者除了实现细节，语言，一致性协议上的区别，最大的区别在周边生态圈。Zookeeper 是 apache 下的，用 java 写的，提供 rpc 接口，最早从 hadoop 项目中孵化出来，在分布式系统中得到广泛使用（hadoop, solr, kafka, mesos 等）。Etcd 是 coreos 公司旗下的开源产品，比较新，以其简单好用的 rest 接口以及活跃的社区俘获了一批用户，在新的一些集群中得到使用（比如 kubernetes）。虽然 v3 为了性能也改成二进制 rpc 接口了，但其易用性上比 Zookeeper 还是好一些。 而 Consul 的目标则更为具体一些，Etcd 和 Zookeeper 提供的是分布式一致性存储能力，具体的业务场景需要用户自己实现，比如服务发现，比如配置变更。而 Consul 则以服务发现和配置变更为主要目标，同时附带了 kv 存储。  3⃣️ kube-scheduler kube-scheduler 负责分配调度 Pod 到集群内的节点上，它监听 kube-apiserver，查询还未分配 Node 的 Pod，然后根据调度策略为这些 Pod 分配节点（更新 Pod 的 NodeName 字段）。</description>
     </item>
     
     <item>
@@ -138,14 +138,14 @@ DaemonSet 用于每个 Node 最多只运行一个 Pod 副本的场景。正如�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.8-k8s%E8%B5%84%E6%BA%90%E5%AF%B9%E8%B1%A1/1.2.8.1pv-pvc-storageclass/</guid>
-      <description>1.2.8.1 PV/PVC/StorageClass 名词解释：PV/PVC/StorageClass  本文较老，建议查看新文档：http://docs.kubernetes.org.cn/429.html 介绍 PersistentVolume（PV）是集群中已由管理员配置的一段网络存储。 集群中的资源就像一个节点是一个集群资源。 PV是诸如卷之类的卷插件，但是具有独立于使用PV的任何单个pod的生命周期。 该API对象捕获存储的实现细节，即NFS，iSCSI或云提供商特定的存储系统。
+      <description>1.2.8.1 PV/PVC/StorageClass 名词解释：PV/PVC/StorageClass 本文较老，建议查看新文档：http://docs.kubernetes.org.cn/429.html 介绍 PersistentVolume（PV）是集群中已由管理员配置的一段网络存储。 集群中的资源就像一个节点是一个集群资源。 PV是诸如卷之类的卷插件，但是具有独立于使用PV的任何单个pod的生命周期。 该API对象捕获存储的实现细节，即NFS，iSCSI或云提供商特定的存储系统。
 PersistentVolumeClaim（PVC）是用户存储的请求。 它类似于pod。Pod消耗节点资源，PVC消耗存储资源。 pod可以请求特定级别的资源（CPU和内存）。 权限要求可以请求特定的大小和访问模式。
 虽然PersistentVolumeClaims允许用户使用抽象存储资源，但是常见的是，用户需要具有不同属性（如性能）的PersistentVolumes，用于不同的问题。 群集管理员需要能够提供多种不同于PersistentVolumes的PersistentVolumes，而不仅仅是大小和访问模式，而不会使用户了解这些卷的实现细节。 对于这些需求，存在StorageClass资源。
 StorageClass为管理员提供了一种描述他们提供的存储的“类”的方法。 不同的类可能映射到服务质量级别，或备份策略，或者由群集管理员确定的任意策略。 Kubernetes本身对于什么类别代表是不言而喻的。 这个概念有时在其他存储系统中称为“配置文件”
-例子 https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/ Lifecycle of a volume and claim PV是集群中的资源。 PVC是对这些资源的请求，也是对资源的索赔检查。 PV和PVC之间的相互作用遵循这个生命周期:
+例子 https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/Lifecycle of a volume and claim PV是集群中的资源。 PVC是对这些资源的请求，也是对资源的索赔检查。 PV和PVC之间的相互作用遵循这个生命周期:
 Provisioning ——-&amp;gt; Binding ——–&amp;gt;Using——&amp;gt;Releasing——&amp;gt;Recycling
 Provisioning 这里有两种PV的提供方式:静态或者动态
-Static 集群管理员创建多个PV。 它们携带可供集群用户使用的真实存储的详细信息。 它们存在于Kubernetes API中，可用于消费。 Dynamic 当管理员创建的静态PV都不匹配用户的PersistentVolumeClaim时，集群可能会尝试为PVC动态配置卷。 此配置基于StorageClasses：PVC必须请求一个类，并且管理员必须已创建并配置该类才能进行动态配置。 要求该类的声明有效地为自己禁用动态配置 Binding 在动态配置的情况下，用户创建或已经创建了具有特定数量的存储请求和特定访问模式的PersistentVolumeClaim。 主机中的控制回路监视新的PVC，找到匹配的PV（如果可能），并将它们绑定在一起。 如果为新的PVC动态配置PV，则循环将始终将该PV绑定到PVC。 否则，用户总是至少得到他们要求的内容，但是卷可能超出了要求。 一旦绑定，PersistentVolumeClaim绑定是排他的，不管用于绑定它们的模式。
+Static集群管理员创建多个PV。 它们携带可供集群用户使用的真实存储的详细信息。 它们存在于Kubernetes API中，可用于消费。Dynamic当管理员创建的静态PV都不匹配用户的PersistentVolumeClaim时，集群可能会尝试为PVC动态配置卷。 此配置基于StorageClasses：PVC必须请求一个类，并且管理员必须已创建并配置该类才能进行动态配置。 要求该类的声明有效地为自己禁用动态配置Binding 在动态配置的情况下，用户创建或已经创建了具有特定数量的存储请求和特定访问模式的PersistentVolumeClaim。 主机中的控制回路监视新的PVC，找到匹配的PV（如果可能），并将它们绑定在一起。 如果为新的PVC动态配置PV，则循环将始终将该PV绑定到PVC。 否则，用户总是至少得到他们要求的内容，但是卷可能超出了要求。 一旦绑定，PersistentVolumeClaim绑定是排他的，不管用于绑定它们的模式。
 如果匹配的卷不存在，PVC将保持无限期。 随着匹配卷变得可用，PVC将被绑定。 例如，提供许多50Gi PV的集群将不匹配要求100Gi的PVC。 当集群中添加100Gi PV时，可以绑定PVC。
 Using Pod使用PVC作为卷。 集群检查声明以找到绑定的卷并挂载该卷的卷。 对于支持多种访问模式的卷，用户在将其声明用作pod中的卷时指定所需的模式。
 一旦用户有声明并且该声明被绑定，绑定的PV属于用户，只要他们需要它。 用户通过在其Pod的卷块中包含persistentVolumeClaim来安排Pods并访问其声明的PV。
@@ -159,9 +159,9 @@ Reclaiming PersistentVolume的回收策略告诉集群在释放其声明后，�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/1.%E5%9F%BA%E7%A1%80/1.2-k8s%E5%9F%BA%E7%A1%80/1.2.8-k8s%E8%B5%84%E6%BA%90%E5%AF%B9%E8%B1%A1/1.2.8.2services/</guid>
-      <description>1.2.8.2 Services 名词解释 Services  Overview（概述） Kubernetes Pod是平凡的，它门会被创建，也会死掉（生老病死），并且他们是不可复活的。 ReplicationControllers动态的创建和销毁Pods(比如规模扩大或者缩小，或者执行动态更新)。每个pod都由自己的ip，这些IP也随着时间的变化也不能持续依赖。这样就引发了一个问题：如果一些Pods（让我们叫它作后台，后端）提供了一些功能供其它的Pod使用（让我们叫作前台），在kubernete集群中是如何实现让这些前台能够持续的追踪到这些后台的？
+      <description>1.2.8.2 Services 名词解释 Services Overview（概述） Kubernetes Pod是平凡的，它门会被创建，也会死掉（生老病死），并且他们是不可复活的。 ReplicationControllers动态的创建和销毁Pods(比如规模扩大或者缩小，或者执行动态更新)。每个pod都由自己的ip，这些IP也随着时间的变化也不能持续依赖。这样就引发了一个问题：如果一些Pods（让我们叫它作后台，后端）提供了一些功能供其它的Pod使用（让我们叫作前台），在kubernete集群中是如何实现让这些前台能够持续的追踪到这些后台的？
 答案是：Service
-Kubernete Service 是一个定义了一组Pod 的策略的抽象，我们也有时候叫做宏观服务。这些被服务标记的Pod都是（一般）通过label Selector决定的（下面我们会讲到我们为什么需要一个没有label selector的服务）
+Kubernete Service 是一个定义了一组Pod的策略的抽象，我们也有时候叫做宏观服务。这些被服务标记的Pod都是（一般）通过label Selector决定的（下面我们会讲到我们为什么需要一个没有label selector的服务）
 举个例子，我们假设后台是一个图形处理的后台，并且由3个副本。这些副本是可以相互替代的，并且前台并需要关心使用的哪一个后台Pod，当这个承载前台请求的pod发生变化时，前台并不需要直到这些变化，或者追踪后台的这些副本，服务是这些去耦
 对于Kubernete原生的应用，Kubernete提供了一个简单的Endpoints API，这个Endpoints api的作用就是当一个服务中的pod发生变化时，Endpoints API随之变化，对于哪些不是原生的程序，Kubernetes提供了一个基于虚拟IP的网桥的服务，这个服务会将请求转发到对应的后台pod
 Defining a service(定义一个服务) 一个Kubernete服务是一个最小的对象，类似pod,和其它的终端对象一样，我们可以朝paiserver发送请求来创建一个新的实例，比如，假设你拥有一些Pod,每个pod都开放了9376端口，并且均带有一个标签app=MyApp
@@ -219,8 +219,8 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/java%E5%BA%94%E7%94%A8%E4%BB%8Enfs%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</guid>
       <description>java应用从nfs加载配置文件
 背景 配置文件变化，无需重新构建镜像部署。
-1. 准备nfs 1、准备好nfs服务器。参考：nfs安装 的nfs服务端配置。 2、k8s node节点可以不启用rpcbind服务，但是必须安装nfs-utils（yum install nfs-utils），否则nfs-client-provisioner pod无法启动，因为nfs-client.yaml里面有nfs的相关配置，而这些nfs配置要生效需依赖nfs-utils。参考：nfs安装 的nfs客户端配置。
-2. 创建StorageClass对象 理论部分参考：StorageClass 2.1 nfs-client.yaml kind: Deployment apiVersion: apps/v1 metadata: name: nfs-client-provisioner spec: replicas: 1 strategy: type: Recreate selector: matchLabels: app: nfs-client-provisioner template: metadata: labels: app: nfs-client-provisioner spec: serviceAccountName: nfs-client-provisioner containers: - name: nfs-client-provisioner image: quay.io/external_storage/nfs-client-provisioner:latest volumeMounts: - name: nfs-client-root mountPath: /persistentvolumes env: - name: PROVISIONER_NAME value: fuseim.pri/ifs - name: NFS_SERVER value: nfs - name: NFS_PATH value: /mnt/nfs/k8s volumes: - name: nfs-client-root nfs: server: nfs path: /mnt/nfs/k8s [v_warn]k8s node节点可以不启用rpcbind服务，但必须安装nfs-utils。[/v_warn]</description>
+1. 准备nfs 1、准备好nfs服务器。参考：nfs安装的nfs服务端配置。 2、k8s node节点可以不启用rpcbind服务，但是必须安装nfs-utils（yum install nfs-utils），否则nfs-client-provisioner pod无法启动，因为nfs-client.yaml里面有nfs的相关配置，而这些nfs配置要生效需依赖nfs-utils。参考：nfs安装的nfs客户端配置。
+2. 创建StorageClass对象 理论部分参考：StorageClass2.1 nfs-client.yaml kind: Deployment apiVersion: apps/v1 metadata: name: nfs-client-provisioner spec: replicas: 1 strategy: type: Recreate selector: matchLabels: app: nfs-client-provisioner template: metadata: labels: app: nfs-client-provisioner spec: serviceAccountName: nfs-client-provisioner containers: - name: nfs-client-provisioner image: quay.io/external_storage/nfs-client-provisioner:latest volumeMounts: - name: nfs-client-root mountPath: /persistentvolumes env: - name: PROVISIONER_NAME value: fuseim.pri/ifs - name: NFS_SERVER value: nfs - name: NFS_PATH value: /mnt/nfs/k8s volumes: - name: nfs-client-root nfs: server: nfs path: /mnt/nfs/k8s [v_warn]k8s node节点可以不启用rpcbind服务，但必须安装nfs-utils。[/v_warn]</description>
     </item>
     
     <item>
@@ -230,7 +230,7 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/k8s%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81/</guid>
       <description>k8s部署应用(前端静态)
-0. 准备条件  部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S      名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上     应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库：   理解k8s基础概念，可以参考Kubernetes: 基础概念介绍   1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &amp;gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
+0. 准备条件  部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S     名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上     应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库：   理解k8s基础概念，可以参考Kubernetes: 基础概念介绍  1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &amp;gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
 1.2 生成拉取镜像的密钥 kubectl create secret docker-registry registry-secret-tencent --docker-server=ccr.</description>
     </item>
     
@@ -253,7 +253,7 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/operator%E5%AE%9E%E6%88%98/</guid>
       <description>operator实战 1⃣️ 需求 我们将定义一个 crd ，spec 包含以下信息：
-Replicas	# 副本数 Image	# 镜像 Resources	# 资源限制 Envs	# 环境变量 Ports	# 服务端口 2⃣️ 编码 初始化项目目录：
+Replicas	# 副本数Image	# 镜像Resources	# 资源限制Envs	# 环境变量Ports	# 服务端口2⃣️ 编码 初始化项目目录：
 tony@192 k8s % pwd /Users/tony/workspace/k8s tony@192 k8s % mkdir -p app-operator/src/github.com/xuzhijvn/app cd app-operator/src/github.com/xuzhijvn/app 初始化operator项目结构，并创建api：
 operator-sdk init --domain=huolala.cn --repo=github.com/xuzhijvn/app operator-sdk create api --group app --version v1 --kind App --resource=true --controller=true 修改 CRD 类型定义代码 api/v1/app_types.go:
 /* Copyright 2021. Licensed under the Apache License, Version 2.0 (the &amp;#34;License&amp;#34;); you may not use this file except in compliance with the License.</description>
@@ -301,7 +301,7 @@ Unable to connect to the server: x509: certificate has expired or is not yet val
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/%E5%88%87%E6%8D%A2namespace/</guid>
       <description>切换namespace
 0. 背景 k8s如何切换namespace？？而不必每次执行命令的时候在后面指定namespace？k8s并没有直接提供切换namespace的命令。不过可以通过：
- 切换context达到切换namespace的目的，这需要提前创建好context和namespace的绑定关系（如：kubectl config set-context test --namespace=test）,然后使用 kubectl config use-context test 切换context，从而间接的达到切换namespace的目的。这方法属实是太别扭了，强迫症患者都不喜欢。 或者使用kubectx工具，其本质是动态的修改context和namespace的绑定关系。使用形如：kubens test 即可切换。这样才是切换namespace的正确打开方式，优雅多了。  参考资料： Kubernetes命名空间 一条命令解决Kubernetes更改默认的namespace Kubernetes 切换context和namespace k8s集群namespace和context使用 ahmetb / kubectx 提高您的kubectl生产力（第三部分）：集群上下文切换、使用别名减少输入和插件扩展 </description>
+ 切换context达到切换namespace的目的，这需要提前创建好context和namespace的绑定关系（如：kubectl config set-context test --namespace=test）,然后使用 kubectl config use-context test 切换context，从而间接的达到切换namespace的目的。这方法属实是太别扭了，强迫症患者都不喜欢。 或者使用kubectx工具，其本质是动态的修改context和namespace的绑定关系。使用形如：kubens test 即可切换。这样才是切换namespace的正确打开方式，优雅多了。  参考资料： Kubernetes命名空间一条命令解决Kubernetes更改默认的namespaceKubernetes 切换context和namespacek8s集群namespace和context使用ahmetb / kubectx提高您的kubectl生产力（第三部分）：集群上下文切换、使用别名减少输入和插件扩展</description>
     </item>
     
     <item>
@@ -312,9 +312,9 @@ Unable to connect to the server: x509: certificate has expired or is not yet val
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/%E5%90%8C%E6%AD%A5%E9%95%9C%E5%83%8F%E5%88%B0%E8%87%AA%E5%B7%B1%E7%9A%84%E4%BB%93%E5%BA%93/</guid>
       <description>同步镜像到自己的仓库 经常有一些国外的镜像仓库，在国内无法拉取，此时我们可以先找台国外的服务器拉取下来，重新打tag后推送到自己的镜像仓库。
 1⃣️ 免费服务器
-https://labs.play-with-k8s.com/ 2⃣️ 拉取-打tag-推送
+https://labs.play-with-k8s.com/2⃣️ 拉取-打tag-推送
 3⃣️ 验证
-参考链接🔗 如何拉取k8s.grc.io、quay.io的镜像 </description>
+参考链接🔗 如何拉取k8s.grc.io、quay.io的镜像</description>
     </item>
     
     <item>
@@ -325,7 +325,7 @@ https://labs.play-with-k8s.com/ 2⃣️ 拉取-打tag-推送
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/%E5%9C%A8namespace%E4%B9%8B%E9%97%B4%E5%85%B1%E4%BA%ABsecret/</guid>
       <description>在namespace之间共享secret
 有的时候在default空间下创建了拉取镜像的secret，当部署k8s的资源到其他namespace的时候，如果部署的的是deployment的之类的势必会要拉取镜像，这个时候必然失败，因为secret创建在default空间下，所以我们需要将secret复制一份到需要的namespace下面：
-kubectl get secret coding-regcred --namespace=default -oyaml | grep -v &amp;#39;^\s*namespace:\s&amp;#39; | kubectl apply --namespace=tkb -f - 参考链接：Kubernetes - sharing secret across namespaces </description>
+kubectl get secret coding-regcred --namespace=default -oyaml | grep -v &amp;#39;^\s*namespace:\s&amp;#39; | kubectl apply --namespace=tkb -f - 参考链接：Kubernetes - sharing secret across namespaces</description>
     </item>
     
     <item>
@@ -336,7 +336,7 @@ kubectl get secret coding-regcred --namespace=default -oyaml | grep -v &amp;#39;
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/%E6%9C%AC%E5%9C%B0%E8%BF%9E%E6%8E%A5k8s%E9%9B%86%E7%BE%A4/</guid>
       <description>本地连接k8s集群 在日常开发的过程中，经常会需要在本地开发的程序需要在k8s中调试的场景，比如，写了一个operator。
 如果此时，本地又没有可以直接可达的k8s集群，
-比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群 再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
+比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
 1⃣️ 重新生成config文件 默认下，~/.kube/config 生成配置文件的时候只包含了k8s集群ip和这个节点的局域网ip，本地如果想远程操作k8s的话，必定要通过公网ip连接到k8s集群，所以我们需要把节点绑定的公网ip也放到证书里面去，即我们需要重新生成证书。如果不这样做，本地直接访问的话，会报如下提示：
 tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate is valid for 10.96.0.1, 172.17.0.14, not 106.55.152.92 先备份证书：
 [root@k8s-master .kube]# mkdir -p /etc/kubernetes/pki.bak [root@k8s-master .kube]# mv /etc/kubernetes/pki/apiserver.* /etc/kubernetes/pki.bak 重新生成证书：

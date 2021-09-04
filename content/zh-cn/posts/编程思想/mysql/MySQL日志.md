@@ -17,7 +17,7 @@ images : [
 ]
 ---
 
-[comment]: <> (# MySQL日志)
+[comment]: <> "# MySQL日志"
 
 
 
@@ -124,13 +124,14 @@ images : [
 
 ### MySQL 的逻辑架构图：
 
-<img src="https://picgo.6and.ltd/img/0d2070e8f84c4801adbfa03bda1f98d9-20210819150540455.png" alt="MySQL 的逻辑架构图" style="zoom: 50%;" />
+<img src="https://picgo.6and.ltd/img/0d2070e8f84c4801adbfa03bda1f98d9-20210819150540455.png" alt="MySQL 的逻辑架构图" style="zoom: 35%;" />
 
-mysql8.0之后删除了查询缓存模块
+> mysql8.0之后删除了查询缓存模块
+>
 
 ### update 语句执行流程：
 
-<img src="https://picgo.6and.ltd/img/20201124231528159.png" alt="update 语句执行流程" style="zoom:50%;" />
+<img src="https://picgo.6and.ltd/img/20201124231528159.png" alt="update 语句执行流程" style="zoom:40%;" />
 
 redo log的写入分成两个步骤prepare和commit，这就是**两阶段提交**
 

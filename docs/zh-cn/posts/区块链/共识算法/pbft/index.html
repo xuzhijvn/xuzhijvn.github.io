@@ -10,7 +10,7 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="pbft">
-<meta itemprop="description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance 。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery 发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
+<meta itemprop="description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
 0. 背景 拜占庭问题（Byzantine Problem） 又叫拜占庭将军（Byzantine Generals Problem） 问题，讨论的是允许存在少数节点作恶（消息可能被伪造） 场景下的如何达成共识问题。拜占庭容错（Byzantine Fault Tolerant，BFT）讨论的是容忍拜占庭错误的共识算法。
  两将军问题  拜占庭问题之前，学术界就已经存在两将军问题的讨论（《Some constraints and tradeofis in the design of network communications》 ，1975年）：两个将军要通过信使来达成进攻还是撤退的约定，但信使可能迷路或被敌军阻拦（消息丢失或伪造），如何达成一致？根据FLP不可能原理，这个问题无通用解。
  拜占庭问题  拜占庭问题最早由 Leslie Lamport 等学者于 1982 年在论文《The Byzantine Generals Problem》中正式提出，是用来解释异步系统中共识问题的一个虚构模型。它是分布式领域中最复杂、最严格的容错模型。在该模型下，系统不会对集群中的节点做任何的限制，它们可以向其他节点发送随机数据、错误数据，也可以选择不响应其他节点的请求，这些无法预测的行为使得容错这一问题变得更加复杂。
@@ -21,7 +21,7 @@
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="350"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="BlockChain," /><meta property="og:title" content="pbft" />
-<meta property="og:description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance 。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery 发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
+<meta property="og:description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
 0. 背景 拜占庭问题（Byzantine Problem） 又叫拜占庭将军（Byzantine Generals Problem） 问题，讨论的是允许存在少数节点作恶（消息可能被伪造） 场景下的如何达成共识问题。拜占庭容错（Byzantine Fault Tolerant，BFT）讨论的是容忍拜占庭错误的共识算法。
  两将军问题  拜占庭问题之前，学术界就已经存在两将军问题的讨论（《Some constraints and tradeofis in the design of network communications》 ，1975年）：两个将军要通过信使来达成进攻还是撤退的约定，但信使可能迷路或被敌军阻拦（消息丢失或伪造），如何达成一致？根据FLP不可能原理，这个问题无通用解。
  拜占庭问题  拜占庭问题最早由 Leslie Lamport 等学者于 1982 年在论文《The Byzantine Generals Problem》中正式提出，是用来解释异步系统中共识问题的一个虚构模型。它是分布式领域中最复杂、最严格的容错模型。在该模型下，系统不会对集群中的节点做任何的限制，它们可以向其他节点发送随机数据、错误数据，也可以选择不响应其他节点的请求，这些无法预测的行为使得容错这一问题变得更加复杂。
@@ -39,7 +39,7 @@
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
 
 <meta name="twitter:title" content="pbft"/>
-<meta name="twitter:description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance 。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery 发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
+<meta name="twitter:description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
 0. 背景 拜占庭问题（Byzantine Problem） 又叫拜占庭将军（Byzantine Generals Problem） 问题，讨论的是允许存在少数节点作恶（消息可能被伪造） 场景下的如何达成共识问题。拜占庭容错（Byzantine Fault Tolerant，BFT）讨论的是容忍拜占庭错误的共识算法。
  两将军问题  拜占庭问题之前，学术界就已经存在两将军问题的讨论（《Some constraints and tradeofis in the design of network communications》 ，1975年）：两个将军要通过信使来达成进攻还是撤退的约定，但信使可能迷路或被敌军阻拦（消息丢失或伪造），如何达成一致？根据FLP不可能原理，这个问题无通用解。
  拜占庭问题  拜占庭问题最早由 Leslie Lamport 等学者于 1982 年在论文《The Byzantine Generals Problem》中正式提出，是用来解释异步系统中共识问题的一个虚构模型。它是分布式领域中最复杂、最严格的容错模型。在该模型下，系统不会对集群中的节点做任何的限制，它们可以向其他节点发送随机数据、错误数据，也可以选择不响应其他节点的请求，这些无法预测的行为使得容错这一问题变得更加复杂。
@@ -357,7 +357,7 @@
 </p>
 <h2 id="---pre-prepare">-  <strong>pre-prepare</strong></h2>
 <blockquote>
-<p>pre-prepare阶段的消息格式(&laquo;PRE-PREPARE, v, n, d&gt;<!-- raw HTML omitted -->sigma(p)<!-- raw HTML omitted -->, m&gt;)，其中v表示当前view编号，n表示给m分配的序号，d为m的哈希，以及m的原文。</p>
+<p>pre-prepare阶段的消息格式(&laquo;PRE-PREPARE, v, n, d&gt;<sub>sigma(p)</sub>, m&gt;)，其中v表示当前view编号，n表示给m分配的序号，d为m的哈希，以及m的原文。</p>
 </blockquote>
 <p><strong>节点</strong>收到请求m时，会做两件事，首先，广播<code>pre-prepare消息</code>给其他节点。然后，将消息保存在本地log中。</p>
 <p><strong>其他从节点</strong>收到pre-prepare消息时，会依次验证：</p>
@@ -372,7 +372,7 @@
 <p>主节点发出pre-prepare消息，从节点验证消息的正确性（客户端签名、视图、请求编号）；一旦消息验证正确，则pre-prepare阶段完成，从节点广播prepare消息，进入prepare阶段；之后，节点将消息加入到本地的log中。</p>
 <h2 id="--prepare">- <strong>prepare</strong></h2>
 <blockquote>
-<p>prepare阶段的消息格式(&lt;PREPARE, v, n, d, i&gt;<!-- raw HTML omitted -->sigma(i)<!-- raw HTML omitted -->)，其中v表示当前view编号，n表示给m分配的序号，d为m的哈希。</p>
+<p>prepare阶段的消息格式(&lt;PREPARE, v, n, d, i&gt;<sub>sigma(i)</sub>)，其中v表示当前view编号，n表示给m分配的序号，d为m的哈希。</p>
 </blockquote>
 <p><strong>所有节点</strong>收到prepare消息时，会依次验证：</p>
 <ol>
@@ -405,7 +405,7 @@
 <p>节点收到prepare消息，节点验证消息的正确性（签名、视图、请求编号）；一旦2f+1个prepare消息验证正确，则prepare阶段完成，节点广播commit消息，同时进入commit阶段；之后，节点将消息加入到本地的log中。</p>
 <h2 id="--commit">- <strong>commit</strong></h2>
 <blockquote>
-<p>commit阶段的消息格式(&lt;COMMIT, v, n, d, i&gt;<!-- raw HTML omitted -->sigma(i)<!-- raw HTML omitted -->)，其中v表示当前view编号，n表示给m分配的序号，d为m的哈希。</p>
+<p>commit阶段的消息格式(&lt;COMMIT, v, n, d, i&gt;<sub>sigma(i)</sub>)，其中v表示当前view编号，n表示给m分配的序号，d为m的哈希。</p>
 </blockquote>
 <p><strong>其他从节点</strong>收到commit消息时，会依次验证：</p>
 <ol>
@@ -444,7 +444,7 @@
 <p>如果主节点作恶，它可能会给不同的请求编上相同的序号，或者不去分配序号，或者让相邻的序号不连续。备份节点应当有职责来主动检查这些序号的合法性。如果主节点掉线或者作恶不广播客户端的请求，客户端设置超时机制，超时的话，向所有副本节点广播请求消息。副本节点检测出主节点作恶或者下线，发起View Change消息。</p>
 <p><strong>VIEW-CHANGE</strong></p>
 <blockquote>
-<p>&lt;VIEW-CHANGE, v+1, n, C, P, i&gt;<!-- raw HTML omitted -->sigma(i)<!-- raw HTML omitted -->消息。n是最新的stable checkpoint的编号，C是2f+1验证过的CheckPoint消息集合，P是当前副本节点未完成的请求的PRE-PREPARE和PREPARE消息集合。</p>
+<p>&lt;VIEW-CHANGE, v+1, n, C, P, i&gt;<sub>sigma(i)</sub>消息。n是最新的stable checkpoint的编号，C是2f+1验证过的CheckPoint消息集合，P是当前副本节点未完成的请求的PRE-PREPARE和PREPARE消息集合。</p>
 </blockquote>
 <p><img class="img-fluid" alt="image-20210604125157418" src="https://picgo.6and.ltd/img/image-20210604125157418.png"
    loading="lazy" />
@@ -452,7 +452,7 @@
 </p>
 <p><strong>NEW-VIEW</strong></p>
 <blockquote>
-<p>&lt;NEW-VIEW, v+1, V, O&gt;<!-- raw HTML omitted -->sigma(p)<!-- raw HTML omitted -->消息。V是有效的VIEW-CHANGE消息集合。O是主节点重新发起的未经完成的PRE-PREPARE消息集合。PRE-PREPARE消息集合的选取规则：</p>
+<p>&lt;NEW-VIEW, v+1, V, O&gt;<sub>sigma(p)</sub>消息。V是有效的VIEW-CHANGE消息集合。O是主节点重新发起的未经完成的PRE-PREPARE消息集合。PRE-PREPARE消息集合的选取规则：</p>
 </blockquote>
 <ol>
 <li>选取V中最小的stable checkpoint编号min-s，选取V中prepare消息的最大编号max-s。</li>
@@ -462,7 +462,7 @@
    loading="lazy" />
 
 </p>
-<p>当主节点p = v + 1 mod |R|收到2f个有效的VIEW-CHANGE消息后，向其他节点广播&lt;NEW-VIEW, v+1, V, O&gt;<!-- raw HTML omitted -->sigma(p)<!-- raw HTML omitted -->消息，副本节点收到主节点的NEW-VIEW消息，验证有效性，有效的话，进入v+1状态，并且开始O中的PRE-PREPARE消息处理流程。</p>
+<p>当主节点p = v + 1 mod |R|收到2f个有效的VIEW-CHANGE消息后，向其他节点广播&lt;NEW-VIEW, v+1, V, O&gt;<sub>sigma(p)</sub>消息，副本节点收到主节点的NEW-VIEW消息，验证有效性，有效的话，进入v+1状态，并且开始O中的PRE-PREPARE消息处理流程。</p>
 <blockquote>
 <p>总结：</p>
 </blockquote>
