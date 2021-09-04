@@ -124,7 +124,7 @@ images : [
 
 ### MySQL 的逻辑架构图：
 
-<img src="https://picgo.6and.ltd/img/0d2070e8f84c4801adbfa03bda1f98d9-20210819150540455.png" alt="MySQL 的逻辑架构图" style="zoom: 35%;" />
+<img src="https://picgo.6and.ltd/img/0d2070e8f84c4801adbfa03bda1f98d9-20210819150540455.png" alt="MySQL 的逻辑架构图" style="zoom: 50%;" />
 
 > mysql8.0之后删除了查询缓存模块
 >
