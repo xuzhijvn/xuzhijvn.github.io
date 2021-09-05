@@ -1,4 +1,3 @@
-
 ---
 title: "OOM实战"
 date: 2021-08-27T11:15:10+08:00
@@ -15,10 +14,11 @@ series : [
 ]
 images : [
 "images/center.png"
+
 ]
 ---
 
-[comment]: <> (# OOM实战)
+[comment]: <> "# OOM实战"
 
 《深入理解Java虚拟机》中将OOM划分为: `Java堆溢出`、`虚拟机栈和本地方法栈溢出`、`方法区和运行时常量池溢出`、`本机直接内存溢出`
 
