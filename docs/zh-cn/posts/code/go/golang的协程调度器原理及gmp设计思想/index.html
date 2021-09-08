@@ -1,0 +1,1053 @@
+<!doctype html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Golang的协程调度器原理及GMP设计思想 - 唯有光頭才能變強</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://xuzhijvn.github.io/images/favicons/manifest.json">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="Golang的协程调度器原理及GMP设计思想">
+<meta itemprop="description" content="本节为重点章节 本章节含视频版:
+   一、Golang“调度器”的由来？ (1) 单进程时代不需要调度器 我们知道，一切的软件都是跑在操作系统上，真正用来干活(计算)的是CPU。早期的操作系统每个程序就是一个进程，直到一个程序运行完，才能进行下一个进程，就是“单进程时代”
+一切的程序只能串行发生。
+早期的单进程操作系统，面临2个问题：
+1.单一的执行流程，计算机只能一个任务一个任务处理。
+2.进程阻塞所带来的CPU时间浪费。
+那么能不能有多个进程来宏观一起来执行多个任务呢？
+后来操作系统就具有了最早的并发能力：多进程并发，当一个进程阻塞的时候，切换到另外等待执行的进程，这样就能尽量把CPU利用起来，CPU就不浪费了。
+(2)多进程/线程时代有了调度器需求 在多进程/多线程的操作系统中，就解决了阻塞的问题，因为一个进程阻塞cpu可以立刻切换到其他进程中去执行，而且调度cpu的算法可以保证在运行的进程都可以被分配到cpu的运行时间片。这样从宏观来看，似乎多个进程是在同时被运行。
+但新的问题就又出现了，进程拥有太多的资源，进程的创建、切换、销毁，都会占用很长的时间，CPU虽然利用起来了，但如果进程过多，CPU有很大的一部分都被用来进行进程调度了。
+怎么才能提高CPU的利用率呢？
+但是对于Linux操作系统来讲，cpu对进程的态度和线程的态度是一样的。
+很明显，CPU调度切换的是进程和线程。尽管线程看起来很美好，但实际上多线程开发设计会变得更加复杂，要考虑很多同步竞争等问题，如锁、竞争冲突等。
+(3)协程来提高CPU利用率 多进程、多线程已经提高了系统的并发能力，但是在当今互联网高并发场景下，为每个任务都创建一个线程是不现实的，因为会消耗大量的内存(进程虚拟内存会占用4GB[32位操作系统], 而线程也要大约4MB)。
+大量的进程/线程出现了新的问题
+ 高内存占用 调度的高消耗CPU  好了，然后工程师们就发现，其实一个线程分为“内核态“线程和”用户态“线程。
+一个“用户态线程”必须要绑定一个“内核态线程”，但是CPU并不知道有“用户态线程”的存在，它只知道它运行的是一个“内核态线程”(Linux的PCB进程控制块)。
+这样，我们再去细化去分类一下，内核线程依然叫“线程(thread)”，用户线程叫“协程(co-routine)&quot;.
+看到这里，我们就要开脑洞了，既然一个协程(co-routine)可以绑定一个线程(thread)，那么能不能多个协程(co-routine)绑定一个或者多个线程(thread)上呢。
+之后，我们就看到了有3中协程和线程的映射关系：
+ N:1关系  N个协程绑定1个线程，优点就是协程在用户态线程即完成切换，不会陷入到内核态，这种切换非常的轻量快速。但也有很大的缺点，1个进程的所有协程都绑定在1个线程上
+缺点：
+ 某个程序用不了硬件的多核加速能力 一旦某协程阻塞，造成线程阻塞，本进程的其他协程都无法执行了，根本就没有并发的能力了。   1:1 关系  1个协程绑定1个线程，这种最容易实现。协程的调度都由CPU完成了，不存在N:1缺点，
+缺点：
+ 协程的创建、删除和切换的代价都由CPU完成，有点略显昂贵了。   M:N关系  M个协程绑定1个线程，是N:1和1:1类型的结合，克服了以上2种模型的缺点，但实现起来最为复杂。
+协程跟线程是有区别的，线程由CPU调度是抢占式的，协程由用户态调度是协作式的，一个协程让出CPU后，才执行下一个协程。
+(4)Go语言的协程goroutine Go为了提供更容易使用的并发方法，使用了goroutine和channel。goroutine来自协程的概念，让一组可复用的函数运行在一组线程之上，即使有协程阻塞，该线程的其他协程也可以被runtime调度，转移到其他可运行的线程上。最关键的是，程序员看不到这些底层的细节，这就降低了编程的难度，提供了更容易的并发。
+Go中，协程被称为goroutine，它非常轻量，一个goroutine只占几KB，并且这几KB就足够goroutine运行完，这就能在有限的内存空间内支持大量goroutine，支持了更多的并发。虽然一个goroutine的栈只占几KB，但实际是可伸缩的，如果需要更多内容，runtime会自动为goroutine分配。
+Goroutine特点：
+ 占用内存更小（几kb） 调度更灵活(runtime调度)  (5)被废弃的goroutine调度器 好了，既然我们知道了协程和线程的关系，那么最关键的一点就是调度协程的调度器的实现了。
+Go目前使用的调度器是2012年重新设计的，因为之前的调度器性能存在问题，所以使用4年就被废弃了，那么我们先来分析一下被废弃的调度器是如何运作的？
+ 大部分文章都是会用G来表示Goroutine，用M来表示线程，那么我们也会用这种表达的对应关系。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="413"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="keywords" content="GO," /><meta property="og:title" content="Golang的协程调度器原理及GMP设计思想" />
+<meta property="og:description" content="本节为重点章节 本章节含视频版:
+   一、Golang“调度器”的由来？ (1) 单进程时代不需要调度器 我们知道，一切的软件都是跑在操作系统上，真正用来干活(计算)的是CPU。早期的操作系统每个程序就是一个进程，直到一个程序运行完，才能进行下一个进程，就是“单进程时代”
+一切的程序只能串行发生。
+早期的单进程操作系统，面临2个问题：
+1.单一的执行流程，计算机只能一个任务一个任务处理。
+2.进程阻塞所带来的CPU时间浪费。
+那么能不能有多个进程来宏观一起来执行多个任务呢？
+后来操作系统就具有了最早的并发能力：多进程并发，当一个进程阻塞的时候，切换到另外等待执行的进程，这样就能尽量把CPU利用起来，CPU就不浪费了。
+(2)多进程/线程时代有了调度器需求 在多进程/多线程的操作系统中，就解决了阻塞的问题，因为一个进程阻塞cpu可以立刻切换到其他进程中去执行，而且调度cpu的算法可以保证在运行的进程都可以被分配到cpu的运行时间片。这样从宏观来看，似乎多个进程是在同时被运行。
+但新的问题就又出现了，进程拥有太多的资源，进程的创建、切换、销毁，都会占用很长的时间，CPU虽然利用起来了，但如果进程过多，CPU有很大的一部分都被用来进行进程调度了。
+怎么才能提高CPU的利用率呢？
+但是对于Linux操作系统来讲，cpu对进程的态度和线程的态度是一样的。
+很明显，CPU调度切换的是进程和线程。尽管线程看起来很美好，但实际上多线程开发设计会变得更加复杂，要考虑很多同步竞争等问题，如锁、竞争冲突等。
+(3)协程来提高CPU利用率 多进程、多线程已经提高了系统的并发能力，但是在当今互联网高并发场景下，为每个任务都创建一个线程是不现实的，因为会消耗大量的内存(进程虚拟内存会占用4GB[32位操作系统], 而线程也要大约4MB)。
+大量的进程/线程出现了新的问题
+ 高内存占用 调度的高消耗CPU  好了，然后工程师们就发现，其实一个线程分为“内核态“线程和”用户态“线程。
+一个“用户态线程”必须要绑定一个“内核态线程”，但是CPU并不知道有“用户态线程”的存在，它只知道它运行的是一个“内核态线程”(Linux的PCB进程控制块)。
+这样，我们再去细化去分类一下，内核线程依然叫“线程(thread)”，用户线程叫“协程(co-routine)&quot;.
+看到这里，我们就要开脑洞了，既然一个协程(co-routine)可以绑定一个线程(thread)，那么能不能多个协程(co-routine)绑定一个或者多个线程(thread)上呢。
+之后，我们就看到了有3中协程和线程的映射关系：
+ N:1关系  N个协程绑定1个线程，优点就是协程在用户态线程即完成切换，不会陷入到内核态，这种切换非常的轻量快速。但也有很大的缺点，1个进程的所有协程都绑定在1个线程上
+缺点：
+ 某个程序用不了硬件的多核加速能力 一旦某协程阻塞，造成线程阻塞，本进程的其他协程都无法执行了，根本就没有并发的能力了。   1:1 关系  1个协程绑定1个线程，这种最容易实现。协程的调度都由CPU完成了，不存在N:1缺点，
+缺点：
+ 协程的创建、删除和切换的代价都由CPU完成，有点略显昂贵了。   M:N关系  M个协程绑定1个线程，是N:1和1:1类型的结合，克服了以上2种模型的缺点，但实现起来最为复杂。
+协程跟线程是有区别的，线程由CPU调度是抢占式的，协程由用户态调度是协作式的，一个协程让出CPU后，才执行下一个协程。
+(4)Go语言的协程goroutine Go为了提供更容易使用的并发方法，使用了goroutine和channel。goroutine来自协程的概念，让一组可复用的函数运行在一组线程之上，即使有协程阻塞，该线程的其他协程也可以被runtime调度，转移到其他可运行的线程上。最关键的是，程序员看不到这些底层的细节，这就降低了编程的难度，提供了更容易的并发。
+Go中，协程被称为goroutine，它非常轻量，一个goroutine只占几KB，并且这几KB就足够goroutine运行完，这就能在有限的内存空间内支持大量goroutine，支持了更多的并发。虽然一个goroutine的栈只占几KB，但实际是可伸缩的，如果需要更多内容，runtime会自动为goroutine分配。
+Goroutine特点：
+ 占用内存更小（几kb） 调度更灵活(runtime调度)  (5)被废弃的goroutine调度器 好了，既然我们知道了协程和线程的关系，那么最关键的一点就是调度协程的调度器的实现了。
+Go目前使用的调度器是2012年重新设计的，因为之前的调度器性能存在问题，所以使用4年就被废弃了，那么我们先来分析一下被废弃的调度器是如何运作的？
+ 大部分文章都是会用G来表示Goroutine，用M来表示线程，那么我们也会用这种表达的对应关系。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/go/golang%E7%9A%84%E5%8D%8F%E7%A8%8B%E8%B0%83%E5%BA%A6%E5%99%A8%E5%8E%9F%E7%90%86%E5%8F%8Agmp%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E6%9E%B6%E6%9E%84/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/%E9%AB%98%E5%B9%B6%E5%8F%91%E4%B8%8B%E7%9A%84%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
+
+<meta name="twitter:title" content="Golang的协程调度器原理及GMP设计思想"/>
+<meta name="twitter:description" content="本节为重点章节 本章节含视频版:
+   一、Golang“调度器”的由来？ (1) 单进程时代不需要调度器 我们知道，一切的软件都是跑在操作系统上，真正用来干活(计算)的是CPU。早期的操作系统每个程序就是一个进程，直到一个程序运行完，才能进行下一个进程，就是“单进程时代”
+一切的程序只能串行发生。
+早期的单进程操作系统，面临2个问题：
+1.单一的执行流程，计算机只能一个任务一个任务处理。
+2.进程阻塞所带来的CPU时间浪费。
+那么能不能有多个进程来宏观一起来执行多个任务呢？
+后来操作系统就具有了最早的并发能力：多进程并发，当一个进程阻塞的时候，切换到另外等待执行的进程，这样就能尽量把CPU利用起来，CPU就不浪费了。
+(2)多进程/线程时代有了调度器需求 在多进程/多线程的操作系统中，就解决了阻塞的问题，因为一个进程阻塞cpu可以立刻切换到其他进程中去执行，而且调度cpu的算法可以保证在运行的进程都可以被分配到cpu的运行时间片。这样从宏观来看，似乎多个进程是在同时被运行。
+但新的问题就又出现了，进程拥有太多的资源，进程的创建、切换、销毁，都会占用很长的时间，CPU虽然利用起来了，但如果进程过多，CPU有很大的一部分都被用来进行进程调度了。
+怎么才能提高CPU的利用率呢？
+但是对于Linux操作系统来讲，cpu对进程的态度和线程的态度是一样的。
+很明显，CPU调度切换的是进程和线程。尽管线程看起来很美好，但实际上多线程开发设计会变得更加复杂，要考虑很多同步竞争等问题，如锁、竞争冲突等。
+(3)协程来提高CPU利用率 多进程、多线程已经提高了系统的并发能力，但是在当今互联网高并发场景下，为每个任务都创建一个线程是不现实的，因为会消耗大量的内存(进程虚拟内存会占用4GB[32位操作系统], 而线程也要大约4MB)。
+大量的进程/线程出现了新的问题
+ 高内存占用 调度的高消耗CPU  好了，然后工程师们就发现，其实一个线程分为“内核态“线程和”用户态“线程。
+一个“用户态线程”必须要绑定一个“内核态线程”，但是CPU并不知道有“用户态线程”的存在，它只知道它运行的是一个“内核态线程”(Linux的PCB进程控制块)。
+这样，我们再去细化去分类一下，内核线程依然叫“线程(thread)”，用户线程叫“协程(co-routine)&quot;.
+看到这里，我们就要开脑洞了，既然一个协程(co-routine)可以绑定一个线程(thread)，那么能不能多个协程(co-routine)绑定一个或者多个线程(thread)上呢。
+之后，我们就看到了有3中协程和线程的映射关系：
+ N:1关系  N个协程绑定1个线程，优点就是协程在用户态线程即完成切换，不会陷入到内核态，这种切换非常的轻量快速。但也有很大的缺点，1个进程的所有协程都绑定在1个线程上
+缺点：
+ 某个程序用不了硬件的多核加速能力 一旦某协程阻塞，造成线程阻塞，本进程的其他协程都无法执行了，根本就没有并发的能力了。   1:1 关系  1个协程绑定1个线程，这种最容易实现。协程的调度都由CPU完成了，不存在N:1缺点，
+缺点：
+ 协程的创建、删除和切换的代价都由CPU完成，有点略显昂贵了。   M:N关系  M个协程绑定1个线程，是N:1和1:1类型的结合，克服了以上2种模型的缺点，但实现起来最为复杂。
+协程跟线程是有区别的，线程由CPU调度是抢占式的，协程由用户态调度是协作式的，一个协程让出CPU后，才执行下一个协程。
+(4)Go语言的协程goroutine Go为了提供更容易使用的并发方法，使用了goroutine和channel。goroutine来自协程的概念，让一组可复用的函数运行在一组线程之上，即使有协程阻塞，该线程的其他协程也可以被runtime调度，转移到其他可运行的线程上。最关键的是，程序员看不到这些底层的细节，这就降低了编程的难度，提供了更容易的并发。
+Go中，协程被称为goroutine，它非常轻量，一个goroutine只占几KB，并且这几KB就足够goroutine运行完，这就能在有限的内存空间内支持大量goroutine，支持了更多的并发。虽然一个goroutine的栈只占几KB，但实际是可伸缩的，如果需要更多内容，runtime会自动为goroutine分配。
+Goroutine特点：
+ 占用内存更小（几kb） 调度更灵活(runtime调度)  (5)被废弃的goroutine调度器 好了，既然我们知道了协程和线程的关系，那么最关键的一点就是调度协程的调度器的实现了。
+Go目前使用的调度器是2012年重新设计的，因为之前的调度器性能存在问题，所以使用4年就被废弃了，那么我们先来分析一下被废弃的调度器是如何运作的？
+ 大部分文章都是会用G来表示Goroutine，用M来表示线程，那么我们也会用这种表达的对应关系。"/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.9823d950e7319c8ceb08b6234b64b3736ce36485bc1b6b0689482a5d0c4c1c8f.js" integrity="sha256-mCPZUOcxnIzrCLYjS2Szc2zjZIW8G2sGiUgqXQxMHI8=" crossorigin="anonymous"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
+   width="400" height="400" loading="lazy" />
+唯有光頭才能變強</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
+    <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
+  </div>
+</form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-categories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-categories"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3">
+                <i class="fas fa-fw fa-code"></i>编程思想
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD">
+                <i class="fas fa-fw fa-robot"></i>人工智能
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE">
+                <i class="fas fa-fw fa-cubes"></i>区块链
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6">
+                <i class="fas fa-fw fa-server"></i>计算机科学
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B">
+                <i class="fas fa-fw fa-sitemap"></i>架构演进
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F">
+                <i class="fas fa-fw fa-cloud"></i>云原生
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-tags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/java">
+                <i class="fab fa-fw fa-java"></i>Java
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+  <a class="nav-link" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fas fa-fw fa-language"></i> 简体中文
+  </a>
+  <ul class="dropdown-menu" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/en/"></a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+</li><li class="nav-item">
+  <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button"
+    aria-controls="offcanvasSettings">
+    <i class="fas fa-fw fa-sliders-h"></i> 设置
+  </a>
+</li>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings"
+  aria-labelledby="offcanvasSettingsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" w id="offcanvasSettingsLabel"><i class="fas fa-fw fa-sliders-h"></i> 设置</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <span id="btnPalette" class="btn btn-sm"><i class="fas fa-eye-dropper"></i></span>
+    </div>
+  </form>
+  <div class="container mt-2 visually-hidden" id="palettePicker">
+    <div class="btn-group"><button type="button" id="palette-blue" title="蓝色" 
+          class="btn btn-sm palette bg-blue d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-blue-gray" title="蓝灰色" 
+          class="btn btn-sm palette bg-blue-gray d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-brown" title="棕色" 
+          class="btn btn-sm palette bg-brown d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-cyan" title="青色" 
+          class="btn btn-sm palette bg-cyan d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-green" title="绿色" 
+          class="btn btn-sm palette bg-green d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-indigo" title="靛青色" 
+          class="btn btn-sm palette bg-indigo d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-orange" title="橙色" 
+          class="btn btn-sm palette bg-orange d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-pink" title="粉色" 
+          class="btn btn-sm palette bg-pink d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-purple" title="紫色" 
+          class="btn btn-sm palette bg-purple d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-red" title="红色" 
+          class="btn btn-sm palette bg-red d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-teal" title="蓝绿色" 
+          class="btn btn-sm palette bg-teal d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-yellow" title="黄色" 
+          class="btn btn-sm palette bg-yellow d-flex align-items-center justify-content-center">
+        </button></button>
+    </div>
+  </div>
+</section></div>
+</div></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row" aria-label="breadcrumb">
+  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">Golang的协程调度器原理及GMP设计思想</li></ol>
+</nav><article class="post row surface"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-alt fa-rotate-45"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-medal"></i>
+</a>
+    
+    <a id="btnTOC" class="fas fa-fw fa-list-alt" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+</a>
+  </div>
+</div>
+<h1 class="post-title my-3">Golang的协程调度器原理及GMP设计思想
+</h1><div class="post-meta mb-3"><span class="post-date me-2">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
+  </span><span class="post-reading-time me-2">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="post-taxonomy">GO</a></span>
+</div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#一golang调度器的由来">一、Golang“调度器”的由来？</a>
+      <ul>
+        <li><a href="#1-单进程时代不需要调度器">(1) 单进程时代不需要调度器</a></li>
+        <li><a href="#2多进程线程时代有了调度器需求">(2)多进程/线程时代有了调度器需求</a></li>
+        <li><a href="#3协程来提高cpu利用率">(3)协程来提高CPU利用率</a></li>
+        <li><a href="#4go语言的协程goroutine">(4)Go语言的协程goroutine</a></li>
+        <li><a href="#5被废弃的goroutine调度器">(5)被废弃的goroutine调度器</a></li>
+      </ul>
+    </li>
+    <li><a href="#二goroutine调度器的gmp模型的设计思想">二、Goroutine调度器的GMP模型的设计思想</a>
+      <ul>
+        <li><a href="#1gmp模型">(1)GMP模型</a></li>
+        <li><a href="#2调度器的设计策略">(2)调度器的设计策略</a></li>
+        <li><a href="#3-go-func-调度流程">(3) go func() 调度流程</a></li>
+        <li><a href="#4调度器的生命周期">(4)调度器的生命周期</a></li>
+        <li><a href="#5可视化gmp编程">(5)可视化GMP编程</a></li>
+      </ul>
+    </li>
+    <li><a href="#三go调度器调度场景过程全解析">三、Go调度器调度场景过程全解析</a>
+      <ul>
+        <li><a href="#1场景1">(1)场景1</a></li>
+        <li><a href="#2场景2">(2)场景2</a></li>
+        <li><a href="#3场景3">(3)场景3</a></li>
+        <li><a href="#4场景4">(4)场景4</a></li>
+        <li><a href="#5场景5">(5)场景5</a></li>
+        <li><a href="#6场景6">(6)场景6</a></li>
+        <li><a href="#7场景7">(7)场景7</a></li>
+        <li><a href="#8场景8">(8)场景8</a></li>
+        <li><a href="#9场景9">(9)场景9</a></li>
+        <li><a href="#10场景10">(10)场景10</a></li>
+        <li><a href="#11场景11">(11)场景11</a></li>
+      </ul>
+    </li>
+    <li><a href="#四小结">四、小结</a></li>
+    <li><a href="#参考链接">参考链接</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><blockquote>
+<p>本节为<strong>重点</strong>章节 本章节含视频版:</p>
+</blockquote>
+<p><a href="https://www.bilibili.com/video/BV19r4y1w7Nx" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/GPM%E5%B0%81%E9%9D%A2.png"
+   loading="lazy" />
+
+</a>
+</p>
+<hr>
+<h2 id="一golang调度器的由来">一、Golang“调度器”的由来？</h2>
+<h3 id="1-单进程时代不需要调度器">(1) 单进程时代不需要调度器</h3>
+<p>我们知道，一切的软件都是跑在操作系统上，真正用来干活(计算)的是CPU。早期的操作系统每个程序就是一个进程，直到一个程序运行完，才能进行下一个进程，就是“单进程时代”</p>
+<p>一切的程序只能串行发生。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/5-%E5%8D%95%E8%BF%9B%E7%A8%8B%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.png"
+   loading="lazy" />
+
+</p>
+<p>早期的单进程操作系统，面临2个问题：</p>
+<p>1.单一的执行流程，计算机只能一个任务一个任务处理。</p>
+<p>2.进程阻塞所带来的CPU时间浪费。</p>
+<p>那么能不能有多个进程来宏观一起来执行多个任务呢？</p>
+<p>后来操作系统就具有了<strong>最早的并发能力：多进程并发</strong>，当一个进程阻塞的时候，切换到另外等待执行的进程，这样就能尽量把CPU利用起来，CPU就不浪费了。</p>
+<h3 id="2多进程线程时代有了调度器需求">(2)多进程/线程时代有了调度器需求</h3>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/6-%E5%A4%9A%E8%BF%9B%E7%A8%8B%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.png"
+   loading="lazy" />
+
+</p>
+<p>在多进程/多线程的操作系统中，就解决了阻塞的问题，因为一个进程阻塞cpu可以立刻切换到其他进程中去执行，而且调度cpu的算法可以保证在运行的进程都可以被分配到cpu的运行时间片。这样从宏观来看，似乎多个进程是在同时被运行。</p>
+<p>但新的问题就又出现了，进程拥有太多的资源，进程的创建、切换、销毁，都会占用很长的时间，CPU虽然利用起来了，但如果进程过多，CPU有很大的一部分都被用来进行进程调度了。</p>
+<p><strong>怎么才能提高CPU的利用率呢？</strong></p>
+<p>但是对于Linux操作系统来讲，cpu对进程的态度和线程的态度是一样的。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/7-cpu%E5%88%87%E6%8D%A2%E6%B5%AA%E8%B4%B9%E6%88%90%E6%9C%AC.png"
+   loading="lazy" />
+
+</p>
+<p>很明显，CPU调度切换的是进程和线程。尽管线程看起来很美好，但实际上多线程开发设计会变得更加复杂，要考虑很多同步竞争等问题，如锁、竞争冲突等。</p>
+<h3 id="3协程来提高cpu利用率">(3)协程来提高CPU利用率</h3>
+<p>多进程、多线程已经提高了系统的并发能力，但是在当今互联网高并发场景下，为每个任务都创建一个线程是不现实的，因为会消耗大量的内存(进程虚拟内存会占用4GB[32位操作系统], 而线程也要大约4MB)。</p>
+<p>大量的进程/线程出现了新的问题</p>
+<ul>
+<li>高内存占用</li>
+<li>调度的高消耗CPU</li>
+</ul>
+<p>好了，然后工程师们就发现，其实一个线程分为“内核态“线程和”用户态“线程。</p>
+<p>一个“用户态线程”必须要绑定一个“内核态线程”，但是CPU并不知道有“用户态线程”的存在，它只知道它运行的是一个“内核态线程”(Linux的PCB进程控制块)。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/8-%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%86%85%E6%A0%B8%E5%92%8C%E7%94%A8%E6%88%B7%E6%80%81.png"
+   loading="lazy" />
+
+</p>
+<p>这样，我们再去细化去分类一下，内核线程依然叫“线程(thread)”，用户线程叫“协程(co-routine)&quot;.</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/9-%E5%8D%8F%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B.png"
+   loading="lazy" />
+
+</p>
+<p>看到这里，我们就要开脑洞了，既然一个协程(co-routine)可以绑定一个线程(thread)，那么能不能多个协程(co-routine)绑定一个或者多个线程(thread)上呢。</p>
+<p>之后，我们就看到了有3中协程和线程的映射关系：</p>
+<blockquote>
+<h4 id="n1关系">N:1关系</h4>
+</blockquote>
+<p>N个协程绑定1个线程，优点就是<strong>协程在用户态线程即完成切换，不会陷入到内核态，这种切换非常的轻量快速</strong>。但也有很大的缺点，1个进程的所有协程都绑定在1个线程上</p>
+<p>缺点：</p>
+<ul>
+<li>某个程序用不了硬件的多核加速能力</li>
+<li>一旦某协程阻塞，造成线程阻塞，本进程的其他协程都无法执行了，根本就没有并发的能力了。</li>
+</ul>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/10-N-1%E5%85%B3%E7%B3%BB.png"
+   loading="lazy" />
+
+</p>
+<blockquote>
+<h4 id="11-关系">1:1 关系</h4>
+</blockquote>
+<p>1个协程绑定1个线程，这种最容易实现。协程的调度都由CPU完成了，不存在N:1缺点，</p>
+<p>缺点：</p>
+<ul>
+<li>协程的创建、删除和切换的代价都由CPU完成，有点略显昂贵了。</li>
+</ul>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/11-1-1.png"
+   loading="lazy" />
+
+</p>
+<blockquote>
+<h4 id="mn关系">M:N关系</h4>
+</blockquote>
+<p>M个协程绑定1个线程，是N:1和1:1类型的结合，克服了以上2种模型的缺点，但实现起来最为复杂。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/12-m-n.png"
+   loading="lazy" />
+
+</p>
+<p>协程跟线程是有区别的，线程由CPU调度是抢占式的，<strong>协程由用户态调度是协作式的</strong>，一个协程让出CPU后，才执行下一个协程。</p>
+<h3 id="4go语言的协程goroutine">(4)Go语言的协程goroutine</h3>
+<p><strong>Go为了提供更容易使用的并发方法，使用了goroutine和channel</strong>。goroutine来自协程的概念，让一组可复用的函数运行在一组线程之上，即使有协程阻塞，该线程的其他协程也可以被<code>runtime</code>调度，转移到其他可运行的线程上。最关键的是，程序员看不到这些底层的细节，这就降低了编程的难度，提供了更容易的并发。</p>
+<p>Go中，协程被称为goroutine，它非常轻量，一个goroutine只占几KB，并且这几KB就足够goroutine运行完，这就能在有限的内存空间内支持大量goroutine，支持了更多的并发。虽然一个goroutine的栈只占几KB，但实际是可伸缩的，如果需要更多内容，<code>runtime</code>会自动为goroutine分配。</p>
+<p>Goroutine特点：</p>
+<ul>
+<li>占用内存更小（几kb）</li>
+<li>调度更灵活(runtime调度)</li>
+</ul>
+<h3 id="5被废弃的goroutine调度器">(5)被废弃的goroutine调度器</h3>
+<p>好了，既然我们知道了协程和线程的关系，那么最关键的一点就是调度协程的调度器的实现了。</p>
+<p>Go目前使用的调度器是2012年重新设计的，因为之前的调度器性能存在问题，所以使用4年就被废弃了，那么我们先来分析一下被废弃的调度器是如何运作的？</p>
+<blockquote>
+<p>大部分文章都是会用G来表示Goroutine，用M来表示线程，那么我们也会用这种表达的对应关系。</p>
+</blockquote>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/13-gm.png"
+   loading="lazy" />
+
+</p>
+<p>下面我们来看看被废弃的golang调度器是如何实现的？</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/14-old%E8%B0%83%E5%BA%A6%E5%99%A8.png"
+   loading="lazy" />
+
+</p>
+<p>M想要执行、放回G都必须访问全局G队列，并且M有多个，即多线程访问同一资源需要加锁进行保证互斥/同步，所以全局G队列是有互斥锁进行保护的。</p>
+<p>老调度器有几个缺点：</p>
+<ol>
+<li>创建、销毁、调度G都需要每个M获取锁，这就形成了<strong>激烈的锁竞争</strong>。</li>
+<li>M转移G会造成<strong>延迟和额外的系统负载</strong>。比如当G中包含创建新协程的时候，M创建了G’，为了继续执行G，需要把G’交给M’执行，也造成了<strong>很差的局部性</strong>，因为G’和G是相关的，最好放在M上执行，而不是其他M'。</li>
+<li>系统调用(CPU在M之间的切换)导致频繁的线程阻塞和取消阻塞操作增加了系统开销。</li>
+</ol>
+<h2 id="二goroutine调度器的gmp模型的设计思想">二、Goroutine调度器的GMP模型的设计思想</h2>
+<p>面对之前调度器的问题，Go设计了新的调度器。</p>
+<p>在新调度器中，出列M(thread)和G(goroutine)，又引进了P(Processor)。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/15-gmp.png"
+   loading="lazy" />
+
+</p>
+<p><strong>Processor，它包含了运行goroutine的资源</strong>，如果线程想运行goroutine，必须先获取P，P中还包含了可运行的G队列。</p>
+<h3 id="1gmp模型">(1)GMP模型</h3>
+<p>在Go中，<strong>线程是运行goroutine的实体，调度器的功能是把可运行的goroutine分配到工作线程上</strong>。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/16-GMP-%E8%B0%83%E5%BA%A6.png"
+   loading="lazy" />
+
+</p>
+<ol>
+<li><strong>全局队列</strong>（Global Queue）：存放等待运行的G。</li>
+<li><strong>P的本地队列</strong>：同全局队列类似，存放的也是等待运行的G，存的数量有限，不超过256个。新建G&rsquo;时，G&rsquo;优先加入到P的本地队列，如果队列满了，则会把本地队列中一半的G移动到全局队列。</li>
+<li><strong>P列表</strong>：所有的P都在程序启动时创建，并保存在数组中，最多有<code>GOMAXPROCS</code>(可配置)个。</li>
+<li><strong>M</strong>：线程想运行任务就得获取P，从P的本地队列获取G，P队列为空时，M也会尝试从全局队列<strong>拿</strong>一批G放到P的本地队列，或从其他P的本地队列<strong>偷</strong>一半放到自己P的本地队列。M运行G，G执行之后，M会从P获取下一个G，不断重复下去。</li>
+</ol>
+<p><strong>Goroutine调度器和OS调度器是通过M结合起来的，每个M都代表了1个内核线程，OS调度器负责把内核线程分配到CPU的核上执行</strong>。</p>
+<blockquote>
+<h4 id="有关p和m的个数问题">有关P和M的个数问题</h4>
+</blockquote>
+<p>1、P的数量：</p>
+<ul>
+<li>由启动时环境变量<code>$GOMAXPROCS</code>或者是由<code>runtime</code>的方法<code>GOMAXPROCS()</code>决定。这意味着在程序执行的任意时刻都只有<code>$GOMAXPROCS</code>个goroutine在同时运行。</li>
+</ul>
+<p>2、M的数量:</p>
+<ul>
+<li>go语言本身的限制：go程序启动时，会设置M的最大数量，默认10000.但是内核很难支持这么多的线程数，所以这个限制可以忽略。</li>
+<li>runtime/debug中的SetMaxThreads函数，设置M的最大数量</li>
+<li>一个M阻塞了，会创建新的M。</li>
+</ul>
+<p>M与P的数量没有绝对关系，一个M阻塞，P就会去创建或者切换另一个M，所以，即使P的默认数量是1，也有可能会创建很多个M出来。</p>
+<blockquote>
+<h4 id="p和m何时会被创建">P和M何时会被创建</h4>
+</blockquote>
+<p>1、P何时创建：在确定了P的最大数量n后，运行时系统会根据这个数量创建n个P。</p>
+<p>2、M何时创建：没有足够的M来关联P并运行其中的可运行的G。比如所有的M此时都阻塞住了，而P中还有很多就绪任务，就会去寻找空闲的M，而没有空闲的，就会去创建新的M。</p>
+<h3 id="2调度器的设计策略">(2)调度器的设计策略</h3>
+<p><strong>复用线程</strong>：避免频繁的创建、销毁线程，而是对线程的复用。</p>
+<p>1）work stealing机制</p>
+<p>当本线程无可运行的G时，尝试从其他线程绑定的P偷取G，而不是销毁线程。</p>
+<p>2）hand off机制</p>
+<p>当本线程因为G进行系统调用阻塞时，线程释放绑定的P，把P转移给其他空闲的线程执行。</p>
+<p><strong>利用并行</strong>：<code>GOMAXPROCS</code>设置P的数量，最多有<code>GOMAXPROCS</code>个线程分布在多个CPU上同时运行。<code>GOMAXPROCS</code>也限制了并发的程度，比如<code>GOMAXPROCS = 核数/2</code>，则最多利用了一半的CPU核进行并行。</p>
+<p><strong>抢占</strong>：在coroutine中要等待一个协程主动让出CPU才执行下一个协程，在Go中，一个goroutine最多占用CPU 10ms，防止其他goroutine被饿死，这就是goroutine不同于coroutine的一个地方。</p>
+<p><strong>全局G队列</strong>：在新的调度器中依然有全局G队列，但功能已经被弱化了，当M执行work stealing从其他P偷不到G时，它可以从全局G队列获取G。</p>
+<h3 id="3-go-func-调度流程">(3) go func() 调度流程</h3>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/18-go-func%E8%B0%83%E5%BA%A6%E5%91%A8%E6%9C%9F.jpeg"
+   loading="lazy" />
+
+</p>
+<p>从上图我们可以分析出几个结论：</p>
+<p>1、我们通过 go func()来创建一个goroutine；</p>
+<p>2、有两个存储G的队列，一个是局部调度器P的本地队列、一个是全局G队列。新创建的G会先保存在P的本地队列中，如果P的本地队列已经满了就会保存在全局的队列中；</p>
+<p>3、G只能运行在M中，一个M必须持有一个P，M与P是1：1的关系。M会从P的本地队列弹出一个可执行状态的G来执行，如果P的本地队列为空，就会想其他的MP组合偷取一个可执行的G来执行；</p>
+<p>4、一个M调度G执行的过程是一个循环机制；</p>
+<p>5、当M执行某一个G时候如果发生了syscall或则其余阻塞操作，M会阻塞，如果当前有一些G在执行，runtime会把这个线程M从P中摘除(detach)，然后再创建一个新的操作系统的线程(如果有空闲的线程可用就复用空闲线程)来服务于这个P；</p>
+<p>6、当M系统调用结束时候，这个G会尝试获取一个空闲的P执行，并放入到这个P的本地队列。如果获取不到P，那么这个线程M变成休眠状态， 加入到空闲线程中，然后这个G会被放入全局队列中。</p>
+<h3 id="4调度器的生命周期">(4)调度器的生命周期</h3>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/17-pic-go%E8%B0%83%E5%BA%A6%E5%99%A8%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.png"
+   loading="lazy" />
+
+</p>
+<p>特殊的M0和G0</p>
+<p><strong>M0</strong></p>
+<p><code>M0</code>是启动程序后的编号为0的主线程，这个M对应的实例会在全局变量runtime.m0中，不需要在heap上分配，M0负责执行初始化操作和启动第一个G， 在之后M0就和其他的M一样了。</p>
+<p><strong>G0</strong></p>
+<p><code>G0</code>是每次启动一个M都会第一个创建的gourtine，G0仅用于负责调度的G，G0不指向任何可执行的函数, 每个M都会有一个自己的G0。在调度或系统调用时会使用G0的栈空间, 全局变量的G0是M0的G0。</p>
+<p>我们来跟踪一段代码</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;fmt&#34;</span>
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;Hello world&#34;</span>)
+}
+</code></pre></div><p>接下来我们来针对上面的代码对调度器里面的结构做一个分析。</p>
+<p>也会经历如上图所示的过程：</p>
+<ol>
+<li>runtime创建最初的线程m0和goroutine g0，并把2者关联。</li>
+<li>调度器初始化：初始化m0、栈、垃圾回收，以及创建和初始化由GOMAXPROCS个P构成的P列表。</li>
+<li>示例代码中的main函数是<code>main.main</code>，<code>runtime</code>中也有1个main函数——<code>runtime.main</code>，代码经过编译后，<code>runtime.main</code>会调用<code>main.main</code>，程序启动时会为<code>runtime.main</code>创建goroutine，称它为main goroutine吧，然后把main goroutine加入到P的本地队列。</li>
+<li>启动m0，m0已经绑定了P，会从P的本地队列获取G，获取到main goroutine。</li>
+<li>G拥有栈，M根据G中的栈信息和调度信息设置运行环境</li>
+<li>M运行G</li>
+<li>G退出，再次回到M获取可运行的G，这样重复下去，直到<code>main.main</code>退出，<code>runtime.main</code>执行Defer和Panic处理，或调用<code>runtime.exit</code>退出程序。</li>
+</ol>
+<p>调度器的生命周期几乎占满了一个Go程序的一生，<code>runtime.main</code>的goroutine执行之前都是为调度器做准备工作，<code>runtime.main</code>的goroutine运行，才是调度器的真正开始，直到<code>runtime.main</code>结束而结束。</p>
+<h3 id="5可视化gmp编程">(5)可视化GMP编程</h3>
+<p>有2种方式可以查看一个程序的GMP的数据。</p>
+<p><strong>方式1：go tool trace</strong></p>
+<p>trace记录了运行时的信息，能提供可视化的Web页面。</p>
+<p>简单测试代码：main函数创建trace，trace会运行在单独的goroutine中，然后main打印&quot;Hello World&quot;退出。</p>
+<blockquote>
+<p>trace.go</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> (
+    <span style="color:#e6db74">&#34;os&#34;</span>
+    <span style="color:#e6db74">&#34;fmt&#34;</span>
+    <span style="color:#e6db74">&#34;runtime/trace&#34;</span>
+)
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+
+    <span style="color:#75715e">//创建trace文件
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">f</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#e6db74">&#34;trace.out&#34;</span>)
+    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+        panic(<span style="color:#a6e22e">err</span>)
+    }
+
+    <span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">f</span>.<span style="color:#a6e22e">Close</span>()
+
+    <span style="color:#75715e">//启动trace goroutine
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">trace</span>.<span style="color:#a6e22e">Start</span>(<span style="color:#a6e22e">f</span>)
+    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+        panic(<span style="color:#a6e22e">err</span>)
+    }
+    <span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">trace</span>.<span style="color:#a6e22e">Stop</span>()
+
+    <span style="color:#75715e">//main
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;Hello World&#34;</span>)
+}
+</code></pre></div><p>运行程序</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#960050;background-color:#1e0010">$</span> <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">run</span> <span style="color:#a6e22e">trace</span>.<span style="color:#66d9ef">go</span> 
+<span style="color:#a6e22e">Hello</span> <span style="color:#a6e22e">World</span>
+</code></pre></div><p>会得到一个<code>trace.out</code>文件，然后我们可以用一个工具打开，来分析这个文件。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#960050;background-color:#1e0010">$</span> <span style="color:#66d9ef">go</span> <span style="color:#a6e22e">tool</span> <span style="color:#a6e22e">trace</span> <span style="color:#a6e22e">trace</span>.<span style="color:#a6e22e">out</span> 
+<span style="color:#ae81ff">2020</span><span style="color:#f92672">/</span><span style="color:#ae81ff">02</span><span style="color:#f92672">/</span><span style="color:#ae81ff">23</span> <span style="color:#ae81ff">10</span>:<span style="color:#ae81ff">44</span>:<span style="color:#ae81ff">11</span> <span style="color:#a6e22e">Parsing</span> <span style="color:#a6e22e">trace</span><span style="color:#f92672">...</span>
+<span style="color:#ae81ff">2020</span><span style="color:#f92672">/</span><span style="color:#ae81ff">02</span><span style="color:#f92672">/</span><span style="color:#ae81ff">23</span> <span style="color:#ae81ff">10</span>:<span style="color:#ae81ff">44</span>:<span style="color:#ae81ff">11</span> <span style="color:#a6e22e">Splitting</span> <span style="color:#a6e22e">trace</span><span style="color:#f92672">...</span>
+<span style="color:#ae81ff">2020</span><span style="color:#f92672">/</span><span style="color:#ae81ff">02</span><span style="color:#f92672">/</span><span style="color:#ae81ff">23</span> <span style="color:#ae81ff">10</span>:<span style="color:#ae81ff">44</span>:<span style="color:#ae81ff">11</span> <span style="color:#a6e22e">Opening</span> <span style="color:#a6e22e">browser</span>. <span style="color:#a6e22e">Trace</span> <span style="color:#a6e22e">viewer</span> <span style="color:#a6e22e">is</span> <span style="color:#a6e22e">listening</span> <span style="color:#a6e22e">on</span> <span style="color:#a6e22e">http</span>:<span style="color:#75715e">//127.0.0.1:33479
+</span></code></pre></div><p>我们可以通过浏览器打开<code>http://127.0.0.1:33479</code>网址，点击<code>view trace</code> 能够看见可视化的调度流程。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/19-go-trace1.png"
+   loading="lazy" />
+
+</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/20-go-trace2.png"
+   loading="lazy" />
+
+
+<strong>G信息</strong></p>
+<p>点击Goroutines那一行可视化的数据条，我们会看到一些详细的信息。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/20-go-trace3.png"
+   loading="lazy" />
+
+</p>
+<p>一共有两个G在程序中，一个是特殊的G0，是每个M必须有的一个初始化的G，这个我们不必讨论。</p>
+<p>其中G1应该就是main goroutine(执行main函数的协程)，在一段时间内处于可运行和运行的状态。</p>
+<p><strong>M信息</strong></p>
+<p>点击Threads那一行可视化的数据条，我们会看到一些详细的信息。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/22-go-trace4.png"
+   loading="lazy" />
+
+</p>
+<p>一共有两个M在程序中，一个是特殊的M0，用于初始化使用，这个我们不必讨论。</p>
+<p><strong>P信息</strong></p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/23-go-trace5.png"
+   loading="lazy" />
+
+</p>
+<p>G1中调用了<code>main.main</code>，创建了<code>trace goroutine g18</code>。G1运行在P1上，G18运行在P0上。</p>
+<p>这里有两个P，我们知道，一个P必须绑定一个M才能调度G。</p>
+<p>我们在来看看上面的M信息。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/24-go-trace6.png"
+   loading="lazy" />
+
+</p>
+<p>我们会发现，确实G18在P0上被运行的时候，确实在Threads行多了一个M的数据，点击查看如下： <img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/25-go-trace7.png"
+   loading="lazy" />
+
+</p>
+<p>多了一个M2应该就是P0为了执行G18而动态创建的M2.</p>
+<p><strong>方式2：Debug trace</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> (
+    <span style="color:#e6db74">&#34;fmt&#34;</span>
+    <span style="color:#e6db74">&#34;time&#34;</span>
+)
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#ae81ff">5</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+        <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;Hello World&#34;</span>)
+    }
+}
+</code></pre></div><p>编译</p>
+<pre><code>$ go build trace2.go
+</code></pre><p>通过Debug方式运行</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#960050;background-color:#1e0010">$</span> <span style="color:#a6e22e">GODEBUG</span>=<span style="color:#a6e22e">schedtrace</span>=<span style="color:#ae81ff">1000</span> .<span style="color:#f92672">/</span><span style="color:#a6e22e">trace2</span> 
+<span style="color:#a6e22e">SCHED</span> <span style="color:#ae81ff">0</span><span style="color:#a6e22e">ms</span>: <span style="color:#a6e22e">gomaxprocs</span>=<span style="color:#ae81ff">2</span> <span style="color:#a6e22e">idleprocs</span>=<span style="color:#ae81ff">0</span> <span style="color:#a6e22e">threads</span>=<span style="color:#ae81ff">4</span> <span style="color:#a6e22e">spinningthreads</span>=<span style="color:#ae81ff">1</span> <span style="color:#a6e22e">idlethreads</span>=<span style="color:#ae81ff">1</span> <span style="color:#a6e22e">runqueue</span>=<span style="color:#ae81ff">0</span> [<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span>]
+<span style="color:#a6e22e">Hello</span> <span style="color:#a6e22e">World</span>
+<span style="color:#a6e22e">SCHED</span> <span style="color:#ae81ff">1003</span><span style="color:#a6e22e">ms</span>: <span style="color:#a6e22e">gomaxprocs</span>=<span style="color:#ae81ff">2</span> <span style="color:#a6e22e">idleprocs</span>=<span style="color:#ae81ff">2</span> <span style="color:#a6e22e">threads</span>=<span style="color:#ae81ff">4</span> <span style="color:#a6e22e">spinningthreads</span>=<span style="color:#ae81ff">0</span> <span style="color:#a6e22e">idlethreads</span>=<span style="color:#ae81ff">2</span> <span style="color:#a6e22e">runqueue</span>=<span style="color:#ae81ff">0</span> [<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span>]
+<span style="color:#a6e22e">Hello</span> <span style="color:#a6e22e">World</span>
+<span style="color:#a6e22e">SCHED</span> <span style="color:#ae81ff">2014</span><span style="color:#a6e22e">ms</span>: <span style="color:#a6e22e">gomaxprocs</span>=<span style="color:#ae81ff">2</span> <span style="color:#a6e22e">idleprocs</span>=<span style="color:#ae81ff">2</span> <span style="color:#a6e22e">threads</span>=<span style="color:#ae81ff">4</span> <span style="color:#a6e22e">spinningthreads</span>=<span style="color:#ae81ff">0</span> <span style="color:#a6e22e">idlethreads</span>=<span style="color:#ae81ff">2</span> <span style="color:#a6e22e">runqueue</span>=<span style="color:#ae81ff">0</span> [<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span>]
+<span style="color:#a6e22e">Hello</span> <span style="color:#a6e22e">World</span>
+<span style="color:#a6e22e">SCHED</span> <span style="color:#ae81ff">3015</span><span style="color:#a6e22e">ms</span>: <span style="color:#a6e22e">gomaxprocs</span>=<span style="color:#ae81ff">2</span> <span style="color:#a6e22e">idleprocs</span>=<span style="color:#ae81ff">2</span> <span style="color:#a6e22e">threads</span>=<span style="color:#ae81ff">4</span> <span style="color:#a6e22e">spinningthreads</span>=<span style="color:#ae81ff">0</span> <span style="color:#a6e22e">idlethreads</span>=<span style="color:#ae81ff">2</span> <span style="color:#a6e22e">runqueue</span>=<span style="color:#ae81ff">0</span> [<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span>]
+<span style="color:#a6e22e">Hello</span> <span style="color:#a6e22e">World</span>
+<span style="color:#a6e22e">SCHED</span> <span style="color:#ae81ff">4023</span><span style="color:#a6e22e">ms</span>: <span style="color:#a6e22e">gomaxprocs</span>=<span style="color:#ae81ff">2</span> <span style="color:#a6e22e">idleprocs</span>=<span style="color:#ae81ff">2</span> <span style="color:#a6e22e">threads</span>=<span style="color:#ae81ff">4</span> <span style="color:#a6e22e">spinningthreads</span>=<span style="color:#ae81ff">0</span> <span style="color:#a6e22e">idlethreads</span>=<span style="color:#ae81ff">2</span> <span style="color:#a6e22e">runqueue</span>=<span style="color:#ae81ff">0</span> [<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span>]
+<span style="color:#a6e22e">Hello</span> <span style="color:#a6e22e">World</span>
+</code></pre></div><ul>
+<li><code>SCHED</code>：调试信息输出标志字符串，代表本行是goroutine调度器的输出；</li>
+<li><code>0ms</code>：即从程序启动到输出这行日志的时间；</li>
+<li><code>gomaxprocs</code>: P的数量，本例有2个P, 因为默认的P的属性是和cpu核心数量默认一致，当然也可以通过GOMAXPROCS来设置；</li>
+<li><code>idleprocs</code>: 处于idle状态的P的数量；通过gomaxprocs和idleprocs的差值，我们就可知道执行go代码的P的数量；</li>
+<li>t<code>hreads: os threads/M</code>的数量，包含scheduler使用的m数量，加上runtime自用的类似sysmon这样的thread的数量；</li>
+<li><code>spinningthreads</code>: 处于自旋状态的os thread数量；</li>
+<li><code>idlethread</code>: 处于idle状态的os thread的数量；</li>
+<li><code>runqueue=0</code>： Scheduler全局队列中G的数量；</li>
+<li><code>[0 0]</code>: 分别为2个P的local queue中的G的数量。</li>
+</ul>
+<p>下一篇，我们来继续详细的分析GMP调度原理的一些场景问题。</p>
+<h2 id="三go调度器调度场景过程全解析">三、Go调度器调度场景过程全解析</h2>
+<h3 id="1场景1">(1)场景1</h3>
+<p>P拥有G1，M1获取P后开始运行G1，G1使用<code>go func()</code>创建了G2，为了局部性G2优先加入到P1的本地队列。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/26-gmp%E5%9C%BA%E6%99%AF1.png"
+   loading="lazy" />
+
+</p>
+<hr>
+<h3 id="2场景2">(2)场景2</h3>
+<p>G1运行完成后(函数：<code>goexit</code>)，M上运行的goroutine切换为G0，G0负责调度时协程的切换（函数：<code>schedule</code>）。从P的本地队列取G2，从G0切换到G2，并开始运行G2(函数：<code>execute</code>)。实现了线程M1的复用。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/27-gmp%E5%9C%BA%E6%99%AF2.png"
+   loading="lazy" />
+
+</p>
+<hr>
+<h3 id="3场景3">(3)场景3</h3>
+<p>假设每个P的本地队列只能存4个G。G2要创建了6个G，前4个G（G3, G4, G5, G6）已经加入p1的本地队列，p1本地队列满了。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/28-gmp%E5%9C%BA%E6%99%AF3.png"
+   loading="lazy" />
+
+</p>
+<hr>
+<h3 id="4场景4">(4)场景4</h3>
+<p>G2在创建G7的时候，发现P1的本地队列已满，需要执行<strong>负载均衡</strong>(把P1中本地队列中前一半的G，还有新创建G<strong>转移</strong>到全局队列)</p>
+<blockquote>
+<p>（实现中并不一定是新的G，如果G是G2之后就执行的，会被保存在本地队列，利用某个老的G替换新G加入全局队列）</p>
+</blockquote>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/29-gmp%E5%9C%BA%E6%99%AF4.png"
+   loading="lazy" />
+
+</p>
+<p>这些G被转移到全局队列时，会被打乱顺序。所以G3,G4,G7被转移到全局队列。</p>
+<hr>
+<h3 id="5场景5">(5)场景5</h3>
+<p>G2创建G8时，P1的本地队列未满，所以G8会被加入到P1的本地队列。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/30-gmp%E5%9C%BA%E6%99%AF5.png"
+   loading="lazy" />
+
+</p>
+<p>G8加入到P1点本地队列的原因还是因为P1此时在与M1绑定，而G2此时是M1在执行。所以G2创建的新的G会优先放置到自己的M绑定的P上。</p>
+<hr>
+<h3 id="6场景6">(6)场景6</h3>
+<p>规定：<strong>在创建G时，运行的G会尝试唤醒其他空闲的P和M组合去执行</strong>。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/31-gmp%E5%9C%BA%E6%99%AF6.png"
+   loading="lazy" />
+
+</p>
+<p>假定G2唤醒了M2，M2绑定了P2，并运行G0，但P2本地队列没有G，M2此时为自旋线程**（没有G但为运行状态的线程，不断寻找G）**。</p>
+<hr>
+<h3 id="7场景7">(7)场景7</h3>
+<p>M2尝试从全局队列(简称“GQ”)取一批G放到P2的本地队列（函数：<code>findrunnable()</code>）。M2从全局队列取的G数量符合下面的公式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">n</span> = <span style="color:#a6e22e">min</span>(len(<span style="color:#a6e22e">GQ</span>)<span style="color:#f92672">/</span><span style="color:#a6e22e">GOMAXPROCS</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, len(<span style="color:#a6e22e">GQ</span><span style="color:#f92672">/</span><span style="color:#ae81ff">2</span>))
+</code></pre></div><p>至少从全局队列取1个g，但每次不要从全局队列移动太多的g到p本地队列，给其他p留点。这是<strong>从全局队列到P本地队列的负载均衡</strong>。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/32-gmp%E5%9C%BA%E6%99%AF7.001.jpeg"
+   loading="lazy" />
+
+</p>
+<p>假定我们场景中一共有4个P（GOMAXPROCS设置为4，那么我们允许最多就能用4个P来供M使用）。所以M2只从能从全局队列取1个G（即G3）移动P2本地队列，然后完成从G0到G3的切换，运行G3。</p>
+<hr>
+<h3 id="8场景8">(8)场景8</h3>
+<p>假设G2一直在M1上运行，经过2轮后，M2已经把G7、G4从全局队列获取到了P2的本地队列并完成运行，全局队列和P2的本地队列都空了,如场景8图的左半部分。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/33-gmp%E5%9C%BA%E6%99%AF8.png"
+   loading="lazy" />
+
+</p>
+<p><strong>全局队列已经没有G，那m就要执行work stealing(偷取)：从其他有G的P哪里偷取一半G过来，放到自己的P本地队列</strong>。P2从P1的本地队列尾部取一半的G，本例中一半则只有1个G8，放到P2的本地队列并执行。</p>
+<hr>
+<h3 id="9场景9">(9)场景9</h3>
+<p>G1本地队列G5、G6已经被其他M偷走并运行完成，当前M1和M2分别在运行G2和G8，M3和M4没有goroutine可以运行，M3和M4处于<strong>自旋状态</strong>，它们不断寻找goroutine。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/34-gmp%E5%9C%BA%E6%99%AF9.png"
+   loading="lazy" />
+
+</p>
+<p>为什么要让m3和m4自旋，自旋本质是在运行，线程在运行却没有执行G，就变成了浪费CPU. 为什么不销毁现场，来节约CPU资源。因为创建和销毁CPU也会浪费时间，我们<strong>希望当有新goroutine创建时，立刻能有M运行它</strong>，如果销毁再新建就增加了时延，降低了效率。当然也考虑了过多的自旋线程是浪费CPU，所以系统中最多有<code>GOMAXPROCS</code>个自旋的线程(当前例子中的<code>GOMAXPROCS</code>=4，所以一共4个P)，多余的没事做线程会让他们休眠。</p>
+<hr>
+<h3 id="10场景10">(10)场景10</h3>
+<p>假定当前除了M3和M4为自旋线程，还有M5和M6为空闲的线程(没有得到P的绑定，注意我们这里最多就只能够存在4个P，所以P的数量应该永远是M&gt;=P, 大部分都是M在抢占需要运行的P)，G8创建了G9，G8进行了<strong>阻塞的系统调用</strong>，M2和P2立即解绑，P2会执行以下判断：如果P2本地队列有G、全局队列有G或有空闲的M，P2都会立马唤醒1个M和它绑定，否则P2则会加入到空闲P列表，等待M来获取可用的p。本场景中，P2本地队列有G9，可以和其他空闲的线程M5绑定。</p>
+<p><img class="img-fluid" alt="35-gmp场景10.png" src="https://picgo.6and.ltd/img/35-gmp%E5%9C%BA%E6%99%AF10-20210618113920213.png"
+   loading="lazy" />
+
+</p>
+<hr>
+<h3 id="11场景11">(11)场景11</h3>
+<p>G8创建了G9，假如G8进行了<strong>非阻塞系统调用</strong>。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/36-gmp%E5%9C%BA%E6%99%AF11.png"
+   loading="lazy" />
+
+</p>
+<p>M2和P2会解绑，但M2会记住P2，然后G8和M2进入<strong>系统调用</strong>状态。当G8和M2退出系统调用时，会尝试获取P2，如果无法获取，则获取空闲的P，如果依然没有，G8会被记为可运行状态，并加入到全局队列,M2因为没有P的绑定而变成休眠状态(长时间休眠等待GC回收销毁)。</p>
+<hr>
+<h2 id="四小结">四、小结</h2>
+<p>总结，Go调度器很轻量也很简单，足以撑起goroutine的调度工作，并且让Go具有了原生（强大）并发的能力。<strong>Go调度本质是把大量的goroutine分配到少量线程上去执行，并利用多核并行，实现更强大的并发。</strong></p>
+<hr>
+<h2 id="参考链接">参考链接</h2>
+<p><a href="https://github.com/aceld/golang/blob/main/2%E3%80%81Golang%E7%9A%84%E5%8D%8F%E7%A8%8B%E8%B0%83%E5%BA%A6%E5%99%A8%E5%8E%9F%E7%90%86%E5%8F%8AGMP%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%EF%BC%9F.md" target="_blank" rel="noopener noreferrer">Golang的协程调度器原理及GMP设计思想？</a>
+</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-medal"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" aria-label="Close"><i class="fas fa-fw fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-between">
+  <div class="post-nav w-50"><div class="prev-post btn btn-sm">
+      <a href="https://xuzhijvn.github.io/zh-cn/posts/code/go/go%E5%A4%9A%E7%89%88%E6%9C%AC%E5%88%87%E6%8D%A2/">go多版本切换
+</a>
+    </div></div>
+  <div class="post-nav flex-row-reverse"><div class="next-post btn btn-sm">
+      <a href="https://xuzhijvn.github.io/zh-cn/posts/code/git/github-443/">GitHub 443
+</a>
+    </div></div>
+</div><section class="related-posts">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/go/go%E5%A4%9A%E7%89%88%E6%9C%AC%E5%88%87%E6%8D%A2/">go多版本切换
+</a></li></ul>
+  </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container"><section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<section class="profile surface row text-center">
+  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony Xu" src="https://xuzhijvn.github.io/images/profile.webp"
+   width="400" height="400" loading="lazy" />
+</div>
+  <div class="col-12 profile-meta"><div class="profile-name">Tony Xu</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section>
+  <section class="recent-posts row surface">
+  <h4>最近文章</h4>
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/">poll select epoll区别
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/">JVM内存模型
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/">JVM类加载器
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E6%9E%B6%E6%9E%84/">JVM架构
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">JVM垃圾回收
+</a></li></ul>
+</section><section class="taxonomy-categories row surface">
+      <h4>
+        <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+      </h4>
+      <div><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
+          编程思想 <span class="badge rounded-pill">101</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">32</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
+          其他 <span class="badge rounded-pill">22</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机科学">
+          计算机科学 <span class="badge rounded-pill">20</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构演进">
+          架构演进 <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="持续集成部署">
+          持续集成部署 <span class="badge rounded-pill">5</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="人工智能">
+          人工智能 <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
+          区块链 <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-series row surface">
+      <h4>
+        <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
+      </h4>
+      <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
+          Manual <span class="badge rounded-pill">154</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">13</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s实战">
+          k8s实战 <span class="badge rounded-pill">13</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="istio实战">
+          istio实战 <span class="badge rounded-pill">4</span>
+        </a></div>
+    </section><section class="taxonomy-tags row surface">
+      <h4>
+        <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
+      </h4>
+      <div><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
+          Java <span class="badge rounded-pill">33</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">32</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">26</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
+          CS <span class="badge rounded-pill">20</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
+          Other <span class="badge rounded-pill">18</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
+          spring <span class="badge rounded-pill">12</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
+          MySQL <span class="badge rounded-pill">9</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
+          redis <span class="badge rounded-pill">9</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="剑指offer">
+          剑指offer <span class="badge rounded-pill">8</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="WordPress">
+          WordPress <span class="badge rounded-pill">7</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="istio">
+          istio <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="nginx">
+          nginx <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SA">
+          SA <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ZK">
+          ZK <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Jenkins">
+          Jenkins <span class="badge rounded-pill">4</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CNN">
+          CNN <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="System">
+          System <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="分布式">
+          分布式 <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="BlockChain">
+          BlockChain <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="docker">
+          docker <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="GO">
+          GO <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Maven">
+          Maven <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MQ">
+          MQ <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ClickHouse">
+          ClickHouse <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="docker-compose">
+          docker-compose <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ES">
+          ES <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="github">
+          github <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="IO">
+          IO <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Kafka">
+          Kafka <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="LeetCode">
+          LeetCode <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MongoDB">
+          MongoDB <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MyBatis">
+          MyBatis <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="openresty">
+          openresty <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SpringBoot">
+          SpringBoot <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="牛客">
+          牛客 <span class="badge rounded-pill">1</span>
+        </a></div>
+    </section><section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2021 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<a id="btnScrollToTop" class="btn-scroll-to-top">
+  <i class="fas fa-fw fa-chevron-circle-up fa-2x"></i>
+</a>
+<script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script></body>
+</html>

@@ -9,20 +9,20 @@
     <lastBuildDate>Fri, 27 Aug 2021 11:15:10 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/tags/maven/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>dockerfile-maven-plugin使用</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/maven/dockerfile-maven-plugin%E4%BD%BF%E7%94%A8/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/maven/dockerfile-maven-plugin%E4%BD%BF%E7%94%A8/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/maven/dockerfile-maven-plugin%E4%BD%BF%E7%94%A8/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/maven/dockerfile-maven-plugin%E4%BD%BF%E7%94%A8/</guid>
       <description>&amp;lt;properties&amp;gt; &amp;lt;docker.image.prefix&amp;gt;anaham-docker.pkg.coding.net/cereshop/ceres&amp;lt;/docker.image.prefix&amp;gt; &amp;lt;anaham-docker.username&amp;gt;用户名&amp;lt;/anaham-docker.username&amp;gt; &amp;lt;anaham-docker.password&amp;gt;密码&amp;lt;/anaham-docker.password&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;build&amp;gt; &amp;lt;plugins&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;executions&amp;gt; &amp;lt;execution&amp;gt; &amp;lt;goals&amp;gt; &amp;lt;goal&amp;gt;repackage&amp;lt;/goal&amp;gt; &amp;lt;/goals&amp;gt; &amp;lt;/execution&amp;gt; &amp;lt;/executions&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;!-- docker打包插件 --&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;com.spotify&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;dockerfile-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${dockerfile-maven-plugin.version}&amp;lt;/version&amp;gt; &amp;lt;configuration&amp;gt; &amp;lt;username&amp;gt;${anaham-docker.username}&amp;lt;/username&amp;gt; &amp;lt;password&amp;gt;${anaham-docker.password}&amp;lt;/password&amp;gt; &amp;lt;repository&amp;gt;${docker.image.prefix}/${project.artifactId}&amp;lt;/repository&amp;gt; &amp;lt;tag&amp;gt;${ceres.version}&amp;lt;/tag&amp;gt; &amp;lt;!-- 不指定tag默认为latest --&amp;gt; &amp;lt;buildArgs&amp;gt; &amp;lt;JAR_FILE&amp;gt;target/${project.build.finalName}.jar&amp;lt;/JAR_FILE&amp;gt; &amp;lt;/buildArgs&amp;gt; &amp;lt;/configuration&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;/plugins&amp;gt; &amp;lt;/build&amp;gt;  构建镜像  mvn clean package -Dmaven.计算机科学.skip=true dockerfile:build -Ddockerfile.tag=latest 因为上面pom.xml已经指定了tag，也可以直接使用：mvn dockerfile:build 会优先选择pom.xml配置的tag
 上传镜像  mvn dockerfile:push -Ddockerfile.username=[镜像仓库账号] -Ddockerfile.password=[镜像仓库密码] 因为上面pom.xml已经指定了username和password，也可以直接使用：mvn dockerfile:push</description>
     </item>
     
     <item>
       <title>maven基础</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/maven/maven%E5%9F%BA%E7%A1%80/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/maven/maven%E5%9F%BA%E7%A1%80/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/maven/maven%E5%9F%BA%E7%A1%80/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/maven/maven%E5%9F%BA%E7%A1%80/</guid>
       <description>1. 问题 项目开发过程中，经常会遇到jar冲突，然后maven根据自己的规则进行冲突解决，导致项目在运行的过程中报错。
 1、maven自动解决依赖冲突的规则是什么？
 2、如何查看当前项目的maven的依赖树？
@@ -36,7 +36,7 @@ A-&amp;gt;D-&amp;gt;X(2.0)
 A-&amp;gt;B-&amp;gt;Y(1.0)
 A-&amp;gt;C-&amp;gt;Y(2.0)
 若pom文件中B的依赖坐标先于C进行声明，则最终Y的版本为1.0
-2.2 如何查看当前项目的maven依赖树？ //进入项目的pom.xml文件的目录下，运行如下命令//这个是正常依赖的树mvn dependency:tree//这个命令是查看maven是如何解决依赖冲突的依赖树mvn -Dverbose dependency:tree//如果想将依赖树打印到指定文件中，则命令如下mvn -Dverbose dependency:tree -Doutput=/Users/shangxiaofei/sxfoutput.txt3. 如何从依赖树中找到自己预期的版本，是被那个jar给覆盖了？ 例子：
+2.2 如何查看当前项目的maven依赖树？ //进入项目的pom.xml文件的目录下，运行如下命令 //这个是正常依赖的树 mvn dependency:tree //这个命令是查看maven是如何解决依赖冲突的依赖树 mvn -Dverbose dependency:tree //如果想将依赖树打印到指定文件中，则命令如下 mvn -Dverbose dependency:tree -Doutput=/Users/shangxiaofei/sxfoutput.txt 3. 如何从依赖树中找到自己预期的版本，是被那个jar给覆盖了？ 例子：
 递归依赖的关系列的算是比较清楚了，每行都是一个jar包，根据缩进可以看到依赖的关系。
 最后写着compile的就是编译成功的。
 最后写着omitted for duplicate的就是有jar包被重复依赖了，但是jar包的版本是一样的。

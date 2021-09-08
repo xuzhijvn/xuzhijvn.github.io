@@ -11,13 +11,13 @@
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="istio启用策略检查功能">
 <meta itemprop="description" content="istio启用策略检查功能
-不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
+不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法 也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
  默认安装istio之后disablePolicyChecks=true  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | grep disablePolicyChecks disablePolicyChecks: true 编辑 istio configmap 以启用策略检查  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | sed -e &#34;s/disablePolicyChecks: true/disablePolicyChecks: false/&#34; &gt; /tmp/mesh.yaml [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system create cm Istio -o yaml --dry-run --from-file=mesh=/tmp/mesh.yaml | kubectl replace -f - W0902 17:00:37.208604 16538 helpers.go:535] --dry-run is deprecated and can be replaced with --dry-run=client."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="100"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="云原生,istio," /><meta property="og:title" content="istio启用策略检查功能" />
 <meta property="og:description" content="istio启用策略检查功能
-不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
+不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法 也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
  默认安装istio之后disablePolicyChecks=true  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | grep disablePolicyChecks disablePolicyChecks: true 编辑 istio configmap 以启用策略检查  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | sed -e &#34;s/disablePolicyChecks: true/disablePolicyChecks: false/&#34; &gt; /tmp/mesh.yaml [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system create cm Istio -o yaml --dry-run --from-file=mesh=/tmp/mesh.yaml | kubectl replace -f - W0902 17:00:37.208604 16538 helpers.go:535] --dry-run is deprecated and can be replaced with --dry-run=client." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%90%AF%E7%94%A8%E7%AD%96%E7%95%A5%E6%A3%80%E6%9F%A5%E5%8A%9F%E8%83%BD/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
@@ -30,7 +30,7 @@
 
 <meta name="twitter:title" content="istio启用策略检查功能"/>
 <meta name="twitter:description" content="istio启用策略检查功能
-不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
+不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法 也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
  默认安装istio之后disablePolicyChecks=true  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | grep disablePolicyChecks disablePolicyChecks: true 编辑 istio configmap 以启用策略检查  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | sed -e &#34;s/disablePolicyChecks: true/disablePolicyChecks: false/&#34; &gt; /tmp/mesh.yaml [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system create cm Istio -o yaml --dry-run --from-file=mesh=/tmp/mesh.yaml | kubectl replace -f - W0902 17:00:37.208604 16538 helpers.go:535] --dry-run is deprecated and can be replaced with --dry-run=client."/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
@@ -357,11 +357,11 @@ disablePolicyChecks: false
 </section>
   <section class="recent-posts row surface">
   <h4>最近文章</h4>
-  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/">JVM内存模型
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/jvm%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/">JVM类加载器
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/jvm%E6%9E%B6%E6%9E%84/">JVM架构
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/java/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">JVM垃圾回收
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/%E9%AB%98%E5%B9%B6%E5%8F%91%E4%B8%8B%E7%9A%84%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/">高并发下的流量控制
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/">poll select epoll区别
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/">JVM内存模型
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/">JVM类加载器
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E6%9E%B6%E6%9E%84/">JVM架构
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">JVM垃圾回收
 </a></li></ul>
 </section><section class="taxonomy-categories row surface">
       <h4>
@@ -374,7 +374,7 @@ disablePolicyChecks: false
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
           其他 <span class="badge rounded-pill">22</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机科学">
-          计算机科学 <span class="badge rounded-pill">19</span>
+          计算机科学 <span class="badge rounded-pill">20</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构演进">
           架构演进 <span class="badge rounded-pill">6</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="持续集成部署">
@@ -389,7 +389,7 @@ disablePolicyChecks: false
         <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
-          Manual <span class="badge rounded-pill">153</span>
+          Manual <span class="badge rounded-pill">154</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
           k8s <span class="badge rounded-pill">13</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s实战">
@@ -408,7 +408,7 @@ disablePolicyChecks: false
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
           k8s <span class="badge rounded-pill">26</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
-          CS <span class="badge rounded-pill">19</span>
+          CS <span class="badge rounded-pill">20</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
           Other <span class="badge rounded-pill">18</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
@@ -435,6 +435,8 @@ disablePolicyChecks: false
           AI <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CNN">
           CNN <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="System">
+          System <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="分布式">
           分布式 <span class="badge rounded-pill">3</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="BlockChain">
@@ -469,8 +471,6 @@ disablePolicyChecks: false
           openresty <span class="badge rounded-pill">1</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SpringBoot">
           SpringBoot <span class="badge rounded-pill">1</span>
-        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="System">
-          System <span class="badge rounded-pill">1</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="牛客">
           牛客 <span class="badge rounded-pill">1</span>
         </a></div>

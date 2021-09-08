@@ -9,22 +9,22 @@
     <lastBuildDate>Fri, 27 Aug 2021 11:15:10 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/tags/redis/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>io.lettuce.core.RedisCommandTimeoutException: Command timed out after 5 second(s)</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/exception/io.lettuce.core.rediscommandtimeoutexception_-comm/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/exception/io.lettuce.core.rediscommandtimeoutexception_-comm/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/exception/io.lettuce.core.rediscommandtimeoutexception_-comm/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/exception/io.lettuce.core.rediscommandtimeoutexception_-comm/</guid>
       <description>lettuce连接redis报错io.lettuce.core.RedisCommandTimeoutException: Command timed out after 5 second(s)，我的spring.redis.timeout = 5000。
 解决办法：
 1、登陆redis容器 2、输入redis-cli进入redis控制台 3、设置 CONFIG SET timeout &amp;quot;60&amp;quot; 4、设置 CONFIG SET tcp-keepalive &amp;quot;300&amp;quot;
-参考链接：Redis 配置</description>
+参考链接：Redis 配置 </description>
     </item>
     
     <item>
       <title>Redisson原理</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/redisson%E5%8E%9F%E7%90%86/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redisson%E5%8E%9F%E7%90%86/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/redisson%E5%8E%9F%E7%90%86/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redisson%E5%8E%9F%E7%90%86/</guid>
       <description>写在前面 在了解分布式锁具体实现方案之前，我们应该先思考一下使用分布式锁必须要考虑的一些问题。
  互斥性：在任意时刻，只能有一个进程持有锁。 防死锁：即使有一个进程在持有锁的期间崩溃而未能主动释放锁，要有其他方式去释放锁从而保证其他进程能获取到锁。 加锁和解锁的必须是同一个进程。 锁的续期问题。  常见的分布式锁实现方案  基于 Redis 实现分布式锁 基于 Zookeeper 实现分布式锁  本文采用第一种方案，也就是基于 Redis 的分布式锁实现方案。
 Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 Redis 中，指定一个 唯一的用户标识 作为 value。 当 key 不存在时才能设置值，确保同一时间只有一个客户端进程获得锁，满足 互斥性 特性。 设置一个过期时间，防止因系统异常导致没能删除这个 key，满足 防死锁 特性。 当处理完业务之后需要清除这个 key 来释放锁，清除 key 时需要校验 value 值，需要满足 只有加锁的人才能释放锁 。   特别注意：以上实现步骤考虑到了使用分布式锁需要考虑的互斥性、防死锁、加锁和解锁必须为同一个进程等问题，但是锁的续期无法实现。所以，博主采用 Redisson 实现 Redis 的分布式锁，借助 Redisson 的 WatchDog 机制 能够很好的解决锁续期的问题，同样 Redisson 也是 Redis 官方推荐分布式锁实现方案，实现起来较为简单。
@@ -32,34 +32,11 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
     </item>
     
     <item>
-      <title>redis分布式锁和zk分布式锁的对比</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/zookeeper/redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8Czk%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AF%B9%E6%AF%94/</link>
+      <title>Redis主从复制</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/zookeeper/redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8Czk%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AF%B9%E6%AF%94/</guid>
-      <description>redis 分布式锁和 zk 分布式锁的对比  redis 分布式锁，其实需要自己不断去尝试获取锁，比较消耗性能。 zk 分布式锁，获取不到锁，注册个监听器即可，不需要不断主动尝试获取锁，性能开销较小。  另外一点就是，如果是 Redis 获取锁的那个客户端 出现 bug 挂了，那么只能等待超时时间之后才能释放锁；而 zk 的话，因为创建的是临时 znode，只要客户端挂了，znode 就没了，此时就自动释放锁。
-Redis 分布式锁大家没发现好麻烦吗？遍历上锁，计算时间等等&amp;hellip;&amp;hellip;zk 的分布式锁语义清晰实现简单。
-所以先不分析太多的东西，就说这两点，我个人实践认为 zk 的分布式锁比 Redis 的分布式锁牢靠、而且模型简单易用。
-参考 一般实现分布式锁都有哪些方式？使用 Redis 如何设计分布式锁？使用 zk 来设计分布式锁可以吗？这两种分布式锁的实现方式哪种效率比较高？</description>
-    </item>
-    
-    <item>
-      <title>Redis配置指南</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/redis%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/redis%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</guid>
-      <description>1. 安装 $ wget http://download.redis.io/releases/redis-5.0.8.tar.gz $ tar xzf redis-5.0.8.tar.gz $ cd redis-5.0.8 $ make 2.配置  注释掉bind 127.0.0.1 protected-mode yes requirepass xxxpassword daemonize yes  3. 启动 cd src ./redis-server 或者
-cd src ./redis-server ../redis.conf 4. 停止 cd src ./redis-cli auth xxxpassword shutdown exit 5. 卸载 find / -name &amp;#34;redis*&amp;#34; | xargs rm -rf 6.远程连接 window连接远程redis:
-redis-cli -h 193.112.37.xxx -p 6379 -a xxxpassword </description>
-    </item>
-    
-    <item>
-      <title>【转】redis主从复制</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/%E8%BD%ACredis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/%E8%BD%ACredis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/</guid>
       <description>一、主从复制概述 主从复制，是指将一台Redis服务器的数据，复制到其他的Redis服务器。前者称为主节点(master)，后者称为从节点(slave)；数据的复制是单向的，只能由主节点到从节点。
 默认情况下，每台Redis服务器都是主节点；且一个主节点可以有多个从节点(或没有从节点)，但一个从节点只能有一个主节点。
 主从复制的作用
@@ -98,11 +75,34 @@ Redis服务器启动后，直接通过客户端执行命令：slaveof  ，则该
     </item>
     
     <item>
-      <title>基于Redis的分布式锁实现</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</link>
+      <title>redis分布式锁和zk分布式锁的对比</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8Czk%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AF%B9%E6%AF%94/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8Czk%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AF%B9%E6%AF%94/</guid>
+      <description>redis 分布式锁和 zk 分布式锁的对比  redis 分布式锁，其实需要自己不断去尝试获取锁，比较消耗性能。 zk 分布式锁，获取不到锁，注册个监听器即可，不需要不断主动尝试获取锁，性能开销较小。  另外一点就是，如果是 Redis 获取锁的那个客户端 出现 bug 挂了，那么只能等待超时时间之后才能释放锁；而 zk 的话，因为创建的是临时 znode，只要客户端挂了，znode 就没了，此时就自动释放锁。
+Redis 分布式锁大家没发现好麻烦吗？遍历上锁，计算时间等等&amp;hellip;&amp;hellip;zk 的分布式锁语义清晰实现简单。
+所以先不分析太多的东西，就说这两点，我个人实践认为 zk 的分布式锁比 Redis 的分布式锁牢靠、而且模型简单易用。
+参考 一般实现分布式锁都有哪些方式？使用 Redis 如何设计分布式锁？使用 zk 来设计分布式锁可以吗？这两种分布式锁的实现方式哪种效率比较高？ </description>
+    </item>
+    
+    <item>
+      <title>Redis配置指南</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</guid>
+      <description>1. 安装 $ wget http://download.redis.io/releases/redis-5.0.8.tar.gz $ tar xzf redis-5.0.8.tar.gz $ cd redis-5.0.8 $ make 2.配置  注释掉bind 127.0.0.1 protected-mode yes requirepass xxxpassword daemonize yes  3. 启动 cd src ./redis-server 或者
+cd src ./redis-server ../redis.conf 4. 停止 cd src ./redis-cli auth xxxpassword shutdown exit 5. 卸载 find / -name &amp;#34;redis*&amp;#34; | xargs rm -rf 6.远程连接 window连接远程redis:
+redis-cli -h 193.112.37.xxx -p 6379 -a xxxpassword </description>
+    </item>
+    
+    <item>
+      <title>基于Redis的分布式锁实现</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</guid>
       <description>前言 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
 分布式锁概览 在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
 实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
@@ -112,36 +112,36 @@ Redis服务器启动后，直接通过客户端执行命令：slaveof  ，则该
  基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
 Redis的分布式锁实现 1. 利用setnx+expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
 因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx+expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) {Long result = jedis.setnx(key, requset);// result = 1时，设置成功，否则设置失败if (result == 1L) {return jedis.expire(key, timeout) == 1L;} else {return false;}}复制代码实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。</description>
+public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.expire(key, timeout) == 1L; } else { return false; } } 复制代码 实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。</description>
     </item>
     
     <item>
       <title>底层数据结构</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</guid>
       <description>什么是跳跃表？
-答：跳表这种高效的数据结构，值得每一个程序员掌握为什么使用ziplist？
+答：跳表这种高效的数据结构，值得每一个程序员掌握 为什么使用ziplist？
 答：相较于双链表，节省了两个指针的空间。（pre_entry_length前驱数据项的大小。因为不用描述前驱的数据类型，描述较为简单）。相较于数组，ziplist的每个entry所占的内存大小可以不同，便于节省空间。
 为什么list  hash  zset 在数据两大的时候不再使用ziplist？
 答：难以获得大的连续的内存空间。
-参考链接 图解redis五种数据结构底层实现(动图哦)Redis 数据结构 ziplistRedis源码分析-压缩列表ziplist</description>
+参考链接 图解redis五种数据结构底层实现(动图哦) Redis 数据结构 ziplist Redis源码分析-压缩列表ziplist </description>
     </item>
     
     <item>
       <title>深度图解Redis Cluster原理</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/%E6%B7%B1%E5%BA%A6%E5%9B%BE%E8%A7%A3redis-cluster%E5%8E%9F%E7%90%86/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E6%B7%B1%E5%BA%A6%E5%9B%BE%E8%A7%A3redis-cluster%E5%8E%9F%E7%90%86/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/%E6%B7%B1%E5%BA%A6%E5%9B%BE%E8%A7%A3redis-cluster%E5%8E%9F%E7%90%86/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E6%B7%B1%E5%BA%A6%E5%9B%BE%E8%A7%A3redis-cluster%E5%8E%9F%E7%90%86/</guid>
       <description>前言 上文我们聊了基于Sentinel的Redis高可用架构，了解了Redis基于读写分离的主从架构，同时也知道当Redis的master发生故障之后，Sentinel集群是如何执行failover的，以及其执行failover的原理是什么。
 这里大概再提一下，Sentinel集群会对Redis的主从架构中的Redis实例进行监控，一旦发现了master节点宕机了，就会选举出一个Sentinel节点来执行故障转移，从原来的slave节点中选举出一个，将其提升为master节点，然后让其他的节点去复制新选举出来的master节点。
 你可能会觉得这样没有问题啊，甚至能够满足我们生产环境的使用需求了，那我们为什么还需要Redis Cluster呢？
 1. 为什么需要Redis Cluster 的确，在数据上，有replication副本做保证；可用性上，master宕机会自动的执行failover。
  那问题在哪儿呢？
  首先Redis Sentinel说白了也是基于主从复制，在主从复制中slave的数据是完全来自于master。
-假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
+假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制 文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
 所以，当你只需要存储4G的数据时候的，基于主从复制和基于Sentinel的高可用架构是完全够用的。
 但是如果当你面临的是海量的数据的时候呢？16G、64G、256G甚至1T呢？现在互联网的业务里面，如果你的体量足够大，我觉得是肯定会面临缓存海量缓存数据的场景的。
 这就是为什么我们需要引入Redis Cluster。
@@ -171,10 +171,10 @@ Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点�
     
     <item>
       <title>缓存雪崩和缓存穿透</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%92%8C%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%92%8C%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/redis/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%92%8C%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%92%8C%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/</guid>
       <description>1. 缓存雪崩 1.1 什么是缓存雪崩？ 简介：缓存同一时间大面积的失效，所以，后面的请求都会落到数据库上，造成数据库短时间内承受大量请求而崩掉。
 1.2 有哪些解决办法？  事前：尽量保证整个 redis 集群的高可用性，发现机器宕机尽快补上。选择合适的内存淘汰策略。 事中：本地ehcache缓存 + hystrix限流&amp;amp;降级，避免MySQL崩掉 事后：利用 redis 持久化机制保存的数据尽快恢复缓存  2. 缓存穿透 2.1 什么是缓存穿透？ 缓存穿透说简单点就是大量请求的 key 根本不存在于缓存中，导致请求直接到了数据库上，根本没有经过缓存这一层。举个例子：某个黑客故意制造我们缓存中不存在的 key 发起大量请求，导致大量请求落到数据库。
 2.1 有哪些解决办法？ 最基本的就是首先做好参数校验，一些不合法的参数请求直接抛出异常信息返回给客户端。比如查询的数据库 id 不能小于 0、传入的邮箱格式不对的时候直接返回错误消息给客户端等等。

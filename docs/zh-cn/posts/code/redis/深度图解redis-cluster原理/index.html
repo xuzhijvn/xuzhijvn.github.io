@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>深度图解Redis Cluster原理 - 唯有光頭才能變強</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://xuzhijvn.github.io/images/favicons/manifest.json">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="深度图解Redis Cluster原理">
+<meta itemprop="description" content="前言 上文我们聊了基于Sentinel的Redis高可用架构，了解了Redis基于读写分离的主从架构，同时也知道当Redis的master发生故障之后，Sentinel集群是如何执行failover的，以及其执行failover的原理是什么。
+这里大概再提一下，Sentinel集群会对Redis的主从架构中的Redis实例进行监控，一旦发现了master节点宕机了，就会选举出一个Sentinel节点来执行故障转移，从原来的slave节点中选举出一个，将其提升为master节点，然后让其他的节点去复制新选举出来的master节点。
+你可能会觉得这样没有问题啊，甚至能够满足我们生产环境的使用需求了，那我们为什么还需要Redis Cluster呢？
+1. 为什么需要Redis Cluster 的确，在数据上，有replication副本做保证；可用性上，master宕机会自动的执行failover。
+ 那问题在哪儿呢？
+ 首先Redis Sentinel说白了也是基于主从复制，在主从复制中slave的数据是完全来自于master。
+假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制 文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
+所以，当你只需要存储4G的数据时候的，基于主从复制和基于Sentinel的高可用架构是完全够用的。
+但是如果当你面临的是海量的数据的时候呢？16G、64G、256G甚至1T呢？现在互联网的业务里面，如果你的体量足够大，我觉得是肯定会面临缓存海量缓存数据的场景的。
+这就是为什么我们需要引入Redis Cluster。
+2. Redis Cluster是什么 知道了为什么需要Redis Cluster之后，我们就可以来对其一探究竟了。
+ 那什么是Redis Cluster呢？
+ 很简单，你就可以理解为n个主从架构组合在一起对外服务。Redis Cluster要求至少需要3个master才能组成一个集群，同时每个master至少需要有一个slave节点。
+这样一来，如果一个主从能够存储32G的数据，如果这个集群包含了两个主从，则整个集群就能够存储64G的数据。
+我们知道，主从架构中，可以通过增加slave节点的方式来扩展读请求的并发量，那Redis Cluster中是如何做的呢？虽然每个master下都挂载了一个slave节点，但是在Redis Cluster中的读、写请求其实都是在master上完成的。
+slave节点只是充当了一个数据备份的角色，当master发生了宕机，就会将对应的slave节点提拔为master，来重新对外提供服务。
+3. 节点负载均衡 知道了什么是Redis Cluster，我们就可以继续下面的讨论了。
+不知道你思考过一个问题没，这么多的master节点。我存储的时候，到底该选择哪个节点呢？一般这种负载均衡算法，会选择哈希算法。哈希算法是怎么做的呢？
+首先就是对key计算出一个hash值，然后用哈希值对master数量进行取模。由此就可以将key负载均衡到每一个Redis节点上去。这就是简单的哈希算法的实现。
+那Redis Cluster是采取的上面的哈希算法吗？答案是没有。
+Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点选择的。那为什么不用哈希算法来进行实例选择呢？以及为什么说是类似的呢？我们继续讨论。
+因为如果此时某一台master发生了宕机，那么此时会导致Redis中所有的缓存失效。为什么是所有的？假设之前有3个master，那么之前的算法应该是 hash % 3，但是如果其中一台master宕机了，则算法就会变成 hash % 2，会影响到之前存储的所有的key。而这对缓存后面保护的DB来说，是致命的打击。
+4. 什么是一致性哈希 知道了通过传统哈希算法来实现对节点的负载均衡的弊端，我们就需要进一步了解什么是一致性哈希。
+我们上面提过哈希算法是对master实例数量来取模，而一致性哈希则是对2^32取模，也就是值的范围在[0, 2^32 -1]。一致性哈希将其范围抽象成了一个圆环，使用CRC16算法计算出来的哈希值会落到圆环上的某个地方。
+然后我们的Redis实例也分布在圆环上，我们在圆环上按照顺时针的顺序找到第一个Redis实例，这样就完成了对key的节点分配。我们举个例子。
+假设我们有A、B、C三个Redis实例按照如图所示的位置分布在圆环上，此时计算出来的hash值，取模之后位置落在了位置D，那么我们按照顺时针的顺序，就能够找到我们这个key应该分配的Redis实例B。同理如果我们计算出来位置在E，那么对应选择的Redis的实例就是A。
+即使这个时候Redis实例B挂了，也不会影响到实例A和C的缓存。
+例如此时节点B挂了，那之前计算出来在位置D的key，此时会按照顺时针的顺序，找到节点C。相当于自动的把原来节点B的流量给转移到了节点C上去。而其他原本就在节点A和节点C的数据则完全不受影响。
+这就是一致性哈希，能够在我们后续需要新增节点或者删除节点的时候，不影响其他节点的正常运行。
+5. 虚拟节点机制 但是一致性哈希也存在自身的小问题，例如当我们的Redis节点分布如下时，就有问题了。
+此时数据落在节点A上的概率明显是大于其他两个节点的，其次落在节点C上的概率最小。这样一来会导致整个集群的数据存储不平衡，AB节点压力较大，而C节点资源利用不充分。为了解决这个问题，一致性哈希算法引入了虚拟节点机制。
+在圆环中，增加了对应节点的虚拟节点，然后完成了虚拟节点到真实节点的映射。假设现在计算得出了位置D，那么按照顺时针的顺序，我们找到的第一个节点就是C #1，最终数据实际还是会落在节点C上。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="190"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="keywords" content="Redis," /><meta property="og:title" content="深度图解Redis Cluster原理" />
+<meta property="og:description" content="前言 上文我们聊了基于Sentinel的Redis高可用架构，了解了Redis基于读写分离的主从架构，同时也知道当Redis的master发生故障之后，Sentinel集群是如何执行failover的，以及其执行failover的原理是什么。
+这里大概再提一下，Sentinel集群会对Redis的主从架构中的Redis实例进行监控，一旦发现了master节点宕机了，就会选举出一个Sentinel节点来执行故障转移，从原来的slave节点中选举出一个，将其提升为master节点，然后让其他的节点去复制新选举出来的master节点。
+你可能会觉得这样没有问题啊，甚至能够满足我们生产环境的使用需求了，那我们为什么还需要Redis Cluster呢？
+1. 为什么需要Redis Cluster 的确，在数据上，有replication副本做保证；可用性上，master宕机会自动的执行failover。
+ 那问题在哪儿呢？
+ 首先Redis Sentinel说白了也是基于主从复制，在主从复制中slave的数据是完全来自于master。
+假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制 文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
+所以，当你只需要存储4G的数据时候的，基于主从复制和基于Sentinel的高可用架构是完全够用的。
+但是如果当你面临的是海量的数据的时候呢？16G、64G、256G甚至1T呢？现在互联网的业务里面，如果你的体量足够大，我觉得是肯定会面临缓存海量缓存数据的场景的。
+这就是为什么我们需要引入Redis Cluster。
+2. Redis Cluster是什么 知道了为什么需要Redis Cluster之后，我们就可以来对其一探究竟了。
+ 那什么是Redis Cluster呢？
+ 很简单，你就可以理解为n个主从架构组合在一起对外服务。Redis Cluster要求至少需要3个master才能组成一个集群，同时每个master至少需要有一个slave节点。
+这样一来，如果一个主从能够存储32G的数据，如果这个集群包含了两个主从，则整个集群就能够存储64G的数据。
+我们知道，主从架构中，可以通过增加slave节点的方式来扩展读请求的并发量，那Redis Cluster中是如何做的呢？虽然每个master下都挂载了一个slave节点，但是在Redis Cluster中的读、写请求其实都是在master上完成的。
+slave节点只是充当了一个数据备份的角色，当master发生了宕机，就会将对应的slave节点提拔为master，来重新对外提供服务。
+3. 节点负载均衡 知道了什么是Redis Cluster，我们就可以继续下面的讨论了。
+不知道你思考过一个问题没，这么多的master节点。我存储的时候，到底该选择哪个节点呢？一般这种负载均衡算法，会选择哈希算法。哈希算法是怎么做的呢？
+首先就是对key计算出一个hash值，然后用哈希值对master数量进行取模。由此就可以将key负载均衡到每一个Redis节点上去。这就是简单的哈希算法的实现。
+那Redis Cluster是采取的上面的哈希算法吗？答案是没有。
+Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点选择的。那为什么不用哈希算法来进行实例选择呢？以及为什么说是类似的呢？我们继续讨论。
+因为如果此时某一台master发生了宕机，那么此时会导致Redis中所有的缓存失效。为什么是所有的？假设之前有3个master，那么之前的算法应该是 hash % 3，但是如果其中一台master宕机了，则算法就会变成 hash % 2，会影响到之前存储的所有的key。而这对缓存后面保护的DB来说，是致命的打击。
+4. 什么是一致性哈希 知道了通过传统哈希算法来实现对节点的负载均衡的弊端，我们就需要进一步了解什么是一致性哈希。
+我们上面提过哈希算法是对master实例数量来取模，而一致性哈希则是对2^32取模，也就是值的范围在[0, 2^32 -1]。一致性哈希将其范围抽象成了一个圆环，使用CRC16算法计算出来的哈希值会落到圆环上的某个地方。
+然后我们的Redis实例也分布在圆环上，我们在圆环上按照顺时针的顺序找到第一个Redis实例，这样就完成了对key的节点分配。我们举个例子。
+假设我们有A、B、C三个Redis实例按照如图所示的位置分布在圆环上，此时计算出来的hash值，取模之后位置落在了位置D，那么我们按照顺时针的顺序，就能够找到我们这个key应该分配的Redis实例B。同理如果我们计算出来位置在E，那么对应选择的Redis的实例就是A。
+即使这个时候Redis实例B挂了，也不会影响到实例A和C的缓存。
+例如此时节点B挂了，那之前计算出来在位置D的key，此时会按照顺时针的顺序，找到节点C。相当于自动的把原来节点B的流量给转移到了节点C上去。而其他原本就在节点A和节点C的数据则完全不受影响。
+这就是一致性哈希，能够在我们后续需要新增节点或者删除节点的时候，不影响其他节点的正常运行。
+5. 虚拟节点机制 但是一致性哈希也存在自身的小问题，例如当我们的Redis节点分布如下时，就有问题了。
+此时数据落在节点A上的概率明显是大于其他两个节点的，其次落在节点C上的概率最小。这样一来会导致整个集群的数据存储不平衡，AB节点压力较大，而C节点资源利用不充分。为了解决这个问题，一致性哈希算法引入了虚拟节点机制。
+在圆环中，增加了对应节点的虚拟节点，然后完成了虚拟节点到真实节点的映射。假设现在计算得出了位置D，那么按照顺时针的顺序，我们找到的第一个节点就是C #1，最终数据实际还是会落在节点C上。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E6%B7%B1%E5%BA%A6%E5%9B%BE%E8%A7%A3redis-cluster%E5%8E%9F%E7%90%86/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E6%9E%B6%E6%9E%84/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/%E9%AB%98%E5%B9%B6%E5%8F%91%E4%B8%8B%E7%9A%84%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
+
+<meta name="twitter:title" content="深度图解Redis Cluster原理"/>
+<meta name="twitter:description" content="前言 上文我们聊了基于Sentinel的Redis高可用架构，了解了Redis基于读写分离的主从架构，同时也知道当Redis的master发生故障之后，Sentinel集群是如何执行failover的，以及其执行failover的原理是什么。
+这里大概再提一下，Sentinel集群会对Redis的主从架构中的Redis实例进行监控，一旦发现了master节点宕机了，就会选举出一个Sentinel节点来执行故障转移，从原来的slave节点中选举出一个，将其提升为master节点，然后让其他的节点去复制新选举出来的master节点。
+你可能会觉得这样没有问题啊，甚至能够满足我们生产环境的使用需求了，那我们为什么还需要Redis Cluster呢？
+1. 为什么需要Redis Cluster 的确，在数据上，有replication副本做保证；可用性上，master宕机会自动的执行failover。
+ 那问题在哪儿呢？
+ 首先Redis Sentinel说白了也是基于主从复制，在主从复制中slave的数据是完全来自于master。
+假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的跟随杠精的视角一起来了解Redis的主从复制 文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是写能力和存储能力是无法进行扩展的，就只能是master节点能够承载的上限。
+所以，当你只需要存储4G的数据时候的，基于主从复制和基于Sentinel的高可用架构是完全够用的。
+但是如果当你面临的是海量的数据的时候呢？16G、64G、256G甚至1T呢？现在互联网的业务里面，如果你的体量足够大，我觉得是肯定会面临缓存海量缓存数据的场景的。
+这就是为什么我们需要引入Redis Cluster。
+2. Redis Cluster是什么 知道了为什么需要Redis Cluster之后，我们就可以来对其一探究竟了。
+ 那什么是Redis Cluster呢？
+ 很简单，你就可以理解为n个主从架构组合在一起对外服务。Redis Cluster要求至少需要3个master才能组成一个集群，同时每个master至少需要有一个slave节点。
+这样一来，如果一个主从能够存储32G的数据，如果这个集群包含了两个主从，则整个集群就能够存储64G的数据。
+我们知道，主从架构中，可以通过增加slave节点的方式来扩展读请求的并发量，那Redis Cluster中是如何做的呢？虽然每个master下都挂载了一个slave节点，但是在Redis Cluster中的读、写请求其实都是在master上完成的。
+slave节点只是充当了一个数据备份的角色，当master发生了宕机，就会将对应的slave节点提拔为master，来重新对外提供服务。
+3. 节点负载均衡 知道了什么是Redis Cluster，我们就可以继续下面的讨论了。
+不知道你思考过一个问题没，这么多的master节点。我存储的时候，到底该选择哪个节点呢？一般这种负载均衡算法，会选择哈希算法。哈希算法是怎么做的呢？
+首先就是对key计算出一个hash值，然后用哈希值对master数量进行取模。由此就可以将key负载均衡到每一个Redis节点上去。这就是简单的哈希算法的实现。
+那Redis Cluster是采取的上面的哈希算法吗？答案是没有。
+Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点选择的。那为什么不用哈希算法来进行实例选择呢？以及为什么说是类似的呢？我们继续讨论。
+因为如果此时某一台master发生了宕机，那么此时会导致Redis中所有的缓存失效。为什么是所有的？假设之前有3个master，那么之前的算法应该是 hash % 3，但是如果其中一台master宕机了，则算法就会变成 hash % 2，会影响到之前存储的所有的key。而这对缓存后面保护的DB来说，是致命的打击。
+4. 什么是一致性哈希 知道了通过传统哈希算法来实现对节点的负载均衡的弊端，我们就需要进一步了解什么是一致性哈希。
+我们上面提过哈希算法是对master实例数量来取模，而一致性哈希则是对2^32取模，也就是值的范围在[0, 2^32 -1]。一致性哈希将其范围抽象成了一个圆环，使用CRC16算法计算出来的哈希值会落到圆环上的某个地方。
+然后我们的Redis实例也分布在圆环上，我们在圆环上按照顺时针的顺序找到第一个Redis实例，这样就完成了对key的节点分配。我们举个例子。
+假设我们有A、B、C三个Redis实例按照如图所示的位置分布在圆环上，此时计算出来的hash值，取模之后位置落在了位置D，那么我们按照顺时针的顺序，就能够找到我们这个key应该分配的Redis实例B。同理如果我们计算出来位置在E，那么对应选择的Redis的实例就是A。
+即使这个时候Redis实例B挂了，也不会影响到实例A和C的缓存。
+例如此时节点B挂了，那之前计算出来在位置D的key，此时会按照顺时针的顺序，找到节点C。相当于自动的把原来节点B的流量给转移到了节点C上去。而其他原本就在节点A和节点C的数据则完全不受影响。
+这就是一致性哈希，能够在我们后续需要新增节点或者删除节点的时候，不影响其他节点的正常运行。
+5. 虚拟节点机制 但是一致性哈希也存在自身的小问题，例如当我们的Redis节点分布如下时，就有问题了。
+此时数据落在节点A上的概率明显是大于其他两个节点的，其次落在节点C上的概率最小。这样一来会导致整个集群的数据存储不平衡，AB节点压力较大，而C节点资源利用不充分。为了解决这个问题，一致性哈希算法引入了虚拟节点机制。
+在圆环中，增加了对应节点的虚拟节点，然后完成了虚拟节点到真实节点的映射。假设现在计算得出了位置D，那么按照顺时针的顺序，我们找到的第一个节点就是C #1，最终数据实际还是会落在节点C上。"/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.9823d950e7319c8ceb08b6234b64b3736ce36485bc1b6b0689482a5d0c4c1c8f.js" integrity="sha256-mCPZUOcxnIzrCLYjS2Szc2zjZIW8G2sGiUgqXQxMHI8=" crossorigin="anonymous"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
+   width="400" height="400" loading="lazy" />
+唯有光頭才能變強</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
+    <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
+  </div>
+</form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-categories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-categories"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3">
+                <i class="fas fa-fw fa-code"></i>编程思想
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD">
+                <i class="fas fa-fw fa-robot"></i>人工智能
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE">
+                <i class="fas fa-fw fa-cubes"></i>区块链
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6">
+                <i class="fas fa-fw fa-server"></i>计算机科学
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B">
+                <i class="fas fa-fw fa-sitemap"></i>架构演进
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F">
+                <i class="fas fa-fw fa-cloud"></i>云原生
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-tags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/java">
+                <i class="fab fa-fw fa-java"></i>Java
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+  <a class="nav-link" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fas fa-fw fa-language"></i> 简体中文
+  </a>
+  <ul class="dropdown-menu" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/en/"></a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+</li><li class="nav-item">
+  <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button"
+    aria-controls="offcanvasSettings">
+    <i class="fas fa-fw fa-sliders-h"></i> 设置
+  </a>
+</li>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings"
+  aria-labelledby="offcanvasSettingsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" w id="offcanvasSettingsLabel"><i class="fas fa-fw fa-sliders-h"></i> 设置</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <span id="btnPalette" class="btn btn-sm"><i class="fas fa-eye-dropper"></i></span>
+    </div>
+  </form>
+  <div class="container mt-2 visually-hidden" id="palettePicker">
+    <div class="btn-group"><button type="button" id="palette-blue" title="蓝色" 
+          class="btn btn-sm palette bg-blue d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-blue-gray" title="蓝灰色" 
+          class="btn btn-sm palette bg-blue-gray d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-brown" title="棕色" 
+          class="btn btn-sm palette bg-brown d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-cyan" title="青色" 
+          class="btn btn-sm palette bg-cyan d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-green" title="绿色" 
+          class="btn btn-sm palette bg-green d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-indigo" title="靛青色" 
+          class="btn btn-sm palette bg-indigo d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-orange" title="橙色" 
+          class="btn btn-sm palette bg-orange d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-pink" title="粉色" 
+          class="btn btn-sm palette bg-pink d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-purple" title="紫色" 
+          class="btn btn-sm palette bg-purple d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-red" title="红色" 
+          class="btn btn-sm palette bg-red d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-teal" title="蓝绿色" 
+          class="btn btn-sm palette bg-teal d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-yellow" title="黄色" 
+          class="btn btn-sm palette bg-yellow d-flex align-items-center justify-content-center">
+        </button></button>
+    </div>
+  </div>
+</section></div>
+</div></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row" aria-label="breadcrumb">
+  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">深度图解Redis Cluster原理</li></ol>
+</nav><article class="post row surface"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-alt fa-rotate-45"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-medal"></i>
+</a>
+    
+    
+  </div>
+</div>
+<h1 class="post-title my-3">深度图解Redis Cluster原理
+</h1><div class="post-meta mb-3"><span class="post-date me-2">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
+  </span><span class="post-reading-time me-2">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy">redis</a></span>
+</div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><h2 id="前言">前言</h2>
+<p>上文我们聊了基于Sentinel的Redis高可用架构，了解了Redis基于读写分离的主从架构，同时也知道当Redis的master发生故障之后，Sentinel集群是如何执行failover的，以及其执行failover的原理是什么。</p>
+<p>这里大概再提一下，Sentinel集群会对Redis的主从架构中的Redis实例进行监控，一旦发现了master节点宕机了，就会选举出一个Sentinel节点来执行故障转移，从原来的slave节点中选举出一个，将其提升为master节点，然后让其他的节点去复制新选举出来的master节点。</p>
+<p>你可能会觉得这样没有问题啊，甚至能够满足我们生产环境的使用需求了，那我们为什么还需要Redis Cluster呢？</p>
+<h2 id="1-为什么需要redis-cluster">1. 为什么需要Redis Cluster</h2>
+<p>的确，在<strong>数据</strong>上，有replication副本做保证；<strong>可用性</strong>上，master宕机会自动的执行failover。</p>
+<blockquote>
+<p>那问题在哪儿呢？</p>
+</blockquote>
+<p>首先Redis Sentinel说白了也是基于<strong>主从复制</strong>，在主从复制中slave的数据是完全来自于master。</p>
+<p><img class="img-fluid" alt="redis-capacity" src="https://picgo.6and.ltd/img/0081Kckwly1gll2khn7srj30el03vt8o.jpg"
+   loading="lazy" />
+
+</p>
+<p>假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的<a href="https://mp.weixin.qq.com/s/VJTBmAB-A1aRT9DR6v5gow" target="_blank" rel="noopener noreferrer">跟随杠精的视角一起来了解Redis的主从复制</a>
+文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是<strong>写能力</strong>和<strong>存储能力</strong>是无法进行扩展的，就只能是master节点能够承载的上限。</p>
+<p>所以，当你只需要存储4G的数据时候的，基于主从复制和基于Sentinel的高可用架构是完全够用的。</p>
+<p>但是如果当你面临的是海量的数据的时候呢？16G、64G、256G甚至1T呢？现在互联网的业务里面，如果你的体量足够大，我觉得是肯定会面临缓存<strong>海量</strong>缓存数据的场景的。</p>
+<p>这就是为什么我们需要引入<strong>Redis Cluster</strong>。</p>
+<h2 id="2-redis-cluster是什么">2. Redis Cluster是什么</h2>
+<p>知道了为什么需要Redis Cluster之后，我们就可以来对其一探究竟了。</p>
+<blockquote>
+<p>那什么是Redis Cluster呢？</p>
+</blockquote>
+<p>很简单，你就可以理解为n个主从架构组合在一起对外服务。Redis Cluster要求至少需要3个master才能组成一个集群，同时每个master至少需要有一个slave节点。</p>
+<p><img class="img-fluid" alt="redis-cluster" src="https://picgo.6and.ltd/img/0081Kckwly1gll36kwg27j30qr0i3myk.jpg"
+   loading="lazy" />
+
+</p>
+<p>这样一来，如果一个主从能够存储32G的数据，如果这个集群包含了两个主从，则整个集群就能够存储64G的数据。</p>
+<p>我们知道，主从架构中，可以通过增加slave节点的方式来扩展读请求的并发量，那Redis Cluster中是如何做的呢？虽然每个master下都挂载了一个slave节点，但是在Redis Cluster中的读、写请求其实都是在<strong>master</strong>上完成的。</p>
+<p>slave节点只是充当了一个数据备份的角色，当master发生了宕机，就会将对应的slave节点提拔为master，来重新对外提供服务。</p>
+<h2 id="3-节点负载均衡">3. 节点负载均衡</h2>
+<p>知道了什么是Redis Cluster，我们就可以继续下面的讨论了。</p>
+<p>不知道你思考过一个问题没，这么多的master节点。我存储的时候，到底该选择哪个节点呢？一般这种负载均衡算法，会选择<strong>哈希算法</strong>。哈希算法是怎么做的呢？</p>
+<p><img class="img-fluid" alt="redis-master-select" src="https://picgo.6and.ltd/img/0081Kckwly1gll3oxx5iqj30d80dhaag.jpg"
+   loading="lazy" />
+
+</p>
+<p>首先就是对key计算出一个hash值，然后用哈希值对master数量进行取模。由此就可以将key负载均衡到每一个Redis节点上去。这就是简单的<strong>哈希算法</strong>的实现。</p>
+<p>那Redis Cluster是采取的上面的哈希算法吗？答案是<strong>没有</strong>。</p>
+<p>Redis Cluster其实采取的是类似于<strong>一致性哈希</strong>的算法来实现节点选择的。那为什么不用哈希算法来进行实例选择呢？以及为什么说是类似的呢？我们继续讨论。</p>
+<p>因为如果此时某一台master发生了宕机，那么此时会导致Redis中<strong>所有的缓存失效</strong>。为什么是所有的？假设之前有3个master，那么之前的算法应该是 hash % 3，但是如果其中一台master宕机了，则算法就会变成 hash % 2，会影响到之前存储的所有的key。而这对缓存后面保护的DB来说，是致命的打击。</p>
+<h2 id="4-什么是一致性哈希">4. 什么是一致性哈希</h2>
+<p>知道了通过传统哈希算法来实现对节点的负载均衡的弊端，我们就需要进一步了解<strong>什么是一致性哈希</strong>。</p>
+<p>我们上面提过哈希算法是对master实例数量来取模，而<strong>一致性哈希</strong>则是对2^32取模，也就是值的范围在[0, 2^32 -1]。一致性哈希将其范围抽象成了一个圆环，使用CRC16算法计算出来的哈希值会落到圆环上的某个地方。</p>
+<p>然后我们的Redis实例也分布在圆环上，我们在圆环上按照顺时针的顺序找到第一个Redis实例，这样就完成了对key的节点分配。我们举个例子。</p>
+<p><img class="img-fluid" alt="hash" src="https://picgo.6and.ltd/img/0081Kckwgy1glmcvvmyvkj30ee0jdmy3.jpg"
+   loading="lazy" />
+
+</p>
+<p>假设我们有A、B、C三个Redis实例按照如图所示的位置分布在圆环上，此时计算出来的hash值，取模之后位置落在了<strong>位置D</strong>，那么我们按照顺时针的顺序，就能够找到我们这个key应该分配的Redis实例B。同理如果我们计算出来位置在E，那么对应选择的Redis的实例就是A。</p>
+<p>即使这个时候Redis实例B挂了，也不会影响到实例A和C的缓存。</p>
+<p><img class="img-fluid" alt="hash-down" src="https://picgo.6and.ltd/img/0081Kckwgy1gln53ifhuwj30ee0jdt9p.jpg"
+   loading="lazy" />
+
+</p>
+<p>例如此时节点B挂了，那之前计算出来在位置D的key，此时会按照顺时针的顺序，找到节点C。相当于自动的把原来节点B的流量给转移到了节点C上去。而其他原本就在节点A和节点C的数据则完全不受影响。</p>
+<p>这就是一致性哈希，能够在我们后续需要新增节点或者删除节点的时候，不影响其他节点的正常运行。</p>
+<h2 id="5-虚拟节点机制">5. 虚拟节点机制</h2>
+<p>但是一致性哈希也存在自身的小问题，例如当我们的Redis节点分布如下时，就有问题了。</p>
+<p><img class="img-fluid" alt="hash-unevently" src="https://picgo.6and.ltd/img/0081Kckwgy1gln5gdf877j30ee0jd0to.jpg"
+   loading="lazy" />
+
+</p>
+<p>此时数据落在节点A上的概率明显是大于其他两个节点的，其次落在节点C上的概率最小。这样一来会导致整个集群的数据存储不平衡，AB节点压力较大，而C节点资源利用不充分。为了解决这个问题，一致性哈希算法引入了<strong>虚拟节点机制</strong>。</p>
+<p><img class="img-fluid" alt="virtual-dom" src="https://picgo.6and.ltd/img/0081Kckwgy1gln5lb847oj30ee0k2my8.jpg"
+   loading="lazy" />
+
+</p>
+<p>在圆环中，增加了对应节点的虚拟节点，然后完成了虚拟节点到真实节点的映射。假设现在计算得出了位置D，那么按照顺时针的顺序，我们找到的第一个节点就是<strong>C #1</strong>，最终数据实际还是会落在节点C上。</p>
+<p>通过增加虚拟节点的方式，使ABC三个节点在圆环上的位置更加均匀，平均了落在每一个节点上的概率。这样一来就解决了上文提到的数据存储存在不均匀的问题了，这就是一致性哈希的虚拟节点机制。</p>
+<h2 id="6-redis-cluster采用的什么算法">6. Redis Cluster采用的什么算法</h2>
+<p>上面提到过，Redis Cluster采用的是类一致性哈希算法，之所以是<strong>类一致性哈希算法</strong>是因为它们实现的方式还略微有差别。</p>
+<p>例如一致性哈希是对2^32取模，而Redis Cluster则是对2^14（也就是16384）取模。Redis Cluster将自己分成了16384个<strong>Slot</strong>（槽位）。通过CRC16算法计算出来的哈希值会跟16384取模，取模之后得到的值就是对应的槽位，然后每个Redis节点都会负责处理一部分的槽位，就像下表这样。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">节点</th>
+<th style="text-align:center">处理槽位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">A</td>
+<td style="text-align:center">0 - 5000</td>
+</tr>
+<tr>
+<td style="text-align:center">B</td>
+<td style="text-align:center">5001 - 10000</td>
+</tr>
+<tr>
+<td style="text-align:center">C</td>
+<td style="text-align:center">10001 - 16383</td>
+</tr>
+</tbody>
+</table>
+<p>每个Redis实例会自己维护一份<strong>slot - Redis节点</strong>的映射关系，假设你在节点A上设置了某个key，但是这个key通过CRC16计算出来的槽位是由节点B维护的，那么就会提示你需要去节点B上进行操作。</p>
+<p><img class="img-fluid" alt="slot-to-node" src="https://picgo.6and.ltd/img/0081Kckwgy1glnlpufb7yj30f50bmjry.jpg"
+   loading="lazy" />
+
+</p>
+<h2 id="7-redis-cluster如何做到高可用">7. Redis Cluster如何做到高可用</h2>
+<p>不知道你思考过一个问题没，如果Redis Cluster中的某个master节点挂了，它是如何保证集群自身的高可用的？如果这个时候我们集群需要扩容节点，它该负责哪些槽位呢？我们一个一个问题的来看一下。</p>
+<h3 id="集群如何进行扩容">集群如何进行扩容</h3>
+<p>我们开篇聊过，Redis Cluster可以很方便的进行横向扩容，那当新的节点加入进来的时候，它是如何获取对应的slot的呢？</p>
+<p>答案是通过<strong>reshard</strong>（重新分片）来实现。reshard可以将已经分配给某个节点的任意数量的slot迁移给另一个节点，在Redis内部是由redis-trib负责执行的。你可以理解为Redis其实已经封装好了所有的命令，而redis-trib则负责向获取slot的节点和被转移slot的节点发送命令来最终实现reshard。</p>
+<p>假设我们需要向集群中加入一个D节点，而此时集群内已经有A、B、C三个节点了。</p>
+<p>此时redis-trib会向A、B、C三个节点发送迁移出槽位的请求，同时向D节点发送准备导入槽位的请求，做好准备之后A、B、C这三个源节点就开始执行迁移，将对应的slot所对应的键值对迁移至目标节点D。最后redis-trib会向集群中所有主节点发送槽位的变更信息。</p>
+<h3 id="高可用及故障转移">高可用及故障转移</h3>
+<p>Redis Cluster中保证集群高可用的思路和实现和Redis Sentinel如出一辙，感兴趣的可以去看我之前写的关于Sentinel的文章<a href="https://mp.weixin.qq.com/s/k-wGpBBnS53Ap86KNiBYvA" target="_blank" rel="noopener noreferrer">Redis Sentinel-深入浅出原理和实战</a>
+。</p>
+<p>简单来说，针对A节点，某一个节点认为A宕机了，那么此时是<strong>主观宕机</strong>。而如果集群内超过半数的节点认为A挂了， 那么此时A就会被标记为<strong>客观宕机</strong>。</p>
+<p>一旦节点A被标记为了客观宕机，集群就会开始执行<strong>故障转移</strong>。其余正常运行的master节点会进行投票选举，从A节点的slave节点中选举出一个，将其切换成新的master对外提供服务。当某个slave获得了超过半数的master节点投票，就成功当选。</p>
+<p><img class="img-fluid" alt="cluster-failover" src="https://picgo.6and.ltd/img/0081Kckwgy1glqmfywf8jj30920f3mxp.jpg"
+   loading="lazy" />
+
+</p>
+<p>当选成功之后，新的master会执行<code>slaveof no one</code>来让自己停止复制A节点，使自己成为master。然后将A节点所负责处理的slot，全部转移给自己，然后就会向集群发<strong>PONG</strong>消息来广播自己的最新状态。</p>
+<p>按照<strong>一致性哈希</strong>的思想，如果某个节点挂了，那么就会沿着那个圆环，按照顺时针的顺序找到遇到的第一个Redis实例。</p>
+<p>而对于Redis Cluster，某个key它其实并不关心它最终要去到哪个节点，他只关心他最终落到哪个slot上，无论你节点怎么去迁移，最终还是只需要找到对应的slot，然后再找到slot关联的节点，最终就能够找到最终的Redis实例了。</p>
+<p>那这个<strong>PONG</strong>消息又是什么东西呢？别急，下面就会聊到。</p>
+<h2 id="8-简单了解gossip协议">8. 简单了解gossip协议</h2>
+<p>这就是Redis Cluster各个节点之间交换数据、通信所采用的一种协议，叫做<strong>gossip</strong>。</p>
+<pre><code>gossip: 流言、八卦、小道消息
+</code></pre><p>gossip是在1989年的论文上提出的，我看了一堆资料都说的是1987年发表的，但是文章里的时间明确是1989年1月份发表。</p>
+<p><img class="img-fluid" alt="image-20201215100703648" src="https://picgo.6and.ltd/img/0081Kckwgy1globdud52sj30p0044dfx.jpg"
+   loading="lazy" />
+
+</p>
+<p>感兴趣的可以去看看<a href="http://bitsavers.trailing-edge.com/pdf/xerox/parc/techReports/CSL-89-1_Epidemic_Algorithms_for_Replicated_Database_Maintenance.pdf" target="_blank" rel="noopener noreferrer">Epidemic Algorithms for Replicated . Database Maintenance</a>
+，在当时提出gossip主要是为了解决在分布式数据库中，各个副本节点的数据同步问题。但随着技术的发展，gossip后续也被广泛运用于信息扩散、故障探测等等。</p>
+<p>Redis Cluster就是利用了gossip来实现自身的<strong>信息扩散</strong>的。那使用gossip具体是如何通信的呢？</p>
+<p><img class="img-fluid" alt="gossip" src="https://picgo.6and.ltd/img/0081Kckwgy1glob136uztj30hn0cwgmi.jpg"
+   loading="lazy" />
+
+</p>
+<p>很简单，就像图里这样。每个Redis节点<strong>每秒钟</strong>都会向其他的节点发送<strong>PING</strong>，然后被<strong>PING</strong>的节点会回一个<strong>PONG</strong>。</p>
+<h2 id="9-gossip协议消息类型">9. gossip协议消息类型</h2>
+<p>Redis Cluster中，节点之间的消息类型有5种，分别是MEET、PING、PONG、FAIL和PUBLISH。这些消息分别传递了什么内容呢？我简单总结了一下。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">消息类型</th>
+<th style="text-align:left">消息内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">MEET</td>
+<td style="text-align:left">给某个节点发送MEET消息，请求接收消息的节点加入到集群中</td>
+</tr>
+<tr>
+<td style="text-align:left">PING</td>
+<td style="text-align:left">每隔一秒钟，选择5个最久没有通信的节点，发送PING消息，检测对应的节点是否在线；同时还有一种策略是，如果某个节点的通信延迟大于了<code>cluster-node-time</code>的值的一半，就会立即给该节点发送PING消息，避免数据交换延迟过久</td>
+</tr>
+<tr>
+<td style="text-align:left">PONG</td>
+<td style="text-align:left">当节点接收到MEET或者PING消息之后，会回一个PONG消息给发送方，代表自己收到了MEET或者PING消息。同时，节点也可以主动的通过PONG消息向集群中广播自己的信息，让其他节点获取到自己最新的属性，就像完成了故障转移之后新的master向集群发送PONG消息一样</td>
+</tr>
+<tr>
+<td style="text-align:left">FAIL</td>
+<td style="text-align:left">用于广播自己的对某个节点的宕机判断，假设当前节点对A节点判断为宕机，就会立即向Redis Cluster广播自己对于A节点的判断，所有收到消息的节点就会对A节点做标记</td>
+</tr>
+<tr>
+<td style="text-align:left">PUBLISH</td>
+<td style="text-align:left">用于向指定的Channel发送消息，某个节点收到PUBLISH消息之后会直接在集群内广播，这样一来，客户端无论连接到任何节点都能够订阅这个Channel</td>
+</tr>
+</tbody>
+</table>
+<h2 id="10-使用gossip的优劣">10. 使用gossip的优劣</h2>
+<p>既然Redis Cluster选择了gossip，那肯定存在一些gossip的优点，我们接下来简单梳理一下。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">优点</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">扩展性</td>
+<td style="text-align:left">网络可以允许节点的任意增加和减少，新增加的节点的状态最终会与其他节点一致。</td>
+</tr>
+<tr>
+<td style="text-align:left">容错性</td>
+<td style="text-align:left">由于每个节点都持有一份完整元数据，所以任何节点宕机都不会影响gossip的运行</td>
+</tr>
+<tr>
+<td style="text-align:left">健壮性</td>
+<td style="text-align:left">与容错性类似，由于所有节点都持有数据，地位平台，是一个去中心化的设计，任何节点都不会影响到服务的运行</td>
+</tr>
+<tr>
+<td style="text-align:left">最终一致性</td>
+<td style="text-align:left">当有新的信息需要传递时，消息可以快速的发送到所有的节点，让所有的节点都拥有最新的数据</td>
+</tr>
+</tbody>
+</table>
+<p>gossip可以在O(logN) 轮就可以将信息传播到所有的节点，为什么是O(logN)呢？因为每次ping，当前节点会带上自己的信息外加整个Cluster的1/10数量的节点信息，一起发送出去。你可以简单的把这个模型抽象为：</p>
+<blockquote>
+<p>你转发了一个特别有意思的文章到朋友圈，然后你的朋友们都觉得还不错，于是就一传十、十传百这样的散播出去了，这就是朋友圈的<strong>裂变传播</strong>。</p>
+</blockquote>
+<p>当然，gossip仍然存在一些缺点。例如消息可能最终会经过很多轮才能到达目标节点，而这可能会带来较大的延迟。同时由于节点会随机选出5个最久没有通信的节点，这可能会造成某一个节点同时收到n个重复的消息。</p>
+<blockquote>
+<p><strong>缺点</strong></p>
+<ul>
+<li><strong>消息延迟</strong> 节点随机向少数几个节点发送消息，消息最终是通过多个轮次的散播而到达全网，不可避免的造成消息延迟</li>
+<li><strong>消息冗余</strong> 节点定期随机选择周围节点发送消息，而收到消息的节点也会重复该步骤；不可避免的引起同一节点消息多次接收，增加消息处理压力，一般通过<strong>文件校验和、缓存节点列表</strong>等方式来进行优化减少数据对比带来的性能损耗</li>
+</ul>
+<p>基于以上优缺点分析，<code>Gossip协议</code>满足<strong>CAP</strong>分布式理论中基于<strong>AP</strong>场景的数据最终一致性处理，常见应用有：<code>P2P网络通信、Apache Cassandra、Redis Cluster、Consul</code>等，还有<code>Apache Gossip</code>框架的开源实现供Gossip协议的学习。</p>
+</blockquote>
+<h2 id="11-总结">11. 总结</h2>
+<p>总的来说，Redis Cluster相当于是把Redis的<strong>主从架构</strong>和<strong>Sentinel</strong>集成到了一起，从Redis Cluster的高可用机制、判断故障转移以及执行故障转移的过程，都和主从、Sentinel相关，这也是为什么我在之前的文章里说，主从是Redis高可用架构的基石。</p>
+<h2 id="参考">参考</h2>
+<p><a href="https://www.cnblogs.com/detectiveHLH/p/14154665.html" target="_blank" rel="noopener noreferrer">深度图解Redis Cluster原理</a>
+</p>
+<p><a href="https://juejin.cn/post/6930774718114955278#heading-17" target="_blank" rel="noopener noreferrer">[分布式系列]Gossip协议</a>
+</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-medal"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" aria-label="Close"><i class="fas fa-fw fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-between">
+  <div class="post-nav w-50"><div class="prev-post btn btn-sm">
+      <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D/">生产问题定位
+</a>
+    </div></div>
+  <div class="post-nav flex-row-reverse"><div class="next-post btn btn-sm">
+      <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E6%B5%AE%E7%82%B9%E6%95%B0%E8%BF%90%E7%AE%97/">浮点数运算
+</a>
+    </div></div>
+</div><section class="related-posts">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redisson%E5%8E%9F%E7%90%86/">Redisson原理
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/">Redis主从复制
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/">Redis配置指南
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8Czk%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AF%B9%E6%AF%94/">redis分布式锁和zk分布式锁的对比
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/">基于Redis的分布式锁实现
+</a></li></ul>
+  </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container"><section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<section class="profile surface row text-center">
+  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony Xu" src="https://xuzhijvn.github.io/images/profile.webp"
+   width="400" height="400" loading="lazy" />
+</div>
+  <div class="col-12 profile-meta"><div class="profile-name">Tony Xu</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section>
+  <section class="recent-posts row surface">
+  <h4>最近文章</h4>
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/">poll select epoll区别
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/">JVM内存模型
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/">JVM类加载器
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E6%9E%B6%E6%9E%84/">JVM架构
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">JVM垃圾回收
+</a></li></ul>
+</section><section class="taxonomy-categories row surface">
+      <h4>
+        <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+      </h4>
+      <div><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
+          编程思想 <span class="badge rounded-pill">101</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">32</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
+          其他 <span class="badge rounded-pill">22</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机科学">
+          计算机科学 <span class="badge rounded-pill">20</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构演进">
+          架构演进 <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="持续集成部署">
+          持续集成部署 <span class="badge rounded-pill">5</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="人工智能">
+          人工智能 <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
+          区块链 <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-series row surface">
+      <h4>
+        <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
+      </h4>
+      <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
+          Manual <span class="badge rounded-pill">154</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">13</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s实战">
+          k8s实战 <span class="badge rounded-pill">13</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="istio实战">
+          istio实战 <span class="badge rounded-pill">4</span>
+        </a></div>
+    </section><section class="taxonomy-tags row surface">
+      <h4>
+        <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
+      </h4>
+      <div><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
+          Java <span class="badge rounded-pill">33</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">32</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">26</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
+          CS <span class="badge rounded-pill">20</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
+          Other <span class="badge rounded-pill">18</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
+          spring <span class="badge rounded-pill">12</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
+          MySQL <span class="badge rounded-pill">9</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
+          redis <span class="badge rounded-pill">9</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="剑指offer">
+          剑指offer <span class="badge rounded-pill">8</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="WordPress">
+          WordPress <span class="badge rounded-pill">7</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="istio">
+          istio <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="nginx">
+          nginx <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SA">
+          SA <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ZK">
+          ZK <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Jenkins">
+          Jenkins <span class="badge rounded-pill">4</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CNN">
+          CNN <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="System">
+          System <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="分布式">
+          分布式 <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="BlockChain">
+          BlockChain <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="docker">
+          docker <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="GO">
+          GO <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Maven">
+          Maven <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MQ">
+          MQ <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ClickHouse">
+          ClickHouse <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="docker-compose">
+          docker-compose <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ES">
+          ES <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="github">
+          github <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="IO">
+          IO <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Kafka">
+          Kafka <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="LeetCode">
+          LeetCode <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MongoDB">
+          MongoDB <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MyBatis">
+          MyBatis <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="openresty">
+          openresty <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SpringBoot">
+          SpringBoot <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="牛客">
+          牛客 <span class="badge rounded-pill">1</span>
+        </a></div>
+    </section><section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2021 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<a id="btnScrollToTop" class="btn-scroll-to-top">
+  <i class="fas fa-fw fa-chevron-circle-up fa-2x"></i>
+</a>
+<script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script></body>
+</html>

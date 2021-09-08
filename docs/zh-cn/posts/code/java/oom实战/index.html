@@ -1,0 +1,920 @@
+<!doctype html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OOM实战 - 唯有光頭才能變強</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://xuzhijvn.github.io/images/favicons/manifest.json">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="OOM实战">
+<meta itemprop="description" content="《深入理解Java虚拟机》中将OOM划分为: Java堆溢出、虚拟机栈和本地方法栈溢出、方法区和运行时常量池溢出、本机直接内存溢出
+1. Java堆溢出 /** * JDK1.6/JDK1.8 * * Java堆内存溢出异常测试 * * VM Args: -Xms20m -Xmx20m -XX:&#43;HeapDumpOnOutOfMemoryError * * @author xuzhijun.online * @date 2019年4月22日 */ public class HeapOOM { static class OOMObject{ } public static void main(String[] args) { List&lt;OOMObject&gt; list = new ArrayList&lt;OOMObject&gt;(); while(true) { list.add(new OOMObject()); } } } 运行结果：
+java.lang.OutOfMemoryError: Java heap space Dumping heap to java_pid3404.hprof ... Heap dump file created [22045981 bytes in 0.663 secs] 处理方法："><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="1277"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="keywords" content="Java," /><meta property="og:title" content="OOM实战" />
+<meta property="og:description" content="《深入理解Java虚拟机》中将OOM划分为: Java堆溢出、虚拟机栈和本地方法栈溢出、方法区和运行时常量池溢出、本机直接内存溢出
+1. Java堆溢出 /** * JDK1.6/JDK1.8 * * Java堆内存溢出异常测试 * * VM Args: -Xms20m -Xmx20m -XX:&#43;HeapDumpOnOutOfMemoryError * * @author xuzhijun.online * @date 2019年4月22日 */ public class HeapOOM { static class OOMObject{ } public static void main(String[] args) { List&lt;OOMObject&gt; list = new ArrayList&lt;OOMObject&gt;(); while(true) { list.add(new OOMObject()); } } } 运行结果：
+java.lang.OutOfMemoryError: Java heap space Dumping heap to java_pid3404.hprof ... Heap dump file created [22045981 bytes in 0.663 secs] 处理方法：" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/oom%E5%AE%9E%E6%88%98/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E6%9E%B6%E6%9E%84/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/%E9%AB%98%E5%B9%B6%E5%8F%91%E4%B8%8B%E7%9A%84%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
+
+<meta name="twitter:title" content="OOM实战"/>
+<meta name="twitter:description" content="《深入理解Java虚拟机》中将OOM划分为: Java堆溢出、虚拟机栈和本地方法栈溢出、方法区和运行时常量池溢出、本机直接内存溢出
+1. Java堆溢出 /** * JDK1.6/JDK1.8 * * Java堆内存溢出异常测试 * * VM Args: -Xms20m -Xmx20m -XX:&#43;HeapDumpOnOutOfMemoryError * * @author xuzhijun.online * @date 2019年4月22日 */ public class HeapOOM { static class OOMObject{ } public static void main(String[] args) { List&lt;OOMObject&gt; list = new ArrayList&lt;OOMObject&gt;(); while(true) { list.add(new OOMObject()); } } } 运行结果：
+java.lang.OutOfMemoryError: Java heap space Dumping heap to java_pid3404.hprof ... Heap dump file created [22045981 bytes in 0.663 secs] 处理方法："/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.9823d950e7319c8ceb08b6234b64b3736ce36485bc1b6b0689482a5d0c4c1c8f.js" integrity="sha256-mCPZUOcxnIzrCLYjS2Szc2zjZIW8G2sGiUgqXQxMHI8=" crossorigin="anonymous"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></head><body><header><nav class="navbar navbar-expand-xl fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="https://xuzhijvn.github.io/zh-cn/">
+      <img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp"
+   width="400" height="400" loading="lazy" />
+唯有光頭才能變強</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-1 mb-2 mb-lg-0"><form class="search-bar d-flex ms-1" action="https://xuzhijvn.github.io/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <button class="btn btn-search disabled position-absolute left-0" type="submit" aria-label="submit"><i class="fas fa-fw fa-search"></i></button>
+    <input class="form-control rounded-pill" id="searchQuery" name="q" type="search" aria-label="Search">
+  </div>
+</form></ul><ul class="navbar-nav me-1 mb-2 mb-lg-0 me-1 ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-categories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-categories"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3">
+                <i class="fas fa-fw fa-code"></i>编程思想
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD">
+                <i class="fas fa-fw fa-robot"></i>人工智能
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE">
+                <i class="fas fa-fw fa-cubes"></i>区块链
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6">
+                <i class="fas fa-fw fa-server"></i>计算机科学
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B">
+                <i class="fas fa-fw fa-sitemap"></i>架构演进
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F">
+                <i class="fas fa-fw fa-cloud"></i>云原生
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-tags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/java">
+                <i class="fab fa-fw fa-java"></i>Java
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+  <a class="nav-link" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="fas fa-fw fa-language"></i> 简体中文
+  </a>
+  <ul class="dropdown-menu" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/en/"></a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+</li><li class="nav-item">
+  <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button"
+    aria-controls="offcanvasSettings">
+    <i class="fas fa-fw fa-sliders-h"></i> 设置
+  </a>
+</li>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings"
+  aria-labelledby="offcanvasSettingsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" w id="offcanvasSettingsLabel"><i class="fas fa-fw fa-sliders-h"></i> 设置</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <span id="btnPalette" class="btn btn-sm"><i class="fas fa-eye-dropper"></i></span>
+    </div>
+  </form>
+  <div class="container mt-2 visually-hidden" id="palettePicker">
+    <div class="btn-group"><button type="button" id="palette-blue" title="蓝色" 
+          class="btn btn-sm palette bg-blue d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-blue-gray" title="蓝灰色" 
+          class="btn btn-sm palette bg-blue-gray d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-brown" title="棕色" 
+          class="btn btn-sm palette bg-brown d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-cyan" title="青色" 
+          class="btn btn-sm palette bg-cyan d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-green" title="绿色" 
+          class="btn btn-sm palette bg-green d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-indigo" title="靛青色" 
+          class="btn btn-sm palette bg-indigo d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-orange" title="橙色" 
+          class="btn btn-sm palette bg-orange d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-pink" title="粉色" 
+          class="btn btn-sm palette bg-pink d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-purple" title="紫色" 
+          class="btn btn-sm palette bg-purple d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-red" title="红色" 
+          class="btn btn-sm palette bg-red d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-teal" title="蓝绿色" 
+          class="btn btn-sm palette bg-teal d-flex align-items-center justify-content-center">
+        </button><button type="button" id="palette-yellow" title="黄色" 
+          class="btn btn-sm palette bg-yellow d-flex align-items-center justify-content-center">
+        </button></button>
+    </div>
+  </div>
+</section></div>
+</div></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row" aria-label="breadcrumb">
+  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">OOM实战</li></ol>
+</nav><article class="post row surface"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-alt fa-rotate-45"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-medal"></i>
+</a>
+    
+    <a id="btnTOC" class="fas fa-fw fa-list-alt" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+</a>
+  </div>
+</div>
+<h1 class="post-title my-3">OOM实战
+</h1><div class="post-meta mb-3"><span class="post-date me-2">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
+  </span><span class="post-reading-time me-2">
+    <i class="fas fa-fw fa-coffee"></i>6 分钟阅读
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="post-taxonomy">Java</a></span>
+</div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-java堆溢出">1. Java堆溢出</a></li>
+    <li><a href="#2-虚拟机栈和本地方法栈溢出">2. 虚拟机栈和本地方法栈溢出</a>
+      <ul>
+        <li><a href="#21-栈帧太深">2.1 栈帧太深</a></li>
+        <li><a href="#22-单个栈帧太大">2.2 单个栈帧太大</a></li>
+        <li><a href="#23-不断的创建线程">2.3 不断的创建线程</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-方法区和运行时常量池溢出">3. 方法区和运行时常量池溢出</a>
+      <ul>
+        <li><a href="#31-运行时常量池溢出">3.1 运行时常量池溢出</a></li>
+        <li><a href="#32-方法区溢出">3.2 方法区溢出</a></li>
+      </ul>
+    </li>
+    <li><a href="#4-本机直接内存溢出">4. 本机直接内存溢出</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>《深入理解Java虚拟机》中将OOM划分为: <code>Java堆溢出</code>、<code>虚拟机栈和本地方法栈溢出</code>、<code>方法区和运行时常量池溢出</code>、<code>本机直接内存溢出</code></p>
+<h2 id="1-java堆溢出">1. Java堆溢出</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">/**
+</span><span style="color:#75715e"> * JDK1.6/JDK1.8
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * Java堆内存溢出异常测试
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * VM Args: -Xms20m -Xmx20m -XX:+HeapDumpOnOutOfMemoryError
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * @author xuzhijun.online  
+</span><span style="color:#75715e"> * @date 2019年4月22日
+</span><span style="color:#75715e"> */</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HeapOOM</span> <span style="color:#f92672">{</span>
+  
+  <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OOMObject</span><span style="color:#f92672">{</span>
+    
+  <span style="color:#f92672">}</span>
+
+  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    List<span style="color:#f92672">&lt;</span>OOMObject<span style="color:#f92672">&gt;</span> list <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;</span>OOMObject<span style="color:#f92672">&gt;();</span>
+    <span style="color:#66d9ef">while</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      list<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> OOMObject<span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+  <span style="color:#f92672">}</span>
+
+<span style="color:#f92672">}</span>
+</code></pre></div><p>运行结果：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">java.lang.OutOfMemoryError: Java heap space
+Dumping heap to java_pid3404.hprof ...
+Heap dump file created <span style="color:#f92672">[</span><span style="color:#ae81ff">22045981</span> bytes in 0.663 secs<span style="color:#f92672">]</span>
+</code></pre></div><p>处理方法：</p>
+<ol>
+<li>首先通过内存映像分析工具（如Eclipse Memory Analyzer） 对Dump出来的堆转储快照进行分析。 分清楚到底是出现了内存泄漏（Memory Leak） 还是内存溢出（Memory Overflow） 。</li>
+<li>如果是内存泄漏， 可进一步通过工具查看泄漏对象到GC Roots的引用链， 找到泄漏对象是通过怎样的引用路径、 与哪些GC Roots相关联， 才导致垃圾收集器无法回收它们， 根据泄漏对象的类型信息以及它到GC Roots引用链的信息， 一般可以比较准确地定位到这些对象创建的位置， 进而找出产生内存泄漏的代码的具体位置。</li>
+<li>如果是内存溢出， 换句话说就是内存中的对象确实都是必须存活的， 那就应当检查Java虚拟机的堆参数（-Xmx与-Xms） 设置， 与机器的内存对比， 看看是否还有向上调整的空间。 再从代码上检查是否存在某些对象生命周期过长、 持有状态时间过长、 存储结构设计不合理等情况， 尽量减少程序运行期的内存消耗。</li>
+</ol>
+<h2 id="2-虚拟机栈和本地方法栈溢出">2. 虚拟机栈和本地方法栈溢出</h2>
+<p>由于HotSpot虚拟机中并不区分虚拟机栈和本地方法栈， 因此对于HotSpot来说， -Xoss参数（设置本地方法栈大小） 虽然存在， 但实际上是没有任何效果的， 栈容量只能由-Xss参数来设定。 关于虚拟机栈和本地方法栈， 在《Java虚拟机规范》 中描述了两种异常：</p>
+<p>1） 如果线程请求的栈深度大于虚拟机所允许的最大深度， 将抛出StackOverflowError异常。</p>
+<p>2） 如果虚拟机的栈内存允许动态扩展， 当扩展栈容量无法申请到足够的内存时， 将抛出OutOfMemoryError异常。</p>
+<p>《Java虚拟机规范》 明确允许Java虚拟机实现自行选择是否支持栈的动态扩展， 而HotSpot虚拟机的选择是不支持扩展， 所以除非在创建线程申请内存时就因无法获得足够内存而出现OutOfMemoryError异常， 否则在线程运行时是不会因为扩展而导致内存溢出的， 只会因为栈容量无法容纳新的栈帧而导致StackOverflowError异常。</p>
+<p>无法容纳新的栈帧有两种情况：1. <code>栈帧太深</code> 2. <code>单个栈帧太大</code>。分别测试如下：</p>
+<h3 id="21-栈帧太深">2.1 栈帧太深</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">/**
+</span><span style="color:#75715e"> * JDK1.8/JDK1.6
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * 虚拟机机栈和本地方法栈OOM测试(减小栈内存，模拟StackOverflowError)
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * VM Args: -Xss128k
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * @author 106.55.152.92:30989
+</span><span style="color:#75715e"> * @date 2019年4月23日
+</span><span style="color:#75715e"> */</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JavaVMStackSOF</span> <span style="color:#f92672">{</span>
+  
+  <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> stackLength <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span>
+  
+  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">stackLeak</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    stackLength<span style="color:#f92672">++;</span>
+    stackLeak<span style="color:#f92672">();</span>
+  <span style="color:#f92672">}</span>
+
+  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Throwable <span style="color:#f92672">{</span>
+    JavaVMStackSOF oom <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> JavaVMStackSOF<span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+      oom<span style="color:#f92672">.</span><span style="color:#a6e22e">stackLeak</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Throwable e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;stack length: &#34;</span><span style="color:#f92672">+</span>oom<span style="color:#f92672">.</span><span style="color:#a6e22e">stackLength</span><span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">throw</span> e<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+  <span style="color:#f92672">}</span>
+
+<span style="color:#f92672">}</span>
+</code></pre></div><p>运行结果：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">stack length:2402
+Exception in thread <span style="color:#e6db74">&#34;main&#34;</span> java.lang.StackOverflowError
+at org.fenixsoft.oom. JavaVMStackSOF.leak<span style="color:#f92672">(</span>JavaVMStackSOF.java:20<span style="color:#f92672">)</span>
+at org.fenixsoft.oom. JavaVMStackSOF.leak<span style="color:#f92672">(</span>JavaVMStackSOF.java:21<span style="color:#f92672">)</span>
+at org.fenixsoft.oom. JavaVMStackSOF.leak<span style="color:#f92672">(</span>JavaVMStackSOF.java:21<span style="color:#f92672">)</span>
+……后续异常堆栈信息省略
+</code></pre></div><h3 id="22-单个栈帧太大">2.2 单个栈帧太大</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JavaVMStackSOF</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> stackLength <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">test</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">long</span> unused1<span style="color:#f92672">,</span> unused2<span style="color:#f92672">,</span> unused3<span style="color:#f92672">,</span> unused4<span style="color:#f92672">,</span> unused5<span style="color:#f92672">,</span>
+                unused6<span style="color:#f92672">,</span> unused7<span style="color:#f92672">,</span> unused8<span style="color:#f92672">,</span> unused9<span style="color:#f92672">,</span> unused10<span style="color:#f92672">,</span>
+                unused11<span style="color:#f92672">,</span> unused12<span style="color:#f92672">,</span> unused13<span style="color:#f92672">,</span> unused14<span style="color:#f92672">,</span> unused15<span style="color:#f92672">,</span>
+                unused16<span style="color:#f92672">,</span> unused17<span style="color:#f92672">,</span> unused18<span style="color:#f92672">,</span> unused19<span style="color:#f92672">,</span> unused20<span style="color:#f92672">,</span>
+                unused21<span style="color:#f92672">,</span> unused22<span style="color:#f92672">,</span> unused23<span style="color:#f92672">,</span> unused24<span style="color:#f92672">,</span> unused25<span style="color:#f92672">,</span>
+                unused26<span style="color:#f92672">,</span> unused27<span style="color:#f92672">,</span> unused28<span style="color:#f92672">,</span> unused29<span style="color:#f92672">,</span> unused30<span style="color:#f92672">,</span>
+                unused31<span style="color:#f92672">,</span> unused32<span style="color:#f92672">,</span> unused33<span style="color:#f92672">,</span> unused34<span style="color:#f92672">,</span> unused35<span style="color:#f92672">,</span>
+                unused36<span style="color:#f92672">,</span> unused37<span style="color:#f92672">,</span> unused38<span style="color:#f92672">,</span> unused39<span style="color:#f92672">,</span> unused40<span style="color:#f92672">,</span>
+                unused41<span style="color:#f92672">,</span> unused42<span style="color:#f92672">,</span> unused43<span style="color:#f92672">,</span> unused44<span style="color:#f92672">,</span> unused45<span style="color:#f92672">,</span>
+                unused46<span style="color:#f92672">,</span> unused47<span style="color:#f92672">,</span> unused48<span style="color:#f92672">,</span> unused49<span style="color:#f92672">,</span> unused50<span style="color:#f92672">,</span>
+                unused51<span style="color:#f92672">,</span> unused52<span style="color:#f92672">,</span> unused53<span style="color:#f92672">,</span> unused54<span style="color:#f92672">,</span> unused55<span style="color:#f92672">,</span>
+                unused56<span style="color:#f92672">,</span> unused57<span style="color:#f92672">,</span> unused58<span style="color:#f92672">,</span> unused59<span style="color:#f92672">,</span> unused60<span style="color:#f92672">,</span>
+                unused61<span style="color:#f92672">,</span> unused62<span style="color:#f92672">,</span> unused63<span style="color:#f92672">,</span> unused64<span style="color:#f92672">,</span> unused65<span style="color:#f92672">,</span>
+                unused66<span style="color:#f92672">,</span> unused67<span style="color:#f92672">,</span> unused68<span style="color:#f92672">,</span> unused69<span style="color:#f92672">,</span> unused70<span style="color:#f92672">,</span>
+                unused71<span style="color:#f92672">,</span> unused72<span style="color:#f92672">,</span> unused73<span style="color:#f92672">,</span> unused74<span style="color:#f92672">,</span> unused75<span style="color:#f92672">,</span>
+                unused76<span style="color:#f92672">,</span> unused77<span style="color:#f92672">,</span> unused78<span style="color:#f92672">,</span> unused79<span style="color:#f92672">,</span> unused80<span style="color:#f92672">,</span>
+                unused81<span style="color:#f92672">,</span> unused82<span style="color:#f92672">,</span> unused83<span style="color:#f92672">,</span> unused84<span style="color:#f92672">,</span> unused85<span style="color:#f92672">,</span>
+                unused86<span style="color:#f92672">,</span> unused87<span style="color:#f92672">,</span> unused88<span style="color:#f92672">,</span> unused89<span style="color:#f92672">,</span> unused90<span style="color:#f92672">,</span>
+                unused91<span style="color:#f92672">,</span> unused92<span style="color:#f92672">,</span> unused93<span style="color:#f92672">,</span> unused94<span style="color:#f92672">,</span> unused95<span style="color:#f92672">,</span>
+                unused96<span style="color:#f92672">,</span> unused97<span style="color:#f92672">,</span> unused98<span style="color:#f92672">,</span> unused99<span style="color:#f92672">,</span> unused100<span style="color:#f92672">;</span>
+        stackLength<span style="color:#f92672">++;</span>
+        test<span style="color:#f92672">();</span>
+        unused1 <span style="color:#f92672">=</span> unused2 <span style="color:#f92672">=</span> unused3 <span style="color:#f92672">=</span> unused4 <span style="color:#f92672">=</span> unused5 <span style="color:#f92672">=</span> 
+        unused6 <span style="color:#f92672">=</span> unused7 <span style="color:#f92672">=</span> unused8 <span style="color:#f92672">=</span> unused9 <span style="color:#f92672">=</span> unused10 <span style="color:#f92672">=</span>
+        unused11 <span style="color:#f92672">=</span> unused12 <span style="color:#f92672">=</span> unused13 <span style="color:#f92672">=</span> unused14 <span style="color:#f92672">=</span> unused15 <span style="color:#f92672">=</span> 
+        unused16 <span style="color:#f92672">=</span> unused17 <span style="color:#f92672">=</span> unused18 <span style="color:#f92672">=</span> unused19 <span style="color:#f92672">=</span> unused20 <span style="color:#f92672">=</span>
+        unused21 <span style="color:#f92672">=</span> unused22 <span style="color:#f92672">=</span> unused23 <span style="color:#f92672">=</span> unused24 <span style="color:#f92672">=</span> unused25 <span style="color:#f92672">=</span> 
+        unused26 <span style="color:#f92672">=</span> unused27 <span style="color:#f92672">=</span> unused28 <span style="color:#f92672">=</span> unused29 <span style="color:#f92672">=</span> unused30 <span style="color:#f92672">=</span>
+        unused31 <span style="color:#f92672">=</span> unused32 <span style="color:#f92672">=</span> unused33 <span style="color:#f92672">=</span> unused34 <span style="color:#f92672">=</span> unused35 <span style="color:#f92672">=</span>
+        unused36 <span style="color:#f92672">=</span> unused37 <span style="color:#f92672">=</span> unused38 <span style="color:#f92672">=</span> unused39 <span style="color:#f92672">=</span> unused40 <span style="color:#f92672">=</span>
+        unused41 <span style="color:#f92672">=</span> unused42 <span style="color:#f92672">=</span> unused43 <span style="color:#f92672">=</span> unused44 <span style="color:#f92672">=</span> unused45 <span style="color:#f92672">=</span> 
+        unused46 <span style="color:#f92672">=</span> unused47 <span style="color:#f92672">=</span> unused48 <span style="color:#f92672">=</span> unused49 <span style="color:#f92672">=</span> unused50 <span style="color:#f92672">=</span>
+        unused51 <span style="color:#f92672">=</span> unused52 <span style="color:#f92672">=</span> unused53 <span style="color:#f92672">=</span> unused54 <span style="color:#f92672">=</span> unused55 <span style="color:#f92672">=</span>
+        unused56 <span style="color:#f92672">=</span> unused57 <span style="color:#f92672">=</span> unused58 <span style="color:#f92672">=</span> unused59 <span style="color:#f92672">=</span> unused60 <span style="color:#f92672">=</span>
+        unused61 <span style="color:#f92672">=</span> unused62 <span style="color:#f92672">=</span> unused63 <span style="color:#f92672">=</span> unused64 <span style="color:#f92672">=</span> unused65 <span style="color:#f92672">=</span>
+        unused66 <span style="color:#f92672">=</span> unused67 <span style="color:#f92672">=</span> unused68 <span style="color:#f92672">=</span> unused69 <span style="color:#f92672">=</span> unused70 <span style="color:#f92672">=</span>
+        unused71 <span style="color:#f92672">=</span> unused72 <span style="color:#f92672">=</span> unused73 <span style="color:#f92672">=</span> unused74 <span style="color:#f92672">=</span> unused75 <span style="color:#f92672">=</span>
+        unused76 <span style="color:#f92672">=</span> unused77 <span style="color:#f92672">=</span> unused78 <span style="color:#f92672">=</span> unused79 <span style="color:#f92672">=</span> unused80 <span style="color:#f92672">=</span>
+        unused81 <span style="color:#f92672">=</span> unused82 <span style="color:#f92672">=</span> unused83 <span style="color:#f92672">=</span> unused84 <span style="color:#f92672">=</span> unused85 <span style="color:#f92672">=</span>
+        unused86 <span style="color:#f92672">=</span> unused87 <span style="color:#f92672">=</span> unused88 <span style="color:#f92672">=</span> unused89 <span style="color:#f92672">=</span> unused90 <span style="color:#f92672">=</span>
+        unused91 <span style="color:#f92672">=</span> unused92 <span style="color:#f92672">=</span> unused93 <span style="color:#f92672">=</span> unused94 <span style="color:#f92672">=</span> unused95 <span style="color:#f92672">=</span>
+        unused96 <span style="color:#f92672">=</span> unused97 <span style="color:#f92672">=</span> unused98 <span style="color:#f92672">=</span> unused99 <span style="color:#f92672">=</span> unused100 <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            test<span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Error e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;stack length:&#34;</span> <span style="color:#f92672">+</span> stackLength<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">throw</span> e<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>运行结果:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">stack length:5675
+Exception in thread <span style="color:#e6db74">&#34;main&#34;</span> java.lang.StackOverflowError
+at org.fenixsoft.oom. JavaVMStackSOF.leak<span style="color:#f92672">(</span>JavaVMStackSOF.java:27<span style="color:#f92672">)</span>
+at org.fenixsoft.oom. JavaVMStackSOF.leak<span style="color:#f92672">(</span>JavaVMStackSOF.java:28<span style="color:#f92672">)</span>
+at org.fenixsoft.oom. JavaVMStackSOF.leak<span style="color:#f92672">(</span>JavaVMStackSOF.java:28<span style="color:#f92672">)</span>
+……后续异常堆栈信息省略
+</code></pre></div><p>实验结果表明： 无论是由于栈帧太大还是虚拟机栈容量太小， 当新的栈帧内存无法分配的时候，HotSpot虚拟机抛出的都是StackOverflowError异常。 可是如果在允许动态扩展栈容量大小的虚拟机上， 相同代码则会导致不一样的情况。 譬如远古时代的Classic虚拟机， 这款虚拟机可以支持动态扩展栈内存的容量， 在Windows上的JDK 1.0.2运行上述代码（2.2 单个栈帧太大的代码）的话（如果这时候要调整栈容量就应该改用-oss参数了） ， 得到的结果是：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">stack length:3716
+java.lang.OutOfMemoryError
+at org.fenixsoft.oom. JavaVMStackSOF.leak<span style="color:#f92672">(</span>JavaVMStackSOF.java:27<span style="color:#f92672">)</span>
+at org.fenixsoft.oom. JavaVMStackSOF.leak<span style="color:#f92672">(</span>JavaVMStackSOF.java:28<span style="color:#f92672">)</span>
+at org.fenixsoft.oom. JavaVMStackSOF.leak<span style="color:#f92672">(</span>JavaVMStackSOF.java:28<span style="color:#f92672">)</span>
+……后续异常堆栈信息省略
+</code></pre></div><h3 id="23-不断的创建线程">2.3 不断的创建线程</h3>
+<p>如果测试时不限于单线程， 通过不断建立线程的方式， 在HotSpot上也是可以产生内存溢出异常的。 但是这样产生的内存溢出异常和栈空间是否足够并不存在任何直接的关系， 主要取决于操作系统本身的内存使用状态。 甚至可以说， 在这种情况下， 给每个线程的栈分配的内存越大， 反而越容易产生内存溢出异常。原因其实不难理解， 操作系统分配给每个进程的内存是有限制的， 譬如32位Windows的单个进程最大内存限制为2GB。 HotSpot虚拟机提供了参数可以控制Java堆和方法区这两部分的内存的最大值，那剩余的内存即为2GB（操作系统限制） 减去最大堆容量， 再减去最大方法区容量， 由于程序计数器消耗内存很小， 可以忽略掉， 如果把直接内存和虚拟机进程本身耗费的内存也去掉的话， 剩下的内存就由虚拟机栈和本地方法栈来分配了。 因此为每个线程分配到的栈内存越大， 可以建立的线程数量自然就越少， 建立线程时就越容易把剩下的内存耗尽。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">/**
+</span><span style="color:#75715e"> * JDK1.8/JDK1.6(window操作系统假死，未能观测到异常)
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * 创建线程导致内存溢出异常
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * VM Args: -Xss2M
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * @author 106.55.152.92:30989
+</span><span style="color:#75715e"> * @date 2019年4月23日
+</span><span style="color:#75715e"> */</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JavaVMStackOOM</span> <span style="color:#f92672">{</span>
+  
+  <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">dontStop</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">while</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#f92672">}</span>
+  <span style="color:#f92672">}</span>
+
+  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">stackLeakByThread</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">while</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      Thread thread <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Thread<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Runnable<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+          dontStop<span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+      <span style="color:#f92672">});</span>
+      thread<span style="color:#f92672">.</span><span style="color:#a6e22e">start</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+  <span style="color:#f92672">}</span>
+  
+  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    JavaVMStackOOM oom <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> JavaVMStackOOM<span style="color:#f92672">();</span>
+    oom<span style="color:#f92672">.</span><span style="color:#a6e22e">stackLeakByThread</span><span style="color:#f92672">();</span>
+  <span style="color:#f92672">}</span>
+
+<span style="color:#f92672">}</span>
+</code></pre></div><p>[v_error]重点提示一下， 如果读者要尝试运行上面这段代码， 记得要先保存当前的工作， 由于在Windows平台的虚拟机中， Java的线程是映射到操作系统的内核线程上[1]， 无限制地创建线程会对操作系统带来很大压力， 上述代码执行时有很高的风险， 可能会由于创建线程数量过多而导致操作系统假死。[/v_error]
+运行结果:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">Exception in thread <span style="color:#e6db74">&#34;main&#34;</span> java.lang.OutOfMemoryError: unable to create native thread
+</code></pre></div><p>处理方法：</p>
+<ol>
+<li>如果使用HotSpot虚拟机默认参数， 栈深度在大多数情况下到达1000~2000是完全没有问题， 对于正常的方法调用 ， 这个深度应该完全够用了， 出现StackOverflowError异常时检查业务逻辑是否合理。</li>
+<li>如果是建立过多线程导致的内存溢出， 在不能减少线程数量或者更换64位虚拟机的情况下， 就只能通过减少最大堆和减少栈容量来换取更多的线程。</li>
+</ol>
+<h2 id="3-方法区和运行时常量池溢出">3. 方法区和运行时常量池溢出</h2>
+<p>由于运行时常量池是方法区的一部分， 所以这两个区域的溢出测试可以放到一起进行。</p>
+<h3 id="31-运行时常量池溢出">3.1 运行时常量池溢出</h3>
+<p>[v_tips]String::intern()是一个本地方法， 它的作用是如果字符串常量池中已经包含一个等于此String对象的字符串， 则返回代表池中这个字符串的String对象的引用； 否则， 会将此String对象包含的字符串添加到常量池中， 并且返回此String对象的引用。 [/v_tips]</p>
+<p>在JDK 6或更早之前的HotSpot虚拟机中， 常量池都是分配在永久代中， 我们可以通过-XX： PermSize和-XX： MaxPermSize限制永久代的大小， 即可间接限制其中常量池的容量。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">/**
+</span><span style="color:#75715e"> * JDK1.6
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * 运行时常量池导致的内存溢出异常(JDK1.8之后去除了方法区, 常量池移入堆内存，因此本实验只能在JDK1.6上测试)
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * VM Args: -XX:PermSize=10M -XX:MaxPermSize=10M
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * @author 106.55.152.92:30989
+</span><span style="color:#75715e"> * @date 2019年4月23日
+</span><span style="color:#75715e"> */</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RuntimeConstantPoolOOM</span> <span style="color:#f92672">{</span>
+
+  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">//使用List保持着常量池的引用，避免Full GC回收常量池行为
+</span><span style="color:#75715e"></span>    List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> list <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;();</span>
+    <span style="color:#75715e">//10M的PermSize在integer范围内足够产生OOM了
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">while</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      list<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">valueOf</span><span style="color:#f92672">(</span>i<span style="color:#f92672">++).</span><span style="color:#a6e22e">intern</span><span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+  <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>运行结果：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">Exception in thread <span style="color:#e6db74">&#34;main&#34;</span> java.lang.OutOfMemoryError: PermGen space
+at java.lang.String.intern<span style="color:#f92672">(</span>Native Method<span style="color:#f92672">)</span>
+at org.fenixsoft.oom.RuntimeConstantPoolOOM.main<span style="color:#f92672">(</span>RuntimeConstantPoolOOM.java: 18<span style="color:#f92672">)</span>
+</code></pre></div><p>因为自JDK 7起， 原本存放在永久代的字符串常量池被移至Java堆之中， 所以在JDK 7及以上版本， 限制方法区的容量对该测试用例来说是毫无意义的。 这时候使用-Xmx参数限制最大堆到6MB就能够看到以下两种运行结果之一， 具体取决于哪里的对象分配时产生了溢出：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// OOM异常一：
+</span><span style="color:#75715e"></span>Exception in thread <span style="color:#e6db74">&#34;main&#34;</span> java<span style="color:#f92672">.</span><span style="color:#a6e22e">lang</span><span style="color:#f92672">.</span><span style="color:#a6e22e">OutOfMemoryError</span><span style="color:#f92672">:</span> Java heap space
+at java<span style="color:#f92672">.</span><span style="color:#a6e22e">base</span><span style="color:#f92672">/</span>java<span style="color:#f92672">.</span><span style="color:#a6e22e">lang</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Integer</span><span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">(</span>Integer<span style="color:#f92672">.</span><span style="color:#a6e22e">java</span><span style="color:#f92672">:</span>440<span style="color:#f92672">)</span>
+at java<span style="color:#f92672">.</span><span style="color:#a6e22e">base</span><span style="color:#f92672">/</span>java<span style="color:#f92672">.</span><span style="color:#a6e22e">lang</span><span style="color:#f92672">.</span><span style="color:#a6e22e">String</span><span style="color:#f92672">.</span><span style="color:#a6e22e">valueOf</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">java</span><span style="color:#f92672">:</span>3058<span style="color:#f92672">)</span>
+at RuntimeConstantPoolOOM<span style="color:#f92672">.</span><span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>RuntimeConstantPoolOOM<span style="color:#f92672">.</span><span style="color:#a6e22e">java</span><span style="color:#f92672">:</span>12<span style="color:#f92672">)</span>
+<span style="color:#75715e">// OOM异常二：
+</span><span style="color:#75715e"></span>Exception in thread <span style="color:#e6db74">&#34;main&#34;</span> java<span style="color:#f92672">.</span><span style="color:#a6e22e">lang</span><span style="color:#f92672">.</span><span style="color:#a6e22e">OutOfMemoryError</span><span style="color:#f92672">:</span> Java heap space
+at java<span style="color:#f92672">.</span><span style="color:#a6e22e">base</span><span style="color:#f92672">/</span>java<span style="color:#f92672">.</span><span style="color:#a6e22e">util</span><span style="color:#f92672">.</span><span style="color:#a6e22e">HashMap</span><span style="color:#f92672">.</span><span style="color:#a6e22e">resize</span><span style="color:#f92672">(</span>HashMap<span style="color:#f92672">.</span><span style="color:#a6e22e">java</span><span style="color:#f92672">:</span>699<span style="color:#f92672">)</span>
+at java<span style="color:#f92672">.</span><span style="color:#a6e22e">base</span><span style="color:#f92672">/</span>java<span style="color:#f92672">.</span><span style="color:#a6e22e">util</span><span style="color:#f92672">.</span><span style="color:#a6e22e">HashMap</span><span style="color:#f92672">.</span><span style="color:#a6e22e">putVal</span><span style="color:#f92672">(</span>HashMap<span style="color:#f92672">.</span><span style="color:#a6e22e">java</span><span style="color:#f92672">:</span>658<span style="color:#f92672">)</span>
+at java<span style="color:#f92672">.</span><span style="color:#a6e22e">base</span><span style="color:#f92672">/</span>java<span style="color:#f92672">.</span><span style="color:#a6e22e">util</span><span style="color:#f92672">.</span><span style="color:#a6e22e">HashMap</span><span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>HashMap<span style="color:#f92672">.</span><span style="color:#a6e22e">java</span><span style="color:#f92672">:</span>607<span style="color:#f92672">)</span>
+at java<span style="color:#f92672">.</span><span style="color:#a6e22e">base</span><span style="color:#f92672">/</span>java<span style="color:#f92672">.</span><span style="color:#a6e22e">util</span><span style="color:#f92672">.</span><span style="color:#a6e22e">HashSet</span><span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>HashSet<span style="color:#f92672">.</span><span style="color:#a6e22e">java</span><span style="color:#f92672">:</span>220<span style="color:#f92672">)</span>
+at RuntimeConstantPoolOOM<span style="color:#f92672">.</span><span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>RuntimeConstantPoolOOM<span style="color:#f92672">.</span><span style="color:#a6e22e">java</span> from InputFile<span style="color:#f92672">-</span>Object<span style="color:#f92672">:</span>14<span style="color:#f92672">)</span>
+</code></pre></div><p>关于这个字符串常量池的实现在哪里出现问题， 还可以引申出一些更有意思的影响:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">/**
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * JDK1.8(true,false)/JDK1.6(false,false)
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * JDK1.8移除方法区，常量池加入到堆内存，所以new对象的地址和intern()返回的常量池中的地址是相同的(详情见《JVM虚拟机P57》)
+</span><span style="color:#75715e"> *
+</span><span style="color:#75715e"> * String.intern()返回引用测试
+</span><span style="color:#75715e"> *
+</span><span style="color:#75715e"> * @author 106.55.152.92:30989
+</span><span style="color:#75715e"> * @author 2019年4月23日
+</span><span style="color:#75715e"> *
+</span><span style="color:#75715e"> */</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RuntimeConstantPoolOOM2</span> <span style="color:#f92672">{</span>
+
+  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    String str1 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StringBuilder<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;计算机&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;软件&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">();</span>
+    System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>str1<span style="color:#f92672">.</span><span style="color:#a6e22e">intern</span><span style="color:#f92672">()</span> <span style="color:#f92672">==</span> str1<span style="color:#f92672">);</span>
+    
+    String str2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StringBuilder<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;ja&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;va&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">();</span>
+    System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>str2<span style="color:#f92672">.</span><span style="color:#a6e22e">intern</span><span style="color:#f92672">()</span> <span style="color:#f92672">==</span> str2<span style="color:#f92672">);</span>
+  <span style="color:#f92672">}</span>
+
+<span style="color:#f92672">}</span>
+</code></pre></div><p>JDK 7 及其以上版本会得到(true,false)，而JDK6会得到(false,false)结果。</p>
+<p>[v_tips]对str2比较返回false， 这是因为“java”[2]这个字符串在执行String-Builder.toString()之前就已经出现过了，它是加载sun.misc.Vesion的时候加入常量池的， 字符串常量池中已经有它的引用， 不符合intern()方法要求“首次遇到”的原则， “计算机软件”这个字符串则是首次出现的，因此结果返回true。[/v_tips]</p>
+<h3 id="32-方法区溢出">3.2 方法区溢出</h3>
+<p>我们再来看看方法区的其他部分的内容， 方法区的主要职责是用于存放类型的相关信息， 如类名、 访问修饰符、 常量池、 字段描述、 方法描述等。 对于这部分区域的测试， 基本的思路是运行时产生大量的类去填满方法区， 直到溢出为止。下面代码中笔者借助了CGLib直接操作字节码运行时生成了大量的动态类。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">import</span> net.sf.cglib.proxy.Enhancer<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> net.sf.cglib.proxy.MethodInterceptor<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> net.sf.cglib.proxy.MethodProxy<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.lang.reflect.Method<span style="color:#f92672">;</span>
+
+<span style="color:#75715e">/**
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * JDK1.6
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> * 借助CGLib使方法区出现内存溢出异常 
+</span><span style="color:#75715e"> * 
+</span><span style="color:#75715e"> *
+</span><span style="color:#75715e"> * VM  Args: -XX:PermSize=10M -XX:MaxPermSize=10M (JDK1.8之后去除了方法区, 类数据放入MetaSpace直接内存区域，该参数无效)
+</span><span style="color:#75715e"> *
+</span><span style="color:#75715e"> * @author 106.55.152.92:30989
+</span><span style="color:#75715e"> * @author 2019年4月23日
+</span><span style="color:#75715e"> *
+</span><span style="color:#75715e"> */</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JavaMethodAreaOOM</span> <span style="color:#f92672">{</span>
+  
+  <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OOMObject</span> <span style="color:#f92672">{</span>
+    
+  <span style="color:#f92672">}</span>
+
+  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">while</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      Enhancer enhancer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Enhancer<span style="color:#f92672">();</span>
+      enhancer<span style="color:#f92672">.</span><span style="color:#a6e22e">setSuperclass</span><span style="color:#f92672">(</span>OOMObject<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+      enhancer<span style="color:#f92672">.</span><span style="color:#a6e22e">setUseCache</span><span style="color:#f92672">(</span><span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
+      enhancer<span style="color:#f92672">.</span><span style="color:#a6e22e">setCallback</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> MethodInterceptor<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> Object <span style="color:#a6e22e">intercept</span><span style="color:#f92672">(</span>Object obj<span style="color:#f92672">,</span> Method method<span style="color:#f92672">,</span> Object<span style="color:#f92672">[]</span> args<span style="color:#f92672">,</span> MethodProxy proxy<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Throwable <span style="color:#f92672">{</span>
+          <span style="color:#66d9ef">return</span> proxy<span style="color:#f92672">.</span><span style="color:#a6e22e">invokeSuper</span><span style="color:#f92672">(</span>obj<span style="color:#f92672">,</span> args<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+      <span style="color:#f92672">});</span>
+      enhancer<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+  <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>在JDK 7以及以前版本中的运行结果：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">Caused by: java.lang.OutOfMemoryError: PermGen space
+at java.lang.ClassLoader.defineClass1<span style="color:#f92672">(</span>Native Method<span style="color:#f92672">)</span>
+at java.lang.ClassLoader.defineClassCond<span style="color:#f92672">(</span>ClassLoader.java:632<span style="color:#f92672">)</span>
+at java.lang.ClassLoader.defineClass<span style="color:#f92672">(</span>ClassLoader.java:616<span style="color:#f92672">)</span>
+... <span style="color:#ae81ff">8</span> more
+</code></pre></div><p>在JDK 8以后， 永久代便完全退出了历史舞台， 元空间作为其替代者登场。 在默认设置下， 前面列举的那些正常的动态创建新类型的测试用例已经很难再迫使虚拟机产生方法区的溢出异常了。 不过为了让使用者有预防实际应用里出现类似于上述代码那样的破坏性的操作， HotSpot还是提供了一些参数作为元空间的防御措施， 主要包括 <code>-XX：MaxMetaspaceSize</code> <code> -XX：MetaspaceSize</code> <code>-XX：MinMetaspaceFreeRatio</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">import</span> javassist.CtClass<span style="color:#f92672">;</span>
+<span style="color:#75715e">/**
+</span><span style="color:#75715e"> * Create by xuzhijun.online on 2019/5/7.
+</span><span style="color:#75715e"> */</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MetaspaceOOM</span> <span style="color:#f92672">{</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * JVM参数:-XX:MetaspaceSize=10m -XX:MaxMetaspaceSize=10m
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">static</span> javassist<span style="color:#f92672">.</span><span style="color:#a6e22e">ClassPool</span> cp <span style="color:#f92672">=</span> javassist<span style="color:#f92672">.</span><span style="color:#a6e22e">ClassPool</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getDefault</span><span style="color:#f92672">();</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception<span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> <span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+            CtClass c <span style="color:#f92672">=</span> cp<span style="color:#f92672">.</span><span style="color:#a6e22e">makeClass</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;com.xzj.TreeNode&#34;</span> <span style="color:#f92672">+</span> i<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>c<span style="color:#f92672">.</span><span style="color:#a6e22e">isFrozen</span><span style="color:#f92672">()){</span>
+                c<span style="color:#f92672">.</span><span style="color:#a6e22e">defrost</span><span style="color:#f92672">();</span>
+            <span style="color:#f92672">}</span>
+           Class cc <span style="color:#f92672">=</span>  c<span style="color:#f92672">.</span><span style="color:#a6e22e">toClass</span><span style="color:#f92672">();</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>cc <span style="color:#f92672">+</span><span style="color:#e6db74">&#34; &#34;</span> <span style="color:#f92672">+</span>i<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>测试结果：</p>
+<p><code>D:\app\jdk1.8.0_251\bin\java.exe</code> 报Compressed class space OOM</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">class com.xzj.TreeNode3078 <span style="color:#ae81ff">3078</span>
+Exception in thread <span style="color:#e6db74">&#34;main&#34;</span> javassist.CannotCompileException: by java.lang.OutOfMemoryError: Compressed class space
+  at javassist.ClassPool.toClass<span style="color:#f92672">(</span>ClassPool.java:1085<span style="color:#f92672">)</span>
+  at javassist.ClassPool.toClass<span style="color:#f92672">(</span>ClassPool.java:1028<span style="color:#f92672">)</span>
+  at javassist.ClassPool.toClass<span style="color:#f92672">(</span>ClassPool.java:986<span style="color:#f92672">)</span>
+  at javassist.CtClass.toClass<span style="color:#f92672">(</span>CtClass.java:1079<span style="color:#f92672">)</span>
+  at com.xzj.MetaspaceOOM.main<span style="color:#f92672">(</span>MetaspaceOOM.java:28<span style="color:#f92672">)</span>
+Caused by: java.lang.OutOfMemoryError: Compressed class space
+  at java.lang.ClassLoader.defineClass1<span style="color:#f92672">(</span>Native Method<span style="color:#f92672">)</span>
+  at java.lang.ClassLoader.defineClass<span style="color:#f92672">(</span>ClassLoader.java:756<span style="color:#f92672">)</span>
+  at java.lang.ClassLoader.defineClass<span style="color:#f92672">(</span>ClassLoader.java:635<span style="color:#f92672">)</span>
+  at sun.reflect.GeneratedMethodAccessor1.invoke<span style="color:#f92672">(</span>Unknown Source<span style="color:#f92672">)</span>
+  at sun.reflect.DelegatingMethodAccessorImpl.invoke<span style="color:#f92672">(</span>DelegatingMethodAccessorImpl.java:43<span style="color:#f92672">)</span>
+  at java.lang.reflect.Method.invoke<span style="color:#f92672">(</span>Method.java:498<span style="color:#f92672">)</span>
+  at javassist.ClassPool.toClass2<span style="color:#f92672">(</span>ClassPool.java:1098<span style="color:#f92672">)</span>
+  at javassist.ClassPool.toClass<span style="color:#f92672">(</span>ClassPool.java:1079<span style="color:#f92672">)</span>
+  ... <span style="color:#ae81ff">4</span> more
+</code></pre></div><p>测试结果：</p>
+<p><code>D:\app\jdk1.8.0_71\bin\java.exe</code> 和 <code>D:\app\jdk1.8.0_20\bin\java.exe</code> 都是报Metaspace OOM</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">class com.xzj.TreeNode5681 <span style="color:#ae81ff">5681</span>
+Exception in thread <span style="color:#e6db74">&#34;main&#34;</span> javassist.CannotCompileException: by java.lang.OutOfMemoryError: Metaspace
+  at javassist.ClassPool.toClass<span style="color:#f92672">(</span>ClassPool.java:1085<span style="color:#f92672">)</span>
+  at javassist.ClassPool.toClass<span style="color:#f92672">(</span>ClassPool.java:1028<span style="color:#f92672">)</span>
+  at javassist.ClassPool.toClass<span style="color:#f92672">(</span>ClassPool.java:986<span style="color:#f92672">)</span>
+  at javassist.CtClass.toClass<span style="color:#f92672">(</span>CtClass.java:1079<span style="color:#f92672">)</span>
+  at com.xzj.MetaspaceOOM.main<span style="color:#f92672">(</span>MetaspaceOOM.java:20<span style="color:#f92672">)</span>
+Caused by: java.lang.OutOfMemoryError: Metaspace
+  at java.lang.ClassLoader.defineClass1<span style="color:#f92672">(</span>Native Method<span style="color:#f92672">)</span>
+  at java.lang.ClassLoader.defineClass<span style="color:#f92672">(</span>ClassLoader.java:760<span style="color:#f92672">)</span>
+  at java.lang.ClassLoader.defineClass<span style="color:#f92672">(</span>ClassLoader.java:642<span style="color:#f92672">)</span>
+  at sun.reflect.GeneratedMethodAccessor1.invoke<span style="color:#f92672">(</span>Unknown Source<span style="color:#f92672">)</span>
+  at sun.reflect.DelegatingMethodAccessorImpl.invoke<span style="color:#f92672">(</span>DelegatingMethodAccessorImpl.java:43<span style="color:#f92672">)</span>
+  at java.lang.reflect.Method.invoke<span style="color:#f92672">(</span>Method.java:497<span style="color:#f92672">)</span>
+  at javassist.ClassPool.toClass2<span style="color:#f92672">(</span>ClassPool.java:1098<span style="color:#f92672">)</span>
+  at javassist.ClassPool.toClass<span style="color:#f92672">(</span>ClassPool.java:1079<span style="color:#f92672">)</span>
+  ... <span style="color:#ae81ff">4</span> more
+</code></pre></div><h2 id="4-本机直接内存溢出">4. 本机直接内存溢出</h2>
+<p>直接内存（Direct Memory） 的容量大小可通过-XX： MaxDirectMemorySize参数来指定， 如果不去指定， 则默认与Java堆最大值（由-Xmx指定） 一致， 下面代码越过了DirectByteBuffer类直接通过反射获取Unsafe实例进行内存分配。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">/**
+</span><span style="color:#75715e"> * VM Args： -Xmx20M -XX:MaxDirectMemorySize=10M
+</span><span style="color:#75715e"> *
+</span><span style="color:#75715e"> * @author zzm
+</span><span style="color:#75715e"> */</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DirectMemoryOOM</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> _1MB <span style="color:#f92672">=</span> 1024 <span style="color:#f92672">*</span> 1024<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+        Field unsafeField <span style="color:#f92672">=</span> Unsafe<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredFields</span><span style="color:#f92672">()[</span>0<span style="color:#f92672">];</span>
+        unsafeField<span style="color:#f92672">.</span><span style="color:#a6e22e">setAccessible</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+        Unsafe unsafe <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Unsafe<span style="color:#f92672">)</span> unsafeField<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span><span style="color:#66d9ef">null</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            unsafe<span style="color:#f92672">.</span><span style="color:#a6e22e">allocateMemory</span><span style="color:#f92672">(</span>_1MB<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>运行结果：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">Exception in thread <span style="color:#e6db74">&#34;main&#34;</span> java.lang.OutOfMemoryError
+at sun.misc.Unsafe.allocateMemory<span style="color:#f92672">(</span>Native Method<span style="color:#f92672">)</span>
+at org.fenixsoft.oom.DMOOM.main<span style="color:#f92672">(</span>DMOOM.java:20<span style="color:#f92672">)</span>
+</code></pre></div><p>处理方法： 一个明显的特征是在Heap Dump文件中不会看见有什么明显的异常情况， 如果读者发现内存溢出之后产生的Dump文件很小， 而程序中又直接或间接使用了DirectMemory（典型的间接使用就是NIO） ， 那就可以考虑重点检查一下直接内存方面的原因了。</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-medal"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" aria-label="Close"><i class="fas fa-fw fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-between">
+  <div class="post-nav w-50"><div class="prev-post btn btn-sm">
+      <a href="https://xuzhijvn.github.io/zh-cn/posts/code/openresty/openresty%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">openresty最佳实践
+</a>
+    </div></div>
+  <div class="post-nav flex-row-reverse"><div class="next-post btn btn-sm">
+      <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/other/oauth2%E7%9A%84%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%94%E5%9B%9Etoken%E4%B9%8B%E5%89%8D%E5%85%88%E8%BF%94%E5%9B%9Ecode%E8%80%8C%E4%B8%8D%E6%98%AF%E7%9B%B4%E6%8E%A5%E8%BF%94%E5%9B%9Etoken/">Oauth2的授权码模式为什么返回token之前先返回code，而不是直接返回token？
+</a>
+    </div></div>
+</div><section class="related-posts">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/aqs/">AQS
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/completablefuture%E4%BD%BF%E7%94%A8%E8%AF%A6%E8%A7%A3/">CompletableFuture使用详解
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/hashmap%E5%92%8Chashtable%E5%8C%BA%E5%88%AB/">HashMap和HashTable区别
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jit%E5%8D%B3%E6%97%B6%E7%BC%96%E8%AF%91/">JIT即时编译
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-agent/">Java agent
+</a></li></ul>
+  </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container"><section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<section class="profile surface row text-center">
+  <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony Xu" src="https://xuzhijvn.github.io/images/profile.webp"
+   width="400" height="400" loading="lazy" />
+</div>
+  <div class="col-12 profile-meta"><div class="profile-name">Tony Xu</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-info-circle"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+</section>
+  <section class="recent-posts row surface">
+  <h4>最近文章</h4>
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/">poll select epoll区别
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/">JVM内存模型
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/">JVM类加载器
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E6%9E%B6%E6%9E%84/">JVM架构
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">JVM垃圾回收
+</a></li></ul>
+</section><section class="taxonomy-categories row surface">
+      <h4>
+        <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+      </h4>
+      <div><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
+          编程思想 <span class="badge rounded-pill">101</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">32</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
+          其他 <span class="badge rounded-pill">22</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="计算机科学">
+          计算机科学 <span class="badge rounded-pill">20</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="架构演进">
+          架构演进 <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="持续集成部署">
+          持续集成部署 <span class="badge rounded-pill">5</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="人工智能">
+          人工智能 <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="区块链">
+          区块链 <span class="badge rounded-pill">2</span>
+        </a></div>
+    </section><section class="taxonomy-series row surface">
+      <h4>
+        <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
+      </h4>
+      <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
+          Manual <span class="badge rounded-pill">154</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">13</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s实战">
+          k8s实战 <span class="badge rounded-pill">13</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="istio实战">
+          istio实战 <span class="badge rounded-pill">4</span>
+        </a></div>
+    </section><section class="taxonomy-tags row surface">
+      <h4>
+        <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
+      </h4>
+      <div><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
+          Java <span class="badge rounded-pill">33</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
+          云原生 <span class="badge rounded-pill">32</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
+          k8s <span class="badge rounded-pill">26</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CS">
+          CS <span class="badge rounded-pill">20</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Other">
+          Other <span class="badge rounded-pill">18</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
+          spring <span class="badge rounded-pill">12</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
+          MySQL <span class="badge rounded-pill">9</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
+          redis <span class="badge rounded-pill">9</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="剑指offer">
+          剑指offer <span class="badge rounded-pill">8</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="WordPress">
+          WordPress <span class="badge rounded-pill">7</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="istio">
+          istio <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="nginx">
+          nginx <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SA">
+          SA <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ZK">
+          ZK <span class="badge rounded-pill">6</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Jenkins">
+          Jenkins <span class="badge rounded-pill">4</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="AI">
+          AI <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="CNN">
+          CNN <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="System">
+          System <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="分布式">
+          分布式 <span class="badge rounded-pill">3</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="BlockChain">
+          BlockChain <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="docker">
+          docker <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="GO">
+          GO <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Maven">
+          Maven <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MQ">
+          MQ <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ClickHouse">
+          ClickHouse <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="docker-compose">
+          docker-compose <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ES">
+          ES <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="github">
+          github <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="IO">
+          IO <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Kafka">
+          Kafka <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="LeetCode">
+          LeetCode <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MongoDB">
+          MongoDB <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MyBatis">
+          MyBatis <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="openresty">
+          openresty <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="SpringBoot">
+          SpringBoot <span class="badge rounded-pill">1</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="牛客">
+          牛客 <span class="badge rounded-pill">1</span>
+        </a></div>
+    </section><section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:razonyang@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/razonyang" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919680596&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2021 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<a id="btnScrollToTop" class="btn-scroll-to-top">
+  <i class="fas fa-fw fa-chevron-circle-up fa-2x"></i>
+</a>
+<script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script></body>
+</html>
