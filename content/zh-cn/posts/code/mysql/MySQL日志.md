@@ -93,7 +93,7 @@ images : [
 
 前面说过，`redo log`实际上记录数据页的变更，而这种变更记录是没必要全部保存，因此`redo log`实现上采用了大小固定，循环写入的方式，当写到结尾时，会回到开头循环写日志。如下图： 
 
-<img src="https://picgo.6and.ltd/img/image-20210819145133194.png" alt="redo log记录形式" style="zoom: 33%;" />
+<img src="https://picgo.6and.ltd/img/image-20210819145133194.png" alt="redo log记录形式" style="zoom: 25%;" />
 
 同时我们很容易得知，**在innodb中，既有`redo log`需要刷盘，还有`数据页`也需要刷盘，`redo log`存在的意义主要就是降低对`数据页`刷盘的要求**。在上图中，`write pos`表示`redo log`当前记录的`LSN`(逻辑序列号)位置，`check point`表示**数据页更改记录**刷盘后对应`redo log`所处的`LSN`(逻辑序列号)位置。`write pos`到`check point`之间的部分是`redo log`空着的部分，用于记录新的记录；`check point`到`write pos`之间是`redo log`待落盘的数据页更改记录。当`write pos`追上`check point`时，会先推动`check point`向前移动，空出位置再记录新的日志。
 
@@ -124,14 +124,14 @@ images : [
 
 ### MySQL 的逻辑架构图：
 
-<img src="https://picgo.6and.ltd/img/0d2070e8f84c4801adbfa03bda1f98d9-20210819150540455.png" alt="MySQL 的逻辑架构图" style="zoom: 50%;" />
+<img src="https://picgo.6and.ltd/img/0d2070e8f84c4801adbfa03bda1f98d9-20210819150540455.png" alt="MySQL 的逻辑架构图" style="zoom: 25%;" />
 
 > mysql8.0之后删除了查询缓存模块
 >
 
 ### update 语句执行流程：
 
-<img src="https://picgo.6and.ltd/img/20201124231528159.png" alt="update 语句执行流程" style="zoom:40%;" />
+<img src="https://picgo.6and.ltd/img/20201124231528159.png" alt="update 语句执行流程" style="zoom: 25%;" />
 
 redo log的写入分成两个步骤prepare和commit，这就是**两阶段提交**
 

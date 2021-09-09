@@ -18,7 +18,7 @@ images : [
 ---
 
 
-[comment]: <> (# JIT即时编译)
+[comment]: <> "# JIT即时编译"
 
 ## 1. 编译器与解释器
 
@@ -299,11 +299,11 @@ public static int bar(boolean flag) {
 
 bar方法的IR图：
 
-![img](https://picgo.6and.ltd/img/857398429cf23f82f291a9cbaceecea122617.png@794w_480h_80q)
+<img src="https://picgo.6and.ltd/img/857398429cf23f82f291a9cbaceecea122617.png@794w_480h_80q" alt="img" style="zoom:67%;" />
 
 内联后的IR图：
 
-![img](https://picgo.6and.ltd/img/524631fb0c1db243b5b1fd08b185c23f59399.png@802w_1202h_80q)
+<img src="https://picgo.6and.ltd/img/524631fb0c1db243b5b1fd08b185c23f59399.png@802w_1202h_80q" alt="img" style="zoom:67%;" />
 
 ### 4. 最前沿的优化技术之一：逃逸分析
 

@@ -1,5 +1,4 @@
----
-title: "【转】MySQL索引的工作原理"
+title: "MySQL索引的工作原理"
 date: 2021-08-27T11:15:10+08:00
 draft: false
 reward: true
@@ -15,10 +14,8 @@ series : [
 images : [
 "images/center.png"
 ]
----
 
 
-# 【转】MySQL索引的工作原理
 
 索引是一种加快查询的数据结构，在 MySQL 中，索引的数据结构选择的是 B+Tree，至于 B+Tree 是什么以及为什么 MySQL 为什么选择 B+Tree 来作为索引，可以去查看公众号的前三篇文章。
 

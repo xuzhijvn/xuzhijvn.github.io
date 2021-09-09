@@ -17,7 +17,7 @@ images : [
 ]
 ---
 
-[comment]: <> (# 基于Redis的分布式锁实现)
+[comment]: <> "# 基于Redis的分布式锁实现"
 
 ## 前言
 
@@ -33,7 +33,7 @@ images : [
 
 
 
-![分布式锁](https://picgo.6and.ltd/img/16a53749547937bb~tplv-t2oaga2asx-watermark.awebp)
+<img src="https://picgo.6and.ltd/img/16a53749547937bb~tplv-t2oaga2asx-watermark.awebp" alt="分布式锁" style="zoom:67%;" />
 
 
 

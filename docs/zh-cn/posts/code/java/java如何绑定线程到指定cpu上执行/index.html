@@ -75,7 +75,7 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%A6%82%E4%BD%95%E7%BB%91%E5%AE%9A%E7%BA%BF%E7%A8%8B%E5%88%B0%E6%8C%87%E5%AE%9Acpu%E4%B8%8A%E6%89%A7%E8%A1%8C/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E6%9E%B6%E6%9E%84/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/%E9%AB%98%E5%B9%B6%E5%8F%91%E4%B8%8B%E7%9A%84%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E9%94%81%E4%BC%98%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E6%9E%B6%E6%9E%84/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
@@ -326,7 +326,8 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
   <i class="fas fa-fw fa-medal"></i>
 </a>
     
-    
+    <a id="btnTOC" class="fas fa-fw fa-list-alt" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+</a>
   </div>
 </div>
 <h1 class="post-title my-3">Java如何绑定线程到指定CPU上执行
@@ -336,7 +337,23 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="post-taxonomy">Java</a></span>
 </div>
-<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。</p>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#java线程">Java线程</a></li>
+    <li><a href="#java-thread-affinity">Java-Thread-Affinity</a></li>
+    <li><a href="#怎么做的">怎么做的</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。</p>
 <p>而且它还是一个面试题。</p>
 <p>我懵逼倒不是因为我不知道答案，而是恰好我之前在非常机缘巧合的情况下知道了答案。</p>
 <p>我感觉非常的冷门，作为一个考察候选者的知识点出现在面试环节中不太合适，除非是候选者主动提起做过这样的优化。</p>
@@ -346,13 +363,10 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
 <p>正常来说，其实应该是属于考察操作系统的知识点范畴。</p>
 <p>但是面试官呢又特定的加了“在 Java 中如何实现”。</p>
 <p>那我们就聊聊这个问题。</p>
-<h1 id="java线程">Java线程</h1>
+<h2 id="java线程">Java线程</h2>
 <p>在聊如何绑定之前，先铺垫一个相关的背景知识：Java线程的实现。</p>
 <p>其实我们都知道 Thread 类的大部分方法都是 native 方法：</p>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/1c4cc84e3f66490e9f6f9642c6aced18"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/1c4cc84e3f66490e9f6f9642c6aced18" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 50%;" /></p>
 <p>在 Java 中一个方法被声明为 native 方法，绝大部分情况下说明这个方法没有或者不能使用平台无关的手段来实现。</p>
 <p>说明需要操作的是很底层的东西了，已经脱离了 Java 语言层面的范畴。</p>
 <p>抛开 Java 语言这个大前提，实现线程主要是有三种方式：</p>
@@ -371,15 +385,9 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
 <p><a href="https://www.zhihu.com/question/64072646/answer/216184631" target="_blank" rel="noopener noreferrer">https://www.zhihu.com/question/64072646/answer/216184631</a>
 </p>
 </blockquote>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/1f3a800354944d25b06cabd142c30331"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/1f3a800354944d25b06cabd142c30331" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:50%;" /></p>
 <p>这里面有一个R大的回答，大家可以看看一下。</p>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/21b76e01d2de418b838e885448b585d0"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/21b76e01d2de418b838e885448b585d0" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 67%;" /></p>
 <p>他也是先从线程模型的角度铺垫了一下。</p>
 <p>我这里主要说一下使用内核线程实现（1:1实现）的这个模型。</p>
 <p>因为我们用的最多的 HotSpot 虚拟机，就是采用 1:1 模型来实现 Java 线程的。</p>
@@ -402,10 +410,7 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
 <p>KLT：Kernal-Level Thread 内核线程</p>
 <p>UT：User Thread 用户线程</p>
 </blockquote>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/7be3f0a574f14521acf2d54bb56879c7"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/7be3f0a574f14521acf2d54bb56879c7" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 33%;" /></p>
 <p>内核线程就是直接由操作系统内核支持的线程，这种线程由内核来完成线程切换，内核通过操纵调度器对线程进行调度，并负责将线程的任务映射到各个处理器上。</p>
 <p>然后你看上面的图片，KLT 线程上面都有一个 LWP 与之对应。</p>
 <p>啥是 LWP 呢？</p>
@@ -426,17 +431,14 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
 <p>在Java层面上，有大大写了个现成的库来利用taskset绑核：
 OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 </blockquote>
-<h1 id="java-thread-affinity">Java-Thread-Affinity</h1>
+<h2 id="java-thread-affinity">Java-Thread-Affinity</h2>
 <p>这个开源项目其实就是面试题的答案。</p>
 <blockquote>
 <p><a href="https://github.com/OpenHFT/Java-Thread-Affinity" target="_blank" rel="noopener noreferrer">https://github.com/OpenHFT/Java-Thread-Affinity</a>
 </p>
 </blockquote>
 <p>项目里面有个问答，解答了如何使用它去做绑核的操作：</p>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/5dd8bfffd039430283aa88d687fbd21d"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/5dd8bfffd039430283aa88d687fbd21d" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 67%;" /></p>
 <p>话不多说，直接上效果演示吧。</p>
 <p>先把依赖搞到项目里面去：</p>
 <pre><code>&lt;dependency&gt;
@@ -471,10 +473,7 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 
 </p>
 <p>另外，说明一下这个项目对应的 Maven 版本还是有好多个的：</p>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/2c6f6dd3ba224728ad92273885f6e080"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/2c6f6dd3ba224728ad92273885f6e080" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 50%;" /></p>
 <p>在我的机器上，如果用高于 3.2.3 的版本就会出现这样的异常信息：</p>
 <p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/6256ec55de264bc2ac2794f3a93543d1"
    loading="lazy" />
@@ -484,10 +483,7 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 <p>效果我们现在是看到了，可以说这个项目非常的溜，可以实现把线程绑定到指定核心上去。</p>
 <p>该功能也是有实际应用场景的，属于一直非常极致的性能优化手段吧。</p>
 <p>绑定核心之后就可以更好的利用缓存以及减少线程的上下文切换。</p>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/ca4c14e2b9914361a83e855b43f66f36"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/ca4c14e2b9914361a83e855b43f66f36" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>说到这就不得不提起我第一次知道“绑核”这个骚操作的场景了。</p>
 <p>那是举行于 2018 年的首届数据库性能大赛，或者更加出名一点的名字叫做天池大赛。</p>
 <p>那一届比赛，我去打了个酱油，成绩非常拉胯就不提了。</p>
@@ -495,10 +491,7 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 <p>我又不得不小声的叨叨一句：那一届比赛打到最后已经变成了开发语言层面上、参数配置上的差距了。C++ 天然优势，所以可以看到排在前面的清一色的 C++ 选手。</p>
 <p>很多支队伍都提到了一个小细节，那就是绑核。</p>
 <p>而我第一次知道这个开源项目，就是通过这篇文章《PolarDB数据库性能大赛Java选手分享》</p>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/62ca31873e0f46bab1233b9ba49315ca"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/62ca31873e0f46bab1233b9ba49315ca" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>当时把他的参赛代码拉下来看了一下，对于绑核操作有了一个基础认识，但是其实也没有深究实现。</p>
 <p>只是这样写就对了，就能绑上就完事了。</p>
 <p>再后来，我看 disruptor 这个框架的时候，看到它有一个这样的等待策略：</p>
@@ -517,17 +510,11 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 <p>就这样，奇怪的知识又被唤醒了。</p>
 <p>我知道怎么绑定啊，Java-Thread-Affinity 这个开源项目就做了。</p>
 <p>于是问题就变成了：它是怎么做呢？</p>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/b7b71044b3734a038b6c428f1aff84b5"
-   loading="lazy" />
-
-</p>
-<h1 id="怎么做的">怎么做的</h1>
+<p><img src="http://picgo.6and.ltd/img/b7b71044b3734a038b6c428f1aff84b5" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:25%;" /></p>
+<h2 id="怎么做的">怎么做的</h2>
 <p>具体怎么做的，只写几个关键的点，简单的分析一下，大家有兴趣的可以把源码拉下看。</p>
 <p>首先第一个点：JNA 对于 Java-Thread-Affinity 非常重要：</p>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/5566d1eefa5f4a9aaa9b8fccd4a9be70"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/5566d1eefa5f4a9aaa9b8fccd4a9be70" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>可以说其实 Java-Thread-Affinity 就是套了个 Java 皮，这种应该让操作系统来做的事，其实编写更加底层的 C++ 或者 C 语言来实现的。</p>
 <p>所以这个项目实质上是基于 JNA 调用了 DLL 文件，从而实现绑核的需求。</p>
 <p>具体对应的代码是这样的：</p>
@@ -544,10 +531,7 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 <p>net.openhft.affinity.IAffinity</p>
 </blockquote>
 <p>是一个接口，有各个平台的线程亲和性实现：</p>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/a39f9a3623a14a6ab3fe678c0729ce6f"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/a39f9a3623a14a6ab3fe678c0729ce6f" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 50%;" /></p>
 <p>比如，在实现类 WindowsJNAAffinity 里面，你可以看到在它的静态代码块里面调用了这样的逻辑：</p>
 <blockquote>
 <p>net.openhft.affinity.impl.WindowsJNAAffinity.CLibrary</p>
@@ -569,10 +553,7 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 </p>
 <p>这里的入参，就是第几个 CPU 的意思，记得 CPU 编号是从 0 开始。</p>
 <p>但 0 不建议使用：</p>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/671147237b17419985cee7c0b1d0b2e8"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/671147237b17419985cee7c0b1d0b2e8" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>所以程序里面也控制了不能绑定到 0 号 CPU 上。</p>
 <p>最终会走到这个方法中：</p>
 <blockquote>
@@ -592,16 +573,10 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 <p><a href="https://docs.microsoft.com/zh-cn/windows/win32/api/winbase/nf-winbase-setthreadaffinitymask?redirectedfrom=MSDN" target="_blank" rel="noopener noreferrer">https://docs.microsoft.com/zh-cn/windows/win32/api/winbase/nf-winbase-setthreadaffinitymask?redirectedfrom=MSDN</a>
 </p>
 </blockquote>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/b37611f0db5b4020b0f426bacf2368aa"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/b37611f0db5b4020b0f426bacf2368aa" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>第三个点：Solaris 平台怎么实现的？</p>
 <p>因为我们知道，在 Solaris 平台上的 HotSpot 虚拟机，同时支持 1:1 和 N:M 的线程模型。</p>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/06cd55a8b08d46d1aba33d2eb865abe3"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/06cd55a8b08d46d1aba33d2eb865abe3" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>那么按理来说得提供两套绑定方案，于是我点进去一看，好家伙：</p>
 <p>大道至简，直接来一个不实现。</p>
 <p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/39ff3ff169c243e78f918442d73f7684"
@@ -627,15 +602,9 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
    loading="lazy" />
 
 </p>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/22548b1703504b48b49534f0eac711a1"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/22548b1703504b48b49534f0eac711a1" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>然后我前面说到的比赛中也有这样的使用场景，在知乎也看到了这样的一个场景：</p>
-<p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/314ec0e9a86d4f0990a45b6b02d0e343"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/314ec0e9a86d4f0990a45b6b02d0e343" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>好了，文章写到这里也就可以收尾了。</p>
 <p>你再想想这个面试题，如果面试官想要的真的是这个回答，你说合适吗？</p>
 <p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/c0a6a0fa9a3343a0a8a5443ae4d7a3ca"
@@ -714,11 +683,11 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 </section>
   <section class="recent-posts row surface">
   <h4>最近文章</h4>
-  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/">poll select epoll区别
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E9%94%81%E4%BC%98%E5%8C%96/">JVM锁优化
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/">poll select epoll区别
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/">JVM内存模型
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/">JVM类加载器
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E6%9E%B6%E6%9E%84/">JVM架构
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">JVM垃圾回收
 </a></li></ul>
 </section><section class="taxonomy-categories row surface">
       <h4>
@@ -759,7 +728,7 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
         <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
-          Java <span class="badge rounded-pill">33</span>
+          Java <span class="badge rounded-pill">34</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
           云原生 <span class="badge rounded-pill">32</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
@@ -770,10 +739,10 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
           Other <span class="badge rounded-pill">18</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
           spring <span class="badge rounded-pill">12</span>
-        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
-          MySQL <span class="badge rounded-pill">9</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
           redis <span class="badge rounded-pill">9</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
+          MySQL <span class="badge rounded-pill">8</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="剑指offer">
           剑指offer <span class="badge rounded-pill">8</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="WordPress">

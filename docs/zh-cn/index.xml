@@ -6,7 +6,16 @@
     <description>Recent content on 唯有光頭才能變強</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
-    <lastBuildDate>Wed, 08 Sep 2021 09:38:02 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 09 Sep 2021 10:46:14 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>JVM锁优化</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E9%94%81%E4%BC%98%E5%8C%96/</link>
+      <pubDate>Thu, 09 Sep 2021 10:46:14 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E9%94%81%E4%BC%98%E5%8C%96/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>poll select epoll区别</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/</link>
@@ -1691,8 +1700,7 @@ $_SERVER[&amp;#39;HTTPS&amp;#39;] = &amp;#39;on&amp;#39;; define(&amp;#39;FORCE_
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/</guid>
-      <description>Zookeeper应用场景
-zookeeper应用场景 大致来说，zookeeper 的使用场景如下，我就举几个简单的，大家能说几个就好了：
+      <description>大致来说，zookeeper 的使用场景如下，我就举几个简单的，大家能说几个就好了：
  分布式协调 分布式锁 元数据/配置信息管理 HA 高可用性  分布式协调 这个其实是 zookeeper 很经典的一个用法，简单来说，就好比，你 A 系统发送个请求到 mq，然后 B 系统消息消费之后处理了。那 A 系统如何知道 B 系统的处理结果？用 zookeeper 就可以实现分布式系统之间的协调工作。A 系统发送请求之后可以在 zookeeper 上对某个节点的值注册个监听器，一旦 B 系统处理完了就修改 zookeeper 那个节点的值，A 系统立马就可以收到通知，完美解决。
 分布式锁 举个栗子。对某一个数据连续发出两个修改操作，两台机器同时收到了请求，但是只能一台机器先执行完另外一个机器再执行。那么此时就可以使用 zookeeper 分布式锁，一个机器接收到了请求之后先获取 zookeeper 上的一把分布式锁，就是可以去创建一个 znode，接着执行操作；然后另外一个机器也尝试去创建那个 znode，结果发现自己创建不了，因为被别人创建了，那只能等着，等第一个机器执行完了自己再执行。
 元数据/配置信息管理 zookeeper 可以用作很多系统的配置信息的管理，比如 kafka、storm 等等很多分布式系统都会选用 zookeeper 来做一些元数据、配置信息的管理，包括 dubbo 注册中心不也支持 zookeeper 么？
@@ -1724,7 +1732,7 @@ HA 高可用性 这个应该是很常见的，比如 hadoop、hdfs、yarn 等很
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E6%A0%B8%E5%BF%83%E8%AE%BE%E8%AE%A1%E7%90%86%E8%A7%A3%E4%B8%8E%E5%AE%9E%E6%88%98/</guid>
-      <description>Zookeeper核心设计理解与实战 一、前言 想起很久以前在某个客户现场，微服务 B 突然无法调用到微服务 A，为了使服务尽快正常恢复，重启了微服务 B 。
+      <description>一、前言 想起很久以前在某个客户现场，微服务 B 突然无法调用到微服务 A，为了使服务尽快正常恢复，重启了微服务 B 。
 但客户不依不饶询问这个问题出现的原因，于是我还大老远从杭州飞到深圳，现场排查问题。
 最后的结论是，zk 在某时刻出现主备切换，此时微服务 A（基于 dubbo）需要重新往 zk上注册，但是端口号变了。
 但是微服务 B 本地有微服务 A rpc 接口的缓存，缓存里面还是旧的端口，所以调用不到。
@@ -1736,7 +1744,8 @@ HA 高可用性 这个应该是很常见的，比如 hadoop、hdfs、yarn 等很
 其中一个节点作为主节点，提供分布式事务的写服务，其他节点和这个节点同步数据，保持和主节点状态一致。
 （3）Zookeeper 所有节点的数据状态通过 Zab 协议保持一致。当集群中没有 Leader 节点时，内部会执行选举，选举结束，Follower 和 Leader 执行状态同步；当有 Leader 节点时，Leader 通过 ZAB 协议主导分布式事务的执行，并且所有的事务都是串行执行的。
 （4）Zookeeper 的节点个数是不能线性扩展的，节点越多，同步数据的压力越大，执行分布式事务性能越差。推荐3、5、7 这样的数目。
-2、Zookeeper 角色的理解 Zookeeper 并没有沿用 Master/Slave 概念，而是引入了 Leader，Follower，Observer 三种角色。</description>
+2、Zookeeper 角色的理解 Zookeeper 并没有沿用 Master/Slave 概念，而是引入了 Leader，Follower，Observer 三种角色。
+通过 Leader 选举算法来选定一台服务器充当 Leader 节点，Leader 服务器为客户端提供读、写服务。</description>
     </item>
     
     <item>
@@ -1771,19 +1780,6 @@ HA 高可用性 这个应该是很常见的，比如 hadoop、hdfs、yarn 等很
 利用ZooKeeper的强一致性，能够保证在分布式高并发情况下节点创建的全局唯一性，即：同时有多个客户端请求创建 /currentMaster节点，最终一定只有一个客户端请求能够创建成功。利用这个特性，就能很轻易的在分布式环境中进行集群Master选举了。成功创建该节点的客户端所在的机器就成为了Master。同时，其他没有成功创建该节点的客户端，都会在该节点上注册一个子节点变更的 Watcher，用于监控当前 Master 机器是否存活，一旦发现当前的Master挂了，那么其他客户端将会重新进行 Master 选举。这样就实现了 Master 的动态选举。
 4.2 集群机器监控 这通常用于那种对集群中机器状态，机器在线率有较高要求的场景，能够快速对集群中机器变化作出响应。这样的场景中，往往有一个监控系统，实时检测集群机器是否存活。过去的做法通常是：监控系统通过某种手段（比如ping）定时检测每个机器，或者每个机器自己定时向监控系统汇报“我还活着”。这种做法可行，但是存在两个比较明显的问题：
  将会产生一定的时延（受心跳长短限制）; 当集群中的节点发生变更时，其余的节点都需要对维护的集群文件（状态表）进行修改，修改内容多。  利用ZooKeeper有两个特性，就可以实时另一种集群机器存活性监控系统：</description>
-    </item>
-    
-    <item>
-      <title>【转】MySQL索引的工作原理</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E8%BD%ACmysql%E7%B4%A2%E5%BC%95%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E8%BD%ACmysql%E7%B4%A2%E5%BC%95%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/</guid>
-      <description>【转】MySQL索引的工作原理 索引是一种加快查询的数据结构，在 MySQL 中，索引的数据结构选择的是 B+Tree，至于 B+Tree 是什么以及为什么 MySQL 为什么选择 B+Tree 来作为索引，可以去查看公众号的前三篇文章。
-  索引数据结构之 B-Tree 与 B+Tree（上篇）   索引数据结构之 B-Tree 与 B+Tree（下篇）   MySQL 为什么不用数组、哈希表、二叉树等数据结构作为索引呢 今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。
-  首先需要说明的是，本文的所有讨论均是基于 InnoDB 存储引擎为前提。
-示例表 为了方便说明，我们先创建一个示例表。建表语句如下
-CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR ( 64 ) COMMENT &amp;#39;姓名&amp;#39;, `age` INT ( 4 ) COMMENT &amp;#39;年龄&amp;#39;, PRIMARY KEY ( `id` ), INDEX ( NAME ) ) ENGINE = INNODB COMMENT &amp;#39;用户表&amp;#39;; INSERT INTO `user` ( `name`, `age` ) VALUES ( &amp;#39;AA&amp;#39;, 30 ),( &amp;#39;BB&amp;#39;, 33 ),( &amp;#39;CC&amp;#39;, 31 ),( &amp;#39;DD&amp;#39;, 30 ),( &amp;#39;EE&amp;#39;, 29 ) 复制代码 在上面的 SQL 语句中，创建了一张 user 表，表中有三个字段，id 是主键，name 和 age 分别表示用户的姓名和年龄，同时还为字段 name 创建了一个普通索引。为了方便后面描述，因此还向表中插入了 5 条数据，由于主键 id 是自增的，所以这五行数据的 id 值分为是 1~5。</description>
     </item>
     
     <item>
@@ -1943,7 +1939,7 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E5%88%86%E5%B8%83%E5%BC%8Fid%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/</guid>
-      <description>分布式ID生成方式 一、为什么要用分布式ID？ 在说分布式ID的具体实现之前，我们来简单分析一下为什么用分布式ID？分布式ID应该满足哪些特征？
+      <description>一、为什么要用分布式ID？ 在说分布式ID的具体实现之前，我们来简单分析一下为什么用分布式ID？分布式ID应该满足哪些特征？
 1、什么是分布式ID？ 拿MySQL数据库举个栗子：
 在我们业务数据量不大的时候，单库单表完全可以支撑现有业务，数据再大一点搞个MySQL主从同步读写分离也能对付。
 但随着数据日渐增长，主从同步也扛不住了，就需要对数据库进行分库分表，但分库分表后需要有一个唯一ID来标识一条数据，数据库的自增ID显然不能满足需求；特别一点的如订单、优惠券也都需要有唯一ID做标识。此时一个能够生成全局唯一ID的系统是非常必要的。那么这个全局唯一ID就叫分布式ID。
@@ -1955,7 +1951,7 @@ public static void main(String[] args) { String uuid = UUID.randomUUID().toStrin
 优点：
  生成足够简单，本地生成无网络消耗，具有唯一性  缺点：
  无序的字符串，不具备趋势自增特性 没有具体的业务含义 长度过长16 字节128位，36位长度的字符串，存储以及查询对MySQL的性能消耗较大，MySQL官方明确建议主键要尽量越短越好，作为数据库主键 UUID 的无序性会导致数据位置频繁变动，严重影响性能。  2、基于数据库自增ID 基于数据库的auto_increment自增ID完全可以充当分布式ID，具体实现：需要一个单独的MySQL实例用来生成ID，建表结构如下：
-CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.</description>
+CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.SEQUENCE_ID ( id bigint(20) unsigned NOT NULL auto_increment, value char(10) NOT NULL default &amp;#39;&amp;#39;, PRIMARY KEY (id), ) ENGINE=MyISAM; insert into SEQUENCE_ID(value) VALUES (&amp;#39;values&amp;#39;); 当我们需要一个ID的时候，向表中插入一条记录返回主键ID，但这种方式有一个比较致命的缺点，访问量激增时MySQL本身就是系统的瓶颈，用它来实现分布式服务风险比较大，不推荐！</description>
     </item>
     
     <item>
@@ -1964,7 +1960,7 @@ CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.</description>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/</guid>
-      <description>分布式事务 分布式事务顾名思义就是要在分布式系统中实现事务，它其实是由多个本地事务组合而成。对于分布式事务而言几乎满足不了 ACID，其实对于单机事务而言大部分情况下也没有满足 ACID，不然怎么会有四种隔离级别呢？所以更别说分布在不同数据库或者不同应用上的分布式事务了。
+      <description>分布式事务顾名思义就是要在分布式系统中实现事务，它其实是由多个本地事务组合而成。对于分布式事务而言几乎满足不了 ACID，其实对于单机事务而言大部分情况下也没有满足 ACID，不然怎么会有四种隔离级别呢？所以更别说分布在不同数据库或者不同应用上的分布式事务了。
 2PC 2PC（Two-phase commit protocol），中文叫二阶段提交。 二阶段提交是一种强一致性设计，2PC 引入一个事务协调者的角色来协调管理各参与者（也可称之为各本地资源）的提交和回滚，二阶段分别指的是准备（投票）和提交两个阶段。
 **准备阶段**协调者会给各参与者发送准备命令，你可以把准备命令理解成除了提交事务之外啥事都做完了。
 同步等待所有资源的响应之后就进入第二阶段即**提交阶段**（注意提交阶段不一定是提交事务，也可能是回滚事务）。
@@ -2390,7 +2386,7 @@ int a = 1; a = a + 1; int b = 1; b = b +1 ; 性能好，因为后者的a或b可�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%BC%93%E5%AD%98%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7/</guid>
-      <description>数据库和缓存双写一致性 首先，缓存由于其高并发和高性能的特性，已经在项目中被广泛使用。在读取缓存方面，大家没啥疑问，都是按照下图的流程来进行业务操作。
+      <description>首先，缓存由于其高并发和高性能的特性，已经在项目中被广泛使用。在读取缓存方面，大家没啥疑问，都是按照下图的流程来进行业务操作。
 、
 双写可分为：更新缓存-&amp;gt;更新db、更新db-&amp;gt;更新缓存、删除缓存-&amp;gt;更新db、更新db-&amp;gt;删除缓存 四种策略。
 并发事务时，前两种策略不仅存在数据不一致的，而且在写多读少的场景下会白白消耗缓存的性能（因为数据还没被读就又被更新了，尤其是在更新的缓存需要通过复杂计算才能得到时，这种消耗更加严重）。后两种策略情况相似，只是更新db-&amp;gt;删除缓存相较于删除缓存-&amp;gt;更新db发生数据不一致的概率更低（因为只有在写操作先于读操作完成才会不一致，而一般来说一个写操作是要比读操作慢的），为防止不一致发生，它们都采用异步延迟双删+删除重试机制的策略，下面详述常见删除重试机制。
@@ -2730,6 +2726,20 @@ NIO提供的sendfile：FileChannel.transferTo() FileChannel.transferFrom()
       
       <guid>https://xuzhijvn.github.io/zh-cn/about/</guid>
       <description>&lt;p&gt;我是 Razon Yang，一名全栈工程师。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E7%B4%A2%E5%BC%95%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E7%B4%A2%E5%BC%95%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/</guid>
+      <description>title: &amp;ldquo;MySQL索引的工作原理&amp;rdquo; date: 2021-08-27T11:15:10+08:00 draft: false reward: true categories: [ &amp;ldquo;编程思想&amp;rdquo; ] tags : [ &amp;ldquo;MySQL&amp;rdquo; ] series : [ &amp;ldquo;Manual&amp;rdquo; ] images : [ &amp;ldquo;images/center.png&amp;rdquo; ]
+索引是一种加快查询的数据结构，在 MySQL 中，索引的数据结构选择的是 B+Tree，至于 B+Tree 是什么以及为什么 MySQL 为什么选择 B+Tree 来作为索引，可以去查看公众号的前三篇文章。
+  索引数据结构之 B-Tree 与 B+Tree（上篇）   索引数据结构之 B-Tree 与 B+Tree（下篇）   MySQL 为什么不用数组、哈希表、二叉树等数据结构作为索引呢 今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。
+  首先需要说明的是，本文的所有讨论均是基于 InnoDB 存储引擎为前提。
+示例表 为了方便说明，我们先创建一个示例表。建表语句如下
+CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR ( 64 ) COMMENT &amp;#39;姓名&amp;#39;, `age` INT ( 4 ) COMMENT &amp;#39;年龄&amp;#39;, PRIMARY KEY ( `id` ), INDEX ( NAME ) ) ENGINE = INNODB COMMENT &amp;#39;用户表&amp;#39;; INSERT INTO `user` ( `name`, `age` ) VALUES ( &amp;#39;AA&amp;#39;, 30 ),( &amp;#39;BB&amp;#39;, 33 ),( &amp;#39;CC&amp;#39;, 31 ),( &amp;#39;DD&amp;#39;, 30 ),( &amp;#39;EE&amp;#39;, 29 ) 复制代码 在上面的 SQL 语句中，创建了一张 user 表，表中有三个字段，id 是主键，name 和 age 分别表示用户的姓名和年龄，同时还为字段 name 创建了一个普通索引。为了方便后面描述，因此还向表中插入了 5 条数据，由于主键 id 是自增的，所以这五行数据的 id 值分为是 1~5。</description>
     </item>
     
   </channel>

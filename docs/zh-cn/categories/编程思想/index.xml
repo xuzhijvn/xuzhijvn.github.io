@@ -6,7 +6,16 @@
     <description>Recent content in 编程思想 on 唯有光頭才能變強</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
-    <lastBuildDate>Mon, 06 Sep 2021 00:13:21 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 09 Sep 2021 10:46:14 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>JVM锁优化</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E9%94%81%E4%BC%98%E5%8C%96/</link>
+      <pubDate>Thu, 09 Sep 2021 10:46:14 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E9%94%81%E4%BC%98%E5%8C%96/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>JVM内存模型</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/</link>
@@ -787,8 +796,7 @@ package test; public class Test { public static void main(String[] args){ System
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/</guid>
-      <description>Zookeeper应用场景
-zookeeper应用场景 大致来说，zookeeper 的使用场景如下，我就举几个简单的，大家能说几个就好了：
+      <description>大致来说，zookeeper 的使用场景如下，我就举几个简单的，大家能说几个就好了：
  分布式协调 分布式锁 元数据/配置信息管理 HA 高可用性  分布式协调 这个其实是 zookeeper 很经典的一个用法，简单来说，就好比，你 A 系统发送个请求到 mq，然后 B 系统消息消费之后处理了。那 A 系统如何知道 B 系统的处理结果？用 zookeeper 就可以实现分布式系统之间的协调工作。A 系统发送请求之后可以在 zookeeper 上对某个节点的值注册个监听器，一旦 B 系统处理完了就修改 zookeeper 那个节点的值，A 系统立马就可以收到通知，完美解决。
 分布式锁 举个栗子。对某一个数据连续发出两个修改操作，两台机器同时收到了请求，但是只能一台机器先执行完另外一个机器再执行。那么此时就可以使用 zookeeper 分布式锁，一个机器接收到了请求之后先获取 zookeeper 上的一把分布式锁，就是可以去创建一个 znode，接着执行操作；然后另外一个机器也尝试去创建那个 znode，结果发现自己创建不了，因为被别人创建了，那只能等着，等第一个机器执行完了自己再执行。
 元数据/配置信息管理 zookeeper 可以用作很多系统的配置信息的管理，比如 kafka、storm 等等很多分布式系统都会选用 zookeeper 来做一些元数据、配置信息的管理，包括 dubbo 注册中心不也支持 zookeeper 么？
@@ -820,7 +828,7 @@ HA 高可用性 这个应该是很常见的，比如 hadoop、hdfs、yarn 等很
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E6%A0%B8%E5%BF%83%E8%AE%BE%E8%AE%A1%E7%90%86%E8%A7%A3%E4%B8%8E%E5%AE%9E%E6%88%98/</guid>
-      <description>Zookeeper核心设计理解与实战 一、前言 想起很久以前在某个客户现场，微服务 B 突然无法调用到微服务 A，为了使服务尽快正常恢复，重启了微服务 B 。
+      <description>一、前言 想起很久以前在某个客户现场，微服务 B 突然无法调用到微服务 A，为了使服务尽快正常恢复，重启了微服务 B 。
 但客户不依不饶询问这个问题出现的原因，于是我还大老远从杭州飞到深圳，现场排查问题。
 最后的结论是，zk 在某时刻出现主备切换，此时微服务 A（基于 dubbo）需要重新往 zk上注册，但是端口号变了。
 但是微服务 B 本地有微服务 A rpc 接口的缓存，缓存里面还是旧的端口，所以调用不到。
@@ -832,7 +840,8 @@ HA 高可用性 这个应该是很常见的，比如 hadoop、hdfs、yarn 等很
 其中一个节点作为主节点，提供分布式事务的写服务，其他节点和这个节点同步数据，保持和主节点状态一致。
 （3）Zookeeper 所有节点的数据状态通过 Zab 协议保持一致。当集群中没有 Leader 节点时，内部会执行选举，选举结束，Follower 和 Leader 执行状态同步；当有 Leader 节点时，Leader 通过 ZAB 协议主导分布式事务的执行，并且所有的事务都是串行执行的。
 （4）Zookeeper 的节点个数是不能线性扩展的，节点越多，同步数据的压力越大，执行分布式事务性能越差。推荐3、5、7 这样的数目。
-2、Zookeeper 角色的理解 Zookeeper 并没有沿用 Master/Slave 概念，而是引入了 Leader，Follower，Observer 三种角色。</description>
+2、Zookeeper 角色的理解 Zookeeper 并没有沿用 Master/Slave 概念，而是引入了 Leader，Follower，Observer 三种角色。
+通过 Leader 选举算法来选定一台服务器充当 Leader 节点，Leader 服务器为客户端提供读、写服务。</description>
     </item>
     
     <item>
@@ -867,19 +876,6 @@ HA 高可用性 这个应该是很常见的，比如 hadoop、hdfs、yarn 等很
 利用ZooKeeper的强一致性，能够保证在分布式高并发情况下节点创建的全局唯一性，即：同时有多个客户端请求创建 /currentMaster节点，最终一定只有一个客户端请求能够创建成功。利用这个特性，就能很轻易的在分布式环境中进行集群Master选举了。成功创建该节点的客户端所在的机器就成为了Master。同时，其他没有成功创建该节点的客户端，都会在该节点上注册一个子节点变更的 Watcher，用于监控当前 Master 机器是否存活，一旦发现当前的Master挂了，那么其他客户端将会重新进行 Master 选举。这样就实现了 Master 的动态选举。
 4.2 集群机器监控 这通常用于那种对集群中机器状态，机器在线率有较高要求的场景，能够快速对集群中机器变化作出响应。这样的场景中，往往有一个监控系统，实时检测集群机器是否存活。过去的做法通常是：监控系统通过某种手段（比如ping）定时检测每个机器，或者每个机器自己定时向监控系统汇报“我还活着”。这种做法可行，但是存在两个比较明显的问题：
  将会产生一定的时延（受心跳长短限制）; 当集群中的节点发生变更时，其余的节点都需要对维护的集群文件（状态表）进行修改，修改内容多。  利用ZooKeeper有两个特性，就可以实时另一种集群机器存活性监控系统：</description>
-    </item>
-    
-    <item>
-      <title>【转】MySQL索引的工作原理</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E8%BD%ACmysql%E7%B4%A2%E5%BC%95%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E8%BD%ACmysql%E7%B4%A2%E5%BC%95%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/</guid>
-      <description>【转】MySQL索引的工作原理 索引是一种加快查询的数据结构，在 MySQL 中，索引的数据结构选择的是 B+Tree，至于 B+Tree 是什么以及为什么 MySQL 为什么选择 B+Tree 来作为索引，可以去查看公众号的前三篇文章。
-  索引数据结构之 B-Tree 与 B+Tree（上篇）   索引数据结构之 B-Tree 与 B+Tree（下篇）   MySQL 为什么不用数组、哈希表、二叉树等数据结构作为索引呢 今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。
-  首先需要说明的是，本文的所有讨论均是基于 InnoDB 存储引擎为前提。
-示例表 为了方便说明，我们先创建一个示例表。建表语句如下
-CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR ( 64 ) COMMENT &amp;#39;姓名&amp;#39;, `age` INT ( 4 ) COMMENT &amp;#39;年龄&amp;#39;, PRIMARY KEY ( `id` ), INDEX ( NAME ) ) ENGINE = INNODB COMMENT &amp;#39;用户表&amp;#39;; INSERT INTO `user` ( `name`, `age` ) VALUES ( &amp;#39;AA&amp;#39;, 30 ),( &amp;#39;BB&amp;#39;, 33 ),( &amp;#39;CC&amp;#39;, 31 ),( &amp;#39;DD&amp;#39;, 30 ),( &amp;#39;EE&amp;#39;, 29 ) 复制代码 在上面的 SQL 语句中，创建了一张 user 表，表中有三个字段，id 是主键，name 和 age 分别表示用户的姓名和年龄，同时还为字段 name 创建了一个普通索引。为了方便后面描述，因此还向表中插入了 5 条数据，由于主键 id 是自增的，所以这五行数据的 id 值分为是 1~5。</description>
     </item>
     
     <item>

@@ -25,7 +25,7 @@ images =  [
 
 Java 源码通过 javac 编译为 Java 字节码 ，Java 字节码是 Java 虚拟机执行的一套代码格式，其抽象了计算机的基本操作。大多数指令只有一个字节，而有些操作符需要参数，导致多使用了一些字节。
 
-![jvm_architecture](https://picgo.6and.ltd/img/jvm_architecture.svg)
+<img src="https://picgo.6and.ltd/img/jvm_architecture.svg" alt="jvm_architecture" style="zoom:67%;" />
 
 JVM 的基本架构如上图所示，其主要包含三个大块：
 

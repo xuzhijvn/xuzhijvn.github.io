@@ -17,12 +17,12 @@ images : [
 ]
 ---
 
-[comment]: <> (Golang的协程调度器原理及GMP设计思想？)
+[comment]: <> "Golang的协程调度器原理及GMP设计思想？"
 
 
 > 本节为**重点**章节 本章节含视频版:
 
-[![img](https://picgo.6and.ltd/img/GPM%E5%B0%81%E9%9D%A2.png)](https://www.bilibili.com/video/BV19r4y1w7Nx)
+[<img src="https://picgo.6and.ltd/img/GPM%E5%B0%81%E9%9D%A2.png" alt="img" style="zoom:33%;" />](https://www.bilibili.com/video/BV19r4y1w7Nx)
 
 ------
 
@@ -34,7 +34,7 @@ images : [
 
 一切的程序只能串行发生。
 
-![img](https://picgo.6and.ltd/img/5-%E5%8D%95%E8%BF%9B%E7%A8%8B%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.png)
+<img src="https://picgo.6and.ltd/img/5-%E5%8D%95%E8%BF%9B%E7%A8%8B%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.png" alt="img" style="zoom: 25%;" />
 
 早期的单进程操作系统，面临2个问题：
 
@@ -48,7 +48,7 @@ images : [
 
 ### (2)多进程/线程时代有了调度器需求
 
-![img](https://picgo.6and.ltd/img/6-%E5%A4%9A%E8%BF%9B%E7%A8%8B%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.png)
+<img src="https://picgo.6and.ltd/img/6-%E5%A4%9A%E8%BF%9B%E7%A8%8B%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.png" alt="img" style="zoom:33%;" />
 
 在多进程/多线程的操作系统中，就解决了阻塞的问题，因为一个进程阻塞cpu可以立刻切换到其他进程中去执行，而且调度cpu的算法可以保证在运行的进程都可以被分配到cpu的运行时间片。这样从宏观来看，似乎多个进程是在同时被运行。
 
@@ -58,7 +58,7 @@ images : [
 
 但是对于Linux操作系统来讲，cpu对进程的态度和线程的态度是一样的。
 
-![img](https://picgo.6and.ltd/img/7-cpu%E5%88%87%E6%8D%A2%E6%B5%AA%E8%B4%B9%E6%88%90%E6%9C%AC.png)
+<img src="https://picgo.6and.ltd/img/7-cpu%E5%88%87%E6%8D%A2%E6%B5%AA%E8%B4%B9%E6%88%90%E6%9C%AC.png" alt="img" style="zoom:33%;" />
 
 很明显，CPU调度切换的是进程和线程。尽管线程看起来很美好，但实际上多线程开发设计会变得更加复杂，要考虑很多同步竞争等问题，如锁、竞争冲突等。
 
@@ -75,13 +75,13 @@ images : [
 
 一个“用户态线程”必须要绑定一个“内核态线程”，但是CPU并不知道有“用户态线程”的存在，它只知道它运行的是一个“内核态线程”(Linux的PCB进程控制块)。
 
-![img](https://picgo.6and.ltd/img/8-%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%86%85%E6%A0%B8%E5%92%8C%E7%94%A8%E6%88%B7%E6%80%81.png)
+<img src="https://picgo.6and.ltd/img/8-%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%86%85%E6%A0%B8%E5%92%8C%E7%94%A8%E6%88%B7%E6%80%81.png" alt="img" style="zoom:33%;" />
 
 
 
  这样，我们再去细化去分类一下，内核线程依然叫“线程(thread)”，用户线程叫“协程(co-routine)".
 
-![img](https://picgo.6and.ltd/img/9-%E5%8D%8F%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B.png)
+<img src="https://picgo.6and.ltd/img/9-%E5%8D%8F%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B.png" alt="img" style="zoom:33%;" />
 
  看到这里，我们就要开脑洞了，既然一个协程(co-routine)可以绑定一个线程(thread)，那么能不能多个协程(co-routine)绑定一个或者多个线程(thread)上呢。
 
@@ -96,7 +96,7 @@ N个协程绑定1个线程，优点就是**协程在用户态线程即完成切�
 - 某个程序用不了硬件的多核加速能力
 - 一旦某协程阻塞，造成线程阻塞，本进程的其他协程都无法执行了，根本就没有并发的能力了。
 
-![img](https://picgo.6and.ltd/img/10-N-1%E5%85%B3%E7%B3%BB.png)
+<img src="https://picgo.6and.ltd/img/10-N-1%E5%85%B3%E7%B3%BB.png" alt="img" style="zoom:33%;" />
 
 > #### 1:1 关系
 
@@ -106,13 +106,13 @@ N个协程绑定1个线程，优点就是**协程在用户态线程即完成切�
 
 - 协程的创建、删除和切换的代价都由CPU完成，有点略显昂贵了。
 
-![img](https://picgo.6and.ltd/img/11-1-1.png)
+<img src="https://picgo.6and.ltd/img/11-1-1.png" alt="img" style="zoom:33%;" />
 
 > #### M:N关系
 
 M个协程绑定1个线程，是N:1和1:1类型的结合，克服了以上2种模型的缺点，但实现起来最为复杂。
 
-![img](https://picgo.6and.ltd/img/12-m-n.png)
+<img src="https://picgo.6and.ltd/img/12-m-n.png" alt="img" style="zoom:33%;" />
 
  协程跟线程是有区别的，线程由CPU调度是抢占式的，**协程由用户态调度是协作式的**，一个协程让出CPU后，才执行下一个协程。
 
@@ -137,11 +137,11 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 
 > 大部分文章都是会用G来表示Goroutine，用M来表示线程，那么我们也会用这种表达的对应关系。
 
-![img](https://picgo.6and.ltd/img/13-gm.png)
+<img src="https://picgo.6and.ltd/img/13-gm.png" alt="img" style="zoom:33%;" />
 
 下面我们来看看被废弃的golang调度器是如何实现的？
 
-![img](https://picgo.6and.ltd/img/14-old%E8%B0%83%E5%BA%A6%E5%99%A8.png)
+<img src="https://picgo.6and.ltd/img/14-old%E8%B0%83%E5%BA%A6%E5%99%A8.png" alt="img" style="zoom:33%;" />
 
  M想要执行、放回G都必须访问全局G队列，并且M有多个，即多线程访问同一资源需要加锁进行保证互斥/同步，所以全局G队列是有互斥锁进行保护的。
 
@@ -157,7 +157,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 
 在新调度器中，出列M(thread)和G(goroutine)，又引进了P(Processor)。
 
-![img](https://picgo.6and.ltd/img/15-gmp.png)
+<img src="https://picgo.6and.ltd/img/15-gmp.png" alt="img" style="zoom:33%;" />
 
 **Processor，它包含了运行goroutine的资源**，如果线程想运行goroutine，必须先获取P，P中还包含了可运行的G队列。
 
@@ -167,7 +167,7 @@ Go目前使用的调度器是2012年重新设计的，因为之前的调度器�
 
 
 
-![img](https://picgo.6and.ltd/img/16-GMP-%E8%B0%83%E5%BA%A6.png)
+<img src="https://picgo.6and.ltd/img/16-GMP-%E8%B0%83%E5%BA%A6.png" alt="img" style="zoom: 50%;" />
 
 
 
@@ -218,7 +218,7 @@ M与P的数量没有绝对关系，一个M阻塞，P就会去创建或者切换�
 
 ### (3) go func() 调度流程
 
-![img](https://picgo.6and.ltd/img/18-go-func%E8%B0%83%E5%BA%A6%E5%91%A8%E6%9C%9F.jpeg)
+<img src="https://picgo.6and.ltd/img/18-go-func%E8%B0%83%E5%BA%A6%E5%91%A8%E6%9C%9F.jpeg" alt="img" style="zoom: 40%;" />
 
 从上图我们可以分析出几个结论：
 
@@ -236,7 +236,7 @@ M与P的数量没有绝对关系，一个M阻塞，P就会去创建或者切换�
 
 ### (4)调度器的生命周期
 
-![img](https://picgo.6and.ltd/img/17-pic-go%E8%B0%83%E5%BA%A6%E5%99%A8%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.png)
+<img src="https://picgo.6and.ltd/img/17-pic-go%E8%B0%83%E5%BA%A6%E5%99%A8%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.png" alt="img" style="zoom:77%;" />
 
 特殊的M0和G0
 
@@ -337,12 +337,12 @@ $ go tool trace trace.out
 
 ![img](https://picgo.6and.ltd/img/19-go-trace1.png)
 
-![img](https://picgo.6and.ltd/img/20-go-trace2.png)
+<img src="https://picgo.6and.ltd/img/20-go-trace2.png" alt="img" style="zoom:67%;" />
 **G信息**
 
 点击Goroutines那一行可视化的数据条，我们会看到一些详细的信息。
 
-![img](https://picgo.6and.ltd/img/20-go-trace3.png)
+<img src="https://picgo.6and.ltd/img/20-go-trace3.png" alt="img" style="zoom:67%;" />
 
  一共有两个G在程序中，一个是特殊的G0，是每个M必须有的一个初始化的G，这个我们不必讨论。
 
@@ -352,7 +352,7 @@ $ go tool trace trace.out
 
 点击Threads那一行可视化的数据条，我们会看到一些详细的信息。
 
-![img](https://picgo.6and.ltd/img/22-go-trace4.png)
+<img src="https://picgo.6and.ltd/img/22-go-trace4.png" alt="img" style="zoom:67%;" />
 
  一共有两个M在程序中，一个是特殊的M0，用于初始化使用，这个我们不必讨论。
 
@@ -366,9 +366,9 @@ G1中调用了`main.main`，创建了`trace goroutine g18`。G1运行在P1上，
 
 我们在来看看上面的M信息。
 
-![img](https://picgo.6and.ltd/img/24-go-trace6.png)
+<img src="https://picgo.6and.ltd/img/24-go-trace6.png" alt="img" style="zoom:67%;" />
 
-我们会发现，确实G18在P0上被运行的时候，确实在Threads行多了一个M的数据，点击查看如下： ![img](https://picgo.6and.ltd/img/25-go-trace7.png)
+我们会发现，确实G18在P0上被运行的时候，确实在Threads行多了一个M的数据，点击查看如下： <img src="https://picgo.6and.ltd/img/25-go-trace7.png" alt="img" style="zoom:67%;" />
 
 多了一个M2应该就是P0为了执行G18而动态创建的M2.
 
@@ -430,7 +430,7 @@ Hello World
 
 P拥有G1，M1获取P后开始运行G1，G1使用`go func()`创建了G2，为了局部性G2优先加入到P1的本地队列。 
 
-![img](https://picgo.6and.ltd/img/26-gmp%E5%9C%BA%E6%99%AF1.png)
+<img src="https://picgo.6and.ltd/img/26-gmp%E5%9C%BA%E6%99%AF1.png" alt="img" style="zoom:33%;" />
 
 ------
 
@@ -438,7 +438,7 @@ P拥有G1，M1获取P后开始运行G1，G1使用`go func()`创建了G2，为了
 
 G1运行完成后(函数：`goexit`)，M上运行的goroutine切换为G0，G0负责调度时协程的切换（函数：`schedule`）。从P的本地队列取G2，从G0切换到G2，并开始运行G2(函数：`execute`)。实现了线程M1的复用。 
 
-![img](https://picgo.6and.ltd/img/27-gmp%E5%9C%BA%E6%99%AF2.png)
+<img src="https://picgo.6and.ltd/img/27-gmp%E5%9C%BA%E6%99%AF2.png" alt="img" style="zoom: 33%;" />
 
 ------
 
@@ -446,7 +446,7 @@ G1运行完成后(函数：`goexit`)，M上运行的goroutine切换为G0，G0负
 
 假设每个P的本地队列只能存4个G。G2要创建了6个G，前4个G（G3, G4, G5, G6）已经加入p1的本地队列，p1本地队列满了。
 
-![img](https://picgo.6and.ltd/img/28-gmp%E5%9C%BA%E6%99%AF3.png)
+<img src="https://picgo.6and.ltd/img/28-gmp%E5%9C%BA%E6%99%AF3.png" alt="img" style="zoom:33%;" />
 
 ------
 
@@ -456,7 +456,7 @@ G2在创建G7的时候，发现P1的本地队列已满，需要执行**负载均
 
 > （实现中并不一定是新的G，如果G是G2之后就执行的，会被保存在本地队列，利用某个老的G替换新G加入全局队列） 
 
-![img](https://picgo.6and.ltd/img/29-gmp%E5%9C%BA%E6%99%AF4.png)
+<img src="https://picgo.6and.ltd/img/29-gmp%E5%9C%BA%E6%99%AF4.png" alt="img" style="zoom:33%;" />
 
 这些G被转移到全局队列时，会被打乱顺序。所以G3,G4,G7被转移到全局队列。
 
@@ -466,7 +466,7 @@ G2在创建G7的时候，发现P1的本地队列已满，需要执行**负载均
 
 G2创建G8时，P1的本地队列未满，所以G8会被加入到P1的本地队列。
 
-![img](https://picgo.6and.ltd/img/30-gmp%E5%9C%BA%E6%99%AF5.png)
+<img src="https://picgo.6and.ltd/img/30-gmp%E5%9C%BA%E6%99%AF5.png" alt="img" style="zoom:33%;" />
 
  G8加入到P1点本地队列的原因还是因为P1此时在与M1绑定，而G2此时是M1在执行。所以G2创建的新的G会优先放置到自己的M绑定的P上。
 
@@ -476,7 +476,7 @@ G2创建G8时，P1的本地队列未满，所以G8会被加入到P1的本地队�
 
 规定：**在创建G时，运行的G会尝试唤醒其他空闲的P和M组合去执行**。
 
-![img](https://picgo.6and.ltd/img/31-gmp%E5%9C%BA%E6%99%AF6.png)
+<img src="https://picgo.6and.ltd/img/31-gmp%E5%9C%BA%E6%99%AF6.png" alt="img" style="zoom: 33%;" />
 
 假定G2唤醒了M2，M2绑定了P2，并运行G0，但P2本地队列没有G，M2此时为自旋线程**（没有G但为运行状态的线程，不断寻找G）**。
 
@@ -492,7 +492,7 @@ n = min(len(GQ)/GOMAXPROCS + 1, len(GQ/2))
 
 至少从全局队列取1个g，但每次不要从全局队列移动太多的g到p本地队列，给其他p留点。这是**从全局队列到P本地队列的负载均衡**。
 
-![img](https://picgo.6and.ltd/img/32-gmp%E5%9C%BA%E6%99%AF7.001.jpeg)
+<img src="https://picgo.6and.ltd/img/32-gmp%E5%9C%BA%E6%99%AF7.001.jpeg" alt="img" style="zoom:33%;" />
 
  假定我们场景中一共有4个P（GOMAXPROCS设置为4，那么我们允许最多就能用4个P来供M使用）。所以M2只从能从全局队列取1个G（即G3）移动P2本地队列，然后完成从G0到G3的切换，运行G3。
 
@@ -502,7 +502,7 @@ n = min(len(GQ)/GOMAXPROCS + 1, len(GQ/2))
 
 假设G2一直在M1上运行，经过2轮后，M2已经把G7、G4从全局队列获取到了P2的本地队列并完成运行，全局队列和P2的本地队列都空了,如场景8图的左半部分。
 
-![img](https://picgo.6and.ltd/img/33-gmp%E5%9C%BA%E6%99%AF8.png)
+<img src="https://picgo.6and.ltd/img/33-gmp%E5%9C%BA%E6%99%AF8.png" alt="img" style="zoom:33%;" />
 
  **全局队列已经没有G，那m就要执行work stealing(偷取)：从其他有G的P哪里偷取一半G过来，放到自己的P本地队列**。P2从P1的本地队列尾部取一半的G，本例中一半则只有1个G8，放到P2的本地队列并执行。
 
@@ -512,7 +512,7 @@ n = min(len(GQ)/GOMAXPROCS + 1, len(GQ/2))
 
 G1本地队列G5、G6已经被其他M偷走并运行完成，当前M1和M2分别在运行G2和G8，M3和M4没有goroutine可以运行，M3和M4处于**自旋状态**，它们不断寻找goroutine。
 
-![img](https://picgo.6and.ltd/img/34-gmp%E5%9C%BA%E6%99%AF9.png)
+<img src="https://picgo.6and.ltd/img/34-gmp%E5%9C%BA%E6%99%AF9.png" alt="img" style="zoom:33%;" />
 
  为什么要让m3和m4自旋，自旋本质是在运行，线程在运行却没有执行G，就变成了浪费CPU. 为什么不销毁现场，来节约CPU资源。因为创建和销毁CPU也会浪费时间，我们**希望当有新goroutine创建时，立刻能有M运行它**，如果销毁再新建就增加了时延，降低了效率。当然也考虑了过多的自旋线程是浪费CPU，所以系统中最多有`GOMAXPROCS`个自旋的线程(当前例子中的`GOMAXPROCS`=4，所以一共4个P)，多余的没事做线程会让他们休眠。
 
@@ -522,7 +522,7 @@ G1本地队列G5、G6已经被其他M偷走并运行完成，当前M1和M2分别
 
  假定当前除了M3和M4为自旋线程，还有M5和M6为空闲的线程(没有得到P的绑定，注意我们这里最多就只能够存在4个P，所以P的数量应该永远是M>=P, 大部分都是M在抢占需要运行的P)，G8创建了G9，G8进行了**阻塞的系统调用**，M2和P2立即解绑，P2会执行以下判断：如果P2本地队列有G、全局队列有G或有空闲的M，P2都会立马唤醒1个M和它绑定，否则P2则会加入到空闲P列表，等待M来获取可用的p。本场景中，P2本地队列有G9，可以和其他空闲的线程M5绑定。
 
-![35-gmp场景10.png](https://picgo.6and.ltd/img/35-gmp%E5%9C%BA%E6%99%AF10-20210618113920213.png)
+<img src="https://picgo.6and.ltd/img/35-gmp%E5%9C%BA%E6%99%AF10-20210618113920213.png" alt="35-gmp场景10.png" style="zoom:33%;" />
 
 ------
 
@@ -530,7 +530,7 @@ G1本地队列G5、G6已经被其他M偷走并运行完成，当前M1和M2分别
 
 G8创建了G9，假如G8进行了**非阻塞系统调用**。
 
-![img](https://picgo.6and.ltd/img/36-gmp%E5%9C%BA%E6%99%AF11.png)
+<img src="https://picgo.6and.ltd/img/36-gmp%E5%9C%BA%E6%99%AF11.png" alt="img" style="zoom:33%;" />
 
  M2和P2会解绑，但M2会记住P2，然后G8和M2进入**系统调用**状态。当G8和M2退出系统调用时，会尝试获取P2，如果无法获取，则获取空闲的P，如果依然没有，G8会被记为可运行状态，并加入到全局队列,M2因为没有P的绑定而变成休眠状态(长时间休眠等待GC回收销毁)。
 

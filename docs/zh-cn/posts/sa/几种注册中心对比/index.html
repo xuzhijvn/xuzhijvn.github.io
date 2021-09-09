@@ -61,7 +61,7 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/sa/%E5%87%A0%E7%A7%8D%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%AF%B9%E6%AF%94/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E6%9E%B6%E6%9E%84/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/%E9%AB%98%E5%B9%B6%E5%8F%91%E4%B8%8B%E7%9A%84%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E9%94%81%E4%BC%98%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E6%9E%B6%E6%9E%84/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
@@ -506,10 +506,7 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
 </tr>
 </tbody>
 </table>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/p1.png"
-   loading="lazy" />
-
-</p>
+<p><img src="https://picgo.6and.ltd/img/p1.png" alt="img" style="zoom: 33%;" /></p>
 <blockquote>
 <ul>
 <li>Consul是支持自动注销服务实例， 请见文档： <a href="https://www.consul.io/api-docs/agent/service" target="_blank" rel="noopener noreferrer">https://www.consul.io/api-docs/agent/service</a>
@@ -533,10 +530,7 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
 <p>当master节点因为网络故障与其他节点失去联系时，剩余节点会重新进行leader选举。问题在于，选举leader的时间太长，30~120s，而且选举期间整个zk集群都是不可用的，这就导致在选举期间注册服务瘫痪。</p>
 <p>在云部署环境下， 因为网络问题使得zk集群失去master节点是大概率事件，虽然服务能最终恢复，但是漫长的选举事件导致注册长期不可用是不能容忍的。</p>
 <h2 id="spring-cloud-eureka----ap">Spring Cloud Eureka  -&gt; AP</h2>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/20190823093426246.png"
-   loading="lazy" />
-
-</p>
+<p><img src="https://picgo.6and.ltd/img/20190823093426246.png" alt="img" style="zoom:90%;" /></p>
 <p>Spring Cloud Netflix 在设计 Eureka 时就紧遵AP原则（尽管现在2.0发布了，但是由于其闭源的原因 ，但是目前 Ereka 1.x 任然是比较活跃的）。</p>
 <p>Eureka Server 也可以运行多个实例来构建集群，解决单点问题，但不同于 ZooKeeper 的选举 leader 的过程，Eureka Server 采用的是Peer to Peer 对等通信。这是一种去中心化的架构，无 master/slave 之分，每一个 Peer 都是对等的。在这种架构风格中，节点通过彼此互相注册来提高可用性，每个节点需要添加一个或多个有效的 serviceUrl 指向其他节点。每个节点都可被视为其他节点的副本。</p>
 <p>在集群环境中如果某台 Eureka Server 宕机，Eureka Client 的请求会自动切换到新的 Eureka Server 节点上，当宕机的服务器重新恢复后，Eureka 会再次将其纳入到服务器集群管理之中。当节点开始接受客户端请求时，所有的操作都会在节点间进行复制（replicate To Peer）操作，将请求复制到该 Eureka Server 当前所知的其它所有节点中。</p>
@@ -554,15 +548,9 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
 <p>Consul 是 HashiCorp 公司推出的开源工具，用于实现分布式系统的服务发现与配置。Consul 使用 Go 语言编写，因此具有天然可移植性（支持Linux、windows和Mac OS X）。</p>
 <p>Consul 内置了服务注册与发现框架、分布一致性协议实现、健康检查、Key/Value 存储、多数据中心方案，不再需要依赖其他工具（比如 ZooKeeper 等），使用起来也较为简单。</p>
 <p>Consul 遵循CAP原理中的CP原则，保证了强一致性和分区容错性，且使用的是Raft算法，比zookeeper使用的Paxos算法更加简单。虽然保证了强一致性，但是可用性就相应下降了，例如服务注册的时间会稍长一些，因为 Consul 的 raft 协议要求必须过半数的节点都写入成功才认为注册成功 ；在leader挂掉了之后，重新选举出leader之前会导致Consul 服务不可用。</p>
-<p><img class="img-fluid" alt="默认依赖于SDK" src="https://picgo.6and.ltd/img/20190823093438619.png"
-   loading="lazy" />
-
-</p>
+<p><img src="https://picgo.6and.ltd/img/20190823093438619.png" alt="默认依赖于SDK" style="zoom: 67%;" /></p>
 <p>Consul本质上属于应用外的注册方式，但可以通过SDK简化注册流程。而服务发现恰好相反，默认依赖于SDK，但可以通过Consul Template（下文会提到）去除SDK依赖。</p>
-<p><img class="img-fluid" alt="Consul Template" src="https://picgo.6and.ltd/img/20190823093459885.png"
-   loading="lazy" />
-
-</p>
+<p><img src="https://picgo.6and.ltd/img/20190823093459885.png" alt="Consul Template" style="zoom:67%;" /></p>
 <h3 id="consul-template">Consul Template</h3>
 <p>Consul，默认服务调用者需要依赖Consul SDK来发现服务，这就无法保证对应用的零侵入性。</p>
 <p>所幸通过<a href="https://github.com/hashicorp/consul-template" target="_blank" rel="noopener noreferrer">Consul Template</a>
@@ -656,11 +644,11 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
 </section>
   <section class="recent-posts row surface">
   <h4>最近文章</h4>
-  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/">poll select epoll区别
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E9%94%81%E4%BC%98%E5%8C%96/">JVM锁优化
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/">poll select epoll区别
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/">JVM内存模型
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/">JVM类加载器
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E6%9E%B6%E6%9E%84/">JVM架构
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">JVM垃圾回收
 </a></li></ul>
 </section><section class="taxonomy-categories row surface">
       <h4>
@@ -701,7 +689,7 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
         <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
-          Java <span class="badge rounded-pill">33</span>
+          Java <span class="badge rounded-pill">34</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
           云原生 <span class="badge rounded-pill">32</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
@@ -712,10 +700,10 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
           Other <span class="badge rounded-pill">18</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="spring">
           spring <span class="badge rounded-pill">12</span>
-        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
-          MySQL <span class="badge rounded-pill">9</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="redis">
           redis <span class="badge rounded-pill">9</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MySQL">
+          MySQL <span class="badge rounded-pill">8</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="剑指offer">
           剑指offer <span class="badge rounded-pill">8</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="WordPress">
