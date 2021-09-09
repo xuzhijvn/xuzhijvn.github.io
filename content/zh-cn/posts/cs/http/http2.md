@@ -1,4 +1,3 @@
-
 ---
 title: "http2"
 date: 2021-08-27T11:15:10+08:00
@@ -8,7 +7,7 @@ categories: [
 "计算机科学"
 ]
 tags : [
-"CS"
+"CS","http"
 ]
 series : [
 "Manual"
@@ -18,7 +17,7 @@ images : [
 ]
 ---
 
-[comment]: <> (# http2)
+[comment]: <> "# http2"
 
 http/2在http/1系列的基础上优化了通信效率，主要得益于如下几点改进：
 

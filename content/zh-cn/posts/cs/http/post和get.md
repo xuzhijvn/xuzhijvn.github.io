@@ -7,7 +7,7 @@ categories: [
 "计算机科学"
 ]
 tags : [
-"CS"
+"CS","http"
 ]
 series : [
 "Manual"
@@ -17,7 +17,7 @@ images : [
 ]
 ---
 
-[comment]: <> (# post和get)
+[comment]: <> "# post和get"
 
 ## RFC标准区别
 

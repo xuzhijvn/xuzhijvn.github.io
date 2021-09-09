@@ -1,4 +1,3 @@
-
 ---
 title: "Oauth2的授权码模式为什么返回token之前先返回code，而不是直接返回token？"
 date: 2021-08-27T11:15:10+08:00
@@ -18,7 +17,7 @@ images : [
 ]
 ---
 
-[comment]: <> (# Oauth2的授权码模式为什么返回token之前先返回code，而不是直接返回token？)
+[comment]: <> "# Oauth2的授权码模式为什么返回token之前先返回code，而不是直接返回token？"
 
 
 

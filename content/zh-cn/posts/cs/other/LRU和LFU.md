@@ -1,4 +1,3 @@
-
 ---
 title: "LRU和LFU"
 date: 2021-08-27T11:15:10+08:00
@@ -18,7 +17,7 @@ images : [
 ]
 ---
 
-[comment]: <> (# LRU和LFU)
+[comment]: <> "# LRU和LFU"
 
 LRU和LFU都是内存管理的页面置换算法。
 
