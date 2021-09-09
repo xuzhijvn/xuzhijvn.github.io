@@ -27,13 +27,27 @@ images = [
 bio的缺点？
 
 ```java
-while(true){
-  //阻塞等待连接
-  accept()
-  //fork出一个线程调系统的recvfrom去读IO
-  new Thread(new Runable(){
-    //读数据
-  });
+public class TestSocket {
+    public static void main(String[] args) throws Exception{
+        ServerSocket server = new ServerSocket(8080);
+        while (true){
+            //阻塞等待连接
+            Socket client = server.accept();
+            //fork出一个线程调系统的recvfrom去读IO
+            new Thread(() -> {
+                try {
+                    //读数据
+                    InputStream in = client.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                    while (true){
+                        System.out.println(reader.readLine());
+                    }
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }).start();
+        }
+    }
 }
 ```
 
@@ -62,3 +76,7 @@ epoll
 
 
 所以 多路复用（poll select epoll）非常适合长连接短数据的场景，例如即时通信。
+
+## 参考
+
+[一文搞懂select、poll和epoll区别](https://zhuanlan.zhihu.com/p/272891398)
