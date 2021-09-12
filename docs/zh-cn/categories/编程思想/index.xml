@@ -165,7 +165,7 @@ public interface BeanFactoryPostProcessor {
     </item>
     
     <item>
-      <title>char、varchar、text区别</title>
+      <title>char varchar text区别</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/char-varchar-text%E5%8C%BA%E5%88%AB/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
@@ -578,6 +578,19 @@ Topic 实现了发布和订阅，当你发布一个消息，所有订阅这个 T
  在 MySQL 5.7.7之前，默认的格式是STATEMENT，MySQL 5.7.7之后，默认值是ROW。日志格式通过binlog-format指定。
   STATMENT 基于SQL语句的复制(statement-based replication, SBR)，每一条会修改数据的sql语句会记录到binlog中。 优点：不需要记录每一行的变化，减少了binlog日志量，节约了IO, 从而提高了性能； 缺点：在某些情况下会导致主从数据不一致，比如执行sysdate()、slepp()等。 ROW 基于行的复制(row-based replication, RBR)，不记录每条sql语句的上下文信息，仅需记录哪条数据被修改了。 优点：不会出现某些特定情况下的存储过程、或function、或trigger的调用和触发无法被正确复制的问题； 缺点：会产生大量的日志，尤其是alter table的时候会让日志暴涨 MIXED 基于STATMENT和ROW两种模式的混合复制(mixed-based replication, MBR)，一般的复制使用STATEMENT模式保存binlog，对于STATEMENT模式无法复制的操作使用ROW模式保存binlog  2. redo log 2.1 为什么需要redo log 我们都知道，事务的四大特性里面有一个是持久性，具体来说就是只要事务提交成功，那么对数据库做的修改就被永久保存下来了，不可能因为任何原因再回到原来的状态。那么mysql是如何保证持久性的呢？最简单的做法是在每次事务提交的时候，将该事务涉及修改的数据页全部刷新到磁盘中。但是这么做会有严重的性能问题，主要体现在两个方面：
  因为Innodb是以页为单位进行磁盘交互的，而一个事务很可能只修改一个数据页里面的几个字节，这个时候将完整的数据页刷到磁盘的话，太浪费资源了！ 一个事务可能涉及修改多个数据页，并且这些数据页在物理上并不连续，使用随机IO写入性能太差！  因此mysql设计了redo log，具体来说就是只记录事务对数据页做了哪些修改，这样就能完美地解决性能问题了(相对而言文件更小并且是顺序IO)。MySQL实战45讲 中将redo log比作临时记账的粉板，实际数据页比作账本。</description>
+    </item>
+    
+    <item>
+      <title>MySQL索引的工作原理</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E7%B4%A2%E5%BC%95%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E7%B4%A2%E5%BC%95%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/</guid>
+      <description>索引是一种加快查询的数据结构，在 MySQL 中，索引的数据结构选择的是 B+Tree，至于 B+Tree 是什么以及为什么 MySQL 为什么选择 B+Tree 来作为索引，可以去查看公众号的前三篇文章。
+  索引数据结构之 B-Tree 与 B+Tree（上篇）   索引数据结构之 B-Tree 与 B+Tree（下篇）   MySQL 为什么不用数组、哈希表、二叉树等数据结构作为索引呢 今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。
+  首先需要说明的是，本文的所有讨论均是基于 InnoDB 存储引擎为前提。
+示例表 为了方便说明，我们先创建一个示例表。建表语句如下
+CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR ( 64 ) COMMENT &amp;#39;姓名&amp;#39;, `age` INT ( 4 ) COMMENT &amp;#39;年龄&amp;#39;, PRIMARY KEY ( `id` ), INDEX ( NAME ) ) ENGINE = INNODB COMMENT &amp;#39;用户表&amp;#39;; INSERT INTO `user` ( `name`, `age` ) VALUES ( &amp;#39;AA&amp;#39;, 30 ),( &amp;#39;BB&amp;#39;, 33 ),( &amp;#39;CC&amp;#39;, 31 ),( &amp;#39;DD&amp;#39;, 30 ),( &amp;#39;EE&amp;#39;, 29 ) 复制代码 在上面的 SQL 语句中，创建了一张 user 表，表中有三个字段，id 是主键，name 和 age 分别表示用户的姓名和年龄，同时还为字段 name 创建了一个普通索引。为了方便后面描述，因此还向表中插入了 5 条数据，由于主键 id 是自增的，所以这五行数据的 id 值分为是 1~5。</description>
     </item>
     
     <item>

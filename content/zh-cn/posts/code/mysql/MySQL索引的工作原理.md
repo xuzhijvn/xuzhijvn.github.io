@@ -1,3 +1,4 @@
+---
 title: "MySQL索引的工作原理"
 date: 2021-08-27T11:15:10+08:00
 draft: false
@@ -14,7 +15,7 @@ series : [
 images : [
 "images/center.png"
 ]
-
+---
 
 
 索引是一种加快查询的数据结构，在 MySQL 中，索引的数据结构选择的是 B+Tree，至于 B+Tree 是什么以及为什么 MySQL 为什么选择 B+Tree 来作为索引，可以去查看公众号的前三篇文章。
@@ -52,7 +53,7 @@ INSERT INTO `user` ( `name`, `age` ) VALUES ( 'AA', 30 ),( 'BB', 33 ),( 'CC', 31
 
 主键索引又称之为聚簇索引（cluster index），它的特点是叶子结点中会存放当前主键所对应行的数据。什么意思呢？拿上面的例子来说明，在表 user 中，id 为主键索引，所以会有一棵 id 的索引树，在该索引树的叶子结点中，不仅存放了主键 id 的值，还存放了 name 和 value 的值。例如：在 id=1 这一行的数据中，name 和 age 的值为 AA 和 30，那么在索引树中，在 id=1 的结点处，存放的是(1,"AA",30)这三个值。id 索引树的示意图如下。
 
-![图1](https://picgo.6and.ltd/img/1719c2d3191bcc77~tplv-t2oaga2asx-watermark.awebp)
+<img src="https://picgo.6and.ltd/img/1719c2d3191bcc77~tplv-t2oaga2asx-watermark.awebp" alt="图1" style="zoom: 50%;" />
 
 下面看看这一条 SQL 语句的执行流程：
 
@@ -71,7 +72,7 @@ select * from user where id = 1;
 
 普通索引又称之为非聚簇索引，也叫做二级索引，它的特点是叶子结点中也会存放数据，与主键索引不同的是，普通索引中存放的数据只有主键的值，而非整行记录的数据。例如上面的示例表中，name 就是一个普通索引，它的索引树中，在叶子结点中存放的数据是主键 id 的值，示意图如下：
 
-![图2](https://picgo.6and.ltd/img/1719c2da5a2c5d0a~tplv-t2oaga2asx-watermark.awebp)
+<img src="https://picgo.6and.ltd/img/1719c2da5a2c5d0a~tplv-t2oaga2asx-watermark.awebp" alt="图2" style="zoom:50%;" />
 
 下面看看这一条 SQL 语句的执行流程：
 
@@ -119,7 +120,7 @@ alter table user add index(`name`,`age`);
 
 这个时候，这个联合索引的索引树上，每个结点上存放的不仅仅只有 name 字段的值了，还有 age 字段的值，示意图如下：
 
-![图3](https://picgo.6and.ltd/img/1719c2e161c18dac~tplv-t2oaga2asx-watermark.awebp)
+<img src="https://picgo.6and.ltd/img/1719c2e161c18dac~tplv-t2oaga2asx-watermark.awebp" alt="图3" style="zoom:50%;" />
 
 那么这个时候，当我们 select name,age from user where name = 'BB' 时，由于需要的 name 字段和 age 字段在这棵联合索引树上已经存在了，所以这次查询不需要回表。
 
