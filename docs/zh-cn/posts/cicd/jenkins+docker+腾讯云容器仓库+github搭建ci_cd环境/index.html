@@ -268,7 +268,8 @@ github webhooks&#43;jenkins搭建持续集成环境  本文是jenkins&#43;docker
   <i class="fas fa-fw fa-medal"></i>
 </a>
     
-    
+    <a id="btnTOC" class="fas fa-fw fa-list-alt" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+</a>
   </div>
 </div>
 <h1 class="post-title my-3">jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境
@@ -278,7 +279,54 @@ github webhooks&#43;jenkins搭建持续集成环境  本文是jenkins&#43;docker
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="post-taxonomy">持续集成部署</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="post-taxonomy">Jenkins</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="post-taxonomy">docker</a></span>
 </div>
-<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境</p>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-github配置personal-access-tokens">1. github配置Personal access tokens</a></li>
+    <li><a href="#2-github配置webhooks">2. github配置webhooks</a></li>
+    <li><a href="#3-jenkins配置凭据">3. jenkins配置凭据</a></li>
+    <li><a href="#4-配置ssh-sites">4. 配置ssh sites</a></li>
+    <li><a href="#5-配置jenkins运行环境">5. 配置jenkins运行环境</a></li>
+    <li><a href="#6-新建一个maven项目">6. 新建一个maven项目</a></li>
+    <li><a href="#7-新建一个vue项目">7. 新建一个vue项目</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#1-准备">1. 准备</a></li>
+    <li><a href="#2-项目增加docker配置">2. 项目增加docker配置</a>
+      <ul>
+        <li><a href="#21-h5项目新增docker配置">2.1 h5项目新增docker配置</a></li>
+        <li><a href="#22-后台管理前端项目新增docker配置">2.2 后台管理前端项目新增docker配置</a></li>
+        <li><a href="#23-后台项目新增docker配置">2.3 后台项目新增docker配置</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-修改项目配置文件">3. 修改项目配置文件</a></li>
+    <li><a href="#4-jenkins配置">4. jenkins配置</a>
+      <ul>
+        <li><a href="#41-新增h5项目的execute-shell-script-on-remote-host-using-ssh">4.1 新增h5项目的Execute shell script on remote host using ssh</a></li>
+        <li><a href="#42-新增前端项目的execute-shell-script-on-remote-host-using-ssh">4.2 新增前端项目的Execute shell script on remote host using ssh</a></li>
+        <li><a href="#43-新增后台项目的execute-shell-script-on-remote-host-using-ssh">4.3 新增后台项目的Execute shell script on remote host using ssh</a></li>
+      </ul>
+    </li>
+    <li><a href="#5-启动">5. 启动</a>
+      <ul>
+        <li><a href="#51-修改docker-compose-envyml中mysql的密码">5.1 修改docker-compose-env.yml中mysql的密码</a></li>
+        <li><a href="#52-启动项目">5.2 启动项目</a></li>
+        <li><a href="#53-nginx配置">5.3 nginx配置</a></li>
+      </ul>
+    </li>
+    <li><a href="#6-配置文件">6. 配置文件</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境</p>
 <p>持续集成/持续部署的重要性不必多言，都什么年代了，没有哪个正紧项目还在人工构建/测试/部署。本文手把手教你搭建jenkins+docker+腾讯云容器仓库+github的CI/CD环境。妥妥的干活，绝对是解放生产力的利器。架构图如下：</p>
 <p><a href="https://xuzhijun.ltd/wp-content/uploads/2020/05/20200510052839100.png" target="_blank" rel="noopener noreferrer"><img class="img-fluid" alt="jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境" src="https://picgo.6and.ltd/img/20200510052839100.png"
    loading="lazy" />
@@ -612,18 +660,18 @@ docker-compose -f docker-compose-app.yml up &amp;
 </section>
   <section class="recent-posts row surface">
   <h4>最近文章</h4>
-  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/cs/http/session/">session
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/volatile/">volatile
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/cs/http/session/">session
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E9%94%81%E4%BC%98%E5%8C%96/">JVM锁优化
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/cs/system/poll-select-epoll%E5%8C%BA%E5%88%AB/">poll select epoll区别
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/">JVM内存模型
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/">JVM类加载器
 </a></li></ul>
 </section><section class="taxonomy-categories row surface">
       <h4>
         <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
-          编程思想 <span class="badge rounded-pill">102</span>
+          编程思想 <span class="badge rounded-pill">103</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
           云原生 <span class="badge rounded-pill">32</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
@@ -644,7 +692,7 @@ docker-compose -f docker-compose-app.yml up &amp;
         <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
-          Manual <span class="badge rounded-pill">156</span>
+          Manual <span class="badge rounded-pill">157</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
           k8s <span class="badge rounded-pill">13</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s实战">
@@ -657,7 +705,7 @@ docker-compose -f docker-compose-app.yml up &amp;
         <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Java">
-          Java <span class="badge rounded-pill">34</span>
+          Java <span class="badge rounded-pill">35</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
           云原生 <span class="badge rounded-pill">32</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">

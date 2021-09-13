@@ -6,7 +6,26 @@
     <description>Recent content in Manual on 唯有光頭才能變強</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
-    <lastBuildDate>Thu, 09 Sep 2021 20:36:27 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/series/manual/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 13 Sep 2021 15:37:40 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/series/manual/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>volatile</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/volatile/</link>
+      <pubDate>Mon, 13 Sep 2021 15:37:40 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/volatile/</guid>
+      <description>&lt;p&gt;JVM volatile用于保证程序&lt;code&gt;可见性&lt;/code&gt;、&lt;code&gt;顺序性&lt;/code&gt;，但是不保证&lt;code&gt;原子性&lt;/code&gt;。volatile实现原理是通过在操作变量之前，多加一个&lt;code&gt;lock前缀指令&lt;/code&gt;，通过汇编可以看到这个前缀指令。&lt;/p&gt;
+&lt;p&gt;当谈到顺序性时常会提到&lt;code&gt;内存屏障&lt;/code&gt;，常见的硬件层面&lt;code&gt;内存屏障&lt;/code&gt;有：&lt;code&gt;sfence&lt;/code&gt;    &lt;code&gt;lfence&lt;/code&gt;     &lt;code&gt;mfence&lt;/code&gt; ，&lt;code&gt;lock前缀指令&lt;/code&gt;不是内存屏障，而是一种锁，执行时会锁住内存子系统来确保执行顺序，甚至跨多个CPU，JVM利用lock前缀指令的特点实现了&lt;code&gt;可见性&lt;/code&gt; 和 &lt;code&gt;顺序性&lt;/code&gt;，lock前缀指令实现可见性比较好理解，主要是利用CPU提供的缓存一致性协议（例如Intel的MESI）,当然更差一点的还有lock总线的方式（限制CPU访问内存）。&lt;/p&gt;
+&lt;p&gt;JMM层面为了实现&lt;code&gt;顺序性&lt;/code&gt;，又抽象出四个&lt;code&gt;内存屏障&lt;/code&gt;的概念：&lt;code&gt;LoadLoad&lt;/code&gt;     &lt;code&gt;StoreStore&lt;/code&gt;    &lt;code&gt;LoadStore&lt;/code&gt;    &lt;code&gt;StoreLoad&lt;/code&gt;，字节码层面并没有&lt;code&gt;内存屏障&lt;/code&gt;的指令，JVM的C++代码会有四个同名函数与之对应，JVM遇到volatile变量便会在其前后执行对应的函数，从而实现内存屏障，具体来说：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;LoadLoadBarrier
+&lt;span style=&#34;color:#66d9ef&#34;&gt;volatile&lt;/span&gt; 读操作
+LoadStoreBarrier
+
+StoreStoreBarrier
+&lt;span style=&#34;color:#66d9ef&#34;&gt;volatile&lt;/span&gt; 写操作
+StoreLoadBarrie
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+    
     <item>
       <title>session</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/cs/http/session/</link>
