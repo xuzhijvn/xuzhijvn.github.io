@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="网关设计">
 <meta itemprop="description" content="Spring cloud gateway  👉 webflux 👉 project reactor 👉 netty 👉 epoll"><meta itemprop="datePublished" content="2021-09-16T10:29:48+08:00" />
 <meta itemprop="dateModified" content="2021-09-16T10:29:48+08:00" />
-<meta itemprop="wordCount" content="13">
+<meta itemprop="wordCount" content="64">
 <meta itemprop="keywords" content="SA," /><meta property="og:title" content="网关设计" />
 <meta property="og:description" content="Spring cloud gateway  👉 webflux 👉 project reactor 👉 netty 👉 epoll" />
 <meta property="og:type" content="article" />
@@ -240,7 +240,8 @@
   <i class="fas fa-fw fa-medal"></i>
 </a>
     
-    
+    <a id="btnTOC" class="fas fa-fw fa-list-alt" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+</a>
   </div>
 </div>
 <h1 class="post-title my-3">网关设计
@@ -250,8 +251,70 @@
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="post-taxonomy">架构演进</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="post-taxonomy">SA</a></span>
 </div>
-<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p><code>Spring cloud gateway</code>  👉 <code>webflux</code> 👉 <code>project reactor</code> 👉 <code>netty</code> 👉 <code>epoll</code></p>
-<p>上述流程图指出gateway关键技术依赖。</p></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p><code>Spring cloud gateway</code>  👉 <code>webflux</code> 👉 <code>project reactor</code> 👉 <code>netty</code> 👉 <code>epoll</code></p>
+<p>上述流程图指出Spring cloud gateway关键技术依赖。</p>
+<p>webflux基于 spring 5.x 和 <code>reactor-netty</code> 构建，不依赖于 Servlet 容器，但是可以在支持 Servlet 3.1 Non-Blocking IO API 的容器上运行。</p>
+<p><img src="https://picgo.6and.ltd/img/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dldF9zZXQ=,size_16,color_FFFFFF,t_70.png" alt="webflux" style="zoom: 33%;" /></p>
+<ul>
+<li>
+<p>Spring WebFlux是基于响应式流的，因此可以用来建立异步的、非阻塞的、事件驱动的服务。它采用Reactor作为首选的响应式流的实现库，不过也提供了对RxJava的支持。</p>
+</li>
+<li>
+<p>由于响应式编程的特性，Spring WebFlux和Reactor底层需要支持异步的运行环境，比如Netty和Undertow；也可以运行在支持异步I/O的Servlet 3.1的容器之上，比如Tomcat（8.0.23及以上）和Jetty（9.0.4及以上）。</p>
+</li>
+<li>
+<p>从图的纵向上看，spring-webflux上层支持两种开发模式：</p>
+<ol>
+<li>
+<p>类似于Spring WebMVC的基于注解（@Controller、@RequestMapping）的开发模式；</p>
+</li>
+<li>
+<p>Java 8 lambda 风格的函数式开发模式。</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Spring WebFlux也支持响应式的Websocket服务端开发。</p>
+</li>
+</ul>
+<p><img src="https://picgo.6and.ltd/img/874963-20200327105251308-818382719.png" alt="webflux2" style="zoom:33%;" /></p>
+<p>限流</p>
+<p>熔断降级</p>
+<p>适配注册中心</p>
+<p>认证</p>
+<p>动态发布</p>
+<p>聚合接口（服务编排）</p>
+<p>日志</p>
+<p>泛化调用</p>
+<p>安全</p>
+<p>缓存</p>
+<p>业务隔离</p>
+<p>Websocket</p>
+<h2 id="参考">参考</h2>
+<p><a href="https://juejin.cn/post/6844903702633906190" target="_blank" rel="noopener noreferrer">浅析如何设计一个亿级网关</a>
+</p>
+<p><a href="https://juejin.cn/post/6844904128259293197" target="_blank" rel="noopener noreferrer">百亿流量API网关的设计与实现</a>
+</p>
+<p><a href="https://www.cnblogs.com/crazymakercircle/p/11704077.html" target="_blank" rel="noopener noreferrer">SpringCloud gateway （史上最全）</a>
+</p>
+<p><a href="https://blog.csdn.net/get_set/article/details/79480233" target="_blank" rel="noopener noreferrer">（5）Spring WebFlux快速上手——响应式Spring的道法术器</a>
+</p>
+<p><a href="https://cloud.tencent.com/developer/article/1440665" target="_blank" rel="noopener noreferrer">API网关基石：泛化调用</a>
+</p></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
