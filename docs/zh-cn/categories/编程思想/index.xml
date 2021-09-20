@@ -178,7 +178,18 @@ location ^~/gateway/ { proxy_set_header Host $host:$server_port; proxy_set_heade
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/aqs/</guid>
-      <description>Java并发之AQS详解 并发之AQS原理(二) CLH队列与Node解析 从ReentrantLock的实现看AQS的原理及应用 </description>
+      <description>AQS作为Java并发编程的基石，在Java同步工具中有广泛应用，例如：ReentrantLock , Semaphore , CountDownLatch ReentrantReadWriteLock , ThreadPoolExecutor
+一般来说，自定义同步器要么是独占方式，要么是共享方式，它们也只需实现 tryAcquire / tryRelease , tryAcquireShared / tryReleaseShared 中的一种即可。AQS也支持自定义同步器同时实现独占和共享两种方式，如ReentrantReadWriteLock。ReentrantLock是独占锁。
+AQS核心思想是：如果被请求的共享资源（state）空闲，那么就将当前请求资源的线程设置为有效的工作线程，将共享资源设置为锁定状态；如果共享资源被占用，就需要一定的阻塞等待唤醒机制来保证锁分配。这个机制主要用的是CLH队列的变体实现的，将暂时获取不到锁的线程加入到队列中。
+CLH：Craig, Landin, and Hagersten队列，是单向链表，AQS中的队列是CLH变体的虚拟双向队列（FIFO），AQS是通过将每条请求共享资源的线程封装成一个节点来实现锁的分配。
+主要原理图如下：
+AQS使用一个Volatile的int类型的成员变量state来表示同步状态，通过内置的FIFO队列来完成资源获取的排队工作，通过CAS完成对State值的修改。
+获得锁 acquire()是独占模式下线程获取共享资源的顶层入口。如果获取到资源，线程直接返回，否则进入等待队列，直到获取到资源为止，且整个过程忽略中断的影响。获取到资源后，线程就可以去执行其临界区代码了。
+public final void acquire(int arg) { if (!tryAcquire(arg) &amp;amp;&amp;amp; acquireQueued(addWaiter(Node.EXCLUSIVE), arg)) selfInterrupt(); } 如果再有线程要获取锁，依次在队列中往后排队即可。
+tryAcquire()方法尝试去获取独占资源。如果获取成功，则直接返回true，否则直接返回false。需自定义同步器去实现
+protected boolean tryAcquire(int arg) { throw new UnsupportedOperationException(); } AQS只是一个框架，具体资源的获取/释放方式交由自定义同步器去实现吗。AQS这里只定义了一个接口，具体资源的获取交由自定义同步器去实现了（通过state的get/set/CAS）！！！至于能不能重入，能不能加塞，那就看具体的自定义同步器怎么去设计了！！
+addWaiter(Node)此方法用于将当前线程加入到等待队列的队尾，并返回当前线程所在的结点。
+private Node addWaiter(Node mode) { //以给定模式构造结点。mode有两种：EXCLUSIVE（独占）和SHARED（共享）  Node node = new Node(Thread.currentThread(), mode); //尝试快速方式直接放到队尾。  Node pred = tail; if (pred !</description>
     </item>
     
     <item>
@@ -1397,7 +1408,7 @@ mvn archetype:generate -DarchetypeCatalog=local 然后会让你选择模板序�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E9%9B%B6%E6%8B%B7%E8%B4%9D/</guid>
-      <description>1. 简介 零拷贝的“零”是指用户态和内核态间copy数据的次数为零。
+      <description>简介 零拷贝的“零”是指用户态和内核态间copy数据的次数为零。
 传统的数据copy（文件到文件、client到server等）涉及到四次用户态内核态切换、四次copy。四次copy中，两次在用户态和内核态间copy需要CPU参与、两次在内核态与IO设备间copy为DMA方式不需要CPU参与。零拷贝避免了用户态和内核态间的copy、减少了Java零拷贝机制解析核态间的切换。
  DMA(Direct Memory Access，直接内存存取) 是所有现代电脑的重要特色，它允许不同速度的硬件装置来沟通，而不需要依赖于CPU 的大量中断负载。 DMA控制器，接管了数据读写请求，减少CPU的负担。这样一来，CPU能高效工作了。 现代硬盘基本都支持DMA。
  使用Zero Copy前后对比：
@@ -1408,7 +1419,8 @@ Linux支持的(常见)零拷贝 mmap内存映射` `sendfile` `Sendfile With DMA 
 Java零拷贝机制解析 Linux提供的领拷贝技术 Java并不是全支持，支持2种(内存映射mmap、sendfile)；
 NIO提供的内存映射：MappedByteBuffer
 NIO提供的sendfile：FileChannel.transferTo() FileChannel.transferFrom()
-参考链接： Java中的零拷贝 Java零拷贝 </description>
+适用场景 数据不需要应用程序计算处理的场景，例如：访问静态资源
+参考 Java中的零拷贝 Java零拷贝 </description>
     </item>
     
     <item>
