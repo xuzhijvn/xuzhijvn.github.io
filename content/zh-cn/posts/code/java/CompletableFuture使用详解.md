@@ -17,11 +17,11 @@ images : [
 ]
 ---
 
-[comment]: <> (# CompletableFuture使用详解)
+[comment]: <> "# CompletableFuture使用详解"
 
 ![CompletableFuture](https://picgo.6and.ltd/img/CompletableFuture.jpg)
 
-## 1、 runAsync 和 supplyAsync方法
+## 1. runAsync 和 supplyAsync方法
 
 CompletableFuture 提供了四个静态方法来创建一个异步操作。
 
@@ -39,7 +39,7 @@ public static <U> CompletableFuture<U> supplyAsync(Supplier<U> supplier, Executo
 - runAsync方法不支持返回值。
 - supplyAsync可以支持返回值。
 
-## 示例
+### 示例
 
 
 
@@ -73,7 +73,7 @@ public static void supplyAsync() throws Exception {
 }
 ```
 
-## 2、计算结果完成时的回调方法
+## 2. 计算结果完成时的回调方法
 
 当CompletableFuture的计算结果完成，或者抛出异常的时候，可以执行特定的Action。主要是下面的方法：
 
@@ -92,7 +92,7 @@ whenComplete 和 whenCompleteAsync 的区别：
  whenComplete：是执行当前任务的线程执行继续执行 whenComplete 的任务。
  whenCompleteAsync：是执行把 whenCompleteAsync 这个任务继续提交给线程池来进行执行。
 
-## 示例
+### 示例
 
 
 
@@ -128,7 +128,7 @@ public static void whenComplete() throws Exception {
 }
 ```
 
-## 3、 thenApply 方法
+## 3. thenApply 方法
 
 当一个线程依赖另一个线程时，可以使用 thenApply 方法来把这两个线程串行化。
 
@@ -144,7 +144,7 @@ Function<? super T,? extends U>
  T：上一个任务返回结果的类型
  U：当前任务的返回值类型
 
-## 示例
+### 示例
 
 
 
@@ -173,7 +173,7 @@ private static void thenApply() throws Exception {
 
 第二个任务依赖第一个任务的结果。
 
-## 4、 handle 方法
+## 4. handle 方法
 
 handle 是执行任务完成时对结果的处理。
 handle 方法和 thenApply 方法处理方式基本一样。不同的是 handle 是在任务完成后再执行，还可以处理异常的任务。thenApply 只可以执行正常的任务，任务出现异常则不执行 thenApply 方法。
@@ -186,7 +186,7 @@ public <U> CompletionStage<U> handleAsync(BiFunction<? super T, Throwable, ? ext
 public <U> CompletionStage<U> handleAsync(BiFunction<? super T, Throwable, ? extends U> fn,Executor executor);
 ```
 
-## 示例
+### 示例
 
 
 
@@ -217,7 +217,7 @@ public static void handle() throws Exception{
 
 从示例中可以看出，在 handle 中可以根据任务是否有异常来进行做相应的后续处理操作。而 thenApply 方法，如果上个任务出现错误，则不会执行 thenApply 方法。
 
-## 5、 thenAccept 消费处理结果
+## 5. thenAccept 消费处理结果
 
 接收任务的处理结果，并消费处理，无返回结果。
 
@@ -229,7 +229,7 @@ public CompletionStage<Void> thenAcceptAsync(Consumer<? super T> action);
 public CompletionStage<Void> thenAcceptAsync(Consumer<? super T> action,Executor executor);
 ```
 
-## 示例
+### 示例
 
 
 
@@ -249,7 +249,7 @@ public static void thenAccept() throws Exception{
 
 从示例代码中可以看出，该方法只是消费执行完成的任务，并可以根据上面的任务返回的结果进行处理。并没有后续的输出操作。
 
-## 6、thenRun 方法
+## 6. thenRun 方法
 
 跟 thenAccept 方法不一样的是，不关心任务的处理结果。只要上面的任务执行完成，就开始执行 thenAccept 。
 
@@ -261,7 +261,7 @@ public CompletionStage<Void> thenRunAsync(Runnable action);
 public CompletionStage<Void> thenRunAsync(Runnable action,Executor executor);
 ```
 
-## 示例
+### 示例
 
 
 
@@ -281,7 +281,7 @@ public static void thenRun() throws Exception{
 
 该方法同 thenAccept 方法类似。不同的是上个任务处理完成后，并不会把计算的结果传给 thenRun 方法。只是处理玩任务后，执行 thenRun 的后续操作。
 
-## 7、thenCombine  合并任务
+## 7. thenCombine  合并任务
 
 thenCombine 会把 两个 CompletionStage 的任务都执行完成后，把两个任务的结果一块交给 thenCombine 来处理。
 
@@ -293,7 +293,7 @@ public <U,V> CompletionStage<V> thenCombineAsync(CompletionStage<? extends U> ot
 public <U,V> CompletionStage<V> thenCombineAsync(CompletionStage<? extends U> other,BiFunction<? super T,? super U,? extends V> fn,Executor executor);
 ```
 
-## 示例
+### 示例
 
 
 
@@ -321,7 +321,7 @@ private static void thenCombine() throws Exception {
 }
 ```
 
-## 8、thenAcceptBoth
+## 8. thenAcceptBoth
 
 当两个CompletionStage都执行完成后，把结果一块交给thenAcceptBoth来进行消耗
 
@@ -333,7 +333,7 @@ public <U> CompletionStage<Void> thenAcceptBothAsync(CompletionStage<? extends U
 public <U> CompletionStage<Void> thenAcceptBothAsync(CompletionStage<? extends U> other,BiConsumer<? super T, ? super U> action,     Executor executor);
 ```
 
-## 示例
+### 示例
 
 
 
@@ -375,7 +375,7 @@ private static void thenAcceptBoth() throws Exception {
 }
 ```
 
-## 9、applyToEither 方法
+## 9. applyToEither 方法
 
 两个CompletionStage，谁执行返回的结果快，我就用那个CompletionStage的结果进行下一步的转化操作。
 
@@ -387,7 +387,7 @@ public <U> CompletionStage<U> applyToEitherAsync(CompletionStage<? extends T> ot
 public <U> CompletionStage<U> applyToEitherAsync(CompletionStage<? extends T> other,Function<? super T, U> fn,Executor executor);
 ```
 
-## 示例
+### 示例
 
 
 
@@ -437,7 +437,7 @@ private static void applyToEither() throws Exception {
 }
 ```
 
-## 10、acceptEither 方法
+## 10. acceptEither 方法
 
 两个CompletionStage，谁执行返回的结果快，我就用那个CompletionStage的结果进行下一步的消耗操作。
 
@@ -449,7 +449,7 @@ public CompletionStage<Void> acceptEitherAsync(CompletionStage<? extends T> othe
 public CompletionStage<Void> acceptEitherAsync(CompletionStage<? extends T> other,Consumer<? super T> action,Executor executor);
 ```
 
-## 示例
+### 示例
 
 
 
@@ -493,7 +493,7 @@ private static void acceptEither() throws Exception {
 }
 ```
 
-## 11、runAfterEither 方法
+## 11. runAfterEither 方法
 
 两个CompletionStage，任何一个完成了都会执行下一步的操作（Runnable）
 
@@ -505,7 +505,7 @@ public CompletionStage<Void> runAfterEitherAsync(CompletionStage<?> other,Runnab
 public CompletionStage<Void> runAfterEitherAsync(CompletionStage<?> other,Runnable action,Executor executor);
 ```
 
-## 示例
+### 示例
 
 
 
@@ -550,7 +550,7 @@ private static void runAfterEither() throws Exception {
 }
 ```
 
-## 12、runAfterBoth
+## 12. runAfterBoth
 
 两个CompletionStage，都完成了计算才会执行下一步的操作（Runnable）
 
@@ -562,7 +562,7 @@ public CompletionStage<Void> runAfterBothAsync(CompletionStage<?> other,Runnable
 public CompletionStage<Void> runAfterBothAsync(CompletionStage<?> other,Runnable action,Executor executor);
 ```
 
-## 示例
+### 示例
 
 
 
@@ -607,7 +607,7 @@ private static void runAfterBoth() throws Exception {
 }
 ```
 
-## 13、thenCompose 方法
+## 13. thenCompose 方法
 
 thenCompose 方法允许你对两个 CompletionStage 进行流水线操作，第一个操作完成时，将其结果作为参数传递给第二个操作。
 
@@ -619,7 +619,7 @@ public <U> CompletableFuture<U> thenComposeAsync(Function<? super T, ? extends C
 public <U> CompletableFuture<U> thenComposeAsync(Function<? super T, ? extends CompletionStage<U>> fn, Executor executor) ;
 ```
 
-## 示例
+### 示例
 
 
 

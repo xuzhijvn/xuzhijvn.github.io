@@ -3,34 +3,44 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Java agent - 唯有光头👴🏻才能变强💪</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>Java Agent - 唯有光头👴🏻才能变强💪</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://xuzhijvn.github.io/images/favicons/manifest.json">
 <link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="Java agent">
-<meta itemprop="description" content="**开发者可以构建一个独立于应用程序的代理程序（Agent），用来监测和协助运行在 JVM 上的程序，甚至能够替换和修改某些类的定义。**有了这样的功能，开发者就可以实现更为灵活的运行时虚拟机监控和 Java 类操作了，这样的特性实际上提供了 一种虚拟机级别支持的 AOP 实现方式，使得开发者无需对 JDK 做任何升级和改动，就可以实现某些 AOP 的功能了。
+<meta name="description" content="" /><meta itemprop="name" content="Java Agent">
+<meta itemprop="description" content="Java Agent就是一个可以作为java代理的工具, 简单来说就是一个可供用于编写的java切面, 它的主要功能就是为用户提供了在 JVM 将字节码文件读入内存之后，JVM 使用对应的字节流在 Java 堆中生成一个 Class 对象之前，用户可以对其字节码进行修改的能力，从而 JVM 也将会使用用户修改过之后的字节码进行新的Class 对象的创建(打破了一个类只能加载一次的规则)。
+Java Agent的使用对于你自身的代码是无侵入性的。应用场景：热更新。
+热更新我们也可以自定义类加载器实现，这种方式的热更新是jvm原生支持的方式, 但是缺点也很明显:
+  不够灵活, 需要手动修改文件等操作
+  重复创建类加载器, 并且卸载困难, 会增加系统负担
+  使用起来具有代码侵入性, 需要对代码进行一定改造
+  通过 Java Agent完美的解决了我们自定义类加载器实现热更新的缺点。
 1.1 JVM启动前静态Instrument 通过启动命令 java -javaagent:agent1.jar -javaagent:agent2.jar -jar MyProgram.jar 在目标程序main方法执行前，先执行agent中定义的 premain 方法
 1.2 JVM启动后动态Instrument Java6 以后提供了在目标程序main方法执行后，执行agent的agentmain方法的机制，通过这种机制，我们可以动态修改目标程序已经加载过的字节码。
 在Java6 以后实现启动后加载的新实现是Attach API 。Attach API 很简单，只有 2 个主要的类，即VirtualMachine 和 VirtualMachineDescriptor，都在tool.jar 的 com.sun.tools.attach 包里面。
 attach实现动态注入的原理如下：
 通过VirtualMachine类的attach(pid)方法，便可以attach到一个运行中的java进程上，之后便可以通过loadAgent(agentJarPath)来将agent的jar包注入到对应的进程，然后对应的进程会调用agentmain方法。
 既然是两个进程之间通信那肯定的建立起连接，VirtualMachine.attach动作类似TCP创建连接的三次握手，目的就是搭建attach通信的连接。而后面执行的操作，例如vm.loadAgent，其实就是向这个socket写入数据流，接收方target VM会针对不同的传入数据来做不同的处理。
-例如：找到当前JVM并加载agent.jar（即attach JVM 和 runing JVM 是同一个 JVM，真正的应用中更多的是不同的两个JVM，这里仅为了测试方便。）
-package com.rickiyang.learn.job; import com.sun.tools.attach.*; import java.io.IOException; import java.util.List; /** * @author rickiyang * @date 2019-08-16 * @Desc */ public class TestAgentMain { public static void main(String[] args) throws IOException, AttachNotSupportedException, AgentLoadException, AgentInitializationException { //获取当前系统中所有 运行中的 虚拟机  System."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+例如：找到当前JVM并加载agent.jar（即attach JVM 和 runing JVM 是同一个 JVM，真正的应用中更多的是不同的两个JVM，这里仅为了测试方便。）"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="131"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
-<meta itemprop="keywords" content="Java," /><meta property="og:title" content="Java agent" />
-<meta property="og:description" content="**开发者可以构建一个独立于应用程序的代理程序（Agent），用来监测和协助运行在 JVM 上的程序，甚至能够替换和修改某些类的定义。**有了这样的功能，开发者就可以实现更为灵活的运行时虚拟机监控和 Java 类操作了，这样的特性实际上提供了 一种虚拟机级别支持的 AOP 实现方式，使得开发者无需对 JDK 做任何升级和改动，就可以实现某些 AOP 的功能了。
+<meta itemprop="wordCount" content="147"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="keywords" content="Java," /><meta property="og:title" content="Java Agent" />
+<meta property="og:description" content="Java Agent就是一个可以作为java代理的工具, 简单来说就是一个可供用于编写的java切面, 它的主要功能就是为用户提供了在 JVM 将字节码文件读入内存之后，JVM 使用对应的字节流在 Java 堆中生成一个 Class 对象之前，用户可以对其字节码进行修改的能力，从而 JVM 也将会使用用户修改过之后的字节码进行新的Class 对象的创建(打破了一个类只能加载一次的规则)。
+Java Agent的使用对于你自身的代码是无侵入性的。应用场景：热更新。
+热更新我们也可以自定义类加载器实现，这种方式的热更新是jvm原生支持的方式, 但是缺点也很明显:
+  不够灵活, 需要手动修改文件等操作
+  重复创建类加载器, 并且卸载困难, 会增加系统负担
+  使用起来具有代码侵入性, 需要对代码进行一定改造
+  通过 Java Agent完美的解决了我们自定义类加载器实现热更新的缺点。
 1.1 JVM启动前静态Instrument 通过启动命令 java -javaagent:agent1.jar -javaagent:agent2.jar -jar MyProgram.jar 在目标程序main方法执行前，先执行agent中定义的 premain 方法
 1.2 JVM启动后动态Instrument Java6 以后提供了在目标程序main方法执行后，执行agent的agentmain方法的机制，通过这种机制，我们可以动态修改目标程序已经加载过的字节码。
 在Java6 以后实现启动后加载的新实现是Attach API 。Attach API 很简单，只有 2 个主要的类，即VirtualMachine 和 VirtualMachineDescriptor，都在tool.jar 的 com.sun.tools.attach 包里面。
 attach实现动态注入的原理如下：
 通过VirtualMachine类的attach(pid)方法，便可以attach到一个运行中的java进程上，之后便可以通过loadAgent(agentJarPath)来将agent的jar包注入到对应的进程，然后对应的进程会调用agentmain方法。
 既然是两个进程之间通信那肯定的建立起连接，VirtualMachine.attach动作类似TCP创建连接的三次握手，目的就是搭建attach通信的连接。而后面执行的操作，例如vm.loadAgent，其实就是向这个socket写入数据流，接收方target VM会针对不同的传入数据来做不同的处理。
-例如：找到当前JVM并加载agent.jar（即attach JVM 和 runing JVM 是同一个 JVM，真正的应用中更多的是不同的两个JVM，这里仅为了测试方便。）
-package com.rickiyang.learn.job; import com.sun.tools.attach.*; import java.io.IOException; import java.util.List; /** * @author rickiyang * @date 2019-08-16 * @Desc */ public class TestAgentMain { public static void main(String[] args) throws IOException, AttachNotSupportedException, AgentLoadException, AgentInitializationException { //获取当前系统中所有 运行中的 虚拟机  System." />
+例如：找到当前JVM并加载agent.jar（即attach JVM 和 runing JVM 是同一个 JVM，真正的应用中更多的是不同的两个JVM，这里仅为了测试方便。）" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-agent/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -40,16 +50,21 @@ package com.rickiyang.learn.job; import com.sun.tools.attach.*; import java.io.I
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
 
-<meta name="twitter:title" content="Java agent"/>
-<meta name="twitter:description" content="**开发者可以构建一个独立于应用程序的代理程序（Agent），用来监测和协助运行在 JVM 上的程序，甚至能够替换和修改某些类的定义。**有了这样的功能，开发者就可以实现更为灵活的运行时虚拟机监控和 Java 类操作了，这样的特性实际上提供了 一种虚拟机级别支持的 AOP 实现方式，使得开发者无需对 JDK 做任何升级和改动，就可以实现某些 AOP 的功能了。
+<meta name="twitter:title" content="Java Agent"/>
+<meta name="twitter:description" content="Java Agent就是一个可以作为java代理的工具, 简单来说就是一个可供用于编写的java切面, 它的主要功能就是为用户提供了在 JVM 将字节码文件读入内存之后，JVM 使用对应的字节流在 Java 堆中生成一个 Class 对象之前，用户可以对其字节码进行修改的能力，从而 JVM 也将会使用用户修改过之后的字节码进行新的Class 对象的创建(打破了一个类只能加载一次的规则)。
+Java Agent的使用对于你自身的代码是无侵入性的。应用场景：热更新。
+热更新我们也可以自定义类加载器实现，这种方式的热更新是jvm原生支持的方式, 但是缺点也很明显:
+  不够灵活, 需要手动修改文件等操作
+  重复创建类加载器, 并且卸载困难, 会增加系统负担
+  使用起来具有代码侵入性, 需要对代码进行一定改造
+  通过 Java Agent完美的解决了我们自定义类加载器实现热更新的缺点。
 1.1 JVM启动前静态Instrument 通过启动命令 java -javaagent:agent1.jar -javaagent:agent2.jar -jar MyProgram.jar 在目标程序main方法执行前，先执行agent中定义的 premain 方法
 1.2 JVM启动后动态Instrument Java6 以后提供了在目标程序main方法执行后，执行agent的agentmain方法的机制，通过这种机制，我们可以动态修改目标程序已经加载过的字节码。
 在Java6 以后实现启动后加载的新实现是Attach API 。Attach API 很简单，只有 2 个主要的类，即VirtualMachine 和 VirtualMachineDescriptor，都在tool.jar 的 com.sun.tools.attach 包里面。
 attach实现动态注入的原理如下：
 通过VirtualMachine类的attach(pid)方法，便可以attach到一个运行中的java进程上，之后便可以通过loadAgent(agentJarPath)来将agent的jar包注入到对应的进程，然后对应的进程会调用agentmain方法。
 既然是两个进程之间通信那肯定的建立起连接，VirtualMachine.attach动作类似TCP创建连接的三次握手，目的就是搭建attach通信的连接。而后面执行的操作，例如vm.loadAgent，其实就是向这个socket写入数据流，接收方target VM会针对不同的传入数据来做不同的处理。
-例如：找到当前JVM并加载agent.jar（即attach JVM 和 runing JVM 是同一个 JVM，真正的应用中更多的是不同的两个JVM，这里仅为了测试方便。）
-package com.rickiyang.learn.job; import com.sun.tools.attach.*; import java.io.IOException; import java.util.List; /** * @author rickiyang * @date 2019-08-16 * @Desc */ public class TestAgentMain { public static void main(String[] args) throws IOException, AttachNotSupportedException, AgentLoadException, AgentInitializationException { //获取当前系统中所有 运行中的 虚拟机  System."/>
+例如：找到当前JVM并加载agent.jar（即attach JVM 和 runing JVM 是同一个 JVM，真正的应用中更多的是不同的两个JVM，这里仅为了测试方便。）"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.9823d950e7319c8ceb08b6234b64b3736ce36485bc1b6b0689482a5d0c4c1c8f.js" integrity="sha256-mCPZUOcxnIzrCLYjS2Szc2zjZIW8G2sGiUgqXQxMHI8=" crossorigin="anonymous"></script>
@@ -253,7 +268,7 @@ package com.rickiyang.learn.job; import com.sun.tools.attach.*; import java.io.I
       <div class="row content">
 <div class="col-lg-8">
   <div class="container"><nav class="row" aria-label="breadcrumb">
-  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">Java agent</li></ol>
+  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">Java Agent</li></ol>
 </nav><article class="post row surface"><div class="post-panel-wrapper">
   <div class="post-panel d-flex flex-column">
     <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
@@ -270,7 +285,7 @@ package com.rickiyang.learn.job; import com.sun.tools.attach.*; import java.io.I
 </a>
   </div>
 </div>
-<h1 class="post-title my-3">Java agent
+<h1 class="post-title my-3">Java Agent
 </h1><div class="post-meta mb-3"><span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
   </span><span class="post-reading-time me-2">
@@ -297,7 +312,21 @@ package com.rickiyang.learn.job; import com.sun.tools.attach.*; import java.io.I
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><p>**开发者可以构建一个独立于应用程序的代理程序（Agent），用来监测和协助运行在 JVM 上的程序，甚至能够替换和修改某些类的定义。**有了这样的功能，开发者就可以实现更为灵活的运行时虚拟机监控和 Java 类操作了，这样的特性实际上提供了 一种虚拟机级别支持的 AOP 实现方式，使得开发者无需对 JDK 做任何升级和改动，就可以实现某些 AOP 的功能了。</p>
+</div><div class="post-content mb-3"><p>Java Agent就是一个可以作为java代理的工具, 简单来说就是一个可供用于编写的java切面, 它的主要功能<strong>就是为用户提供了在 JVM 将字节码文件读入内存之后，JVM 使用对应的字节流在 Java 堆中生成一个 Class 对象之前，用户可以对其字节码进行修改的能力，从而 JVM 也将会使用用户修改过之后的字节码进行新的Class 对象的创建(打破了一个类只能加载一次的规则)。</strong></p>
+<p>Java Agent的使用对于你自身的代码是无侵入性的。应用场景：<code>热更新</code>。</p>
+<p>热更新我们也可以自定义类加载器实现，这种方式的热更新是jvm原生支持的方式, 但是缺点也很明显:</p>
+<ol>
+<li>
+<p>不够灵活, 需要手动修改文件等操作</p>
+</li>
+<li>
+<p>重复创建类加载器, 并且卸载困难, 会增加系统负担</p>
+</li>
+<li>
+<p>使用起来具有代码侵入性, 需要对代码进行一定改造</p>
+</li>
+</ol>
+<p>通过 Java Agent完美的解决了我们自定义类加载器实现热更新的缺点。</p>
 <h3 id="11-jvm启动前静态instrument">1.1 JVM启动前静态Instrument</h3>
 <p>通过启动命令 <code>java -javaagent:agent1.jar -javaagent:agent2.jar -jar MyProgram.jar</code> 在目标程序<code>main</code>方法执行前，先执行agent中定义的 <code>premain</code> 方法</p>
 <h3 id="12-jvm启动后动态instrument">1.2 JVM启动后动态Instrument</h3>

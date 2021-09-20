@@ -10,13 +10,13 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="CompletableFuture使用详解">
-<meta itemprop="description" content="1、 runAsync 和 supplyAsync方法 CompletableFuture 提供了四个静态方法来创建一个异步操作。
+<meta itemprop="description" content="1. runAsync 和 supplyAsync方法 CompletableFuture 提供了四个静态方法来创建一个异步操作。
 public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable) public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable, Executor executor) public static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; supplier) public static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; supplier, Executor executor) 没有指定Executor的方法会使用ForkJoinPool.commonPool() 作为它的线程池执行异步代码。如果指定线程池，则使用指定的线程池运行。以下所有的方法都类同。
  runAsync方法不支持返回值。 supplyAsync可以支持返回值。  示例 //无返回值 public static void runAsync() throws Exception { CompletableFuture&lt;Void&gt; future = CompletableFuture.runAsync(() -&gt; { try { TimeUnit.SECONDS.sleep(1); } catch (InterruptedException e) { } System.out.println(&#34;run end ...&#34;); }); future.get(); } //有返回值 public static void supplyAsync() throws Exception { CompletableFuture&lt;Long&gt; future = CompletableFuture."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="1370"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="wordCount" content="1379"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="Java," /><meta property="og:title" content="CompletableFuture使用详解" />
-<meta property="og:description" content="1、 runAsync 和 supplyAsync方法 CompletableFuture 提供了四个静态方法来创建一个异步操作。
+<meta property="og:description" content="1. runAsync 和 supplyAsync方法 CompletableFuture 提供了四个静态方法来创建一个异步操作。
 public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable) public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable, Executor executor) public static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; supplier) public static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; supplier, Executor executor) 没有指定Executor的方法会使用ForkJoinPool.commonPool() 作为它的线程池执行异步代码。如果指定线程池，则使用指定的线程池运行。以下所有的方法都类同。
  runAsync方法不支持返回值。 supplyAsync可以支持返回值。  示例 //无返回值 public static void runAsync() throws Exception { CompletableFuture&lt;Void&gt; future = CompletableFuture.runAsync(() -&gt; { try { TimeUnit.SECONDS.sleep(1); } catch (InterruptedException e) { } System.out.println(&#34;run end ...&#34;); }); future.get(); } //有返回值 public static void supplyAsync() throws Exception { CompletableFuture&lt;Long&gt; future = CompletableFuture." />
 <meta property="og:type" content="article" />
@@ -29,7 +29,7 @@ public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable) public s
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
 
 <meta name="twitter:title" content="CompletableFuture使用详解"/>
-<meta name="twitter:description" content="1、 runAsync 和 supplyAsync方法 CompletableFuture 提供了四个静态方法来创建一个异步操作。
+<meta name="twitter:description" content="1. runAsync 和 supplyAsync方法 CompletableFuture 提供了四个静态方法来创建一个异步操作。
 public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable) public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable, Executor executor) public static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; supplier) public static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; supplier, Executor executor) 没有指定Executor的方法会使用ForkJoinPool.commonPool() 作为它的线程池执行异步代码。如果指定线程池，则使用指定的线程池运行。以下所有的方法都类同。
  runAsync方法不支持返回值。 supplyAsync可以支持返回值。  示例 //无返回值 public static void runAsync() throws Exception { CompletableFuture&lt;Void&gt; future = CompletableFuture.runAsync(() -&gt; { try { TimeUnit.SECONDS.sleep(1); } catch (InterruptedException e) { } System.out.println(&#34;run end ...&#34;); }); future.get(); } //有返回值 public static void supplyAsync() throws Exception { CompletableFuture&lt;Long&gt; future = CompletableFuture."/>
 <meta name="twitter:site" content="@razonyang"/>
@@ -269,32 +269,71 @@ public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable) public s
   <div class="offcanvas-body">
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#1-runasync-和-supplyasync方法">1、 runAsync 和 supplyAsync方法</a></li>
-    <li><a href="#示例">示例</a></li>
-    <li><a href="#2计算结果完成时的回调方法">2、计算结果完成时的回调方法</a></li>
-    <li><a href="#示例-1">示例</a></li>
-    <li><a href="#3-thenapply-方法">3、 thenApply 方法</a></li>
-    <li><a href="#示例-2">示例</a></li>
-    <li><a href="#4-handle-方法">4、 handle 方法</a></li>
-    <li><a href="#示例-3">示例</a></li>
-    <li><a href="#5-thenaccept-消费处理结果">5、 thenAccept 消费处理结果</a></li>
-    <li><a href="#示例-4">示例</a></li>
-    <li><a href="#6thenrun-方法">6、thenRun 方法</a></li>
-    <li><a href="#示例-5">示例</a></li>
-    <li><a href="#7thencombine--合并任务">7、thenCombine  合并任务</a></li>
-    <li><a href="#示例-6">示例</a></li>
-    <li><a href="#8thenacceptboth">8、thenAcceptBoth</a></li>
-    <li><a href="#示例-7">示例</a></li>
-    <li><a href="#9applytoeither-方法">9、applyToEither 方法</a></li>
-    <li><a href="#示例-8">示例</a></li>
-    <li><a href="#10accepteither-方法">10、acceptEither 方法</a></li>
-    <li><a href="#示例-9">示例</a></li>
-    <li><a href="#11runaftereither-方法">11、runAfterEither 方法</a></li>
-    <li><a href="#示例-10">示例</a></li>
-    <li><a href="#12runafterboth">12、runAfterBoth</a></li>
-    <li><a href="#示例-11">示例</a></li>
-    <li><a href="#13thencompose-方法">13、thenCompose 方法</a></li>
-    <li><a href="#示例-12">示例</a></li>
+    <li><a href="#1-runasync-和-supplyasync方法">1. runAsync 和 supplyAsync方法</a>
+      <ul>
+        <li><a href="#示例">示例</a></li>
+      </ul>
+    </li>
+    <li><a href="#2-计算结果完成时的回调方法">2. 计算结果完成时的回调方法</a>
+      <ul>
+        <li><a href="#示例-1">示例</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-thenapply-方法">3. thenApply 方法</a>
+      <ul>
+        <li><a href="#示例-2">示例</a></li>
+      </ul>
+    </li>
+    <li><a href="#4-handle-方法">4. handle 方法</a>
+      <ul>
+        <li><a href="#示例-3">示例</a></li>
+      </ul>
+    </li>
+    <li><a href="#5-thenaccept-消费处理结果">5. thenAccept 消费处理结果</a>
+      <ul>
+        <li><a href="#示例-4">示例</a></li>
+      </ul>
+    </li>
+    <li><a href="#6-thenrun-方法">6. thenRun 方法</a>
+      <ul>
+        <li><a href="#示例-5">示例</a></li>
+      </ul>
+    </li>
+    <li><a href="#7-thencombine--合并任务">7. thenCombine  合并任务</a>
+      <ul>
+        <li><a href="#示例-6">示例</a></li>
+      </ul>
+    </li>
+    <li><a href="#8-thenacceptboth">8. thenAcceptBoth</a>
+      <ul>
+        <li><a href="#示例-7">示例</a></li>
+      </ul>
+    </li>
+    <li><a href="#9-applytoeither-方法">9. applyToEither 方法</a>
+      <ul>
+        <li><a href="#示例-8">示例</a></li>
+      </ul>
+    </li>
+    <li><a href="#10-accepteither-方法">10. acceptEither 方法</a>
+      <ul>
+        <li><a href="#示例-9">示例</a></li>
+      </ul>
+    </li>
+    <li><a href="#11-runaftereither-方法">11. runAfterEither 方法</a>
+      <ul>
+        <li><a href="#示例-10">示例</a></li>
+      </ul>
+    </li>
+    <li><a href="#12-runafterboth">12. runAfterBoth</a>
+      <ul>
+        <li><a href="#示例-11">示例</a></li>
+      </ul>
+    </li>
+    <li><a href="#13-thencompose-方法">13. thenCompose 方法</a>
+      <ul>
+        <li><a href="#示例-12">示例</a></li>
+      </ul>
+    </li>
     <li><a href="#参考">参考：</a></li>
   </ul>
 </nav>
@@ -303,7 +342,7 @@ public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable) public s
    loading="lazy" />
 
 </p>
-<h2 id="1-runasync-和-supplyasync方法">1、 runAsync 和 supplyAsync方法</h2>
+<h2 id="1-runasync-和-supplyasync方法">1. runAsync 和 supplyAsync方法</h2>
 <p>CompletableFuture 提供了四个静态方法来创建一个异步操作。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> CompletableFuture<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">runAsync</span><span style="color:#f92672">(</span>Runnable runnable<span style="color:#f92672">)</span>
 <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> CompletableFuture<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">runAsync</span><span style="color:#f92672">(</span>Runnable runnable<span style="color:#f92672">,</span> Executor executor<span style="color:#f92672">)</span>
@@ -314,7 +353,7 @@ public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable) public s
 <li>runAsync方法不支持返回值。</li>
 <li>supplyAsync可以支持返回值。</li>
 </ul>
-<h2 id="示例">示例</h2>
+<h3 id="示例">示例</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//无返回值
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">runAsync</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
     CompletableFuture<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> future <span style="color:#f92672">=</span> CompletableFuture<span style="color:#f92672">.</span><span style="color:#a6e22e">runAsync</span><span style="color:#f92672">(()</span> <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
@@ -342,7 +381,7 @@ public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable) public s
     <span style="color:#66d9ef">long</span> time <span style="color:#f92672">=</span> future<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">();</span>
     System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;time = &#34;</span><span style="color:#f92672">+</span>time<span style="color:#f92672">);</span>
 <span style="color:#f92672">}</span>
-</code></pre></div><h2 id="2计算结果完成时的回调方法">2、计算结果完成时的回调方法</h2>
+</code></pre></div><h2 id="2-计算结果完成时的回调方法">2. 计算结果完成时的回调方法</h2>
 <p>当CompletableFuture的计算结果完成，或者抛出异常的时候，可以执行特定的Action。主要是下面的方法：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> CompletableFuture<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">whenComplete</span><span style="color:#f92672">(</span>BiConsumer<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,?</span> <span style="color:#66d9ef">super</span> Throwable<span style="color:#f92672">&gt;</span> action<span style="color:#f92672">)</span>
 <span style="color:#66d9ef">public</span> CompletableFuture<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">whenCompleteAsync</span><span style="color:#f92672">(</span>BiConsumer<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,?</span> <span style="color:#66d9ef">super</span> Throwable<span style="color:#f92672">&gt;</span> action<span style="color:#f92672">)</span>
@@ -352,7 +391,7 @@ public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable) public s
 <p>whenComplete 和 whenCompleteAsync 的区别：
 whenComplete：是执行当前任务的线程执行继续执行 whenComplete 的任务。
 whenCompleteAsync：是执行把 whenCompleteAsync 这个任务继续提交给线程池来进行执行。</p>
-<h2 id="示例-1">示例</h2>
+<h3 id="示例-1">示例</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">whenComplete</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
     CompletableFuture<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> future <span style="color:#f92672">=</span> CompletableFuture<span style="color:#f92672">.</span><span style="color:#a6e22e">runAsync</span><span style="color:#f92672">(()</span> <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
         <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
@@ -382,7 +421,7 @@ whenCompleteAsync：是执行把 whenCompleteAsync 这个任务继续提交给�
     
     TimeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">SECONDS</span><span style="color:#f92672">.</span><span style="color:#a6e22e">sleep</span><span style="color:#f92672">(</span>2<span style="color:#f92672">);</span>
 <span style="color:#f92672">}</span>
-</code></pre></div><h2 id="3-thenapply-方法">3、 thenApply 方法</h2>
+</code></pre></div><h2 id="3-thenapply-方法">3. thenApply 方法</h2>
 <p>当一个线程依赖另一个线程时，可以使用 thenApply 方法来把这两个线程串行化。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> CompletableFuture<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenApply</span><span style="color:#f92672">(</span>Function<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,?</span> <span style="color:#66d9ef">extends</span> U<span style="color:#f92672">&gt;</span> fn<span style="color:#f92672">)</span>
 <span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> CompletableFuture<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenApplyAsync</span><span style="color:#f92672">(</span>Function<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,?</span> <span style="color:#66d9ef">extends</span> U<span style="color:#f92672">&gt;</span> fn<span style="color:#f92672">)</span>
@@ -390,7 +429,7 @@ whenCompleteAsync：是执行把 whenCompleteAsync 这个任务继续提交给�
 </code></pre></div><p>Function&lt;? super T,? extends U&gt;
 T：上一个任务返回结果的类型
 U：当前任务的返回值类型</p>
-<h2 id="示例-2">示例</h2>
+<h3 id="示例-2">示例</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">thenApply</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
     CompletableFuture<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;</span> future <span style="color:#f92672">=</span> CompletableFuture<span style="color:#f92672">.</span><span style="color:#a6e22e">supplyAsync</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Supplier<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
         <span style="color:#a6e22e">@Override</span>
@@ -412,13 +451,13 @@ U：当前任务的返回值类型</p>
     System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>result<span style="color:#f92672">);</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>第二个任务依赖第一个任务的结果。</p>
-<h2 id="4-handle-方法">4、 handle 方法</h2>
+<h2 id="4-handle-方法">4. handle 方法</h2>
 <p>handle 是执行任务完成时对结果的处理。
 handle 方法和 thenApply 方法处理方式基本一样。不同的是 handle 是在任务完成后再执行，还可以处理异常的任务。thenApply 只可以执行正常的任务，任务出现异常则不执行 thenApply 方法。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> CompletionStage<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">handle</span><span style="color:#f92672">(</span>BiFunction<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,</span> Throwable<span style="color:#f92672">,</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">extends</span> U<span style="color:#f92672">&gt;</span> fn<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> CompletionStage<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">handleAsync</span><span style="color:#f92672">(</span>BiFunction<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,</span> Throwable<span style="color:#f92672">,</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">extends</span> U<span style="color:#f92672">&gt;</span> fn<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> CompletionStage<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">handleAsync</span><span style="color:#f92672">(</span>BiFunction<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,</span> Throwable<span style="color:#f92672">,</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">extends</span> U<span style="color:#f92672">&gt;</span> fn<span style="color:#f92672">,</span>Executor executor<span style="color:#f92672">);</span>
-</code></pre></div><h2 id="示例-3">示例</h2>
+</code></pre></div><h3 id="示例-3">示例</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">handle</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception<span style="color:#f92672">{</span>
     CompletableFuture<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> future <span style="color:#f92672">=</span> CompletableFuture<span style="color:#f92672">.</span><span style="color:#a6e22e">supplyAsync</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Supplier<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
 
@@ -442,12 +481,12 @@ handle 方法和 thenApply 方法处理方式基本一样。不同的是 handle 
     System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>future<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">());</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>从示例中可以看出，在 handle 中可以根据任务是否有异常来进行做相应的后续处理操作。而 thenApply 方法，如果上个任务出现错误，则不会执行 thenApply 方法。</p>
-<h2 id="5-thenaccept-消费处理结果">5、 thenAccept 消费处理结果</h2>
+<h2 id="5-thenaccept-消费处理结果">5. thenAccept 消费处理结果</h2>
 <p>接收任务的处理结果，并消费处理，无返回结果。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenAccept</span><span style="color:#f92672">(</span>Consumer<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">&gt;</span> action<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenAcceptAsync</span><span style="color:#f92672">(</span>Consumer<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">&gt;</span> action<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenAcceptAsync</span><span style="color:#f92672">(</span>Consumer<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">&gt;</span> action<span style="color:#f92672">,</span>Executor executor<span style="color:#f92672">);</span>
-</code></pre></div><h2 id="示例-4">示例</h2>
+</code></pre></div><h3 id="示例-4">示例</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">thenAccept</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception<span style="color:#f92672">{</span>
     CompletableFuture<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> future <span style="color:#f92672">=</span> CompletableFuture<span style="color:#f92672">.</span><span style="color:#a6e22e">supplyAsync</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Supplier<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
         <span style="color:#a6e22e">@Override</span>
@@ -460,12 +499,12 @@ handle 方法和 thenApply 方法处理方式基本一样。不同的是 handle 
     future<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">();</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>从示例代码中可以看出，该方法只是消费执行完成的任务，并可以根据上面的任务返回的结果进行处理。并没有后续的输出操作。</p>
-<h2 id="6thenrun-方法">6、thenRun 方法</h2>
+<h2 id="6-thenrun-方法">6. thenRun 方法</h2>
 <p>跟 thenAccept 方法不一样的是，不关心任务的处理结果。只要上面的任务执行完成，就开始执行 thenAccept 。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenRun</span><span style="color:#f92672">(</span>Runnable action<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenRunAsync</span><span style="color:#f92672">(</span>Runnable action<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenRunAsync</span><span style="color:#f92672">(</span>Runnable action<span style="color:#f92672">,</span>Executor executor<span style="color:#f92672">);</span>
-</code></pre></div><h2 id="示例-5">示例</h2>
+</code></pre></div><h3 id="示例-5">示例</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">thenRun</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception<span style="color:#f92672">{</span>
     CompletableFuture<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> future <span style="color:#f92672">=</span> CompletableFuture<span style="color:#f92672">.</span><span style="color:#a6e22e">supplyAsync</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Supplier<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
         <span style="color:#a6e22e">@Override</span>
@@ -478,12 +517,12 @@ handle 方法和 thenApply 方法处理方式基本一样。不同的是 handle 
     future<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">();</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>该方法同 thenAccept 方法类似。不同的是上个任务处理完成后，并不会把计算的结果传给 thenRun 方法。只是处理玩任务后，执行 thenRun 的后续操作。</p>
-<h2 id="7thencombine--合并任务">7、thenCombine  合并任务</h2>
+<h2 id="7-thencombine--合并任务">7. thenCombine  合并任务</h2>
 <p>thenCombine 会把 两个 CompletionStage 的任务都执行完成后，把两个任务的结果一块交给 thenCombine 来处理。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">,</span>V<span style="color:#f92672">&gt;</span> CompletionStage<span style="color:#f92672">&lt;</span>V<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenCombine</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> U<span style="color:#f92672">&gt;</span> other<span style="color:#f92672">,</span>BiFunction<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,?</span> <span style="color:#66d9ef">super</span> U<span style="color:#f92672">,?</span> <span style="color:#66d9ef">extends</span> V<span style="color:#f92672">&gt;</span> fn<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">,</span>V<span style="color:#f92672">&gt;</span> CompletionStage<span style="color:#f92672">&lt;</span>V<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenCombineAsync</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> U<span style="color:#f92672">&gt;</span> other<span style="color:#f92672">,</span>BiFunction<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,?</span> <span style="color:#66d9ef">super</span> U<span style="color:#f92672">,?</span> <span style="color:#66d9ef">extends</span> V<span style="color:#f92672">&gt;</span> fn<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">,</span>V<span style="color:#f92672">&gt;</span> CompletionStage<span style="color:#f92672">&lt;</span>V<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenCombineAsync</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> U<span style="color:#f92672">&gt;</span> other<span style="color:#f92672">,</span>BiFunction<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,?</span> <span style="color:#66d9ef">super</span> U<span style="color:#f92672">,?</span> <span style="color:#66d9ef">extends</span> V<span style="color:#f92672">&gt;</span> fn<span style="color:#f92672">,</span>Executor executor<span style="color:#f92672">);</span>
-</code></pre></div><h2 id="示例-6">示例</h2>
+</code></pre></div><h3 id="示例-6">示例</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">thenCombine</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
     CompletableFuture<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> future1 <span style="color:#f92672">=</span> CompletableFuture<span style="color:#f92672">.</span><span style="color:#a6e22e">supplyAsync</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Supplier<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
         <span style="color:#a6e22e">@Override</span>
@@ -505,12 +544,12 @@ handle 方法和 thenApply 方法处理方式基本一样。不同的是 handle 
     <span style="color:#f92672">});</span>
     System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>result<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">());</span>
 <span style="color:#f92672">}</span>
-</code></pre></div><h2 id="8thenacceptboth">8、thenAcceptBoth</h2>
+</code></pre></div><h2 id="8-thenacceptboth">8. thenAcceptBoth</h2>
 <p>当两个CompletionStage都执行完成后，把结果一块交给thenAcceptBoth来进行消耗</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenAcceptBoth</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> U<span style="color:#f92672">&gt;</span> other<span style="color:#f92672">,</span>BiConsumer<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">super</span> U<span style="color:#f92672">&gt;</span> action<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenAcceptBothAsync</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> U<span style="color:#f92672">&gt;</span> other<span style="color:#f92672">,</span>BiConsumer<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">super</span> U<span style="color:#f92672">&gt;</span> action<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenAcceptBothAsync</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> U<span style="color:#f92672">&gt;</span> other<span style="color:#f92672">,</span>BiConsumer<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">super</span> U<span style="color:#f92672">&gt;</span> action<span style="color:#f92672">,</span>     Executor executor<span style="color:#f92672">);</span>
-</code></pre></div><h2 id="示例-7">示例</h2>
+</code></pre></div><h3 id="示例-7">示例</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">thenAcceptBoth</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
     CompletableFuture<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> f1 <span style="color:#f92672">=</span> CompletableFuture<span style="color:#f92672">.</span><span style="color:#a6e22e">supplyAsync</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Supplier<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
         <span style="color:#a6e22e">@Override</span>
@@ -546,12 +585,12 @@ handle 方法和 thenApply 方法处理方式基本一样。不同的是 handle 
         <span style="color:#f92672">}</span>
     <span style="color:#f92672">});</span>
 <span style="color:#f92672">}</span>
-</code></pre></div><h2 id="9applytoeither-方法">9、applyToEither 方法</h2>
+</code></pre></div><h2 id="9-applytoeither-方法">9. applyToEither 方法</h2>
 <p>两个CompletionStage，谁执行返回的结果快，我就用那个CompletionStage的结果进行下一步的转化操作。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> CompletionStage<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">applyToEither</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> T<span style="color:#f92672">&gt;</span> other<span style="color:#f92672">,</span>Function<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,</span> U<span style="color:#f92672">&gt;</span> fn<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> CompletionStage<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">applyToEitherAsync</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> T<span style="color:#f92672">&gt;</span> other<span style="color:#f92672">,</span>Function<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,</span> U<span style="color:#f92672">&gt;</span> fn<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> CompletionStage<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">applyToEitherAsync</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> T<span style="color:#f92672">&gt;</span> other<span style="color:#f92672">,</span>Function<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,</span> U<span style="color:#f92672">&gt;</span> fn<span style="color:#f92672">,</span>Executor executor<span style="color:#f92672">);</span>
-</code></pre></div><h2 id="示例-8">示例</h2>
+</code></pre></div><h3 id="示例-8">示例</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">applyToEither</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
     CompletableFuture<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> f1 <span style="color:#f92672">=</span> CompletableFuture<span style="color:#f92672">.</span><span style="color:#a6e22e">supplyAsync</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Supplier<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
         <span style="color:#a6e22e">@Override</span>
@@ -595,12 +634,12 @@ handle 方法和 thenApply 方法处理方式基本一样。不同的是 handle 
         e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
     <span style="color:#f92672">}</span>
 <span style="color:#f92672">}</span>
-</code></pre></div><h2 id="10accepteither-方法">10、acceptEither 方法</h2>
+</code></pre></div><h2 id="10-accepteither-方法">10. acceptEither 方法</h2>
 <p>两个CompletionStage，谁执行返回的结果快，我就用那个CompletionStage的结果进行下一步的消耗操作。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">acceptEither</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> T<span style="color:#f92672">&gt;</span> other<span style="color:#f92672">,</span>Consumer<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">&gt;</span> action<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">acceptEitherAsync</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> T<span style="color:#f92672">&gt;</span> other<span style="color:#f92672">,</span>Consumer<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">&gt;</span> action<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">acceptEitherAsync</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> T<span style="color:#f92672">&gt;</span> other<span style="color:#f92672">,</span>Consumer<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">&gt;</span> action<span style="color:#f92672">,</span>Executor executor<span style="color:#f92672">);</span>
-</code></pre></div><h2 id="示例-9">示例</h2>
+</code></pre></div><h3 id="示例-9">示例</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">acceptEither</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
     CompletableFuture<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> f1 <span style="color:#f92672">=</span> CompletableFuture<span style="color:#f92672">.</span><span style="color:#a6e22e">supplyAsync</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Supplier<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
         <span style="color:#a6e22e">@Override</span>
@@ -638,12 +677,12 @@ handle 方法和 thenApply 方法处理方式基本一样。不同的是 handle 
     <span style="color:#75715e">//阻塞等待，防止f3还没执行完，主线程就已经退出了
 </span><span style="color:#75715e"></span>    <span style="color:#75715e">//f3.get();
 </span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
-</code></pre></div><h2 id="11runaftereither-方法">11、runAfterEither 方法</h2>
+</code></pre></div><h2 id="11-runaftereither-方法">11. runAfterEither 方法</h2>
 <p>两个CompletionStage，任何一个完成了都会执行下一步的操作（Runnable）</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">runAfterEither</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?&gt;</span> other<span style="color:#f92672">,</span>Runnable action<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">runAfterEitherAsync</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?&gt;</span> other<span style="color:#f92672">,</span>Runnable action<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">runAfterEitherAsync</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?&gt;</span> other<span style="color:#f92672">,</span>Runnable action<span style="color:#f92672">,</span>Executor executor<span style="color:#f92672">);</span>
-</code></pre></div><h2 id="示例-10">示例</h2>
+</code></pre></div><h3 id="示例-10">示例</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">runAfterEither</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
     CompletableFuture<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> f1 <span style="color:#f92672">=</span> CompletableFuture<span style="color:#f92672">.</span><span style="color:#a6e22e">supplyAsync</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Supplier<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
         <span style="color:#a6e22e">@Override</span>
@@ -682,12 +721,12 @@ handle 方法和 thenApply 方法处理方式基本一样。不同的是 handle 
     <span style="color:#75715e">//阻塞等待，防止f3还没执行完，主线程就已经退出了
 </span><span style="color:#75715e"></span>    <span style="color:#75715e">//f3.get();
 </span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
-</code></pre></div><h2 id="12runafterboth">12、runAfterBoth</h2>
+</code></pre></div><h2 id="12-runafterboth">12. runAfterBoth</h2>
 <p>两个CompletionStage，都完成了计算才会执行下一步的操作（Runnable）</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">runAfterBoth</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?&gt;</span> other<span style="color:#f92672">,</span>Runnable action<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">runAfterBothAsync</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?&gt;</span> other<span style="color:#f92672">,</span>Runnable action<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> CompletionStage<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">runAfterBothAsync</span><span style="color:#f92672">(</span>CompletionStage<span style="color:#f92672">&lt;?&gt;</span> other<span style="color:#f92672">,</span>Runnable action<span style="color:#f92672">,</span>Executor executor<span style="color:#f92672">);</span>
-</code></pre></div><h2 id="示例-11">示例</h2>
+</code></pre></div><h3 id="示例-11">示例</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">runAfterBoth</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
     CompletableFuture<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> f1 <span style="color:#f92672">=</span> CompletableFuture<span style="color:#f92672">.</span><span style="color:#a6e22e">supplyAsync</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Supplier<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
         <span style="color:#a6e22e">@Override</span>
@@ -726,12 +765,12 @@ handle 方法和 thenApply 方法处理方式基本一样。不同的是 handle 
     <span style="color:#75715e">//阻塞等待，防止f3还没执行完，主线程就已经退出了
 </span><span style="color:#75715e"></span>    <span style="color:#75715e">//f3.get();
 </span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
-</code></pre></div><h2 id="13thencompose-方法">13、thenCompose 方法</h2>
+</code></pre></div><h2 id="13-thencompose-方法">13. thenCompose 方法</h2>
 <p>thenCompose 方法允许你对两个 CompletionStage 进行流水线操作，第一个操作完成时，将其结果作为参数传递给第二个操作。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> CompletableFuture<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenCompose</span><span style="color:#f92672">(</span>Function<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">extends</span> CompletionStage<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;&gt;</span> fn<span style="color:#f92672">);</span>
 <span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> CompletableFuture<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenComposeAsync</span><span style="color:#f92672">(</span>Function<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">extends</span> CompletionStage<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;&gt;</span> fn<span style="color:#f92672">)</span> <span style="color:#f92672">;</span>
 <span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> CompletableFuture<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">thenComposeAsync</span><span style="color:#f92672">(</span>Function<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> T<span style="color:#f92672">,</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">extends</span> CompletionStage<span style="color:#f92672">&lt;</span>U<span style="color:#f92672">&gt;&gt;</span> fn<span style="color:#f92672">,</span> Executor executor<span style="color:#f92672">)</span> <span style="color:#f92672">;</span>
-</code></pre></div><h2 id="示例-12">示例</h2>
+</code></pre></div><h3 id="示例-12">示例</h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">thenCompose</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
     CompletableFuture<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> f <span style="color:#f92672">=</span> CompletableFuture<span style="color:#f92672">.</span><span style="color:#a6e22e">supplyAsync</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Supplier<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
         <span style="color:#a6e22e">@Override</span>
@@ -800,7 +839,7 @@ handle 方法和 thenApply 方法处理方式基本一样。不同的是 handle 
     <ul class="related-posts"><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/aqs/">AQS
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/hashmap%E5%92%8Chashtable%E5%8C%BA%E5%88%AB/">HashMap和HashTable区别
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jit%E5%8D%B3%E6%97%B6%E7%BC%96%E8%AF%91/">JIT即时编译
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-agent/">Java agent
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-agent/">Java Agent
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-switch%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%94%AF%E6%8C%81%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/">Java switch表达式支持的数据类型
 </a></li></ul>
   </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"

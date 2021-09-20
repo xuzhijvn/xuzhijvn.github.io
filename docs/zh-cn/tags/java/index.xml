@@ -134,7 +134,7 @@ private Node addWaiter(Node mode) { //以给定模式构造结点。mode有两�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/completablefuture%E4%BD%BF%E7%94%A8%E8%AF%A6%E8%A7%A3/</guid>
-      <description>1、 runAsync 和 supplyAsync方法 CompletableFuture 提供了四个静态方法来创建一个异步操作。
+      <description>1. runAsync 和 supplyAsync方法 CompletableFuture 提供了四个静态方法来创建一个异步操作。
 public static CompletableFuture&amp;lt;Void&amp;gt; runAsync(Runnable runnable) public static CompletableFuture&amp;lt;Void&amp;gt; runAsync(Runnable runnable, Executor executor) public static &amp;lt;U&amp;gt; CompletableFuture&amp;lt;U&amp;gt; supplyAsync(Supplier&amp;lt;U&amp;gt; supplier) public static &amp;lt;U&amp;gt; CompletableFuture&amp;lt;U&amp;gt; supplyAsync(Supplier&amp;lt;U&amp;gt; supplier, Executor executor) 没有指定Executor的方法会使用ForkJoinPool.commonPool() 作为它的线程池执行异步代码。如果指定线程池，则使用指定的线程池运行。以下所有的方法都类同。
  runAsync方法不支持返回值。 supplyAsync可以支持返回值。  示例 //无返回值 public static void runAsync() throws Exception { CompletableFuture&amp;lt;Void&amp;gt; future = CompletableFuture.runAsync(() -&amp;gt; { try { TimeUnit.SECONDS.sleep(1); } catch (InterruptedException e) { } System.out.println(&amp;#34;run end ...&amp;#34;); }); future.get(); } //有返回值 public static void supplyAsync() throws Exception { CompletableFuture&amp;lt;Long&amp;gt; future = CompletableFuture.</description>
     </item>
@@ -145,28 +145,29 @@ public static CompletableFuture&amp;lt;Void&amp;gt; runAsync(Runnable runnable) 
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/hashmap%E5%92%8Chashtable%E5%8C%BA%E5%88%AB/</guid>
-      <description>1、HashMap是HashTable的轻量级版本， HashTable是线程安全的，其方法都被synchronized关键同步
-2、 HashMap 把 Hashtable 的 contains 方法去掉了，改成 containsValue 和 containsKey。因为 contains 方法容易让人引起误解。
-3、 HashMap允许将 null 作为一个 entry 的 key 或者 value，而 Hashtable 不允许。
-4、HashTable 继承自 Dictionary 类，而 HashMap 是 Java1.2 引进的 Map interface 的一个实现。
-5、Hashtable 和 HashMap 采用的 hash/rehash 算法都大概一样，所以性能不会有很大的差异。</description>
+      <description> HashMap是HashTable的轻量级版本， HashTable是线程安全的，其方法都被synchronized关键同步 HashMap 把 Hashtable 的 contains 方法去掉了，改成 containsValue 和 containsKey。因为 contains 方法容易让人引起误解。 HashMap允许将 null 作为一个 entry 的 key 或者 value，而 Hashtable 不允许。 HashTable 继承自 Dictionary 类，而 HashMap 是 Java1.2 引进的 Map interface 的一个实现。 Hashtable 和 HashMap 采用的 hash/rehash 算法都大概一样，所以性能不会有很大的差异。  </description>
     </item>
     
     <item>
-      <title>Java agent</title>
+      <title>Java Agent</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/java-agent/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/java-agent/</guid>
-      <description>**开发者可以构建一个独立于应用程序的代理程序（Agent），用来监测和协助运行在 JVM 上的程序，甚至能够替换和修改某些类的定义。**有了这样的功能，开发者就可以实现更为灵活的运行时虚拟机监控和 Java 类操作了，这样的特性实际上提供了 一种虚拟机级别支持的 AOP 实现方式，使得开发者无需对 JDK 做任何升级和改动，就可以实现某些 AOP 的功能了。
+      <description>Java Agent就是一个可以作为java代理的工具, 简单来说就是一个可供用于编写的java切面, 它的主要功能就是为用户提供了在 JVM 将字节码文件读入内存之后，JVM 使用对应的字节流在 Java 堆中生成一个 Class 对象之前，用户可以对其字节码进行修改的能力，从而 JVM 也将会使用用户修改过之后的字节码进行新的Class 对象的创建(打破了一个类只能加载一次的规则)。
+Java Agent的使用对于你自身的代码是无侵入性的。应用场景：热更新。
+热更新我们也可以自定义类加载器实现，这种方式的热更新是jvm原生支持的方式, 但是缺点也很明显:
+  不够灵活, 需要手动修改文件等操作
+  重复创建类加载器, 并且卸载困难, 会增加系统负担
+  使用起来具有代码侵入性, 需要对代码进行一定改造
+  通过 Java Agent完美的解决了我们自定义类加载器实现热更新的缺点。
 1.1 JVM启动前静态Instrument 通过启动命令 java -javaagent:agent1.jar -javaagent:agent2.jar -jar MyProgram.jar 在目标程序main方法执行前，先执行agent中定义的 premain 方法
 1.2 JVM启动后动态Instrument Java6 以后提供了在目标程序main方法执行后，执行agent的agentmain方法的机制，通过这种机制，我们可以动态修改目标程序已经加载过的字节码。
 在Java6 以后实现启动后加载的新实现是Attach API 。Attach API 很简单，只有 2 个主要的类，即VirtualMachine 和 VirtualMachineDescriptor，都在tool.jar 的 com.sun.tools.attach 包里面。
 attach实现动态注入的原理如下：
 通过VirtualMachine类的attach(pid)方法，便可以attach到一个运行中的java进程上，之后便可以通过loadAgent(agentJarPath)来将agent的jar包注入到对应的进程，然后对应的进程会调用agentmain方法。
 既然是两个进程之间通信那肯定的建立起连接，VirtualMachine.attach动作类似TCP创建连接的三次握手，目的就是搭建attach通信的连接。而后面执行的操作，例如vm.loadAgent，其实就是向这个socket写入数据流，接收方target VM会针对不同的传入数据来做不同的处理。
-例如：找到当前JVM并加载agent.jar（即attach JVM 和 runing JVM 是同一个 JVM，真正的应用中更多的是不同的两个JVM，这里仅为了测试方便。）
-package com.rickiyang.learn.job; import com.sun.tools.attach.*; import java.io.IOException; import java.util.List; /** * @author rickiyang * @date 2019-08-16 * @Desc */ public class TestAgentMain { public static void main(String[] args) throws IOException, AttachNotSupportedException, AgentLoadException, AgentInitializationException { //获取当前系统中所有 运行中的 虚拟机  System.</description>
+例如：找到当前JVM并加载agent.jar（即attach JVM 和 runing JVM 是同一个 JVM，真正的应用中更多的是不同的两个JVM，这里仅为了测试方便。）</description>
     </item>
     
     <item>
