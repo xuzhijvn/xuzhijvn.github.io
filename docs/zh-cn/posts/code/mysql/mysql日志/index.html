@@ -19,10 +19,10 @@
  0：不去强制要求，由系统自行判断何时写入磁盘； 1：每次commit的时候都要将binlog写入磁盘； N：每N个事务，才会将binlog写入磁盘。  从上面可以看出，sync_binlog最安全的是设置是1，这也是MySQL 5.7.7之后版本的默认值。但是设置一个大一些的值可以提升数据库性能，因此实际情况下也可以将值适当调大，牺牲一定的一致性来获取更好的性能。
 1.3 binlog日志格式 binlog日志有三种格式，分别为STATMENT、ROW和MIXED。
  在 MySQL 5.7.7之前，默认的格式是STATEMENT，MySQL 5.7.7之后，默认值是ROW。日志格式通过binlog-format指定。
-  STATMENT 基于SQL语句的复制(statement-based replication, SBR)，每一条会修改数据的sql语句会记录到binlog中。 优点：不需要记录每一行的变化，减少了binlog日志量，节约了IO, 从而提高了性能； 缺点：在某些情况下会导致主从数据不一致，比如执行sysdate()、slepp()等。 ROW 基于行的复制(row-based replication, RBR)，不记录每条sql语句的上下文信息，仅需记录哪条数据被修改了。 优点：不会出现某些特定情况下的存储过程、或function、或trigger的调用和触发无法被正确复制的问题； 缺点：会产生大量的日志，尤其是alter table的时候会让日志暴涨 MIXED 基于STATMENT和ROW两种模式的混合复制(mixed-based replication, MBR)，一般的复制使用STATEMENT模式保存binlog，对于STATEMENT模式无法复制的操作使用ROW模式保存binlog  2. redo log 2.1 为什么需要redo log 我们都知道，事务的四大特性里面有一个是持久性，具体来说就是只要事务提交成功，那么对数据库做的修改就被永久保存下来了，不可能因为任何原因再回到原来的状态。那么mysql是如何保证持久性的呢？最简单的做法是在每次事务提交的时候，将该事务涉及修改的数据页全部刷新到磁盘中。但是这么做会有严重的性能问题，主要体现在两个方面：
+  STATMENT 基于SQL语句的复制(statement-based replication, SBR)，每一条会修改数据的sql语句会记录到binlog中。 优点：不需要记录每一行的变化，减少了binlog日志量，节约了IO, 从而提高了性能； 缺点：在某些情况下会导致主从数据不一致，比如执行sysdate()、slepp()等。 ROW 基于行的复制(row-based replication, RBR)，不记录每条sql语句的上下文信息，仅需记录哪条数据被修改了。 优点：不会出现某些特定情况下的存储过程、或function、或trigger的调用和触发无法被正确复制的问题； 缺点：会产生大量的日志，尤其是alter table的时候会让日志暴涨 MIXED 基于STATMENT和ROW两种模式的混合复制(mixed-based replication, MBR)，一般的复制使用STATEMENT模式保存binlog，对于STATEMENT模式无法复制的操作使用ROW模式保存binlog  2. redo log 2.1 为什么需要redo log 我们都知道，事务的四大特性里面有一个是 持久性，具体来说就是只要事务提交成功，那么对数据库做的修改就被永久保存下来了，不可能因为任何原因再回到原来的状态。那么mysql是如何保证持久性的呢？最简单的做法是在每次事务提交的时候，将该事务涉及修改的数据页全部刷新到磁盘中。但是这么做会有严重的性能问题，主要体现在两个方面：
  因为Innodb是以页为单位进行磁盘交互的，而一个事务很可能只修改一个数据页里面的几个字节，这个时候将完整的数据页刷到磁盘的话，太浪费资源了！ 一个事务可能涉及修改多个数据页，并且这些数据页在物理上并不连续，使用随机IO写入性能太差！  因此mysql设计了redo log，具体来说就是只记录事务对数据页做了哪些修改，这样就能完美地解决性能问题了(相对而言文件更小并且是顺序IO)。MySQL实战45讲 中将redo log比作临时记账的粉板，实际数据页比作账本。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="222"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="wordCount" content="224"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="MySQL," /><meta property="og:title" content="MySQL日志" />
 <meta property="og:description" content="日志是mysql数据库的重要组成部分，记录着数据库运行期间各种状态信息。mysql日志主要包括错误日志、查询日志、慢查询日志、事务日志、二进制日志几大类。作为开发，我们重点需要关注的是二进制日志(binlog)和事务日志(包括redo log和undo log)，本文接下来会详细介绍这三种日志。其他几种日志见 👉 [玩转MySQL之八]MySQL日志分类及简介 1. binlog binlog用于记录数据库执行的写入性操作(不包括查询)信息，以二进制的形式保存在磁盘中。binlog是mysql的逻辑日志，并且由Server层进行记录，使用任何存储引擎的mysql数据库都会记录binlog日志。
  逻辑日志：可以简单理解为记录的就是sql语句。
@@ -33,7 +33,7 @@
  0：不去强制要求，由系统自行判断何时写入磁盘； 1：每次commit的时候都要将binlog写入磁盘； N：每N个事务，才会将binlog写入磁盘。  从上面可以看出，sync_binlog最安全的是设置是1，这也是MySQL 5.7.7之后版本的默认值。但是设置一个大一些的值可以提升数据库性能，因此实际情况下也可以将值适当调大，牺牲一定的一致性来获取更好的性能。
 1.3 binlog日志格式 binlog日志有三种格式，分别为STATMENT、ROW和MIXED。
  在 MySQL 5.7.7之前，默认的格式是STATEMENT，MySQL 5.7.7之后，默认值是ROW。日志格式通过binlog-format指定。
-  STATMENT 基于SQL语句的复制(statement-based replication, SBR)，每一条会修改数据的sql语句会记录到binlog中。 优点：不需要记录每一行的变化，减少了binlog日志量，节约了IO, 从而提高了性能； 缺点：在某些情况下会导致主从数据不一致，比如执行sysdate()、slepp()等。 ROW 基于行的复制(row-based replication, RBR)，不记录每条sql语句的上下文信息，仅需记录哪条数据被修改了。 优点：不会出现某些特定情况下的存储过程、或function、或trigger的调用和触发无法被正确复制的问题； 缺点：会产生大量的日志，尤其是alter table的时候会让日志暴涨 MIXED 基于STATMENT和ROW两种模式的混合复制(mixed-based replication, MBR)，一般的复制使用STATEMENT模式保存binlog，对于STATEMENT模式无法复制的操作使用ROW模式保存binlog  2. redo log 2.1 为什么需要redo log 我们都知道，事务的四大特性里面有一个是持久性，具体来说就是只要事务提交成功，那么对数据库做的修改就被永久保存下来了，不可能因为任何原因再回到原来的状态。那么mysql是如何保证持久性的呢？最简单的做法是在每次事务提交的时候，将该事务涉及修改的数据页全部刷新到磁盘中。但是这么做会有严重的性能问题，主要体现在两个方面：
+  STATMENT 基于SQL语句的复制(statement-based replication, SBR)，每一条会修改数据的sql语句会记录到binlog中。 优点：不需要记录每一行的变化，减少了binlog日志量，节约了IO, 从而提高了性能； 缺点：在某些情况下会导致主从数据不一致，比如执行sysdate()、slepp()等。 ROW 基于行的复制(row-based replication, RBR)，不记录每条sql语句的上下文信息，仅需记录哪条数据被修改了。 优点：不会出现某些特定情况下的存储过程、或function、或trigger的调用和触发无法被正确复制的问题； 缺点：会产生大量的日志，尤其是alter table的时候会让日志暴涨 MIXED 基于STATMENT和ROW两种模式的混合复制(mixed-based replication, MBR)，一般的复制使用STATEMENT模式保存binlog，对于STATEMENT模式无法复制的操作使用ROW模式保存binlog  2. redo log 2.1 为什么需要redo log 我们都知道，事务的四大特性里面有一个是 持久性，具体来说就是只要事务提交成功，那么对数据库做的修改就被永久保存下来了，不可能因为任何原因再回到原来的状态。那么mysql是如何保证持久性的呢？最简单的做法是在每次事务提交的时候，将该事务涉及修改的数据页全部刷新到磁盘中。但是这么做会有严重的性能问题，主要体现在两个方面：
  因为Innodb是以页为单位进行磁盘交互的，而一个事务很可能只修改一个数据页里面的几个字节，这个时候将完整的数据页刷到磁盘的话，太浪费资源了！ 一个事务可能涉及修改多个数据页，并且这些数据页在物理上并不连续，使用随机IO写入性能太差！  因此mysql设计了redo log，具体来说就是只记录事务对数据页做了哪些修改，这样就能完美地解决性能问题了(相对而言文件更小并且是顺序IO)。MySQL实战45讲 中将redo log比作临时记账的粉板，实际数据页比作账本。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E6%97%A5%E5%BF%97/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
@@ -54,7 +54,7 @@
  0：不去强制要求，由系统自行判断何时写入磁盘； 1：每次commit的时候都要将binlog写入磁盘； N：每N个事务，才会将binlog写入磁盘。  从上面可以看出，sync_binlog最安全的是设置是1，这也是MySQL 5.7.7之后版本的默认值。但是设置一个大一些的值可以提升数据库性能，因此实际情况下也可以将值适当调大，牺牲一定的一致性来获取更好的性能。
 1.3 binlog日志格式 binlog日志有三种格式，分别为STATMENT、ROW和MIXED。
  在 MySQL 5.7.7之前，默认的格式是STATEMENT，MySQL 5.7.7之后，默认值是ROW。日志格式通过binlog-format指定。
-  STATMENT 基于SQL语句的复制(statement-based replication, SBR)，每一条会修改数据的sql语句会记录到binlog中。 优点：不需要记录每一行的变化，减少了binlog日志量，节约了IO, 从而提高了性能； 缺点：在某些情况下会导致主从数据不一致，比如执行sysdate()、slepp()等。 ROW 基于行的复制(row-based replication, RBR)，不记录每条sql语句的上下文信息，仅需记录哪条数据被修改了。 优点：不会出现某些特定情况下的存储过程、或function、或trigger的调用和触发无法被正确复制的问题； 缺点：会产生大量的日志，尤其是alter table的时候会让日志暴涨 MIXED 基于STATMENT和ROW两种模式的混合复制(mixed-based replication, MBR)，一般的复制使用STATEMENT模式保存binlog，对于STATEMENT模式无法复制的操作使用ROW模式保存binlog  2. redo log 2.1 为什么需要redo log 我们都知道，事务的四大特性里面有一个是持久性，具体来说就是只要事务提交成功，那么对数据库做的修改就被永久保存下来了，不可能因为任何原因再回到原来的状态。那么mysql是如何保证持久性的呢？最简单的做法是在每次事务提交的时候，将该事务涉及修改的数据页全部刷新到磁盘中。但是这么做会有严重的性能问题，主要体现在两个方面：
+  STATMENT 基于SQL语句的复制(statement-based replication, SBR)，每一条会修改数据的sql语句会记录到binlog中。 优点：不需要记录每一行的变化，减少了binlog日志量，节约了IO, 从而提高了性能； 缺点：在某些情况下会导致主从数据不一致，比如执行sysdate()、slepp()等。 ROW 基于行的复制(row-based replication, RBR)，不记录每条sql语句的上下文信息，仅需记录哪条数据被修改了。 优点：不会出现某些特定情况下的存储过程、或function、或trigger的调用和触发无法被正确复制的问题； 缺点：会产生大量的日志，尤其是alter table的时候会让日志暴涨 MIXED 基于STATMENT和ROW两种模式的混合复制(mixed-based replication, MBR)，一般的复制使用STATEMENT模式保存binlog，对于STATEMENT模式无法复制的操作使用ROW模式保存binlog  2. redo log 2.1 为什么需要redo log 我们都知道，事务的四大特性里面有一个是 持久性，具体来说就是只要事务提交成功，那么对数据库做的修改就被永久保存下来了，不可能因为任何原因再回到原来的状态。那么mysql是如何保证持久性的呢？最简单的做法是在每次事务提交的时候，将该事务涉及修改的数据页全部刷新到磁盘中。但是这么做会有严重的性能问题，主要体现在两个方面：
  因为Innodb是以页为单位进行磁盘交互的，而一个事务很可能只修改一个数据页里面的几个字节，这个时候将完整的数据页刷到磁盘的话，太浪费资源了！ 一个事务可能涉及修改多个数据页，并且这些数据页在物理上并不连续，使用随机IO写入性能太差！  因此mysql设计了redo log，具体来说就是只记录事务对数据页做了哪些修改，这样就能完美地解决性能问题了(相对而言文件更小并且是顺序IO)。MySQL实战45讲 中将redo log比作临时记账的粉板，实际数据页比作账本。"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
@@ -356,7 +356,7 @@
 </ul>
 <h2 id="2-redo-log">2. redo log</h2>
 <h3 id="21-为什么需要redo-log">2.1 为什么需要redo log</h3>
-<p>我们都知道，事务的四大特性里面有一个是<strong>持久性</strong>，具体来说就是<strong>只要事务提交成功，那么对数据库做的修改就被永久保存下来了，不可能因为任何原因再回到原来的状态</strong>。那么<code>mysql</code>是如何保证持久性的呢？最简单的做法是在每次事务提交的时候，将该事务涉及修改的数据页全部刷新到磁盘中。但是这么做会有严重的性能问题，主要体现在两个方面：</p>
+<p>我们都知道，事务的四大特性里面有一个是 <code>持久性</code>，具体来说就是<strong>只要事务提交成功，那么对数据库做的修改就被永久保存下来了，不可能因为任何原因再回到原来的状态</strong>。那么<code>mysql</code>是如何保证持久性的呢？最简单的做法是在每次事务提交的时候，将该事务涉及修改的数据页全部刷新到磁盘中。但是这么做会有严重的性能问题，主要体现在两个方面：</p>
 <ol>
 <li>因为<code>Innodb</code>是以<code>页</code>为单位进行磁盘交互的，而一个事务很可能只修改一个数据页里面的几个字节，这个时候将完整的数据页刷到磁盘的话，太浪费资源了！</li>
 <li>一个事务可能涉及修改多个数据页，并且这些数据页在物理上并不连续，使用随机IO写入性能太差！</li>
@@ -366,10 +366,7 @@
 <h3 id="22-redo-log基本概念">2.2 redo log基本概念</h3>
 <p><code>redo log</code>包括两部分：一个是内存中的日志缓冲(<code>redo log buffer</code>)，另一个是磁盘上的日志文件(<code>redo log file</code>)。<code>mysql</code>每执行一条<code>DML</code>语句，先将记录写入<code>redo log buffer</code>，后续某个时间点再一次性将多个操作记录写到<code>redo log file</code>。这种<strong>先写日志，再写磁盘</strong>的技术就是<code>MySQL</code>里经常说到的<code>WAL(Write-Ahead Logging)</code> 技术。</p>
 <p>在计算机操作系统中，用户空间(<code>user space</code>)下的缓冲区数据一般情况下是无法直接写入磁盘的，中间必须经过操作系统内核空间(<code>kernel space</code>)缓冲区(<code>OS Buffer</code>)。因此，<code>redo log buffer</code>写入<code>redo log file</code>实际上是先写入<code>OS Buffer</code>，然后再通过系统调用<code>fsync()</code>将其刷到<code>redo log file</code>中，过程如下：</p>
-<p><img class="img-fluid" alt="从redo log buffer写日志到磁盘的redo log file中" src="https://picgo.6and.ltd/img/v2-44c0e78a1222853dc2a99e596cf3fa13_r.jpg"
-   loading="lazy" />
-
-</p>
+<p><img src="https://picgo.6and.ltd/img/v2-44c0e78a1222853dc2a99e596cf3fa13_r.jpg" alt="从redo log buffer写日志到磁盘的redo log file中" style="zoom:67%;" /></p>
 <p><code>mysql</code>支持三种将<code>redo log buffer</code>写入<code>redo log file</code>的时机，可以通过<code>innodb_flush_log_at_trx_commit</code>参数配置，各参数值含义如下：</p>
 <table>
 <thead>
@@ -393,10 +390,7 @@
 </tr>
 </tbody>
 </table>
-<p><img class="img-fluid" alt="自定义在commit时如何将log buffer中的日志刷log file中" src="https://picgo.6and.ltd/img/v2-6322074d51c4d1507be3c3159ab583bc_r-20210819145000945-20210819145044199.jpg"
-   loading="lazy" />
-
-</p>
+<p><img src="https://picgo.6and.ltd/img/v2-6322074d51c4d1507be3c3159ab583bc_r-20210819145000945-20210819145044199.jpg" alt="自定义在commit时如何将log buffer中的日志刷log file中" style="zoom:67%;" /></p>
 <h3 id="23-redo-log记录形式">2.3 redo log记录形式</h3>
 <p>前面说过，<code>redo log</code>实际上记录数据页的变更，而这种变更记录是没必要全部保存，因此<code>redo log</code>实现上采用了大小固定，循环写入的方式，当写到结尾时，会回到开头循环写日志。如下图：</p>
 <p><img src="https://picgo.6and.ltd/img/image-20210819145133194.png" alt="redo log记录形式" style="zoom: 25%;" /></p>
@@ -440,7 +434,7 @@
 <p>答：不考虑mysql现有的实现，假如现在重新设计mysql，只用一个binlog是否可以实现cash_safe能力呢？答案是可以的，只不过binlog中也要加入checkpoint，数据库故障重启后，binlog checkpoint之后的sql都重放一遍。但是这样做让binlog耦合的功能太多。</p>
 </blockquote>
 <h2 id="3-undo-log">3. undo log</h2>
-<p>数据库事务四大特性中有一个是<strong>原子性</strong>，具体来说就是 <strong>原子性是指对数据库的一系列操作，要么全部成功，要么全部失败，不可能出现部分成功的情况</strong>。实际上，<strong>原子性</strong>底层就是通过<code>undo log</code>实现的。<code>undo log</code>主要记录了数据的逻辑变化，比如一条<code>INSERT</code>语句，对应一条<code>DELETE</code>的<code>undo log</code>，对于每个<code>UPDATE</code>语句，对应一条相反的<code>UPDATE</code>的<code>undo log</code>，这样在发生错误时，就能回滚到事务之前的数据状态。同时，<code>undo log</code>也是<code>MVCC</code>(多版本并发控制)实现的关键，这部分内容在<a href="https://juejin.cn/post/6855129007336521741" target="_blank" rel="noopener noreferrer">面试中的老大难-mysql事务和锁，一次性讲清楚！</a>
+<p>数据库事务四大特性中有一个是 <code>原子性</code>，具体来说就是 <strong>原子性是指对数据库的一系列操作，要么全部成功，要么全部失败，不可能出现部分成功的情况</strong>。实际上，<strong>原子性</strong>底层就是通过<code>undo log</code>实现的。<code>undo log</code>主要记录了数据的逻辑变化，比如一条<code>INSERT</code>语句，对应一条<code>DELETE</code>的<code>undo log</code>，对于每个<code>UPDATE</code>语句，对应一条相反的<code>UPDATE</code>的<code>undo log</code>，这样在发生错误时，就能回滚到事务之前的数据状态。同时，<code>undo log</code>也是<code>MVCC</code>(多版本并发控制)实现的关键，这部分内容在<a href="https://juejin.cn/post/6855129007336521741" target="_blank" rel="noopener noreferrer">面试中的老大难-mysql事务和锁，一次性讲清楚！</a>
 中有介绍，不再赘述。</p>
 <h2 id="附件">附件</h2>
 <h3 id="mysql-的逻辑架构图">MySQL 的逻辑架构图：</h3>

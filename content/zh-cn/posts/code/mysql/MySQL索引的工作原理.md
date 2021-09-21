@@ -26,7 +26,7 @@ images : [
 
 - [MySQL 为什么不用数组、哈希表、二叉树等数据结构作为索引呢](https://link.juejin.cn?target=https%3A%2F%2Fmp.weixin.qq.com%2Fs%2F3zpqjT3cgYqYljgL-z0BKw)
 
-  今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。
+今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。
 
 首先需要说明的是，本文的所有讨论均是基于 InnoDB 存储引擎为前提。
 
@@ -44,7 +44,6 @@ INDEX ( NAME )
 ) ENGINE = INNODB COMMENT '用户表';
 
 INSERT INTO `user` ( `name`, `age` ) VALUES ( 'AA', 30 ),( 'BB', 33 ),( 'CC', 31 ),( 'DD', 30 ),( 'EE', 29 )
-复制代码
 ```
 
 在上面的 SQL 语句中，创建了一张 user 表，表中有三个字段，id 是主键，name 和 age 分别表示用户的姓名和年龄，同时还为字段 name 创建了一个普通索引。为了方便后面描述，因此还向表中插入了 5 条数据，由于主键 id 是自增的，所以这五行数据的 id 值分为是 1~5。
@@ -53,13 +52,12 @@ INSERT INTO `user` ( `name`, `age` ) VALUES ( 'AA', 30 ),( 'BB', 33 ),( 'CC', 31
 
 主键索引又称之为聚簇索引（cluster index），它的特点是叶子结点中会存放当前主键所对应行的数据。什么意思呢？拿上面的例子来说明，在表 user 中，id 为主键索引，所以会有一棵 id 的索引树，在该索引树的叶子结点中，不仅存放了主键 id 的值，还存放了 name 和 value 的值。例如：在 id=1 这一行的数据中，name 和 age 的值为 AA 和 30，那么在索引树中，在 id=1 的结点处，存放的是(1,"AA",30)这三个值。id 索引树的示意图如下。
 
-<img src="https://picgo.6and.ltd/img/1719c2d3191bcc77~tplv-t2oaga2asx-watermark.awebp" alt="图1" style="zoom: 50%;" />
+<img src="https://picgo.6and.ltd/img/1719c2d3191bcc77~tplv-t2oaga2asx-watermark.awebp" alt="图1" style="zoom: 33%;" />
 
 下面看看这一条 SQL 语句的执行流程：
 
 ```sql
 select * from user where id = 1;
-复制代码
 ```
 
 该语句在 where 条件中加了 id=1 这个过滤条件，因此会使用到主键 id 的索引树。
@@ -72,13 +70,12 @@ select * from user where id = 1;
 
 普通索引又称之为非聚簇索引，也叫做二级索引，它的特点是叶子结点中也会存放数据，与主键索引不同的是，普通索引中存放的数据只有主键的值，而非整行记录的数据。例如上面的示例表中，name 就是一个普通索引，它的索引树中，在叶子结点中存放的数据是主键 id 的值，示意图如下：
 
-<img src="https://picgo.6and.ltd/img/1719c2da5a2c5d0a~tplv-t2oaga2asx-watermark.awebp" alt="图2" style="zoom:50%;" />
+<img src="https://picgo.6and.ltd/img/1719c2da5a2c5d0a~tplv-t2oaga2asx-watermark.awebp" alt="图2" style="zoom: 33%;" />
 
 下面看看这一条 SQL 语句的执行流程：
 
 ```sql
 select * from user where name = 'BB';
-复制代码
 ```
 
 该语句在 where 条件中加了 name='BB'这个过滤条件，由于我们在建表时为 name 字段创建了索引，因此会使用到 name 这棵索引树。另外，由于我们使用的是 select * ，也就是查询表中的所有字段的值，但是 name 索引树中只存有主键 id 的值，无法满足要查询所有字段的需求，而所有字段的数据都是存放在主键 id 索引树上的，因此在 name 索引树上查到主键 id 的值后，还需要根据查到的 id 值，再去主键索引树上查找这一行记录中其他字段的值，这个过程我们称之为回表。（从普通索引树回到主键索引树搜索的过程就叫做回表）。 所以上面的 SQL 语句的执行流程如下：
@@ -93,7 +90,7 @@ select * from user where name = 'BB';
 
 对于上面的第二个例子，由于 name='BB'的只有一条记录，因此只回了一次表，那如果有多条记录同时满足 name='BB'这个条件，那就得进行多次回表操作了。显然，回表次数越多，SQL 执行的越慢，那有什么办法能避免回表呢？答案就是覆盖索引。
 
-覆盖索引究竟是个什么东西呢？在上面的第二个示例中，我们使用了 select * 来查询所有字段，那如果我们并不需要所有的字段呢，只需要 id 字段呢？例如 select id from user where name = 'BB'; 由于在 name 索引树的叶子结点中已经存有了主键 id 的值，所以 name 索引树能直接满足我们的查询要求，因此此时是不要回表操作，这种情况我们称之为覆盖索引。
+覆盖索引究竟是个什么东西呢？在上面的第二个示例中，我们使用了 select * 来查询所有字段，那如果我们并不需要所有的字段呢，只需要 id 字段呢？例如 `select id from user where name = 'BB'`; 由于在 name 索引树的叶子结点中已经存有了主键 id 的值，所以 name 索引树能直接满足我们的查询要求，因此此时是不要回表操作，这种情况我们称之为覆盖索引。
 
 覆盖索引能够显著的提升查询性能，因为它能明显减少大量的回表操作。覆盖索引是非常常用的一种 SQL 优化手段，使用起来也十分简单。我们在开发过程中，通常建议不要使用 select * 来查询数据，一方面是因为在数据量大时，select * 可能会返回好多无用字段，浪费网络资源；另一方面也是出于尽量使用覆盖索引的考虑。
 
@@ -103,7 +100,6 @@ select * from user where name = 'BB';
 
 ```sql
 select name,age from user where name = 'BB';
-复制代码
 ```
 
 显然，此时也会使用到 name 索引树，又因为 name 索引树中并没有存放 age 字段的信息，因此需要进行回表，回到主键 id 的索引树中取 age 字段的值。那么有什么方法能优化一下呢？让这次查询不需要进行回表。肯定有啊！使用覆盖索引啊。怎么用呢？
@@ -115,14 +111,13 @@ select name,age from user where name = 'BB';
 alter table user drop index `name`;
 # 创建name、age的联合索引
 alter table user add index(`name`,`age`);
-复制代码
 ```
 
 这个时候，这个联合索引的索引树上，每个结点上存放的不仅仅只有 name 字段的值了，还有 age 字段的值，示意图如下：
 
-<img src="https://picgo.6and.ltd/img/1719c2e161c18dac~tplv-t2oaga2asx-watermark.awebp" alt="图3" style="zoom:50%;" />
+<img src="https://picgo.6and.ltd/img/1719c2e161c18dac~tplv-t2oaga2asx-watermark.awebp" alt="图3" style="zoom: 33%;" />
 
-那么这个时候，当我们 select name,age from user where name = 'BB' 时，由于需要的 name 字段和 age 字段在这棵联合索引树上已经存在了，所以这次查询不需要回表。
+那么这个时候，当我们 `select name,age from user where name = 'BB'` 时，由于需要的 name 字段和 age 字段在这棵联合索引树上已经存在了，所以这次查询不需要回表。
 
 在使用联合索引时，索引的每一列只能做等值判断，因为 MySQL 会使用最左匹配原则进行匹配，也就是从索引最左边的列开始连续匹配，在碰到范围查找时会停止匹配，如遇到 like、>、<、between 等范围查找。可以结合下面三个示例来理解一下。
 
@@ -130,7 +125,6 @@ alter table user add index(`name`,`age`);
 select name,age from user where name = 'BB' and age = 33; # 在使用联合索引时，会依次匹配name列和age列。
 select name,age from user where name like 'B%' and age = 33; # 在使用联合索引时，当匹配到name这一列的时候，由于name使用了like范围查找，因此后面不会再匹配age这一列了。
 select name,age from user where age = 33; # 在使用联合索引时，由于联合索引的最左列为name列，而我们在where条件中匹配的是age列，因此不满足最左匹配原则，所以该条SQL会进行该联合索引的全表扫描。
-复制代码
 ```
 
 为什么 MySQL 要遵循最左匹配原则呢？这是因为 B+Tree 中，所有节点上的数据是有序的，当我们创建联合索引时，首先保证的是所有数据的第一列是有序的，然后再保证第二列、第三列以及后面的列有序。以上面的 user 表中的联合索引为例，在该索引树中，name 这一列在所有数据上是有序的，但是 age 这一列，却不是有序的，只有对于 name 相同的情况的下，age 才有序。当我们在查找数据时，如果碰到范围查找的时候，由于后面的列没法保证是有序的，所以不能再继续进行等值匹配，只能对后面的列进行全表扫描。

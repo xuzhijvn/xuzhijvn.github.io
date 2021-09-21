@@ -17,10 +17,11 @@ images : [
 ]
 ---
 
-[comment]: <> (# bean生命周期)
+[comment]: <> "# bean生命周期"
 
 `实例化` -> `属性赋值` -> `初始化` -> `销毁`
-![img](https://picgo.6and.ltd/img/img_600d8bc37d70d-20210621111128656.png)
+
+<img src="https://picgo.6and.ltd/img/img_600d8bc37d70d-20210621111128656.png" alt="img" style="zoom: 67%;" />
 
 ### 参考链接
 

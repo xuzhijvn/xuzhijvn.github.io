@@ -1,5 +1,5 @@
 ---
-title: "post和get"
+title: "POST和GET"
 date: 2021-08-27T11:15:10+08:00
 draft: false
 reward: true
@@ -17,7 +17,7 @@ images : [
 ]
 ---
 
-[comment]: <> "# post和get"
+[comment]: <> "# POST和GET"
 
 ## RFC标准区别
 

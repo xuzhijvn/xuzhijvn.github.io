@@ -18,11 +18,11 @@ images : [
 ]
 ---
 
-[comment]: <> (# cache和buffer)
+[comment]: <> "# cache和buffer"
 
 首先我们使用 `free -m` 查看系统内存的使用情况：
 
-![老版本linux内核](https://picgo.6and.ltd/img/20200502221926518.png)
+<img src="https://picgo.6and.ltd/img/20200502221926518.png" alt="老版本linux内核" style="zoom:50%;" />
 
 可以看出，系统内存为 16G，Swap 内存 16G，mem free 虽然显示为 1118，因缓存的存在，不能认为系统目前内剩下这么多内存。而应该把 buffers、cached 的也算上，即 free+cached+buffers=1118+7110+430＝8658，总内存再减去 8658＝7314，与 buffers/cache 行中对应 free 列的 7312 和 8659 基本一致。
 

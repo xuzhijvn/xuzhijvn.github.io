@@ -17,78 +17,88 @@ images : [
 ]
 ---
 
-[comment]: <> (# BeanFactoryPostProcessor和BeanPostProcessor)
+[comment]: <> "# BeanFactoryPostProcessor和BeanPostProcessor"
 
 BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：
 
-# 1、BeanFactoryPostProcessor接口
+## 1. BeanFactoryPostProcessor接口
 
 该接口的定义如下：
 
-
+```java
+@FunctionalInterface
 public interface BeanFactoryPostProcessor {
 
-```java
-/**
- * Modify the application context's internal bean factory after its standard
- * initialization. All bean definitions will have been loaded, but no beans
- * will have been instantiated yet. This allows for overriding or adding
- * properties even to eager-initializing beans.
- * @param beanFactory the bean factory used by the application context
- * @throws org.springframework.beans.BeansException in case of errors
- */
-void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException;
-```
+	/**
+	 * Modify the application context's internal bean factory after its standard
+	 * initialization. All bean definitions will have been loaded, but no beans
+	 * will have been instantiated yet. This allows for overriding or adding
+	 * properties even to eager-initializing beans.
+	 * @param beanFactory the bean factory used by the application context
+	 * @throws org.springframework.beans.BeansException in case of errors
+	 */
+	void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException;
 
 }
+```
+
 实现该接口，可以在spring的bean创建之前，修改bean的定义属性。也就是说，Spring允许BeanFactoryPostProcessor在容器实例化任何其它bean之前读取配置元数据，并可以根据需要进行修改，例如可以把bean的scope从singleton改为prototype，也可以把property的值给修改掉。可以同时配置多个BeanFactoryPostProcessor，并通过设置'order'属性来控制各个BeanFactoryPostProcessor的执行次序。
 
 > 注意：BeanFactoryPostProcessor是在spring容器加载了bean的定义文件之后，在bean实例化之前执行的。接口方法的入参是ConfigurrableListableBeanFactory，使用该参数，可以获取到相关bean的定义信息。
 
-# 2、BeanPostProcessor接口
+## 2. BeanPostProcessor接口
 
 该接口的定义如下：
 
-
+```java
 public interface BeanPostProcessor {
 
-```java
-/**
- * Apply this BeanPostProcessor to the given new bean instance <i>before</i> any bean
- * initialization callbacks (like InitializingBean's <code>afterPropertiesSet</code>
- * or a custom init-method). The bean will already be populated with property values.
- * The returned bean instance may be a wrapper around the original.
- * @param bean the new bean instance
- * @param beanName the name of the bean
- * @return the bean instance to use, either the original or a wrapped one
- * @throws org.springframework.beans.BeansException in case of errors
- * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
- */
-Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException;
- 
-/**
- * Apply this BeanPostProcessor to the given new bean instance <i>after</i> any bean
- * initialization callbacks (like InitializingBean's <code>afterPropertiesSet</code>
- * or a custom init-method). The bean will already be populated with property values.
- * The returned bean instance may be a wrapper around the original.
- * <p>In case of a FactoryBean, this callback will be invoked for both the FactoryBean
- * instance and the objects created by the FactoryBean (as of Spring 2.0). The
- * post-processor can decide whether to apply to either the FactoryBean or created
- * objects or both through corresponding <code>bean instanceof FactoryBean</code> checks.
- * <p>This callback will also be invoked after a short-circuiting triggered by a
- * {@link InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation} method,
- * in contrast to all other BeanPostProcessor callbacks.
- * @param bean the new bean instance
- * @param beanName the name of the bean
- * @return the bean instance to use, either the original or a wrapped one
- * @throws org.springframework.beans.BeansException in case of errors
- * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
- * @see org.springframework.beans.factory.FactoryBean
- */
-Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException;
+	/**
+	 * Apply this {@code BeanPostProcessor} to the given new bean instance <i>before</i> any bean
+	 * initialization callbacks (like InitializingBean's {@code afterPropertiesSet}
+	 * or a custom init-method). The bean will already be populated with property values.
+	 * The returned bean instance may be a wrapper around the original.
+	 * <p>The default implementation returns the given {@code bean} as-is.
+	 * @param bean the new bean instance
+	 * @param beanName the name of the bean
+	 * @return the bean instance to use, either the original or a wrapped one;
+	 * if {@code null}, no subsequent BeanPostProcessors will be invoked
+	 * @throws org.springframework.beans.BeansException in case of errors
+	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
+	 */
+	@Nullable
+	default Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+		return bean;
+	}
+
+	/**
+	 * Apply this {@code BeanPostProcessor} to the given new bean instance <i>after</i> any bean
+	 * initialization callbacks (like InitializingBean's {@code afterPropertiesSet}
+	 * or a custom init-method). The bean will already be populated with property values.
+	 * The returned bean instance may be a wrapper around the original.
+	 * <p>In case of a FactoryBean, this callback will be invoked for both the FactoryBean
+	 * instance and the objects created by the FactoryBean (as of Spring 2.0). The
+	 * post-processor can decide whether to apply to either the FactoryBean or created
+	 * objects or both through corresponding {@code bean instanceof FactoryBean} checks.
+	 * <p>This callback will also be invoked after a short-circuiting triggered by a
+	 * {@link InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation} method,
+	 * in contrast to all other {@code BeanPostProcessor} callbacks.
+	 * <p>The default implementation returns the given {@code bean} as-is.
+	 * @param bean the new bean instance
+	 * @param beanName the name of the bean
+	 * @return the bean instance to use, either the original or a wrapped one;
+	 * if {@code null}, no subsequent BeanPostProcessors will be invoked
+	 * @throws org.springframework.beans.BeansException in case of errors
+	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
+	 * @see org.springframework.beans.factory.FactoryBean
+	 */
+	@Nullable
+	default Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+		return bean;
+	}
+}
 ```
 
-}
 BeanPostProcessor，可以在spring容器实例化bean之后，在执行bean的`初始化方法`前后，添加一些自己的处理逻辑。这里说的`初始化方法`，指的是下面两种：
 
 1）bean实现了InitializingBean接口，对应的方法为afterPropertiesSet
@@ -97,7 +107,7 @@ BeanPostProcessor，可以在spring容器实例化bean之后，在执行bean的`
 
 > 注意：BeanPostProcessor是在spring容器加载了bean的定义文件并且实例化bean之后执行的。BeanPostProcessor的执行顺序是在BeanFactoryPostProcessor之后。
 
-# 3、实战
+## 3. 实战
 
 BeanFactoryPostProcessor
 
@@ -281,30 +291,30 @@ remark：BeanFactoryPostProcessor中修改之后的remark
 
 > BeanFactoryPostProcessor对Bean属性的修改延迟到了Bean初始化完成之后才执行
 
-# 4、进一步深入分析
+## 4. 进一步深入分析
 
 在使用ApplicationContext启动spring容器的时候，在AbstractApplicationContext.refresh()方法中，完成相关初始化工作：
 
-![img](https://picgo.6and.ltd/img/20140628121008984)
+<img src="https://picgo.6and.ltd/img/20140628121008984" alt="img" style="zoom: 67%;" />
 
 1）BeanFactoryPostProcessor.postProcessBeanFactory，是在第5步执行的
 
 2）而BeanPostProcessor的执行，取决于配置文件中bean的定义，如果定义的bean是singleton并且不是抽象类，也不延迟初始化，则BeanPostProcessor是在第11步中执行；而对于prototype的bean，BeanPostProcessor是在程序getBean的时候执行的。在第6步中，调用registerBeanPostProcessors方法，注册所有实现BeanPostProcessor接口的bean
 
-# 5、总结
+## 5. 总结
 
-1、创建（调用构造函数）
-2、set属性（set方法注入属性）
-3、判断是否实现BeanNameAware接口，并调用接口的setBeanName方法
-4、判断是否实现BeanFactoryAware接口，并调用接口的setBeanFactory方法
-5、判断是否实现ApplicationContextAware接口，并调用接口的setApplicationContext方法
-6、判断是否实现BeanPostProcessor接口，并调用接口的postProcessBeforeInitialization方法
-7、判断是否实现InitializingBean接口，并调用接口的afterPropertiesSet方法
-8、判断是否自定义init方法，并调用
-9、判断是否实现BeanPostProcessor接口（同6），并调用接口的postProcessAfterInitialization方法
-10、业务代码中Bean对象的使用
-11、当容器销毁时，判断是否实现DisposableBean接口，并调用接口的destroy方法
-12、判断是否自定义销毁方法，并调用
+1. 创建（调用构造函数）
+2. set属性（set方法注入属性）
+3. 判断是否实现BeanNameAware接口，并调用接口的setBeanName方法
+4. 判断是否实现BeanFactoryAware接口，并调用接口的setBeanFactory方法
+5. 判断是否实现ApplicationContextAware接口，并调用接口的setApplicationContext方法
+6. 判断是否实现BeanPostProcessor接口，并调用接口的postProcessBeforeInitialization方法
+7. 判断是否实现InitializingBean接口，并调用接口的afterPropertiesSet方法
+8. 判断是否自定义init方法，并调用
+9. 判断是否实现BeanPostProcessor接口（同6），并调用接口的postProcessAfterInitialization方法
+10. 业务代码中Bean对象的使用
+11. 当容器销毁时，判断是否实现DisposableBean接口，并调用接口的destroy方法
+12. 判断是否自定义销毁方法，并调用
 
 对于 `BeanNameAware  BeanFactoryAware ApplicationContextAware` 这3个接口我们平时很少实现它，一般用于让Bean能够感知到`BeanName  BeanFactory ApplicationContext` 
 
@@ -337,6 +347,6 @@ public class MyJavaBean implements BeanNameAware, BeanFactoryAware, ApplicationC
 }
 ```
 
-# 参考
+## 参考
 
 [Spring的BeanFactoryPostProcessor和BeanPostProcessor](https://blog.csdn.net/caihaijiang/article/details/35552859)

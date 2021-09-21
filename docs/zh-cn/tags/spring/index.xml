@@ -32,9 +32,8 @@
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/beanfactorypostprocessor%E5%92%8Cbeanpostprocessor/</guid>
       <description>BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：
-1、BeanFactoryPostProcessor接口 该接口的定义如下：
-public interface BeanFactoryPostProcessor {
-/** * Modify the application context&amp;#39;s internal bean factory after its standard * initialization. All bean definitions will have been loaded, but no beans * will have been instantiated yet. This allows for overriding or adding * properties even to eager-initializing beans. * @param beanFactory the bean factory used by the application context * @throws org.springframework.beans.BeansException in case of errors */ void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException; } 实现该接口，可以在spring的bean创建之前，修改bean的定义属性。也就是说，Spring允许BeanFactoryPostProcessor在容器实例化任何其它bean之前读取配置元数据，并可以根据需要进行修改，例如可以把bean的scope从singleton改为prototype，也可以把property的值给修改掉。可以同时配置多个BeanFactoryPostProcessor，并通过设置&amp;rsquo;order&amp;rsquo;属性来控制各个BeanFactoryPostProcessor的执行次序。</description>
+1. BeanFactoryPostProcessor接口 该接口的定义如下：
+@FunctionalInterface public interface BeanFactoryPostProcessor { /** * Modify the application context&amp;#39;s internal bean factory after its standard * initialization. All bean definitions will have been loaded, but no beans * will have been instantiated yet. This allows for overriding or adding * properties even to eager-initializing beans. * @param beanFactory the bean factory used by the application context * @throws org.springframework.beans.BeansException in case of errors */ void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException; } 实现该接口，可以在spring的bean创建之前，修改bean的定义属性。也就是说，Spring允许BeanFactoryPostProcessor在容器实例化任何其它bean之前读取配置元数据，并可以根据需要进行修改，例如可以把bean的scope从singleton改为prototype，也可以把property的值给修改掉。可以同时配置多个BeanFactoryPostProcessor，并通过设置&amp;rsquo;order&amp;rsquo;属性来控制各个BeanFactoryPostProcessor的执行次序。</description>
     </item>
     
     <item>
@@ -43,7 +42,8 @@ public interface BeanFactoryPostProcessor {
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/</guid>
-      <description>实例化 -&amp;gt; 属性赋值 -&amp;gt; 初始化 -&amp;gt; 销毁 参考链接 请别再问Spring Bean的生命周期了！ Spring Bean的生命周期（非常详细） </description>
+      <description>实例化 -&amp;gt; 属性赋值 -&amp;gt; 初始化 -&amp;gt; 销毁
+参考链接 请别再问Spring Bean的生命周期了！ Spring Bean的生命周期（非常详细） </description>
     </item>
     
     <item>

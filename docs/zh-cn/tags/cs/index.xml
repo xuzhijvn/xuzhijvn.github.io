@@ -63,8 +63,8 @@
 解决第二个问题是让记录尽量保持相对的“新鲜”（Freshness Mechanism），并且当有新的记录插入时，可以让它跟老的记录进行“PK”，输者就会被淘汰，这样一些老的、不再需要的记录就会被剔除。
 2.1 统计频率 Count–Min Sketch 算法 如何对一个 key 进行统计，但又可以节省空间呢？（不是简单的使用HashMap，这太消耗内存了），注意哦，不需要精确的统计，只需要一个近似值就可以了，怎么样，这样场景是不是很熟悉，如果你是老司机，或许已经联想到布隆过滤器（Bloom Filter）的应用了。
 没错，将要介绍的 Count–Min Sketch 的原理跟 Bloom Filter 一样，只不过 Bloom Filter 只有 0 和 1 的值，那么你可以把 Count–Min Sketch 看作是“数值”版的 Bloom Filter。
-2.2 保新机制 为了让缓存保持“新鲜”，剔除掉过往频率很高但之后不经常的缓存，Caffeine 有一个 Freshness Mechanism。做法很简答，就是当整体的统计计数（当前所有记录的频率统计之和，这个数值内部维护）达到某一个值时，那么所有记录的频率统计除以 2。
-3. Window Tiny LFU Caffeine 通过测试发现 TinyLFU 在面对突发性的稀疏流量（sparse bursts）时表现很差，因为新的记录（new items）还没来得及建立足够的频率就被剔除出去了，这就使得命中率下降。</description>
+如果需要记录一个值，那我们需要通过多种Hash算法对其进行处理hash，然后在对应的hash算法的记录中+1，为什么需要多种hash算法呢？由于这是一个压缩算法必定会出现冲突，比如我们建立一个Long的数组，通过计算出每个数据的hash的位置。比如张三和李四，他们俩有可能hash值都是相同，比如都是1那Long[1]这个位置就会增加相应的频率，张三访问1万次，李四访问1次那Long[1]这个位置就是1万零1，如果取李四的访问评率的时候就会取出是1万零1，但是李四命名只访问了1次啊，为了解决这个问题，所以用了多个hash算法可以理解为long[][]二维数组的一个概念，比如在第一个算法张三和李四冲突了，但是在第二个，第三个中很大的概率不冲突，比如一个算法大概有1%的概率冲突，那四个算法一起冲突的概率是1%的四次方。通过这个模式我们取李四的访问率的时候取所有算法中，李四访问最低频率的次数。所以他的名字叫Count-Min Sketch。
+2.2 保鲜机制 为了让缓存保持“新鲜”，剔除掉过往频率很高但之后不经常的缓存，Caffeine 有一个 Freshness Mechanism。做法很简答，就是当整体的统计计数（当前所有记录的频率统计之和，这个数值内部维护）达到某一个值时，那么所有记录的频率统计除以 2。</description>
     </item>
     
     <item>
@@ -87,10 +87,10 @@ CPU缓存行 Java内存访问重排序的研究 </description>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/http/http2/</guid>
       <description>http/2在http/1系列的基础上优化了通信效率，主要得益于如下几点改进：
-一、 多路复用的单一长连接 1.单一长连接 在HTTP/2中，客户端向某个域名的服务器请求页面的过程中，只会创建一条TCP连接，即使这页面可能包含上百个资源。 单一的连接应该是HTTP2的主要优势，单一的连接能减少TCP握手（还有ssl握手的开销）带来的时延 。HTTP2中用一条单一的长连接，避免了创建多个TCP连接带来的网络开销，提高了吞吐量。
-2.多路复用 HTTP2虽然只有一条TCP连接，但是在逻辑上分成了很多stream。HTTP2把要传输的信息分割成一个个二进制帧，首部信息会被封装到HEADER Frame，相应的request body就放到DATA Frame,一个帧你可以看成路上的一辆车,只要给这些车编号，让1号车都走1号门出，2号车都走2号门出，就把不同的http请求或者响应区分开来了。但是，这里要求同一个请求或者响应的帧必须是有有序的，要保证FIFO的，但是不同的请求或者响应帧可以互相穿插。这就是HTTP2的多路复用，是不是充分利用了网络带宽，是不是提高了并发度？
-二、头部压缩和二进制格式 http1.x一直都是plain text,对此我只能想到一个优点，便于阅读和debug。但是，现在很多都走https，SSL也把plain text变成了二进制，那这个优点也没了。 于是HTTP2搞了个HPACK压缩来压缩头部，减少报文大小(调试这样的协议将需要curl这样的工具，要进一步地分析网络数据流需要类似Wireshark的http2解析器)。
-三、服务端推送Server Push 这个功能通常被称作“缓存推送”。主要的思想是：当一个客户端请求资源X，而服务器知道它很可能也需要资源Z的情况下，服务器可以在客户端发送请求前，主动将资源Z推送给客户端。这个功能帮助客户端将Z放进缓存以备将来之需。
+1. 多路复用的单一长连接 1.1 单一长连接 在HTTP/2中，客户端向某个域名的服务器请求页面的过程中，只会创建一条TCP连接，即使这页面可能包含上百个资源。 单一的连接应该是HTTP2的主要优势，单一的连接能减少TCP握手（还有ssl握手的开销）带来的时延 。HTTP2中用一条单一的长连接，避免了创建多个TCP连接带来的网络开销，提高了吞吐量。
+1.2 多路复用 HTTP2虽然只有一条TCP连接，但是在逻辑上分成了很多stream。HTTP2把要传输的信息分割成一个个二进制帧，首部信息会被封装到HEADER Frame，相应的request body就放到DATA Frame,一个帧你可以看成路上的一辆车,只要给这些车编号，让1号车都走1号门出，2号车都走2号门出，就把不同的http请求或者响应区分开来了。但是，这里要求同一个请求或者响应的帧必须是有有序的，要保证FIFO的，但是不同的请求或者响应帧可以互相穿插。这就是HTTP2的多路复用，是不是充分利用了网络带宽，是不是提高了并发度？
+2. 头部压缩和二进制格式 http1.x一直都是plain text，对此我只能想到一个优点，便于阅读和debug。但是，现在很多都走https，SSL也把plain text变成了二进制，那这个优点也没了。 于是HTTP2搞了个HPACK压缩来压缩头部，减少报文大小(调试这样的协议将需要curl这样的工具，要进一步地分析网络数据流需要类似Wireshark的http2解析器)。
+3. 服务端推送Server Push 这个功能通常被称作“缓存推送”。主要的思想是：当一个客户端请求资源X，而服务器知道它很可能也需要资源Z的情况下，服务器可以在客户端发送请求前，主动将资源Z推送给客户端。这个功能帮助客户端将Z放进缓存以备将来之需。
 总结  单一的长连接，减少了SSL握手的开销 头部被压缩，减少了数据传输量 多路复用能大幅提高传输效率，不用等待上一个请求的响应 不用像http1.x那样把多个文件或者资源弄成一个文件或者资源（http1.x常见的优化手段），这时候，缓存就能更容易命中啊（http1.x里面你揉成一团的东西怎么命中缓存？）  参考 HTTP/2 相比 1.0 有哪些重大改进？ HTTP 2 的新特性你 get 了吗？ HTTP/2 服务器推送（Server Push）教程 </description>
     </item>
     
@@ -123,7 +123,7 @@ LFU，即：最不经常使用淘汰算法（Least Frequently Used）。LFU是�
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/other/oauth2/</guid>
       <description>OAuth（开放授权）是一个开放标准，允许用户授权第三方移动应用访问他们存储在另外的服务提供者上的信息，而不需要将用户名和密码提供给第三方移动应用或分享他们数据的所有内容，OAuth2.0是OAuth协议的延续版本，但不向后兼容OAuth 1.0即完全废止了OAuth1.0。
 客户端必须得到用户的授权（authorization grant），才能获得令牌（access token）。OAuth 2.0定义了四种授权方式。
- 授权码模式（authorization code） 简化模式（implicit） 密码模式（resource owner password credentials） 客户端模式（client credentials）  1、名词定义 在详细讲解OAuth 2.0之前，需要了解几个专用名词。
+ 授权码模式（authorization code） 简化模式（implicit） 密码模式（resource owner password credentials） 客户端模式（client credentials）  1. 名词定义 在详细讲解OAuth 2.0之前，需要了解几个专用名词。
 （1） Third-party application：第三方应用程序，本文中又称&amp;quot;客户端&amp;quot;（client），即上一节例子中的&amp;quot;云冲印&amp;quot;。
 （2）HTTP service：HTTP服务提供商，本文中简称&amp;quot;服务提供商&amp;quot;，即上一节例子中的Google。
 （3）Resource Owner：资源所有者，本文中又称&amp;quot;用户&amp;quot;（user）。
@@ -131,7 +131,7 @@ LFU，即：最不经常使用淘汰算法（Least Frequently Used）。LFU是�
 （5）Authorization server：认证服务器，即服务提供商专门用来处理认证的服务器。
 （6）Resource server：资源服务器，即服务提供商存放用户生成的资源的服务器。它与认证服务器，可以是同一台服务器，也可以是不同的服务器。
 知道了上面这些名词，就不难理解，OAuth的作用就是让&amp;quot;客户端&amp;quot;安全可控地获取&amp;quot;用户&amp;quot;的授权，与&amp;quot;服务商提供商&amp;quot;进行互动。
-2、4种模式区别 授权码模式没什么好讲的，应用最广泛，是标准的OAuth2模式；
+2. 四种模式区别 授权码模式没什么好讲的，应用最广泛，是标准的OAuth2模式；
 简化模式适合没有后端的应用，也就无法安全的存储client id 和 client secret 例如只有一个页面的h5调查问卷等等；
 密码模式是用户把账号密码直接告诉客户端，非常不安全，适用于遗留项目升级为oauth2的适配方案、客户端是自家的应用；
 客户端模式直接根据client的id和密钥即可获取token，无需用户参与，适用于后端服务调后端服务；
@@ -158,7 +158,7 @@ LFU，即：最不经常使用淘汰算法（Least Frequently Used）。LFU是�
     </item>
     
     <item>
-      <title>post和get</title>
+      <title>POST和GET</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/cs/http/post%E5%92%8Cget/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
@@ -191,7 +191,7 @@ http://www.ruanyifeng.com/blog/2014/09/illustration-ssl.html </description>
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/tcp%E5%8D%8F%E8%AE%AE/</guid>
       <description>简介 数据在TCP层称为流（Stream），数据分组称为分段（Segment）。作为比较，数据在IP层称为Datagram，数据分组称为分片（Fragment）。 UDP 中分组称为Message。
 TCP 数据包的大小 以太网数据包（packet）的大小是固定的，最初是1518字节，后来增加到1522字节。其中， 1500 字节是负载（payload），22字节是头信息（head）。 IP 数据包在以太网数据包的负载里面，它也有自己的头信息，最少需要20字节，所以 IP 数据包的负载最多为1480字节。
-（图片说明：IP 数据包在以太网数据包里面，TCP 数据包在 IP 数据包里面。）
+（图片说明：IP 数据包在以太网数据包里面，TCP 数据包在 IP 数据包里面。)
 TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20字节，因此 TCP 数据包的最大负载是 1480 - 20 = 1460 字节。由于 IP 和 TCP 协议往往有额外的头信息，所以 TCP 负载实际为1400字节左右。
 因此，一条1500字节的信息需要两个 TCP 数据包。HTTP/2 协议的一大改进， 就是压缩 HTTP 协议的头信息，使得一个 HTTP 请求可以放在一个 TCP 数据包里面，而不是分成多个，这样就提高了速度。
 创建连接 TCP用三次握手（或称三路握手，three-way handshake）过程创建一个连接。在连接创建过程中，很多参数要被初始化，例如序号被初始化以保证按序传输和连接的强壮性。 一对终端同时初始化一个它们之间的连接是可能的。但通常是由一端打开一个套接字 （socket ）然后监听来自另一方的连接，这就是通常所指的被动打开（passive open）。服务器端被被动打开以后，用户端就能开始创建主动打开（active open）。
