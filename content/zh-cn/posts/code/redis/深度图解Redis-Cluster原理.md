@@ -35,7 +35,7 @@ images : [
 
 首先Redis Sentinel说白了也是基于**主从复制**，在主从复制中slave的数据是完全来自于master。
 
-![redis-capacity](https://picgo.6and.ltd/img/0081Kckwly1gll2khn7srj30el03vt8o.jpg)
+<img src="https://picgo.6and.ltd/img/0081Kckwly1gll2khn7srj30el03vt8o.jpg" alt="redis-capacity" style="zoom:67%;" />
 
 假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的[跟随杠精的视角一起来了解Redis的主从复制](https://mp.weixin.qq.com/s/VJTBmAB-A1aRT9DR6v5gow)文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是**写能力**和**存储能力**是无法进行扩展的，就只能是master节点能够承载的上限。
 
@@ -53,7 +53,7 @@ images : [
 
 很简单，你就可以理解为n个主从架构组合在一起对外服务。Redis Cluster要求至少需要3个master才能组成一个集群，同时每个master至少需要有一个slave节点。
 
-<img src="https://picgo.6and.ltd/img/0081Kckwly1gll36kwg27j30qr0i3myk.jpg" alt="redis-cluster" style="zoom:67%;" />
+<img src="https://picgo.6and.ltd/img/0081Kckwly1gll36kwg27j30qr0i3myk.jpg" alt="redis-cluster" style="zoom: 67%;" />
 
 这样一来，如果一个主从能够存储32G的数据，如果这个集群包含了两个主从，则整个集群就能够存储64G的数据。
 
@@ -85,13 +85,13 @@ Redis Cluster其实采取的是类似于**一致性哈希**的算法来实现节
 
 然后我们的Redis实例也分布在圆环上，我们在圆环上按照顺时针的顺序找到第一个Redis实例，这样就完成了对key的节点分配。我们举个例子。
 
-<img src="https://picgo.6and.ltd/img/0081Kckwgy1glmcvvmyvkj30ee0jdmy3.jpg" alt="hash" style="zoom: 67%;" />
+<img src="https://picgo.6and.ltd/img/0081Kckwgy1glmcvvmyvkj30ee0jdmy3.jpg" alt="hash" style="zoom: 50%;" />
 
 假设我们有A、B、C三个Redis实例按照如图所示的位置分布在圆环上，此时计算出来的hash值，取模之后位置落在了**位置D**，那么我们按照顺时针的顺序，就能够找到我们这个key应该分配的Redis实例B。同理如果我们计算出来位置在E，那么对应选择的Redis的实例就是A。
 
 即使这个时候Redis实例B挂了，也不会影响到实例A和C的缓存。
 
-<img src="https://picgo.6and.ltd/img/0081Kckwgy1gln53ifhuwj30ee0jdt9p.jpg" alt="hash-down" style="zoom:67%;" />
+<img src="https://picgo.6and.ltd/img/0081Kckwgy1gln53ifhuwj30ee0jdt9p.jpg" alt="hash-down" style="zoom: 50%;" />
 
 例如此时节点B挂了，那之前计算出来在位置D的key，此时会按照顺时针的顺序，找到节点C。相当于自动的把原来节点B的流量给转移到了节点C上去。而其他原本就在节点A和节点C的数据则完全不受影响。
 
@@ -101,11 +101,11 @@ Redis Cluster其实采取的是类似于**一致性哈希**的算法来实现节
 
 但是一致性哈希也存在自身的小问题，例如当我们的Redis节点分布如下时，就有问题了。
 
-<img src="https://picgo.6and.ltd/img/0081Kckwgy1gln5gdf877j30ee0jd0to.jpg" alt="hash-unevently" style="zoom:67%;" />
+<img src="https://picgo.6and.ltd/img/0081Kckwgy1gln5gdf877j30ee0jd0to.jpg" alt="hash-unevently" style="zoom: 50%;" />
 
 此时数据落在节点A上的概率明显是大于其他两个节点的，其次落在节点C上的概率最小。这样一来会导致整个集群的数据存储不平衡，AB节点压力较大，而C节点资源利用不充分。为了解决这个问题，一致性哈希算法引入了**虚拟节点机制**。
 
-<img src="https://picgo.6and.ltd/img/0081Kckwgy1gln5lb847oj30ee0k2my8.jpg" alt="virtual-dom" style="zoom:67%;" />
+<img src="https://picgo.6and.ltd/img/0081Kckwgy1gln5lb847oj30ee0k2my8.jpg" alt="virtual-dom" style="zoom: 50%;" />
 
 在圆环中，增加了对应节点的虚拟节点，然后完成了虚拟节点到真实节点的映射。假设现在计算得出了位置D，那么按照顺时针的顺序，我们找到的第一个节点就是**C #1**，最终数据实际还是会落在节点C上。
 
