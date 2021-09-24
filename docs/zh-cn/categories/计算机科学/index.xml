@@ -201,6 +201,25 @@ TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20�
     </item>
     
     <item>
+      <title>TCP常见知识点</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/tcp%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/tcp%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9/</guid>
+      <description>1. 前言 网络层只把分组发送到目的主机，但是真正通信的并不是主机而是主机中的进程。传输层提供了进程间的逻辑通信，传输层向高层用户屏蔽了下面网络层的核心细节，使应用程序看起来像是在两个传输层实体之间有一条端到端的逻辑通信信道。
+UDP 和 TCP 的特点与区别 用户数据报协议 UDP（User Datagram Protocol） 是无连接的，尽最大可能交付，没有拥塞控制，面向报文（对于应用程序传下来的报文不合并也不拆分，只是添加 UDP 首部），支持一对一、一对多、多对一和多对多的交互通信。
+传输控制协议 TCP（Transmission Control Protocol） 是面向连接的，提供可靠交付，有流量控制，拥塞控制，提供全双工通信，面向字节流（把应用层传下来的报文看成字节流，把字节流组织成大小不等的数据块），每一条 TCP 连接只能是点对点的（一对一）。
+2. UDP TCP 首部格式 UDP 首部字段只有 8 个字节，包括源端口、目的端口、长度、检验和。12 字节的伪首部是为了计算检验和临时添加的。
+TCP 首部格式比 UDP 复杂。
+序号：用于对字节流进行编号，例如序号为 301，表示第一个字节的编号为 301，如果携带的数据长度为 100 字节，那么下一个报文段的序号应为 401。
+确认号：期望收到的下一个报文段的序号。例如 B 正确收到 A 发送来的一个报文段，序号为 501，携带的数据长度为 200 字节，因此 B 期望下一个报文段的序号为 701，B 发送给 A 的确认报文段中确认号就为 701。
+数据偏移：指的是数据部分距离报文段起始处的偏移量，实际上指的是首部的长度。
+控制位：八位从左到右分别是 CWR，ECE，URG，ACK，PSH，RST，SYN，FIN。
+CWR：CWR 标志与后面的 ECE 标志都用于 IP 首部的 ECN 字段，ECE 标志为 1 时，则通知对方已将拥塞窗口缩小；
+ECE：若其值为 1 则会通知对方，从对方到这边的网络有阻塞。在收到数据包的 IP 首部中 ECN 为 1 时将 TCP 首部中的 ECE 设为 1；</description>
+    </item>
+    
+    <item>
       <title>分布式ID生成方式</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E5%88%86%E5%B8%83%E5%BC%8Fid%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
@@ -261,25 +280,6 @@ CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.SEQUENCE_ID ( id bigint(20) unsigne
  最不经常使用算法（LFU, Least Frequently Used）：  这个缓存算法使用一个计数器来记录条目被访问的频率。通过使用LFU缓存算法，最低访问数的条目首先被移除。这个方法并不经常使用，因为它无法对一个拥有最初高访问率之后长时间没有被访问的条目缓存负责。
  最近最少使用算法（LRU, Least Recently Used）  LRU是首先淘汰最长时间未被使用的页面。这种算法把近期最久没有被访问过的页面作为被替换的页面。它把LFU算法中要记录数量上的&amp;quot;多&amp;quot;与&amp;quot;少&amp;quot;简化成判断&amp;quot;有&amp;quot;与&amp;quot;无&amp;quot;，因此，实现起来比较容易。
 注意：LRU的淘汰规则是基于访问时间，而LFU是基于访问次数的 </description>
-    </item>
-    
-    <item>
-      <title>常见知识点</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9/</guid>
-      <description>前言 网络层只把分组发送到目的主机，但是真正通信的并不是主机而是主机中的进程。传输层提供了进程间的逻辑通信，传输层向高层用户屏蔽了下面网络层的核心细节，使应用程序看起来像是在两个传输层实体之间有一条端到端的逻辑通信信道。
-UDP 和 TCP 的特点与区别 用户数据报协议 UDP（User Datagram Protocol） 是无连接的，尽最大可能交付，没有拥塞控制，面向报文（对于应用程序传下来的报文不合并也不拆分，只是添加 UDP 首部），支持一对一、一对多、多对一和多对多的交互通信。
-传输控制协议 TCP（Transmission Control Protocol） 是面向连接的，提供可靠交付，有流量控制，拥塞控制，提供全双工通信，面向字节流（把应用层传下来的报文看成字节流，把字节流组织成大小不等的数据块），每一条 TCP 连接只能是点对点的（一对一）。
-2、UDP 、TCP 首部格式 UDP 首部字段只有 8 个字节，包括源端口、目的端口、长度、检验和。12 字节的伪首部是为了计算检验和临时添加的。
-TCP 首部格式比 UDP 复杂。
-序号：用于对字节流进行编号，例如序号为 301，表示第一个字节的编号为 301，如果携带的数据长度为 100 字节，那么下一个报文段的序号应为 401。
-确认号：期望收到的下一个报文段的序号。例如 B 正确收到 A 发送来的一个报文段，序号为 501，携带的数据长度为 200 字节，因此 B 期望下一个报文段的序号为 701，B 发送给 A 的确认报文段中确认号就为 701。
-数据偏移：指的是数据部分距离报文段起始处的偏移量，实际上指的是首部的长度。
-控制位：八位从左到右分别是 CWR，ECE，URG，ACK，PSH，RST，SYN，FIN。
-CWR：CWR 标志与后面的 ECE 标志都用于 IP 首部的 ECN 字段，ECE 标志为 1 时，则通知对方已将拥塞窗口缩小；
-ECE：若其值为 1 则会通知对方，从对方到这边的网络有阻塞。在收到数据包的 IP 首部中 ECN 为 1 时将 TCP 首部中的 ECE 设为 1；</description>
     </item>
     
     <item>
