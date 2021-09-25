@@ -10,37 +10,33 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="Zookeeper核心设计理解与实战">
-<meta itemprop="description" content="一、前言 想起很久以前在某个客户现场，微服务 B 突然无法调用到微服务 A，为了使服务尽快正常恢复，重启了微服务 B 。
-但客户不依不饶询问这个问题出现的原因，于是我还大老远从杭州飞到深圳，现场排查问题。
-最后的结论是，zk 在某时刻出现主备切换，此时微服务 A（基于 dubbo）需要重新往 zk上注册，但是端口号变了。
-但是微服务 B 本地有微服务 A rpc 接口的缓存，缓存里面还是旧的端口，所以调用不到。
-解决方法就是，把微服务的 rpc 端口号改成固定的。
-虽说原因找到了，但对于 Zookeeper 的理解还是不够深刻，于是重新学习了 Zookeeper 的核心设计，并记录于此文共勉。
-二、Zookeeper 核心架构设计 1、Zookeeper 特点 （1）Zookeeper 是一个分布式协调服务，是为了解决多个节点状态不一致的问题，充当中间机构来调停。如果出现了不一致，则把这个不一致的情况写入到 Zookeeper 中，Zookeeper 会返回响应，响应成功，则表示帮你达成了一致。
+<meta itemprop="description" content="1. Zookeeper 核心架构设计 1.1 Zookeeper 特点 （1）Zookeeper 是一个分布式协调服务，是为了解决多个节点状态不一致的问题，充当中间机构来调停。如果出现了不一致，则把这个不一致的情况写入到 Zookeeper 中，Zookeeper 会返回响应，响应成功，则表示帮你达成了一致。
 比如，A、B、C 节点在集群启动时，需要推举出一个主节点，这个时候，A、B、C 只要同时往 Zookeeper 上注册临时节点，谁先注册成功，谁就是主节点。
 （2）Zookeeper 虽然是一个集群，但是数据并不是分散存储在各个节点上的，而是每个节点都保存了集群所有的数据。
 其中一个节点作为主节点，提供分布式事务的写服务，其他节点和这个节点同步数据，保持和主节点状态一致。
 （3）Zookeeper 所有节点的数据状态通过 Zab 协议保持一致。当集群中没有 Leader 节点时，内部会执行选举，选举结束，Follower 和 Leader 执行状态同步；当有 Leader 节点时，Leader 通过 ZAB 协议主导分布式事务的执行，并且所有的事务都是串行执行的。
 （4）Zookeeper 的节点个数是不能线性扩展的，节点越多，同步数据的压力越大，执行分布式事务性能越差。推荐3、5、7 这样的数目。
-2、Zookeeper 角色的理解 Zookeeper 并没有沿用 Master/Slave 概念，而是引入了 Leader，Follower，Observer 三种角色。
-通过 Leader 选举算法来选定一台服务器充当 Leader 节点，Leader 服务器为客户端提供读、写服务。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+1.1 Zookeeper 角色的理解 Zookeeper 并没有沿用 Master/Slave 概念，而是引入了 Leader，Follower，Observer 三种角色。
+通过 Leader 选举算法来选定一台服务器充当 Leader 节点，Leader 服务器为客户端提供读、写服务。
+Follower 节点可以参加选举，也可以接受客户端的读请求，但是接受到客户端的写请求时，会转发到 Leader 服务器去处理。
+Observer 角色只能提供读服务，不能选举和被选举，所以它存在的意义是在不影响写性能的前提下，提升集群的读性能。
+1.3 Zookeeper 同时满足了 CAP 吗？ 答案是否，CAP 只能同时满足其二。
+Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的写入一致性，牺牲的是 C的读一致性。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="817"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="wordCount" content="802"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="ZK," /><meta property="og:title" content="Zookeeper核心设计理解与实战" />
-<meta property="og:description" content="一、前言 想起很久以前在某个客户现场，微服务 B 突然无法调用到微服务 A，为了使服务尽快正常恢复，重启了微服务 B 。
-但客户不依不饶询问这个问题出现的原因，于是我还大老远从杭州飞到深圳，现场排查问题。
-最后的结论是，zk 在某时刻出现主备切换，此时微服务 A（基于 dubbo）需要重新往 zk上注册，但是端口号变了。
-但是微服务 B 本地有微服务 A rpc 接口的缓存，缓存里面还是旧的端口，所以调用不到。
-解决方法就是，把微服务的 rpc 端口号改成固定的。
-虽说原因找到了，但对于 Zookeeper 的理解还是不够深刻，于是重新学习了 Zookeeper 的核心设计，并记录于此文共勉。
-二、Zookeeper 核心架构设计 1、Zookeeper 特点 （1）Zookeeper 是一个分布式协调服务，是为了解决多个节点状态不一致的问题，充当中间机构来调停。如果出现了不一致，则把这个不一致的情况写入到 Zookeeper 中，Zookeeper 会返回响应，响应成功，则表示帮你达成了一致。
+<meta property="og:description" content="1. Zookeeper 核心架构设计 1.1 Zookeeper 特点 （1）Zookeeper 是一个分布式协调服务，是为了解决多个节点状态不一致的问题，充当中间机构来调停。如果出现了不一致，则把这个不一致的情况写入到 Zookeeper 中，Zookeeper 会返回响应，响应成功，则表示帮你达成了一致。
 比如，A、B、C 节点在集群启动时，需要推举出一个主节点，这个时候，A、B、C 只要同时往 Zookeeper 上注册临时节点，谁先注册成功，谁就是主节点。
 （2）Zookeeper 虽然是一个集群，但是数据并不是分散存储在各个节点上的，而是每个节点都保存了集群所有的数据。
 其中一个节点作为主节点，提供分布式事务的写服务，其他节点和这个节点同步数据，保持和主节点状态一致。
 （3）Zookeeper 所有节点的数据状态通过 Zab 协议保持一致。当集群中没有 Leader 节点时，内部会执行选举，选举结束，Follower 和 Leader 执行状态同步；当有 Leader 节点时，Leader 通过 ZAB 协议主导分布式事务的执行，并且所有的事务都是串行执行的。
 （4）Zookeeper 的节点个数是不能线性扩展的，节点越多，同步数据的压力越大，执行分布式事务性能越差。推荐3、5、7 这样的数目。
-2、Zookeeper 角色的理解 Zookeeper 并没有沿用 Master/Slave 概念，而是引入了 Leader，Follower，Observer 三种角色。
-通过 Leader 选举算法来选定一台服务器充当 Leader 节点，Leader 服务器为客户端提供读、写服务。" />
+1.1 Zookeeper 角色的理解 Zookeeper 并没有沿用 Master/Slave 概念，而是引入了 Leader，Follower，Observer 三种角色。
+通过 Leader 选举算法来选定一台服务器充当 Leader 节点，Leader 服务器为客户端提供读、写服务。
+Follower 节点可以参加选举，也可以接受客户端的读请求，但是接受到客户端的写请求时，会转发到 Leader 服务器去处理。
+Observer 角色只能提供读服务，不能选举和被选举，所以它存在的意义是在不影响写性能的前提下，提升集群的读性能。
+1.3 Zookeeper 同时满足了 CAP 吗？ 答案是否，CAP 只能同时满足其二。
+Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的写入一致性，牺牲的是 C的读一致性。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E6%A0%B8%E5%BF%83%E8%AE%BE%E8%AE%A1%E7%90%86%E8%A7%A3%E4%B8%8E%E5%AE%9E%E6%88%98/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -51,20 +47,18 @@
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
 
 <meta name="twitter:title" content="Zookeeper核心设计理解与实战"/>
-<meta name="twitter:description" content="一、前言 想起很久以前在某个客户现场，微服务 B 突然无法调用到微服务 A，为了使服务尽快正常恢复，重启了微服务 B 。
-但客户不依不饶询问这个问题出现的原因，于是我还大老远从杭州飞到深圳，现场排查问题。
-最后的结论是，zk 在某时刻出现主备切换，此时微服务 A（基于 dubbo）需要重新往 zk上注册，但是端口号变了。
-但是微服务 B 本地有微服务 A rpc 接口的缓存，缓存里面还是旧的端口，所以调用不到。
-解决方法就是，把微服务的 rpc 端口号改成固定的。
-虽说原因找到了，但对于 Zookeeper 的理解还是不够深刻，于是重新学习了 Zookeeper 的核心设计，并记录于此文共勉。
-二、Zookeeper 核心架构设计 1、Zookeeper 特点 （1）Zookeeper 是一个分布式协调服务，是为了解决多个节点状态不一致的问题，充当中间机构来调停。如果出现了不一致，则把这个不一致的情况写入到 Zookeeper 中，Zookeeper 会返回响应，响应成功，则表示帮你达成了一致。
+<meta name="twitter:description" content="1. Zookeeper 核心架构设计 1.1 Zookeeper 特点 （1）Zookeeper 是一个分布式协调服务，是为了解决多个节点状态不一致的问题，充当中间机构来调停。如果出现了不一致，则把这个不一致的情况写入到 Zookeeper 中，Zookeeper 会返回响应，响应成功，则表示帮你达成了一致。
 比如，A、B、C 节点在集群启动时，需要推举出一个主节点，这个时候，A、B、C 只要同时往 Zookeeper 上注册临时节点，谁先注册成功，谁就是主节点。
 （2）Zookeeper 虽然是一个集群，但是数据并不是分散存储在各个节点上的，而是每个节点都保存了集群所有的数据。
 其中一个节点作为主节点，提供分布式事务的写服务，其他节点和这个节点同步数据，保持和主节点状态一致。
 （3）Zookeeper 所有节点的数据状态通过 Zab 协议保持一致。当集群中没有 Leader 节点时，内部会执行选举，选举结束，Follower 和 Leader 执行状态同步；当有 Leader 节点时，Leader 通过 ZAB 协议主导分布式事务的执行，并且所有的事务都是串行执行的。
 （4）Zookeeper 的节点个数是不能线性扩展的，节点越多，同步数据的压力越大，执行分布式事务性能越差。推荐3、5、7 这样的数目。
-2、Zookeeper 角色的理解 Zookeeper 并没有沿用 Master/Slave 概念，而是引入了 Leader，Follower，Observer 三种角色。
-通过 Leader 选举算法来选定一台服务器充当 Leader 节点，Leader 服务器为客户端提供读、写服务。"/>
+1.1 Zookeeper 角色的理解 Zookeeper 并没有沿用 Master/Slave 概念，而是引入了 Leader，Follower，Observer 三种角色。
+通过 Leader 选举算法来选定一台服务器充当 Leader 节点，Leader 服务器为客户端提供读、写服务。
+Follower 节点可以参加选举，也可以接受客户端的读请求，但是接受到客户端的写请求时，会转发到 Leader 服务器去处理。
+Observer 角色只能提供读服务，不能选举和被选举，所以它存在的意义是在不影响写性能的前提下，提升集群的读性能。
+1.3 Zookeeper 同时满足了 CAP 吗？ 答案是否，CAP 只能同时满足其二。
+Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的写入一致性，牺牲的是 C的读一致性。"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.9823d950e7319c8ceb08b6234b64b3736ce36485bc1b6b0689482a5d0c4c1c8f.js" integrity="sha256-mCPZUOcxnIzrCLYjS2Szc2zjZIW8G2sGiUgqXQxMHI8=" crossorigin="anonymous"></script>
@@ -302,54 +296,46 @@
   <div class="offcanvas-body">
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#一前言"><strong>一、前言</strong></a></li>
-    <li><a href="#二zookeeper-核心架构设计"><strong>二、Zookeeper 核心架构设计</strong></a>
+    <li><a href="#1-zookeeper-核心架构设计">1. Zookeeper 核心架构设计</a>
       <ul>
-        <li><a href="#1zookeeper-特点"><strong>1、Zookeeper 特点</strong></a></li>
-        <li><a href="#2zookeeper-角色的理解"><strong>2、Zookeeper 角色的理解</strong></a></li>
-        <li><a href="#3zookeeper-同时满足了-cap-吗"><strong>3、Zookeeper 同时满足了 CAP 吗？</strong></a></li>
+        <li><a href="#11-zookeeper-特点">1.1 Zookeeper 特点</a></li>
+        <li><a href="#11-zookeeper-角色的理解">1.1 Zookeeper 角色的理解</a></li>
+        <li><a href="#13-zookeeper-同时满足了-cap-吗">1.3 Zookeeper 同时满足了 CAP 吗？</a></li>
       </ul>
     </li>
-    <li><a href="#三核心机制一znode-数据模型"><strong>三、核心机制一：ZNode 数据模型</strong></a>
+    <li><a href="#2-核心机制一znode-数据模型">2. 核心机制一：ZNode 数据模型</a>
       <ul>
-        <li><a href="#1znode-并不适合存储太大的数据"><strong>1、ZNode 并不适合存储太大的数据</strong></a></li>
-        <li><a href="#2znode-的分类"><strong>2、ZNode 的分类</strong></a></li>
-        <li><a href="#3代码实战"><strong>3、代码实战</strong></a></li>
+        <li><a href="#21-znode-并不适合存储太大的数据">2.1 ZNode 并不适合存储太大的数据</a></li>
+        <li><a href="#22-znode-的分类">2.2 ZNode 的分类</a></li>
+        <li><a href="#23-代码实战">2.3 代码实战</a></li>
       </ul>
     </li>
-    <li><a href="#四核心机制二watcher-监听机制"><strong>四、核心机制二：Watcher 监听机制</strong></a>
+    <li><a href="#3-核心机制二watcher-监听机制">3. 核心机制二：Watcher 监听机制</a>
       <ul>
-        <li><a href="#1对于-watcher-机制的理解"><strong>1、对于 Watcher 机制的理解</strong></a></li>
-        <li><a href="#2-watcher-机制的流程"><strong>2、 Watcher 机制的流程</strong></a></li>
-        <li><a href="#3通过代码来初步理解"><strong>3、通过代码来初步理解</strong></a></li>
+        <li><a href="#31-对于-watcher-机制的理解">3.1 对于 Watcher 机制的理解</a></li>
+        <li><a href="#32--watcher-机制的流程">3.2  Watcher 机制的流程</a></li>
+        <li><a href="#33-通过代码来初步理解">3.3 通过代码来初步理解</a></li>
       </ul>
     </li>
-    <li><a href="#五代码实战实现主备选举"><strong>五、代码实战：实现主备选举</strong></a></li>
+    <li><a href="#4-代码实战实现主备选举">4. 代码实战：实现主备选举</a></li>
     <li><a href="#参考">参考</a></li>
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><h2 id="一前言"><strong>一、前言</strong></h2>
-<p>想起很久以前在某个客户现场，微服务 B 突然无法调用到微服务 A，为了使服务尽快正常恢复，重启了微服务 B 。</p>
-<p>但客户不依不饶询问这个问题出现的原因，于是我还大老远从杭州飞到深圳，现场排查问题。</p>
-<p>最后的结论是，zk 在某时刻出现主备切换，此时微服务 A（基于 dubbo）需要重新往 zk上注册，但是端口号变了。</p>
-<p>但是微服务 B  本地有微服务 A rpc 接口的缓存，缓存里面还是旧的端口，所以调用不到。</p>
-<p>解决方法就是，把微服务的 rpc 端口号改成固定的。</p>
-<p>虽说原因找到了，但对于 Zookeeper 的理解还是不够深刻，于是重新学习了 Zookeeper 的核心设计，并记录于此文共勉。</p>
-<h2 id="二zookeeper-核心架构设计"><strong>二、Zookeeper 核心架构设计</strong></h2>
-<h3 id="1zookeeper-特点"><strong>1、Zookeeper 特点</strong></h3>
+</div><div class="post-content mb-3"><h2 id="1-zookeeper-核心架构设计">1. Zookeeper 核心架构设计</h2>
+<h3 id="11-zookeeper-特点">1.1 Zookeeper 特点</h3>
 <p>（1）Zookeeper 是一个分布式协调服务，是为了解决多个节点状态不一致的问题，充当中间机构来调停。如果出现了不一致，则把这个不一致的情况写入到 Zookeeper 中，Zookeeper 会返回响应，响应成功，则表示帮你达成了一致。</p>
 <p>比如，A、B、C 节点在集群启动时，需要推举出一个主节点，这个时候，A、B、C 只要同时往 Zookeeper 上注册临时节点，谁先注册成功，谁就是主节点。</p>
 <p>（2）Zookeeper 虽然是一个集群，但是数据并不是分散存储在各个节点上的，而是每个节点都保存了集群所有的数据。</p>
 <p>其中一个节点作为主节点，提供分布式事务的写服务，其他节点和这个节点同步数据，保持和主节点状态一致。</p>
 <p>（3）Zookeeper 所有节点的数据状态通过 Zab 协议保持一致。当集群中没有 Leader 节点时，内部会执行选举，选举结束，Follower 和 Leader 执行状态同步；当有 Leader 节点时，Leader 通过 ZAB 协议主导分布式事务的执行，并且所有的事务都是串行执行的。</p>
 <p>（4）Zookeeper 的节点个数是不能线性扩展的，节点越多，同步数据的压力越大，执行分布式事务性能越差。推荐3、5、7 这样的数目。</p>
-<h3 id="2zookeeper-角色的理解"><strong>2、Zookeeper 角色的理解</strong></h3>
+<h3 id="11-zookeeper-角色的理解">1.1 Zookeeper 角色的理解</h3>
 <p>Zookeeper 并没有沿用 Master/Slave 概念，而是引入了 Leader，Follower，Observer 三种角色。</p>
 <p>通过 Leader 选举算法来选定一台服务器充当 Leader 节点，Leader 服务器为客户端提供读、写服务。</p>
 <p>Follower 节点可以参加选举，也可以接受客户端的读请求，但是接受到客户端的写请求时，会转发到 Leader 服务器去处理。</p>
 <p>Observer 角色只能提供读服务，不能选举和被选举，所以它存在的意义是在不影响写性能的前提下，提升集群的读性能。</p>
-<h3 id="3zookeeper-同时满足了-cap-吗"><strong>3、Zookeeper 同时满足了 CAP 吗？</strong></h3>
+<h3 id="13-zookeeper-同时满足了-cap-吗">1.3 Zookeeper 同时满足了 CAP 吗？</h3>
 <p>答案是否，CAP 只能同时满足其二。</p>
 <p>Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的写入一致性，牺牲的是 C的读一致性。</p>
 <p>也就是说，Zookeeper 并不保证读取的一定是最新的数据。如果一定要最新，需要使用 sync 回调处理。</p>
@@ -363,13 +349,10 @@
 <p><a href="https://mikechen.cc/4733.html" target="_blank" rel="noopener noreferrer">服务注册与发现的实现原理、及实现优劣势比较</a>
 </p>
 </blockquote>
-<h2 id="三核心机制一znode-数据模型"><strong>三、核心机制一：ZNode 数据模型</strong></h2>
+<h2 id="2-核心机制一znode-数据模型">2. 核心机制一：ZNode 数据模型</h2>
 <p>Zookeeper 的 ZNode 模型其实可以理解为类文件系统，如下图：</p>
-<p><img class="img-fluid" alt="image-20210804004139634" src="https://picgo.6and.ltd/img/image-20210804004139634.png"
-   loading="lazy" />
-
-</p>
-<h3 id="1znode-并不适合存储太大的数据"><strong>1、ZNode 并不适合存储太大的数据</strong></h3>
+<p><img src="https://picgo.6and.ltd/img/image-20210804004139634.png" alt="image-20210804004139634" style="zoom: 15%;" /></p>
+<h3 id="21-znode-并不适合存储太大的数据">2.1 ZNode 并不适合存储太大的数据</h3>
 <p>为什么是类文件系统呢？因为 ZNode 模型没有文件和文件夹的概念，每个节点既可以有子节点，也可以存储数据。</p>
 <p>那么既然每个节点可以存储数据，是不是可以任意存储无限制的数据呢？答案是否定的。在 Zookeeper 中，限制了每个节点只能存储小于 1 M 的数据，实际应用中，最好不要超过 1kb。</p>
 <p>原因有以下四点：</p>
@@ -382,7 +365,7 @@
 <blockquote>
 <p>除非集群是以ZNode为单位进行同步的，否则以上四点不能算作限定ZNode大小的原因</p>
 </blockquote>
-<h3 id="2znode-的分类"><strong>2、ZNode 的分类</strong></h3>
+<h3 id="22-znode-的分类">2.2 ZNode 的分类</h3>
 <p>（1）按生命周期分类</p>
 <p>按照声明周期，ZNode 可分为永久节点和临时节点。</p>
 <p>很好理解，永久节点就是要显示的删除，否则会一直存在；临时节点，是和会话绑定的，会话创建的所有节点，会在会话断开连接时，全部被 Zookeeper 系统删除。</p>
@@ -398,7 +381,7 @@
 </ul>
 <p>（4）注意的点</p>
 <p>临时节点下面不能挂载子节点，只能作为其他节点的叶子节点。</p>
-<h3 id="3代码实战"><strong>3、代码实战</strong></h3>
+<h3 id="23-代码实战">2.3 代码实战</h3>
 <p>ZNode 的数据模型其实很简单，只有这么多知识。下面用代码来巩固一下。</p>
 <p>这里我们使用 curator 框架来做 demo。（当然，你可以选择使用 Zookeeper 官方自带的 Api）</p>
 <p>引入 pom 坐标：</p>
@@ -460,9 +443,9 @@
 
         Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">sleep</span><span style="color:#f92672">(</span>10000<span style="color:#f92672">);</span>
     <span style="color:#f92672">}</span>
-</code></pre></div><h2 id="四核心机制二watcher-监听机制"><strong>四、核心机制二：Watcher 监听机制</strong></h2>
+</code></pre></div><h2 id="3-核心机制二watcher-监听机制">3. 核心机制二：Watcher 监听机制</h2>
 <p>Watcher 监听机制是 Zookeeper 解决各种分布式不一致疑难杂症的独家法门，也是学习 Zookeeper 必学的知识点。</p>
-<h3 id="1对于-watcher-机制的理解"><strong>1、对于 Watcher 机制的理解</strong></h3>
+<h3 id="31-对于-watcher-机制的理解">3.1 对于 Watcher 机制的理解</h3>
 <p>Zookeeper 提供了数据的发布与订阅的功能，多个订阅者可以同时监听某一个对象，当这个对象自身状态发生变化时（例如节点数据或者节点的子节点个数变化），Zookeeper 系统会通知这些订阅者。</p>
 <p>对于发布和订阅这个概念的理解，我们可以用这个场景来理解：</p>
 <p>比如前两天的台风，老板想发一个通知给员工：明天在家办公。</p>
@@ -490,7 +473,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="2-watcher-机制的流程"><strong>2、 Watcher 机制的流程</strong></h3>
+<h3 id="32--watcher-机制的流程">3.2  Watcher 机制的流程</h3>
 <p>客户端首先将 Watcher 注册到服务器上，同时将 Watcher 对象保存在客户端的 Watcher 管理器中。当 Zookeeper 服务端监听到数据状态发生变化时，服务端会首先主动通知客户端，接着客户端的 Watcher 管理器会触发相关的 Watcher 来回调响应的逻辑，从而完成整体的发布/订阅流程。</p>
 <p>监听器 Watcher 的定义：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Watcher</span> <span style="color:#f92672">{</span>
@@ -501,10 +484,7 @@
 </span><span style="color:#75715e"></span>    <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">process</span><span style="color:#f92672">(</span>WatchedEvent event<span style="color:#f92672">);</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>下面是监听的大致流程图：</p>
-<p><img class="img-fluid" alt="image-20210804004209720" src="https://picgo.6and.ltd/img/image-20210804004209720.png"
-   loading="lazy" />
-
-</p>
+<p><img src="https://picgo.6and.ltd/img/image-20210804004209720.png" alt="image-20210804004209720" style="zoom: 33%;" /></p>
 <p>稍稍解释一下：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#ae81ff">1</span><span style="color:#960050;background-color:#1e0010">、</span><span style="color:#a6e22e">Client1</span> <span style="color:#a6e22e">和</span> <span style="color:#a6e22e">Client2</span> <span style="color:#a6e22e">都关心</span> <span style="color:#f92672">/</span><span style="color:#a6e22e">app2</span> <span style="color:#a6e22e">节点的数据状态变化</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">于是注册一个对于</span> <span style="color:#f92672">/</span><span style="color:#a6e22e">app2</span> <span style="color:#a6e22e">的监听器到</span> <span style="color:#a6e22e">Zookeeper</span> <span style="color:#a6e22e">上</span><span style="color:#960050;background-color:#1e0010">；</span>
 <span style="color:#ae81ff">2</span><span style="color:#960050;background-color:#1e0010">、</span><span style="color:#a6e22e">当</span> <span style="color:#a6e22e">Client3</span> <span style="color:#a6e22e">修改</span> <span style="color:#f92672">/</span><span style="color:#a6e22e">app2</span> <span style="color:#a6e22e">的值后</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">Zookeeper</span> <span style="color:#a6e22e">会主动通知</span> <span style="color:#a6e22e">Client1</span> <span style="color:#a6e22e">和</span> <span style="color:#a6e22e">Client2</span> <span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">并且回调监听器的方法</span>
@@ -515,7 +495,7 @@
 <li>节点数据发生改变；</li>
 <li>节点的子节点个数发生改变</li>
 </ul>
-<h3 id="3通过代码来初步理解"><strong>3、通过代码来初步理解</strong></h3>
+<h3 id="33-通过代码来初步理解">3.3 通过代码来初步理解</h3>
 <p>我们还是用 Curator 框架来验证一下这个监听器</p>
 <p>代码很简单，这里我们使用 TreeCache 表示对于 /app2 的监听，并且注册了监听的方法</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CuratorWatcher</span> <span style="color:#f92672">{</span>
@@ -543,7 +523,7 @@
 </code></pre></div><p>当 /app2 的状态发生变化时，就会调用监听的方法。</p>
 <p>Curator 是对原生的 Zookeeper Api 有封装的，原生的 Zookeeper 提供的 Api ，注册监听后，当数据发生改变时，监听就被服务端删除了，要重复注册监听。</p>
 <p>Curator 则对这个做了相应的封装和改进。</p>
-<h2 id="五代码实战实现主备选举"><strong>五、代码实战：实现主备选举</strong></h2>
+<h2 id="4-代码实战实现主备选举">4. 代码实战：实现主备选举</h2>
 <p>这里我们主要想实现的功能是：</p>
 <ul>
 <li>有两个节点，bigdata001，bigdata002 ，他们互相主备。</li>

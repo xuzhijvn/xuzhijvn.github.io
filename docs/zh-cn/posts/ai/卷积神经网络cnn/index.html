@@ -3,74 +3,70 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>卷积神经网络–CNN - 唯有光头👴🏻才能变强💪</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>卷积神经网络 - 唯有光头👴🏻才能变强💪</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://xuzhijvn.github.io/images/favicons/manifest.json">
 <link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="卷积神经网络–CNN">
+<meta name="description" content="" /><meta itemprop="name" content="卷积神经网络">
 <meta itemprop="description" content="在 CNN 出现之前，图像对于人工智能来说是一个难题，有2个原因：
  图像需要处理的数据量太大，导致成本很高，效率很低 图像在数字化的过程中很难保留原有的特征，导致图像处理的准确率不高  下面就详细说明一下这2个问题：
-0.0、需要处理的数据量太大 图像是由像素构成的，每个像素又是由颜色构成的。
+需要处理的数据量太大 图像是由像素构成的，每个像素又是由颜色构成的。
 现在随随便便一张图片都是 1000×1000 像素以上的， 每个像素都有RGB 3个参数来表示颜色信息。
 假如我们处理一张 1000×1000 像素的图片，我们就需要处理3百万个参数！
 1000×1000×3=3,000,000
 这么大量的数据处理起来是非常消耗资源的，而且这只是一张不算太大的图片！
 卷积神经网络 – CNN 解决的第一个问题就是「将复杂问题简化」，把大量参数降维成少量参数，再做处理。
 更重要的是：我们在大部分场景下，降维并不会影响结果。比如1000像素的图片缩小成200像素，并不影响肉眼认出来图片中是一只猫还是一只狗，机器也是如此。
-0.1、保留图像特征 图片数字化的传统方式我们简化一下，就类似下图的过程：
+保留图像特征 图片数字化的传统方式我们简化一下，就类似下图的过程：
 假如有圆形是1，没有圆形是0，那么圆形的位置不同就会产生完全不同的数据表达。但是从视觉的角度来看，图像的内容（本质）并没有发生变化，只是位置发生了变化。
 所以当我们移动图像中的物体，用传统的方式的得出来的参数会差异很大！这是不符合图像处理的要求的。
 而 CNN 解决了这个问题，他用类似视觉的方式保留了图像的特征，当图像做翻转，旋转或者变换位置时，它也能有效的识别出来是类似的图像。
 那么卷积神经网络是如何实现的呢？在我们了解 CNN 原理之前，先来看看人类的视觉原理是什么？
-1、人类的视觉原理 深度学习的许多研究成果，离不开对大脑认知原理的研究，尤其是视觉原理的研究。
+1. 人类的视觉原理 深度学习的许多研究成果，离不开对大脑认知原理的研究，尤其是视觉原理的研究。
 1981 年的诺贝尔医学奖，颁发给了 David Hubel（出生于加拿大的美国神经生物学家） 和TorstenWiesel，以及 Roger Sperry。前两位的主要贡献，是“发现了视觉系统的信息处理”，可视皮层是分级的。
 人类的视觉原理如下：从原始信号摄入开始（瞳孔摄入像素 Pixels），接着做初步处理（大脑皮层某些细胞发现边缘和方向），然后抽象（大脑判定，眼前的物体的形状，是圆形的），然后进一步抽象（大脑进一步判定该物体是只气球）。下面是人脑进行人脸识别的一个示例：
 对于不同的物体，人类视觉也是通过这样逐层分级，来进行认知的：
 我们可以看到，在最底层特征基本上是类似的，就是各种边缘，越往上，越能提取出此类物体的一些特征（轮子、眼睛、躯干等），到最上层，不同的高级特征最终组合成相应的图像，从而能够让人类准确的区分不同的物体。
 那么我们可以很自然的想到：可以不可以模仿人类大脑的这个特点，构造多层的神经网络，较低层的识别初级的图像特征，若干底层特征组成更上一层特征，最终通过多个层级的组合，最终在顶层做出分类呢？
 答案是肯定的，这也是许多深度学习算法（包括CNN）的灵感来源。
-2、卷积神经网络-CNN 的基本原理 典型的 CNN 由3个部分构成：
+2. 卷积神经网络-CNN 的基本原理 典型的 CNN 由3个部分构成：
  卷积层 池化层 全连接层  如果简单来描述的话：卷积层负责提取图像中的局部特征；池化层用来大幅降低参数量级(降维)；全连接层类似传统神经网络的部分，用来输出想要的结果。
 下面的原理解释为了通俗易懂，忽略了很多技术细节，如果大家对详细的原理感兴趣，可以看这个视频《卷积神经网络基础 》。
-2.1、卷积——提取特征 卷积层的运算过程如下图，用一个卷积核扫完整张图片：
+2.1 卷积——提取特征 卷积层的运算过程如下图，用一个卷积核扫完整张图片：
 这个过程我们可以理解为我们使用一个过滤器（卷积核）来过滤图像的各个小区域，从而得到这些小区域的特征值。
-在具体应用中，往往有多个卷积核，可以认为，每个卷积核代表了一种图像模式，如果某个图像块与此卷积核卷积出的值大，则认为此图像块十分接近于此卷积核。如果我们设计了6个卷积核，可以理解：我们认为这个图像上有6种底层纹理模式，也就是我们用6中基础模式就能描绘出一副图像。以下就是25种不同的卷积核的示例：
-总结：卷积层的通过卷积核的过滤提取出图片中局部的特征，跟上面提到的人类视觉的特征提取类似。
-2.2、池化层（下采样）——数据降维，避免过拟合 池化层简单说就是下采样，他可以大大降低数据的维度。其过程如下："><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+在具体应用中，往往有多个卷积核，可以认为，每个卷积核代表了一种图像模式，如果某个图像块与此卷积核卷积出的值大，则认为此图像块十分接近于此卷积核。如果我们设计了6个卷积核，可以理解：我们认为这个图像上有6种底层纹理模式，也就是我们用6中基础模式就能描绘出一副图像。以下就是25种不同的卷积核的示例："><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="127"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
-<meta itemprop="keywords" content="CNN,AI," /><meta property="og:title" content="卷积神经网络–CNN" />
+<meta itemprop="wordCount" content="133"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="keywords" content="CNN,AI," /><meta property="og:title" content="卷积神经网络" />
 <meta property="og:description" content="在 CNN 出现之前，图像对于人工智能来说是一个难题，有2个原因：
  图像需要处理的数据量太大，导致成本很高，效率很低 图像在数字化的过程中很难保留原有的特征，导致图像处理的准确率不高  下面就详细说明一下这2个问题：
-0.0、需要处理的数据量太大 图像是由像素构成的，每个像素又是由颜色构成的。
+需要处理的数据量太大 图像是由像素构成的，每个像素又是由颜色构成的。
 现在随随便便一张图片都是 1000×1000 像素以上的， 每个像素都有RGB 3个参数来表示颜色信息。
 假如我们处理一张 1000×1000 像素的图片，我们就需要处理3百万个参数！
 1000×1000×3=3,000,000
 这么大量的数据处理起来是非常消耗资源的，而且这只是一张不算太大的图片！
 卷积神经网络 – CNN 解决的第一个问题就是「将复杂问题简化」，把大量参数降维成少量参数，再做处理。
 更重要的是：我们在大部分场景下，降维并不会影响结果。比如1000像素的图片缩小成200像素，并不影响肉眼认出来图片中是一只猫还是一只狗，机器也是如此。
-0.1、保留图像特征 图片数字化的传统方式我们简化一下，就类似下图的过程：
+保留图像特征 图片数字化的传统方式我们简化一下，就类似下图的过程：
 假如有圆形是1，没有圆形是0，那么圆形的位置不同就会产生完全不同的数据表达。但是从视觉的角度来看，图像的内容（本质）并没有发生变化，只是位置发生了变化。
 所以当我们移动图像中的物体，用传统的方式的得出来的参数会差异很大！这是不符合图像处理的要求的。
 而 CNN 解决了这个问题，他用类似视觉的方式保留了图像的特征，当图像做翻转，旋转或者变换位置时，它也能有效的识别出来是类似的图像。
 那么卷积神经网络是如何实现的呢？在我们了解 CNN 原理之前，先来看看人类的视觉原理是什么？
-1、人类的视觉原理 深度学习的许多研究成果，离不开对大脑认知原理的研究，尤其是视觉原理的研究。
+1. 人类的视觉原理 深度学习的许多研究成果，离不开对大脑认知原理的研究，尤其是视觉原理的研究。
 1981 年的诺贝尔医学奖，颁发给了 David Hubel（出生于加拿大的美国神经生物学家） 和TorstenWiesel，以及 Roger Sperry。前两位的主要贡献，是“发现了视觉系统的信息处理”，可视皮层是分级的。
 人类的视觉原理如下：从原始信号摄入开始（瞳孔摄入像素 Pixels），接着做初步处理（大脑皮层某些细胞发现边缘和方向），然后抽象（大脑判定，眼前的物体的形状，是圆形的），然后进一步抽象（大脑进一步判定该物体是只气球）。下面是人脑进行人脸识别的一个示例：
 对于不同的物体，人类视觉也是通过这样逐层分级，来进行认知的：
 我们可以看到，在最底层特征基本上是类似的，就是各种边缘，越往上，越能提取出此类物体的一些特征（轮子、眼睛、躯干等），到最上层，不同的高级特征最终组合成相应的图像，从而能够让人类准确的区分不同的物体。
 那么我们可以很自然的想到：可以不可以模仿人类大脑的这个特点，构造多层的神经网络，较低层的识别初级的图像特征，若干底层特征组成更上一层特征，最终通过多个层级的组合，最终在顶层做出分类呢？
 答案是肯定的，这也是许多深度学习算法（包括CNN）的灵感来源。
-2、卷积神经网络-CNN 的基本原理 典型的 CNN 由3个部分构成：
+2. 卷积神经网络-CNN 的基本原理 典型的 CNN 由3个部分构成：
  卷积层 池化层 全连接层  如果简单来描述的话：卷积层负责提取图像中的局部特征；池化层用来大幅降低参数量级(降维)；全连接层类似传统神经网络的部分，用来输出想要的结果。
 下面的原理解释为了通俗易懂，忽略了很多技术细节，如果大家对详细的原理感兴趣，可以看这个视频《卷积神经网络基础 》。
-2.1、卷积——提取特征 卷积层的运算过程如下图，用一个卷积核扫完整张图片：
+2.1 卷积——提取特征 卷积层的运算过程如下图，用一个卷积核扫完整张图片：
 这个过程我们可以理解为我们使用一个过滤器（卷积核）来过滤图像的各个小区域，从而得到这些小区域的特征值。
-在具体应用中，往往有多个卷积核，可以认为，每个卷积核代表了一种图像模式，如果某个图像块与此卷积核卷积出的值大，则认为此图像块十分接近于此卷积核。如果我们设计了6个卷积核，可以理解：我们认为这个图像上有6种底层纹理模式，也就是我们用6中基础模式就能描绘出一副图像。以下就是25种不同的卷积核的示例：
-总结：卷积层的通过卷积核的过滤提取出图片中局部的特征，跟上面提到的人类视觉的特征提取类似。
-2.2、池化层（下采样）——数据降维，避免过拟合 池化层简单说就是下采样，他可以大大降低数据的维度。其过程如下：" />
+在具体应用中，往往有多个卷积核，可以认为，每个卷积核代表了一种图像模式，如果某个图像块与此卷积核卷积出的值大，则认为此图像块十分接近于此卷积核。如果我们设计了6个卷积核，可以理解：我们认为这个图像上有6种底层纹理模式，也就是我们用6中基础模式就能描绘出一副图像。以下就是25种不同的卷积核的示例：" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/ai/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9Ccnn/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -80,36 +76,34 @@
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
 
-<meta name="twitter:title" content="卷积神经网络–CNN"/>
+<meta name="twitter:title" content="卷积神经网络"/>
 <meta name="twitter:description" content="在 CNN 出现之前，图像对于人工智能来说是一个难题，有2个原因：
  图像需要处理的数据量太大，导致成本很高，效率很低 图像在数字化的过程中很难保留原有的特征，导致图像处理的准确率不高  下面就详细说明一下这2个问题：
-0.0、需要处理的数据量太大 图像是由像素构成的，每个像素又是由颜色构成的。
+需要处理的数据量太大 图像是由像素构成的，每个像素又是由颜色构成的。
 现在随随便便一张图片都是 1000×1000 像素以上的， 每个像素都有RGB 3个参数来表示颜色信息。
 假如我们处理一张 1000×1000 像素的图片，我们就需要处理3百万个参数！
 1000×1000×3=3,000,000
 这么大量的数据处理起来是非常消耗资源的，而且这只是一张不算太大的图片！
 卷积神经网络 – CNN 解决的第一个问题就是「将复杂问题简化」，把大量参数降维成少量参数，再做处理。
 更重要的是：我们在大部分场景下，降维并不会影响结果。比如1000像素的图片缩小成200像素，并不影响肉眼认出来图片中是一只猫还是一只狗，机器也是如此。
-0.1、保留图像特征 图片数字化的传统方式我们简化一下，就类似下图的过程：
+保留图像特征 图片数字化的传统方式我们简化一下，就类似下图的过程：
 假如有圆形是1，没有圆形是0，那么圆形的位置不同就会产生完全不同的数据表达。但是从视觉的角度来看，图像的内容（本质）并没有发生变化，只是位置发生了变化。
 所以当我们移动图像中的物体，用传统的方式的得出来的参数会差异很大！这是不符合图像处理的要求的。
 而 CNN 解决了这个问题，他用类似视觉的方式保留了图像的特征，当图像做翻转，旋转或者变换位置时，它也能有效的识别出来是类似的图像。
 那么卷积神经网络是如何实现的呢？在我们了解 CNN 原理之前，先来看看人类的视觉原理是什么？
-1、人类的视觉原理 深度学习的许多研究成果，离不开对大脑认知原理的研究，尤其是视觉原理的研究。
+1. 人类的视觉原理 深度学习的许多研究成果，离不开对大脑认知原理的研究，尤其是视觉原理的研究。
 1981 年的诺贝尔医学奖，颁发给了 David Hubel（出生于加拿大的美国神经生物学家） 和TorstenWiesel，以及 Roger Sperry。前两位的主要贡献，是“发现了视觉系统的信息处理”，可视皮层是分级的。
 人类的视觉原理如下：从原始信号摄入开始（瞳孔摄入像素 Pixels），接着做初步处理（大脑皮层某些细胞发现边缘和方向），然后抽象（大脑判定，眼前的物体的形状，是圆形的），然后进一步抽象（大脑进一步判定该物体是只气球）。下面是人脑进行人脸识别的一个示例：
 对于不同的物体，人类视觉也是通过这样逐层分级，来进行认知的：
 我们可以看到，在最底层特征基本上是类似的，就是各种边缘，越往上，越能提取出此类物体的一些特征（轮子、眼睛、躯干等），到最上层，不同的高级特征最终组合成相应的图像，从而能够让人类准确的区分不同的物体。
 那么我们可以很自然的想到：可以不可以模仿人类大脑的这个特点，构造多层的神经网络，较低层的识别初级的图像特征，若干底层特征组成更上一层特征，最终通过多个层级的组合，最终在顶层做出分类呢？
 答案是肯定的，这也是许多深度学习算法（包括CNN）的灵感来源。
-2、卷积神经网络-CNN 的基本原理 典型的 CNN 由3个部分构成：
+2. 卷积神经网络-CNN 的基本原理 典型的 CNN 由3个部分构成：
  卷积层 池化层 全连接层  如果简单来描述的话：卷积层负责提取图像中的局部特征；池化层用来大幅降低参数量级(降维)；全连接层类似传统神经网络的部分，用来输出想要的结果。
 下面的原理解释为了通俗易懂，忽略了很多技术细节，如果大家对详细的原理感兴趣，可以看这个视频《卷积神经网络基础 》。
-2.1、卷积——提取特征 卷积层的运算过程如下图，用一个卷积核扫完整张图片：
+2.1 卷积——提取特征 卷积层的运算过程如下图，用一个卷积核扫完整张图片：
 这个过程我们可以理解为我们使用一个过滤器（卷积核）来过滤图像的各个小区域，从而得到这些小区域的特征值。
-在具体应用中，往往有多个卷积核，可以认为，每个卷积核代表了一种图像模式，如果某个图像块与此卷积核卷积出的值大，则认为此图像块十分接近于此卷积核。如果我们设计了6个卷积核，可以理解：我们认为这个图像上有6种底层纹理模式，也就是我们用6中基础模式就能描绘出一副图像。以下就是25种不同的卷积核的示例：
-总结：卷积层的通过卷积核的过滤提取出图片中局部的特征，跟上面提到的人类视觉的特征提取类似。
-2.2、池化层（下采样）——数据降维，避免过拟合 池化层简单说就是下采样，他可以大大降低数据的维度。其过程如下："/>
+在具体应用中，往往有多个卷积核，可以认为，每个卷积核代表了一种图像模式，如果某个图像块与此卷积核卷积出的值大，则认为此图像块十分接近于此卷积核。如果我们设计了6个卷积核，可以理解：我们认为这个图像上有6种底层纹理模式，也就是我们用6中基础模式就能描绘出一副图像。以下就是25种不同的卷积核的示例："/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.9823d950e7319c8ceb08b6234b64b3736ce36485bc1b6b0689482a5d0c4c1c8f.js" integrity="sha256-mCPZUOcxnIzrCLYjS2Szc2zjZIW8G2sGiUgqXQxMHI8=" crossorigin="anonymous"></script>
@@ -313,7 +307,7 @@
       <div class="row content">
 <div class="col-lg-8">
   <div class="container"><nav class="row" aria-label="breadcrumb">
-  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">卷积神经网络–CNN</li></ol>
+  <ol class="breadcrumb surface"><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">卷积神经网络</li></ol>
 </nav><article class="post row surface"><div class="post-panel-wrapper">
   <div class="post-panel d-flex flex-column">
     <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
@@ -330,7 +324,7 @@
 </a>
   </div>
 </div>
-<h1 class="post-title my-3">卷积神经网络–CNN
+<h1 class="post-title my-3">卷积神经网络
 </h1><div class="post-meta mb-3"><span class="post-date me-2">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
   </span><span class="post-reading-time me-2">
@@ -347,9 +341,18 @@
   <div class="offcanvas-body">
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#21卷积提取特征">2.1、卷积——提取特征</a></li>
-    <li><a href="#22池化层下采样数据降维避免过拟合">2.2、池化层（下采样）——数据降维，避免过拟合</a></li>
-    <li><a href="#23全连接层输出结果">2.3、全连接层——输出结果</a></li>
+    <li><a href="#需要处理的数据量太大">需要处理的数据量太大</a></li>
+    <li><a href="#保留图像特征">保留图像特征</a></li>
+    <li><a href="#1-人类的视觉原理">1. 人类的视觉原理</a></li>
+    <li><a href="#2-卷积神经网络-cnn-的基本原理">2. 卷积神经网络-CNN 的基本原理</a>
+      <ul>
+        <li><a href="#21-卷积提取特征">2.1 卷积——提取特征</a></li>
+        <li><a href="#22-池化层下采样数据降维避免过拟合">2.2 池化层（下采样）——数据降维，避免过拟合</a></li>
+        <li><a href="#23-全连接层输出结果">2.3 全连接层——输出结果</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-总结">3. 总结</a></li>
+    <li><a href="#参考">参考</a></li>
   </ul>
 </nav>
   </div>
@@ -359,29 +362,23 @@
 <li>图像在数字化的过程中很难保留原有的特征，导致图像处理的准确率不高</li>
 </ol>
 <p>下面就详细说明一下这2个问题：</p>
-<h1 id="00需要处理的数据量太大">0.0、需要处理的数据量太大</h1>
+<h2 id="需要处理的数据量太大">需要处理的数据量太大</h2>
 <p>图像是由像素构成的，每个像素又是由颜色构成的。</p>
-<p><img class="img-fluid" alt="图像是由像素构成的，每个像素又是由颜色构成的" src="http://picgo.6and.ltd/img/2019-06-12-xiangsu.png"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/2019-06-12-xiangsu.png" alt="图像是由像素构成的，每个像素又是由颜色构成的" style="zoom: 50%;" /></p>
 <p>现在随随便便一张图片都是 1000×1000 像素以上的， 每个像素都有RGB 3个参数来表示颜色信息。</p>
 <p>假如我们处理一张 1000×1000 像素的图片，我们就需要处理3百万个参数！</p>
 <p>1000×1000×3=3,000,000</p>
 <p>这么大量的数据处理起来是非常消耗资源的，而且这只是一张不算太大的图片！</p>
 <p><strong>卷积神经网络 – CNN 解决的第一个问题就是「将复杂问题简化」，把大量参数降维成少量参数，再做处理。</strong></p>
 <p><strong>更重要的是：我们在大部分场景下，降维并不会影响结果。比如1000像素的图片缩小成200像素，并不影响肉眼认出来图片中是一只猫还是一只狗，机器也是如此。</strong></p>
-<h1 id="01保留图像特征">0.1、保留图像特征</h1>
+<h2 id="保留图像特征">保留图像特征</h2>
 <p>图片数字化的传统方式我们简化一下，就类似下图的过程：</p>
-<p><img class="img-fluid" alt="图像简单数字化无法保留图像特征" src="http://picgo.6and.ltd/img/2019-06-12-tuxiangtx.png"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/2019-06-12-tuxiangtx.png" alt="图像简单数字化无法保留图像特征" style="zoom:50%;" /></p>
 <p>假如有圆形是1，没有圆形是0，那么圆形的位置不同就会产生完全不同的数据表达。但是从视觉的角度来看，<strong>图像的内容（本质）并没有发生变化，只是位置发生了变化。</strong></p>
 <p>所以当我们移动图像中的物体，用传统的方式的得出来的参数会差异很大！这是不符合图像处理的要求的。</p>
 <p><strong>而 CNN 解决了这个问题，他用类似视觉的方式保留了图像的特征，当图像做翻转，旋转或者变换位置时，它也能有效的识别出来是类似的图像。</strong></p>
 <p>那么卷积神经网络是如何实现的呢？在我们了解 CNN 原理之前，先来看看人类的视觉原理是什么？</p>
-<h1 id="1人类的视觉原理">1、人类的视觉原理</h1>
+<h2 id="1-人类的视觉原理">1. 人类的视觉原理</h2>
 <p>深度学习的许多研究成果，离不开对大脑认知原理的研究，尤其是视觉原理的研究。</p>
 <p>1981 年的诺贝尔医学奖，颁发给了 David Hubel（出生于加拿大的美国神经生物学家） 和TorstenWiesel，以及 Roger Sperry。前两位的主要贡献，是“<strong>发现了视觉系统的信息处理</strong>”，可视皮层是分级的。</p>
 <p>人类的视觉原理如下：从原始信号摄入开始（瞳孔摄入像素 Pixels），接着做初步处理（大脑皮层某些细胞发现边缘和方向），然后抽象（大脑判定，眼前的物体的形状，是圆形的），然后进一步抽象（大脑进一步判定该物体是只气球）。下面是人脑进行人脸识别的一个示例：</p>
@@ -397,7 +394,7 @@
 <p>我们可以看到，在最底层特征基本上是类似的，就是各种边缘，越往上，越能提取出此类物体的一些特征（轮子、眼睛、躯干等），到最上层，不同的高级特征最终组合成相应的图像，从而能够让人类准确的区分不同的物体。</p>
 <p>那么我们可以很自然的想到：可以不可以模仿人类大脑的这个特点，构造多层的神经网络，较低层的识别初级的图像特征，若干底层特征组成更上一层特征，最终通过多个层级的组合，最终在顶层做出分类呢？</p>
 <p><strong>答案是肯定的，这也是许多深度学习算法（包括CNN）的灵感来源。</strong></p>
-<h1 id="2卷积神经网络-cnn-的基本原理">2、卷积神经网络-CNN 的基本原理</h1>
+<h2 id="2-卷积神经网络-cnn-的基本原理">2. 卷积神经网络-CNN 的基本原理</h2>
 <p>典型的 CNN 由3个部分构成：</p>
 <ol>
 <li>卷积层</li>
@@ -405,13 +402,10 @@
 <li>全连接层</li>
 </ol>
 <p>如果简单来描述的话：卷积层负责提取图像中的局部特征；池化层用来大幅降低参数量级(降维)；全连接层类似传统神经网络的部分，用来输出想要的结果。</p>
-<p><img class="img-fluid" alt="典型的 CNN 由3个部分构成" src="http://picgo.6and.ltd/img/2019-06-24-cnnjiegou.png"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/2019-06-24-cnnjiegou.png" alt="典型的 CNN 由3个部分构成" style="zoom:50%;" /></p>
 <p>下面的原理解释为了通俗易懂，忽略了很多技术细节，如果大家对详细的原理感兴趣，可以看这个视频《<a href="https://www.bilibili.com/video/av28733156/?p=3" target="_blank" rel="noopener noreferrer">卷积神经网络基础</a>
 》。</p>
-<h2 id="21卷积提取特征">2.1、卷积——提取特征</h2>
+<h3 id="21-卷积提取特征">2.1 卷积——提取特征</h3>
 <p>卷积层的运算过程如下图，用一个卷积核扫完整张图片：</p>
 <p><img class="img-fluid" alt="卷积层运算过程" src="http://picgo.6and.ltd/img/2019-06-19-juanji.gif"
    loading="lazy" />
@@ -424,29 +418,23 @@
 
 </p>
 <p><strong>总结：卷积层的通过卷积核的过滤提取出图片中局部的特征，跟上面提到的人类视觉的特征提取类似。</strong></p>
-<h2 id="22池化层下采样数据降维避免过拟合">2.2、池化层（下采样）——数据降维，避免过拟合</h2>
+<h3 id="22-池化层下采样数据降维避免过拟合">2.2 池化层（下采样）——数据降维，避免过拟合</h3>
 <p>池化层简单说就是下采样，他可以大大降低数据的维度。其过程如下：</p>
-<p><img class="img-fluid" alt="池化层过程" src="http://picgo.6and.ltd/img/2019-06-19-chihua.gif"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/2019-06-19-chihua.gif" alt="池化层过程" style="zoom:67%;" /></p>
 <p>上图中，我们可以看到，原始图片是20×20的，我们对其进行下采样，采样窗口为10×10，最终将其下采样成为一个2×2大小的特征图。</p>
 <p>之所以这么做的原因，是因为即使做完了卷积，图像仍然很大（因为卷积核比较小），所以为了降低数据维度，就进行下采样。</p>
 <p><strong>总结：池化层相比卷积层可以更有效的降低数据维度，这么做不但可以大大减少运算量，还可以有效的避免过拟合。</strong></p>
-<h2 id="23全连接层输出结果">2.3、全连接层——输出结果</h2>
+<h3 id="23-全连接层输出结果">2.3 全连接层——输出结果</h3>
 <p>这个部分就是最后一步了，经过卷积层和池化层处理过的数据输入到全连接层，得到最终想要的结果。</p>
 <p>经过卷积层和池化层降维过的数据，全连接层才能”跑得动”，不然数据量太大，计算成本高，效率低下。</p>
-<p><img class="img-fluid" alt="全连接层" src="http://picgo.6and.ltd/img/2019-06-19-quanlianjie.png"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/2019-06-19-quanlianjie.png" alt="全连接层" style="zoom:67%;" /></p>
 <p>典型的 CNN 并非只是上面提到的3层结构，而是多层结构，例如 LeNet-5 的结构就如下图所示：</p>
 <p><strong>卷积层 – 池化层- 卷积层 – 池化层 – 卷积层 – 全连接层</strong></p>
 <p><img class="img-fluid" alt="LeNet-5网络结构" src="http://picgo.6and.ltd/img/2019-06-19-lenet.png"
    loading="lazy" />
 
 </p>
-<h1 id="3总结">3、总结</h1>
+<h2 id="3-总结">3. 总结</h2>
 <p>今天我们介绍了 CNN 的价值、基本原理和应用场景，简单总结如下：</p>
 <p><strong>CNN 的价值：</strong></p>
 <ol>
@@ -463,10 +451,7 @@
 <p><strong>图像分类、检索</strong></p>
 <p>图像分类是比较基础的应用，他可以节省大量的人工成本，将图像进行有效的分类。对于一些特定领域的图片，分类的准确率可以达到 95%+，已经算是一个可用性很高的应用了。</p>
 <p>典型场景：图像搜索…</p>
-<p><img class="img-fluid" alt="CNN应用-图像分类、检索" src="http://picgo.6and.ltd/img/2019-06-12-cnn-fenlei.png"
-   loading="lazy" />
-
-</p>
+<p><img src="http://picgo.6and.ltd/img/2019-06-12-cnn-fenlei.png" alt="CNN应用-图像分类、检索" style="zoom:67%;" /></p>
 <p><strong>目标定位检测</strong></p>
 <p>可以在图像中定位目标，并确定目标的位置及大小。</p>
 <p>典型场景：自动驾驶、安防、医疗…</p>
@@ -496,7 +481,7 @@
    loading="lazy" />
 
 </p>
-<h1 id="参考">参考</h1>
+<h2 id="参考">参考</h2>
 <p><a href="https://easyai.tech/ai-definition/cnn/" target="_blank" rel="noopener noreferrer">https://easyai.tech/ai-definition/cnn/</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
@@ -535,7 +520,7 @@
     </div></div>
 </div><section class="related-posts">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://xuzhijvn.github.io/zh-cn/posts/ai/%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%ADbp/">反向传播—BP
+    <ul class="related-posts"><li><a href="https://xuzhijvn.github.io/zh-cn/posts/ai/%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%ADbp/">反向传播
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/ai/%E5%B8%B8%E7%94%A8%E7%9A%84%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87/">常用的模型评估指标
 </a></li></ul>
   </section></article><div class="post-comments surface row"><script src="https://utteranc.es/client.js"

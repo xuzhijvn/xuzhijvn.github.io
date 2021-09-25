@@ -906,20 +906,18 @@ HA 高可用性 这个应该是很常见的，比如 hadoop、hdfs、yarn 等很
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E6%A0%B8%E5%BF%83%E8%AE%BE%E8%AE%A1%E7%90%86%E8%A7%A3%E4%B8%8E%E5%AE%9E%E6%88%98/</guid>
-      <description>一、前言 想起很久以前在某个客户现场，微服务 B 突然无法调用到微服务 A，为了使服务尽快正常恢复，重启了微服务 B 。
-但客户不依不饶询问这个问题出现的原因，于是我还大老远从杭州飞到深圳，现场排查问题。
-最后的结论是，zk 在某时刻出现主备切换，此时微服务 A（基于 dubbo）需要重新往 zk上注册，但是端口号变了。
-但是微服务 B 本地有微服务 A rpc 接口的缓存，缓存里面还是旧的端口，所以调用不到。
-解决方法就是，把微服务的 rpc 端口号改成固定的。
-虽说原因找到了，但对于 Zookeeper 的理解还是不够深刻，于是重新学习了 Zookeeper 的核心设计，并记录于此文共勉。
-二、Zookeeper 核心架构设计 1、Zookeeper 特点 （1）Zookeeper 是一个分布式协调服务，是为了解决多个节点状态不一致的问题，充当中间机构来调停。如果出现了不一致，则把这个不一致的情况写入到 Zookeeper 中，Zookeeper 会返回响应，响应成功，则表示帮你达成了一致。
+      <description>1. Zookeeper 核心架构设计 1.1 Zookeeper 特点 （1）Zookeeper 是一个分布式协调服务，是为了解决多个节点状态不一致的问题，充当中间机构来调停。如果出现了不一致，则把这个不一致的情况写入到 Zookeeper 中，Zookeeper 会返回响应，响应成功，则表示帮你达成了一致。
 比如，A、B、C 节点在集群启动时，需要推举出一个主节点，这个时候，A、B、C 只要同时往 Zookeeper 上注册临时节点，谁先注册成功，谁就是主节点。
 （2）Zookeeper 虽然是一个集群，但是数据并不是分散存储在各个节点上的，而是每个节点都保存了集群所有的数据。
 其中一个节点作为主节点，提供分布式事务的写服务，其他节点和这个节点同步数据，保持和主节点状态一致。
 （3）Zookeeper 所有节点的数据状态通过 Zab 协议保持一致。当集群中没有 Leader 节点时，内部会执行选举，选举结束，Follower 和 Leader 执行状态同步；当有 Leader 节点时，Leader 通过 ZAB 协议主导分布式事务的执行，并且所有的事务都是串行执行的。
 （4）Zookeeper 的节点个数是不能线性扩展的，节点越多，同步数据的压力越大，执行分布式事务性能越差。推荐3、5、7 这样的数目。
-2、Zookeeper 角色的理解 Zookeeper 并没有沿用 Master/Slave 概念，而是引入了 Leader，Follower，Observer 三种角色。
-通过 Leader 选举算法来选定一台服务器充当 Leader 节点，Leader 服务器为客户端提供读、写服务。</description>
+1.1 Zookeeper 角色的理解 Zookeeper 并没有沿用 Master/Slave 概念，而是引入了 Leader，Follower，Observer 三种角色。
+通过 Leader 选举算法来选定一台服务器充当 Leader 节点，Leader 服务器为客户端提供读、写服务。
+Follower 节点可以参加选举，也可以接受客户端的读请求，但是接受到客户端的写请求时，会转发到 Leader 服务器去处理。
+Observer 角色只能提供读服务，不能选举和被选举，所以它存在的意义是在不影响写性能的前提下，提升集群的读性能。
+1.3 Zookeeper 同时满足了 CAP 吗？ 答案是否，CAP 只能同时满足其二。
+Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的写入一致性，牺牲的是 C的读一致性。</description>
     </item>
     
     <item>
@@ -928,7 +926,7 @@ HA 高可用性 这个应该是很常见的，比如 hadoop、hdfs、yarn 等很
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E7%9A%84stat%E7%BB%93%E6%9E%84/</guid>
-      <description>ZooKeeper的stat结构 ZooKeeper命名空间中的每个znode都有一个与之关联的stat结构，类似于Unix/Linux文件系统中文件的stat结构。 znode的stat结构中的字段显示如下，各自的含义如下：
+      <description>ZooKeeper命名空间中的每个znode都有一个与之关联的stat结构，类似于Unix/Linux文件系统中文件的stat结构。 znode的stat结构中的字段显示如下，各自的含义如下：
  cZxid：这是导致创建znode更改的事务ID。 mZxid：这是最后修改znode更改的事务ID。 pZxid：这是用于添加或删除子节点的znode更改的事务ID。 ctime：表示从1970-01-01T00:00:00Z开始以毫秒为单位的znode创建时间。 mtime：表示从1970-01-01T00:00:00Z开始以毫秒为单位的znode最近修改时间。 dataVersion：表示对该znode的数据所做的更改次数。 cversion：这表示对此znode的子节点进行的更改次数。 aclVersion：表示对此znode的ACL进行更改的次数。 ephemeralOwner：如果znode是ephemeral类型节点，则这是znode所有者的 session ID。 如果znode不是ephemeral节点，则该字段设置为零。 dataLength：这是znode数据字段的长度。 numChildren：这表示znode的子节点的数量。  在ZooKeeper Java shell中，可以使用stat或ls2命令查看znode的stat结构。 具体说明如下：
 使用stat命令查看znode的stat结构：
 [zk: localhost(CONNECTED) 0] stat /zookeeper cZxid = 0x0 ctime = Thu Jan 01 05:30:00 IST 1970 mZxid = 0x0 mtime = Thu Jan 01 05:30:00 IST 1970 pZxid = 0x0 cversion = -1 dataVersion = 0 aclVersion = 0 ephemeralOwner = 0x0 dataLength = 0 numChildren = 1 使用ls2命令查看znode的stat结构：</description>
