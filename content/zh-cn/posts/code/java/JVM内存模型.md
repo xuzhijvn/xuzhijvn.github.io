@@ -31,7 +31,9 @@ images =  [
 
 Java 堆是可供各线程共享的运行时内存区域，是 Java 虚拟机所管理的内存区域中最大的一块。此区域非常重要，几乎所有的对象实例和数组实例都要在 Java 堆上分配，但随着 JIT 编译器及逃逸分析技术的发展，**也可能会被优化为栈上分配**。
 
-Heap 中除了作为对象分配使用，还包含字符串字面量 **常量池（Internd Strings）** 。 除此之外 Heap 中还包含一个 **新生代（Yong Generation）**、一个 **老年代（Old Generation）**。
+Heap 中除了作为对象分配使用，还包含字符串字面量 **常量池（Internd Strings）** 。 
+
+G1以前的垃圾回收器采用分代回收算法，Heap 中还包含一个 **新生代（Yong Generation）**、一个 **老年代（Old Generation）**。
 
 新生代分三个区，一个Eden区，两个Survivor区，**大部分对象在Eden区中生成**。Survivor 区总有一个是空的。
 
@@ -77,3 +79,5 @@ Heap 中除了作为对象分配使用，还包含字符串字面量 **常量池
 [Native Memory Tracking](https://docs.oracle.com/javase/8/docs/technotes/guides/troubleshoot/tooldescr007.html)
 
 在 JDK 1.4 中新加入了 NIO 类，它可以使用 Native 函数库直接分配堆外内存，然后通过一个存储在 Java 堆里的 `DirectByteBuffer` 对象作为这块内存的引用进行操作。这样能在一些场景中显著提高性能，因为 **避免了在 Java 堆和 Native 堆中来回复制数据**。
+
+使用Unsafe类也可以直接分配堆外内存。

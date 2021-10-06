@@ -19,6 +19,8 @@ images : [
 
 [comment]: <> "# Java如何绑定线程到指定CPU上执行？"
 
+> 绑定核心之后不存在线程的上下文切换，就可以更好的利用CPU缓存。
+
 
 
 不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。
@@ -166,7 +168,7 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
 
 先把依赖搞到项目里面去：
 
-```
+```xml
 <dependency>
     <groupId>net.openhft</groupId>
     <artifactId>affinity</artifactId>
@@ -176,7 +178,7 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
 
 然后来个 main 方法：
 
-```
+```java
 public static void main(String[] args) {
     try (AffinityLock affinityLock = AffinityLock.acquireLock(5)) {
         // do some work while locked to a CPU.

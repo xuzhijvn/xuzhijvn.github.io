@@ -14,7 +14,7 @@
 1. Java堆溢出 /** * JDK1.6/JDK1.8 * * Java堆内存溢出异常测试 * * VM Args: -Xms20m -Xmx20m -XX:&#43;HeapDumpOnOutOfMemoryError * * @author xuzhijun.online * @date 2019年4月22日 */ public class HeapOOM { static class OOMObject{ } public static void main(String[] args) { List&lt;OOMObject&gt; list = new ArrayList&lt;OOMObject&gt;(); while(true) { list.add(new OOMObject()); } } } 运行结果：
 java.lang.OutOfMemoryError: Java heap space Dumping heap to java_pid3404.hprof ... Heap dump file created [22045981 bytes in 0.663 secs] 处理方法："><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="1277"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="wordCount" content="1276"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="Java," /><meta property="og:title" content="OOM实战" />
 <meta property="og:description" content="《深入理解Java虚拟机》中将OOM划分为: Java堆溢出、虚拟机栈和本地方法栈溢出、方法区和运行时常量池溢出、本机直接内存溢出
 1. Java堆溢出 /** * JDK1.6/JDK1.8 * * Java堆内存溢出异常测试 * * VM Args: -Xms20m -Xmx20m -XX:&#43;HeapDumpOnOutOfMemoryError * * @author xuzhijun.online * @date 2019年4月22日 */ public class HeapOOM { static class OOMObject{ } public static void main(String[] args) { List&lt;OOMObject&gt; list = new ArrayList&lt;OOMObject&gt;(); while(true) { list.add(new OOMObject()); } } } 运行结果：
@@ -476,8 +476,10 @@ at org.fenixsoft.oom. JavaVMStackSOF.leak<span style="color:#f92672">(</span>Jav
   <span style="color:#f92672">}</span>
 
 <span style="color:#f92672">}</span>
-</code></pre></div><p>[v_error]重点提示一下， 如果读者要尝试运行上面这段代码， 记得要先保存当前的工作， 由于在Windows平台的虚拟机中， Java的线程是映射到操作系统的内核线程上[1]， 无限制地创建线程会对操作系统带来很大压力， 上述代码执行时有很高的风险， 可能会由于创建线程数量过多而导致操作系统假死。[/v_error]
-运行结果:</p>
+</code></pre></div><blockquote>
+<p>重点提示一下， 如果读者要尝试运行上面这段代码， 记得要先保存当前的工作， 由于在Windows平台的虚拟机中， Java的线程是映射到操作系统的内核线程上， 无限制地创建线程会对操作系统带来很大压力， 上述代码执行时有很高的风险， 可能会由于创建线程数量过多而导致操作系统假死。</p>
+</blockquote>
+<p>运行结果:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">Exception in thread <span style="color:#e6db74">&#34;main&#34;</span> java.lang.OutOfMemoryError: unable to create native thread
 </code></pre></div><p>处理方法：</p>
 <ol>
@@ -487,8 +489,8 @@ at org.fenixsoft.oom. JavaVMStackSOF.leak<span style="color:#f92672">(</span>Jav
 <h2 id="3-方法区和运行时常量池溢出">3. 方法区和运行时常量池溢出</h2>
 <p>由于运行时常量池是方法区的一部分， 所以这两个区域的溢出测试可以放到一起进行。</p>
 <h3 id="31-运行时常量池溢出">3.1 运行时常量池溢出</h3>
-<p>[v_tips]String::intern()是一个本地方法， 它的作用是如果字符串常量池中已经包含一个等于此String对象的字符串， 则返回代表池中这个字符串的String对象的引用； 否则， 会将此String对象包含的字符串添加到常量池中， 并且返回此String对象的引用。 [/v_tips]</p>
-<p>在JDK 6或更早之前的HotSpot虚拟机中， 常量池都是分配在永久代中， 我们可以通过-XX： PermSize和-XX： MaxPermSize限制永久代的大小， 即可间接限制其中常量池的容量。</p>
+<pre><code>String::intern()是一个本地方法， 它的作用是如果字符串常量池中已经包含一个等于此String对象的字符串， 则返回代表池中这个字符串的String对象的引用； 否则， 会将此String对象包含的字符串添加到常量池中， 并且返回此String对象的引用。
+</code></pre><p>在JDK 6或更早之前的HotSpot虚拟机中， 常量池都是分配在永久代中， 我们可以通过-XX： PermSize和-XX： MaxPermSize限制永久代的大小， 即可间接限制其中常量池的容量。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">/**
 </span><span style="color:#75715e"> * JDK1.6
 </span><span style="color:#75715e"> * 
@@ -554,7 +556,9 @@ at RuntimeConstantPoolOOM<span style="color:#f92672">.</span><span style="color:
 
 <span style="color:#f92672">}</span>
 </code></pre></div><p>JDK 7 及其以上版本会得到(true,false)，而JDK6会得到(false,false)结果。</p>
-<p>[v_tips]对str2比较返回false， 这是因为“java”[2]这个字符串在执行String-Builder.toString()之前就已经出现过了，它是加载sun.misc.Vesion的时候加入常量池的， 字符串常量池中已经有它的引用， 不符合intern()方法要求“首次遇到”的原则， “计算机软件”这个字符串则是首次出现的，因此结果返回true。[/v_tips]</p>
+<blockquote>
+<p>对str2比较返回false， 这是因为“java”这个字符串在执行String-Builder.toString()之前就已经出现过了，它是加载sun.misc.Vesion的时候加入常量池的， 字符串常量池中已经有它的引用， 不符合intern()方法要求“首次遇到”的原则， “计算机软件”这个字符串则是首次出现的，因此结果返回true。</p>
+</blockquote>
 <h3 id="32-方法区溢出">3.2 方法区溢出</h3>
 <p>我们再来看看方法区的其他部分的内容， 方法区的主要职责是用于存放类型的相关信息， 如类名、 访问修饰符、 常量池、 字段描述、 方法描述等。 对于这部分区域的测试， 基本的思路是运行时产生大量的类去填满方法区， 直到溢出为止。下面代码中笔者借助了CGLib直接操作字节码运行时生成了大量的动态类。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">import</span> net.sf.cglib.proxy.Enhancer<span style="color:#f92672">;</span>

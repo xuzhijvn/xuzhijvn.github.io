@@ -69,7 +69,7 @@ Java堆中存放着大量的Java对象实例，在垃圾收集器回收内存前
 
 #### PhantomReference 
 
-**垃圾收集器在 GC 不会清除 PhantomReference，所有的虚引用都必须由程序明确的清除**。同时也不能通过虚引用来取得一个对象的实例。
+**垃圾收集器在 GC 不会清除 PhantomReference，所有的虚引用都必须由程序明确的清除**。同时也不能通过虚引用来取得一个对象的实例。通常与ReferenceQueue配合使用来实现，能在这个对象被收集器回收时收到一个系统通知。[利用虚引用PhantomReference实现对象被回收时收到一个系统通知](https://blog.csdn.net/zmx729618/article/details/79423255)
 
 ## 垃圾回收算法
 

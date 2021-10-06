@@ -327,7 +327,8 @@
 <h4 id="weakreference">WeakReference</h4>
 <p>对象可以从 GC Root 开始通过一个或多个(未被清除的)弱引用对象触及， <strong>垃圾收集器在 GC 的时候会回收所有的 WeakReference</strong>，如果该弱引用对象和引用队列相关联，它会把该弱引用对象加入队列。</p>
 <h4 id="phantomreference">PhantomReference</h4>
-<p><strong>垃圾收集器在 GC 不会清除 PhantomReference，所有的虚引用都必须由程序明确的清除</strong>。同时也不能通过虚引用来取得一个对象的实例。</p>
+<p><strong>垃圾收集器在 GC 不会清除 PhantomReference，所有的虚引用都必须由程序明确的清除</strong>。同时也不能通过虚引用来取得一个对象的实例。通常与ReferenceQueue配合使用来实现，能在这个对象被收集器回收时收到一个系统通知。<a href="https://blog.csdn.net/zmx729618/article/details/79423255" target="_blank" rel="noopener noreferrer">利用虚引用PhantomReference实现对象被回收时收到一个系统通知</a>
+</p>
 <h2 id="垃圾回收算法">垃圾回收算法</h2>
 <h3 id="复制回收算法">复制回收算法</h3>
 <p>将可用内存分为大小相等的两份，在同一时刻只使用其中的一份。当这一份内存使用完了，就将还存活的对象复制到另一份上，然后将这一份上的内存清空。复制算法能有效避免内存碎片，但是算法需要将内存一分为二，导致内存使用率大大降低。</p>

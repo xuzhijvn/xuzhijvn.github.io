@@ -24,10 +24,10 @@
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redisson%E5%8E%9F%E7%90%86/</guid>
-      <description>写在前面 在了解分布式锁具体实现方案之前，我们应该先思考一下使用分布式锁必须要考虑的一些问题。
+      <description>使用 set key value ex/px 秒/毫秒 xx/nx 的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是多锁，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（RedissonPriorityDeque）和分布式同步工具（RedissonCountDownLatch, RedissonSemaphore）
+写在前面 在了解分布式锁具体实现方案之前，我们应该先思考一下使用分布式锁必须要考虑的一些问题。
  互斥性：在任意时刻，只能有一个进程持有锁。 防死锁：即使有一个进程在持有锁的期间崩溃而未能主动释放锁，要有其他方式去释放锁从而保证其他进程能获取到锁。 加锁和解锁的必须是同一个进程。 锁的续期问题。  常见的分布式锁实现方案  基于 Redis 实现分布式锁 基于 Zookeeper 实现分布式锁  本文采用第一种方案，也就是基于 Redis 的分布式锁实现方案。
-Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 Redis 中，指定一个 唯一的用户标识 作为 value。 当 key 不存在时才能设置值，确保同一时间只有一个客户端进程获得锁，满足 互斥性 特性。 设置一个过期时间，防止因系统异常导致没能删除这个 key，满足 防死锁 特性。 当处理完业务之后需要清除这个 key 来释放锁，清除 key 时需要校验 value 值，需要满足 只有加锁的人才能释放锁 。   特别注意：以上实现步骤考虑到了使用分布式锁需要考虑的互斥性、防死锁、加锁和解锁必须为同一个进程等问题，但是锁的续期无法实现。所以，博主采用 Redisson 实现 Redis 的分布式锁，借助 Redisson 的 WatchDog 机制 能够很好的解决锁续期的问题，同样 Redisson 也是 Redis 官方推荐分布式锁实现方案，实现起来较为简单。
- Redisson 实现分布式锁  具体实现代码已经上传到博主的仓库，需要的朋友可以在公众号内回复 【分布式锁代码】 获取码云或 GitHub 项目下载地址。</description>
+Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 Redis 中，指定一个 唯一的用户标识 作为 value。 当 key 不存在时才能设置值，确保同一时间只有一个客户端进程获得锁，满足 互斥性 特性。 设置一个过期时间，防止因系统异常导致没能删除这个 key，满足 防死锁 特性。 当处理完业务之后需要清除这个 key 来释放锁，清除 key 时需要校验 value 值，需要满足 只有加锁的人才能释放锁 。   特别注意：以上实现步骤考虑到了使用分布式锁需要考虑的互斥性、防死锁、加锁和解锁必须为同一个进程等问题，但是锁的续期无法实现。所以，博主采用 Redisson 实现 Redis 的分布式锁，借助 Redisson 的 WatchDog 机制 能够很好的解决锁续期的问题，同样 Redisson 也是 Redis 官方推荐分布式锁实现方案，实现起来较为简单。</description>
     </item>
     
     <item>
@@ -36,7 +36,8 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/</guid>
-      <description>1. 主从复制概述 主从复制，是指将一台Redis服务器的数据，复制到其他的Redis服务器。前者称为主节点(master)，后者称为从节点(slave)；数据的复制是单向的，只能由主节点到从节点。
+      <description>主从复制虽然实现数据冗余（是持久化之外的一种数据冗余方式）、故障恢复（手动切换）、读负载均衡等问题。但无法自动故障转移、写操作无法负载均衡、存储能力受到单机的限制。
+1. 主从复制概述 主从复制，是指将一台Redis服务器的数据，复制到其他的Redis服务器。前者称为主节点(master)，后者称为从节点(slave)；数据的复制是单向的，只能由主节点到从节点。
 默认情况下，每台Redis服务器都是主节点；且一个主节点可以有多个从节点(或没有从节点)，但一个从节点只能有一个主节点。
 主从复制的作用
 主从复制的作用主要包括：
@@ -67,8 +68,7 @@ Redis服务器启动后，直接通过客户端执行命令：slaveof  ，则该
 主从复制过程大体可以分为3个阶段：连接建立阶段（即准备阶段）、数据同步阶段、命令传播阶段；下面分别进行介绍。
 3.1 连接建立阶段 该阶段的主要作用是在主从节点之间建立连接，为数据同步做好准备。
 步骤1：保存主节点信息 从节点服务器内部维护了两个字段，即masterhost和masterport字段，用于存储主节点的ip和port信息。
-需要注意的是，slaveof是异步命令，从节点完成主节点ip和port的保存后，向发送slaveof命令的客户端直接返回OK**，实际的复制操作在这之后才开始进行。**
-这个过程中，可以看到从节点打印日志如下：</description>
+需要注意的是，slaveof是异步命令，从节点完成主节点ip和port的保存后，向发送slaveof命令的客户端直接返回OK**，实际的复制操作在这之后才开始进行。**</description>
     </item>
     
     <item>
@@ -100,7 +100,8 @@ redis-cli -h 193.112.37.xxx -p 6379 -a xxxpassword </description>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</guid>
-      <description>前言 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
+      <description>使用 set key value ex/px 秒/毫秒 xx/nx 的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是多锁，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（RedissonPriorityDeque）和分布式同步工具（RedissonCountDownLatch, RedissonSemaphore）
+前言 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
 分布式锁概览 在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
 实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
 比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
@@ -109,7 +110,7 @@ redis-cli -h 193.112.37.xxx -p 6379 -a xxxpassword </description>
  基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
 Redis的分布式锁实现 1. 利用setnx+expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
 因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx+expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.expire(key, timeout) == 1L; } else { return false; } } 复制代码 实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。</description>
+public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.</description>
     </item>
     
     <item>

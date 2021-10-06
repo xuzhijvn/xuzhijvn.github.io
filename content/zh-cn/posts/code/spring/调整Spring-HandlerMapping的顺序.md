@@ -17,7 +17,7 @@ images : [
 ]
 ---
 
-[comment]: <> (# 调整Spring HandlerMapping的顺序)
+[comment]: <> "# 调整Spring HandlerMapping的顺序"
 
 当请求形如：`/opendoc/jquery-1.10.2.min.js` 的静态资源时，如果恰好存在匹配这个请求的`Controller`时，默认情况下，这个静态资源请求会被 `RequestMappingHandlerMapping` 分配给这个`Controller`处理，从而可能找不到静态资源，例如存在下面这样的`Controller`：
 
@@ -31,7 +31,7 @@ images : [
 
 为了能正确匹配的静态资源，我们可以调整Spring `HandlerMapping`的顺序，让`SimpleUrlHandlerMapping`先于`RequestMappingHandlerMapping`去匹配请求，`SimpleUrlHandlerMapping`会返回一个用于加载静态资源的`ResourceHttpRequestHandler`
 
-默认情况下`RequestMappingHandlerMapping` 先于`SimpleUrlHandlerMapping`匹配请求，`DispatchServlet`中初始化`HandlerMapping`的顺序源码如下所示：
+默认情况下`RequestMappingHandlerMapping` 先于`SimpleUrlHandlerMapping`匹配请求，`DispatcherServlet`中初始化`HandlerMapping`的顺序源码如下所示：
 
 ```java
 

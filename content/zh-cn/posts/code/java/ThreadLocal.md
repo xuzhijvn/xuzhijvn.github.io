@@ -17,7 +17,7 @@ images : [
 ]
 ---
 
-[comment]: <> (# ThreadLocal)
+[comment]: <> "# ThreadLocal"
 
 ThreadLocal 是一个线程的本地变量，也就意味着这个变量是线程独有的，是不能与其他线程共享的，这样就可以避免资源竞争带来的多线程的问题，这种解决多线程的安全问题和lock(这里的lock 指通过synchronized 或者Lock 等实现的锁) 是有本质的区别的:
 
@@ -47,11 +47,13 @@ public class Test {
 
 ## ThreadLocal的数据结构
 
-![img](https://picgo.6and.ltd/img/img_5ff415f5aa909.png)
+<img src="https://picgo.6and.ltd/img/img_5ff415f5aa909.png" alt="img" style="zoom:50%;" />
 
 ## 为什么ThreadLocalMap 采用开放地址法来解决哈希冲突?
 
 ThreadLocal 往往存放的数据量不会特别大，这个时候开放地址法简单的结构会显得更省空间（链地址法需要额外的指针空间）
+
+常用的hash解决方法有：拉链法（HashMap，`指针需要占用空间`）、开发地址（如果发生冲突，那就基于冲突位置再次探测寻址，直至不冲突，`适用于记录总数可以预知的场景，如果位桶不够用就得扩容，扩容影响性能`）、再hash（如果第1个hash函数冲突，那就使用第2个，`多次hash是有时间成本的`）
 
 ## ThreadLocal应用场景
 
@@ -65,7 +67,7 @@ SimpleDateFormat是线程不安全的，例如下面的写法会报错：
 
 日期转换的一个工具类
 
-```
+```java
 public class DateUtil {
 
     private static final SimpleDateFormat sdf = 
@@ -85,7 +87,7 @@ public class DateUtil {
 
 然后将这个工具类用在多线程环境下
 
-```
+```java
 public static void main(String[] args) {
 
     ExecutorService service = Executors.newFixedThreadPool(20);
@@ -226,9 +228,10 @@ public class DateUtil {
 
 配合线程池使用，既保证了线程安全，又不至于像 [解决方案1](https://blog.csdn.net/zzti_erlie/article/details/105322946) 创建太多的SimpleDateFormat对象。
 
-[v_tips]ThreadLocal 保证的是单个线程内部访问的是同一个实例，不同线程访问的不是同一个实例。详见：[ThreadLocal线程单例](http://106.55.152.92:30989/archives/1110)[/v_tips]
+> ThreadLocal 保证的是单个线程内部访问的是同一个实例，不同线程访问的不是同一个实例。详见：[ThreadLocal线程单例](http://106.55.152.92:30989/archives/1110)
+>
 
-### 参考链接：
+## 参考
 
 [Java面试必问：ThreadLocal终极篇 淦！](https://www.cnblogs.com/aobing/p/13382184.html)
 

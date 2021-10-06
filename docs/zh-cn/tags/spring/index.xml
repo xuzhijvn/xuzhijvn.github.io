@@ -85,7 +85,9 @@ package demo.long; import org.aspectj.lang.annotation.Aspect; import org.aspectj
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/spring%E4%BA%8B%E5%8A%A1/</guid>
-      <description>参考链接： 可能是最漂亮的Spring事务管理详解 spring 事务的传播机制看这篇就够了 Spring 事务管理 </description>
+      <description>Spring事务可简单的理解为由PlatformTransactionManager, TransactionDefinition, TransactionStatus 构成
+PlatformTransactionManager 其中 org.springframework.transaction.PlatformTransactionManager 接口定义如下：
+public interface PlatformTransactionManager extends TransactionManager { // Return a currently active transaction or create a new one, according to the specified propagation behavior（根据指定的传播行为，返回当前活动的事务或创建一个新事务。）  TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException; // Commit the given transaction, with regard to its status（使用事务目前的状态提交事务）  Void commit(TransactionStatus status) throws TransactionException; // Perform a rollback of the given transaction（对执行的事务进行回滚）  Void rollback(TransactionStatus status) throws TransactionException; } Spring并不直接管理事务，它只提供接口抽象，事务管理器的具体实现由持久化框架自己实现，例如：DataSourceTransactionManager (JDBC / MyBatis),</description>
     </item>
     
     <item>
@@ -130,7 +132,7 @@ SpringBootWEB项目和非Web项目的全局异常捕获 SpringBoot 处理异常�
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E8%B0%83%E6%95%B4spring-handlermapping%E7%9A%84%E9%A1%BA%E5%BA%8F/</guid>
       <description>当请求形如：/opendoc/jquery-1.10.2.min.js 的静态资源时，如果恰好存在匹配这个请求的Controller时，默认情况下，这个静态资源请求会被 RequestMappingHandlerMapping 分配给这个Controller处理，从而可能找不到静态资源，例如存在下面这样的Controller：
 @RequestMapping(value = &amp;#34;/{name}/{version}&amp;#34;, method = {RequestMethod.POST, RequestMethod.GET}) public void rest3(@PathVariable(&amp;#34;name&amp;#34;) String name, @PathVariable(&amp;#34;version&amp;#34;) String version, HttpServletRequest request, HttpServletResponse response) { this.doRest(name, version, request, response); } 为了能正确匹配的静态资源，我们可以调整Spring HandlerMapping的顺序，让SimpleUrlHandlerMapping先于RequestMappingHandlerMapping去匹配请求，SimpleUrlHandlerMapping会返回一个用于加载静态资源的ResourceHttpRequestHandler
-默认情况下RequestMappingHandlerMapping 先于SimpleUrlHandlerMapping匹配请求，DispatchServlet中初始化HandlerMapping的顺序源码如下所示：
+默认情况下RequestMappingHandlerMapping 先于SimpleUrlHandlerMapping匹配请求，DispatcherServlet中初始化HandlerMapping的顺序源码如下所示：
 /** * Initialize the HandlerMappings used by this class. * &amp;lt;p&amp;gt;If no HandlerMapping beans are defined in the BeanFactory for this namespace, * we default to BeanNameUrlHandlerMapping. */ private void initHandlerMappings(ApplicationContext context) { this.handlerMappings = null; if (this.</description>
     </item>
     

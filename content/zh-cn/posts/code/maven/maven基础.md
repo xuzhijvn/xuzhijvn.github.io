@@ -1,5 +1,5 @@
 ---
-title: "maven基础"
+title: "Maven基础"
 date: 2021-08-27T11:15:10+08:00
 draft: false
 reward: true
@@ -17,7 +17,7 @@ images : [
 ]
 ---
 
-[comment]: <> (# maven基础)
+[comment]: <> "# maven基础"
 
 ## 1. 问题
 

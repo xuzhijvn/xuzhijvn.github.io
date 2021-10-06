@@ -27,7 +27,7 @@ images : [
 
 以太网数据包（packet）的大小是固定的，最初是1518字节，后来增加到1522字节。其中， 1500 字节是负载（payload），22字节是头信息（head）。 IP 数据包在以太网数据包的负载里面，它也有自己的头信息，最少需要20字节，所以 IP 数据包的负载最多为1480字节。
 
-<img src="http://106.55.152.92:30989/wp-content/uploads/2019/11/bg2012052913.png" alt="img" style="zoom:50%;" />
+<img src="https://picgo.6and.ltd/img/bg2012052913.png" alt="img" style="zoom:50%;" />
 
 （图片说明：IP 数据包在以太网数据包里面，TCP 数据包在 IP 数据包里面。)
 
@@ -43,11 +43,11 @@ TCP用三次握手（或称三路握手，three-way handshake）过程创建一�
 2. 服务器端应当为一个合法的SYN回送一个SYN/ACK。ACK的确认码应为A+1，SYN/ACK包本身又有一个随机产生的序号B。
 3. 最后，客户端再发送一个ACK。此时包的序号被设定为A+1，而ACK的确认码则为B+1。当服务端收到这个ACK的时候，就完成了三次握手，并进入了连接创建状态。
 
-<img src="http://106.55.152.92:30989/wp-content/uploads/2019/11/Connection_TCP.png" alt="img" style="zoom: 50%;" />
+<img src="https://picgo.6and.ltd/img/Connection_TCP.png" alt="img" style="zoom: 50%;" />
 
 注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的
 
-<img src="http://106.55.152.92:30989/wp-content/uploads/2019/11/三次握手.png" alt="img" style="zoom:50%;" />
+<img src="https://picgo.6and.ltd/img/%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B.png" alt="img" style="zoom:60%;" />
 
 注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的
 
@@ -61,11 +61,11 @@ TCP用三次握手（或称三路握手，three-way handshake）过程创建一�
 4. 发送方在发送了第三条以后，没能收到回应，因此当时钟（timer）过时（expire）时，他重发第三条。（每次发送者发送一条TCP报文段后，都会再次启动一次时钟：RTT）。
 5. 这次第三条被成功接收，接收方可以直接确认第5条，因为4，5两条已收到。
 
-<img src="http://106.55.152.92:30989/wp-content/uploads/2019/11/Tcp_transport_example.gif" alt="img" style="zoom: 67%;" />
+<img src="https://picgo.6and.ltd/img/Tcp_transport_example.gif" alt="img" style="zoom: 67%;" />
 
 上图只考虑了一方发送数据一方接收数据的情形，如果是双方都收发数据的情形则如下图所示：
 
-<img src="http://106.55.152.92:30989/wp-content/uploads/2019/11/transport.jpg" alt="img" style="zoom:67%;" />
+<img src="https://picgo.6and.ltd/img/transport.jpg" alt="img" style="zoom:67%;" />
 
 上图一共4次通信。第一次通信，A 主机发给B 主机的数据包编号是1，长度是100字节，因此第二次通信 B 主机的 ACK 编号是 1 + 100 = 101，第三次通信 A 主机的数据包编号也是 101。同理，第二次通信 B 主机发给 A 主机的数据包编号是1，长度是200字节，因此第三次通信 A 主机的 ACK 是201，第四次通信 B 主机的数据包编号也是201。
 
@@ -73,7 +73,7 @@ TCP用三次握手（或称三路握手，three-way handshake）过程创建一�
 
 所谓四次挥手（Four-Way Wavehand）即终止TCP连接，就是指断开一个TCP连接时，需要客户端和服务端总共发送4个包以确认连接的断开。在socket编程中，这一过程由客户端或服务端任一方执行close来触发，整个流程如下图所示：
 
-<img src="http://106.55.152.92:30989/wp-content/uploads/2019/11/四次分手.png" alt="img" style="zoom: 67%;" />
+<img src="https://picgo.6and.ltd/img/%E5%9B%9B%E6%AC%A1%E5%88%86%E6%89%8B.png" alt="img" style="zoom: 67%;" />
 
 注意：四次分手断开连接的时候，ACK和FIN信号是分成两次发送的
 
@@ -84,11 +84,9 @@ TCP用三次握手（或称三路握手，three-way handshake）过程创建一�
 3. 第三次挥手：Server发送一个FIN，用来关闭Server到Client的数据传送，Server进入LAST_ACK状态。
 4. 第四次挥手：Client收到FIN后，Client进入TIME_WAIT状态，接着发送一个ACK给Server，确认序号为收到序号+1，Server进入CLOSED状态，完成四次挥手。 主动关闭端接收到FIN后，就发送ACK包，等待足够时间以确保被动关闭端收到了终止请求的确认包。【按照RFC 793，一个连接可以在TIME-WAIT保证最大四分钟，即[最大分段寿命](https://zh.wikipedia.org/wiki/最大分段寿命)（maximum segment lifetime）的2倍】
 
-```
-为什么建立连接是3次分手是4次？
-首先，因为tcp是全双工通信，即双方都需要收发数据，因此双方都要通过发送syn指令来随机初始化一个包序列seq，因为ack和syn的包不大，被动打开的一方一次性发送了ack和syn指令给主动打开的一方，主动打开方再回复一个ack，所以总共3次。
-而分手的时候，存在类单双工的情形（即只有一方发数据，另外一方收数据），所以不能在回复fin的时候同时发送fin，即需要分开发送ack和fin，所以一共4次通信。
-```
+> 为什么建立连接是3次分手是4次？
+> 首先，因为tcp是全双工通信，即双方都需要收发数据，因此双方都要通过发送syn指令来随机初始化一个包序列seq，因为ack和syn的包不大，被动打开的一方一次性发送了ack和syn指令给主动打开的一方，主动打开方再回复一个ack，所以总共3次。
+> 而分手的时候，存在类单双工的情形（即只有一方发数据，另外一方收数据），所以不能在回复fin的时候同时发送fin，即需要分开发送ack和fin，所以一共4次通信。
 
 #### 资源使用
 

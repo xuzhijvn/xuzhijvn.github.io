@@ -20,6 +20,14 @@ images : [
 
 [comment]: <> "# JIT即时编译"
 
+JIT (just-in-time compilation) 是指程序在运行过程中对热点代码进行编译的过程，编译后的机器码存入CodeCache，下次再遇到这段代码，就会从CodeCache中读取机器码，直接执行，以此来提升程序运行的性能。
+
+有的JVM全程都是`JIT编译运行`，例如：JRockit；有的JVM是`解释器 + JIT运行`，例如：HotSpot, J9（也支持AOT）；有的JVM没有解释器，只支持`AOT+JIT或者纯AOT`，例如：Excelsior JET
+
+以HotSpot JVM举例，JIT还可以分为C1, C2等。C1编译快，执行效率低；C2编译慢，效率高。可以通过 `-XX:+TieredCompilation` 开启分层编译，对热点代码先C1编译以尽快进入到编译执行模式；随着应用继续运行，收集到足够多的指标后，再进行C2编译，以期获得最好的执行效率。
+
+JIT在编译过程中会采用一些优化手段，包括：公共子表达式消除、数组范围检查消除、方法内联、逃逸分析（目的是栈上分配、同步消除、标量替换、循环变型、窥孔优化与寄存器分配）
+
 ## 1. 编译器与解释器
 
 不做特别说明的话，我们讲的，
@@ -434,3 +442,6 @@ y1=x1*3  经过强度削减后得到  y1=(x1<<1)+x1
 [为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？](https://www.zhihu.com/question/29126804/answer/43274994)
 
 [为什么 JVM 不用 JIT 全程编译？](https://www.zhihu.com/question/37389356/answer/73820511)
+
+[jvm调优之分层编译](https://www.jianshu.com/p/318617435789)
+

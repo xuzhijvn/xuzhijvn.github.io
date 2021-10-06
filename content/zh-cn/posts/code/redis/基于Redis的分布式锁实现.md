@@ -19,6 +19,8 @@ images : [
 
 [comment]: <> "# 基于Redis的分布式锁实现"
 
+使用 `set  key  value  ex/px   秒/毫秒  xx/nx`  的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是`多锁`，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（`RedissonPriorityDeque`）和分布式同步工具（`RedissonCountDownLatch`,  `RedissonSemaphore`）
+
 ## 前言
 
 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结

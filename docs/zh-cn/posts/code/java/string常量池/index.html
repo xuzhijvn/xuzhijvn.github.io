@@ -310,7 +310,7 @@
 <h3 id="实现前提">实现前提</h3>
 <ol>
 <li>实现这种设计的一个很重要的因素是：String类型是不可变的，实例化后，不可变，就不会存在多个同样的字符串实例化后有数据冲突；</li>
-<li>运行时，实例创建的全局字符串常量池中会有一张表，记录着长相持中每个唯一的字符串对象维护一个引用，当垃圾回收时，发现该字符串被引用时，就不会被回收。</li>
+<li>运行时，实例创建的全局字符串常量池中会有一张表，记录着常量池中每个唯一的字符串对象维护一个引用，当垃圾回收时，发现该字符串被引用时，就不会被回收。</li>
 </ol>
 <h3 id="实现原理">实现原理</h3>
 <p>为了提高性能并减少内存的开销，JVM在实例化字符串常量时进行了一系列的优化操作：</p>
@@ -330,15 +330,15 @@ System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span>
 <p>JDK 1.8, HotSpot JVM将永久代移除了，使用本地内存来存储类的元数据信息，即为<code>元空间（Metaspace）</code></p>
 <p>所以，字符串常量池的具体位置是在哪里？当然这个我们后面需要区分jdk的版本，jdk1.7之前，jdk1.7，以及jdk1.8，因为这些版本中，字符串常量池因为方法区的改变而做了一些变化。</p>
 <h3 id="jdk17之前">JDK1.7之前</h3>
-<p>在jdk1.7之前，常量池是存放在方法区中的。
-<img src="https://picgo.6and.ltd/img/20201126173632432.png" alt="JDK1.7之前" style="zoom:50%;" /></p>
+<p>在jdk1.7之前，常量池是存放在方法区中的。</p>
+<p><img src="https://picgo.6and.ltd/img/20201126173632432.png" alt="JDK1.7之前" style="zoom:50%;" /></p>
 <h3 id="jdk17">JDK1.7</h3>
-<p>在jdk1.7中，字符串常量池移到了堆中，运行时常量池还在方法区中。
-<img src="https://picgo.6and.ltd/img/20201126173618236.png" alt="JDK1.7" style="zoom:50%;" /></p>
+<p>在jdk1.7中，字符串常量池移到了堆中，运行时常量池还在方法区中。</p>
+<p><img src="https://picgo.6and.ltd/img/20201126173618236.png" alt="JDK1.7" style="zoom:50%;" /></p>
 <h3 id="jdk18">JDK1.8</h3>
-<p>jdk1.8删除了永久代，方法区这个概念还是保留的，但是方法区的实现变成了<code>元空间</code>，常量池沿用jdk1.7，还是放在了堆中。这样的效果就变成了：常量池和静态变量存储到了堆中，类的元数据及运行时常量池存储到元空间中。
-<img src="https://picgo.6and.ltd/img/20201126172724596.png" alt="JDK1.8" style="zoom:50%;" />
-为啥要把方法区从JVM内存（永久代）移到直接内存（元空间)？主要有两个原因：</p>
+<p>jdk1.8删除了永久代，方法区这个概念还是保留的，但是方法区的实现变成了<code>元空间</code>，常量池沿用jdk1.7，还是放在了堆中。这样的效果就变成了：常量池和静态变量存储到了堆中，类的元数据及运行时常量池存储到元空间中。</p>
+<p><img src="https://picgo.6and.ltd/img/20201126172724596.png" alt="JDK1.8" style="zoom:50%;" /></p>
+<p>为啥要把方法区从JVM内存（永久代）移到直接内存（元空间)？主要有两个原因：</p>
 <ol>
 <li>直接内存属于本地系统的IO操作，具有更高的一个IO操作性能，而JVM的堆内存这种，如果有IO操作，也是先复制到直接内存，然后再去进行本地IO操作。经过了一系列的中间流程，性能就会差一些。非直接内存操作：<code>本地IO操作——&gt;直接内存操作——&gt;非直接内存操作——&gt;直接内存操作——&gt;本地IO操作</code>，而直接内存操作：<code>本地IO操作——&gt;直接内存操作——&gt;本地IO操作</code>。</li>
 <li>永久代有一个无法调整更改的JVM固定大小上限，回收不完全时，会出现<code>OutOfMemoryError</code>问题；而直接内存（元空间）是受到本地机器内存的限制，不会有这种问题。</li>
@@ -376,7 +376,7 @@ str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
 若常量池里没有&quot;123&quot;字符串，则创建了2个对象；若有该字符串，则创建了一个对象及对应的引用。</p>
 <h2 id="qa">Q&amp;A</h2>
 <h3 id="string-str-ab--cd对象个数">String str =&ldquo;ab&rdquo; + &ldquo;cd&rdquo;;对象个数？</h3>
-<p>分析：若字符串常量池该字符串对象</p>
+<p>分析：若字符串常量池无该字符串对象</p>
 <ol>
 <li>字符串常量池：（1个对象）&ldquo;abcd&rdquo;;</li>
 <li>堆：无</li>
@@ -384,7 +384,7 @@ str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
 总共：1个对象+1个引用</li>
 </ol>
 <h3 id="string-str--new-stringabc对象个数">String str = new String(&ldquo;abc&rdquo;);对象个数？</h3>
-<p>分析：若字符串常量池该字符串对象</p>
+<p>分析：若字符串常量池无该字符串对象</p>
 <ol>
 <li>字符串常量池：（1个对象）&ldquo;abc&rdquo;;</li>
 <li>堆：（1个对象）new String(&ldquo;abc&rdquo;)</li>
@@ -392,7 +392,7 @@ str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
 总共：2个对象+1个引用</li>
 </ol>
 <h3 id="string-str--new-stringa--b对象个数">String str = new String(&ldquo;a&rdquo; + &ldquo;b&rdquo;);对象个数？</h3>
-<p>分析：若字符串常量池该字符串对象</p>
+<p>分析：若字符串常量池无该字符串对象</p>
 <ol>
 <li>字符串常量池：（3个对象）&ldquo;a&rdquo;，&ldquo;b&rdquo;，&ldquo;ab&rdquo;;</li>
 <li>堆：（1个对象）new String(&ldquo;ab&rdquo;)</li>
@@ -400,7 +400,7 @@ str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
 总共：4个对象+1个引用</li>
 </ol>
 <h3 id="string-str--new-stringab--ab对象个数">String str = new String(&ldquo;ab&rdquo;) + &ldquo;ab&rdquo;;对象个数？</h3>
-<p>分析：若字符串常量池该字符串对象</p>
+<p>分析：若字符串常量池无该字符串对象</p>
 <ol>
 <li>字符串常量池：（1个对象）&ldquo;ab&rdquo;;</li>
 <li>堆：（1个对象）new String(&ldquo;ab&rdquo;)</li>
@@ -408,7 +408,7 @@ str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
 总共：2个对象+1个引用</li>
 </ol>
 <h3 id="string-str--new-stringab--new-stringab对象个数">String str = new String(&ldquo;ab&rdquo;) + new String(&ldquo;ab&rdquo;);对象个数？</h3>
-<p>分析：若字符串常量池该字符串对象</p>
+<p>分析：若字符串常量池无该字符串对象</p>
 <ol>
 <li>字符串常量池：（1个对象）&ldquo;ab&rdquo;;</li>
 <li>堆：（2个对象）new String(&ldquo;ab&rdquo;)，new String(&ldquo;ab&rdquo;)</li>
@@ -416,7 +416,7 @@ str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
 总共：3个对象+1个引用</li>
 </ol>
 <h3 id="string-str--new-stringab--new-stringcd对象个数">String str = new String(&ldquo;ab&rdquo;) + new String(&ldquo;cd&rdquo;);对象个数？</h3>
-<p>分析：若字符串常量池该字符串对象</p>
+<p>分析：若字符串常量池无该字符串对象</p>
 <ol>
 <li>字符串常量池：（2个对象）&ldquo;ab&rdquo;，&ldquo;cd&rdquo;;</li>
 <li>堆：（2个对象）new String(&ldquo;ab&rdquo;)，new String(&ldquo;cd&rdquo;)</li>
@@ -427,12 +427,12 @@ str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">String str1 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;ab&#34;</span><span style="color:#f92672">;</span>
 String str2 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;cd&#34;</span><span style="color:#f92672">;</span>
 String str3 <span style="color:#f92672">=</span> str1 <span style="color:#f92672">+</span> str2<span style="color:#f92672">;</span>
-</code></pre></div><p>分析：若字符串常量池该字符串对象</p>
+</code></pre></div><p>分析：若字符串常量池无该字符串对象</p>
 <ol>
-<li>字符串常量池：（2个对象）&ldquo;ab&rdquo;，&ldquo;cd&rdquo;，&ldquo;abcd&rdquo;;</li>
+<li>字符串常量池：（3个对象）&ldquo;ab&rdquo;，&ldquo;cd&rdquo;，&ldquo;abcd&rdquo;;</li>
 <li>堆：无</li>
 <li>栈：（3个引用）str1，str2，str3
-总共：2个对象+3个引用</li>
+总共：3个对象+3个引用</li>
 </ol>
 <h3 id="如何指向字符串池中特定的对象">如何指向字符串池中特定的对象？</h3>
 <p>通过<code>intern()</code>方法。

@@ -197,15 +197,15 @@ B 收到 A 的确认后，连接建立。
 
 第一种情况，接收端正常收到两个数据包，即没有发生拆包和粘包的现象。
 
-<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffcf969c6e97.png" alt="img" style="zoom:50%;" />
+<img src="https://picgo.6and.ltd/img/img_5ffcf969c6e97.png" alt="img" style="zoom:50%;" />
 
 第二种情况，接收端只收到一个数据包，但是这一个数据包中包含了发送端发送的两个数据包的信息，这种现象即为粘包。这种情况由于接收端不知道这两个数据包的界限，所以对于接收端来说很难处理。
 
-<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffcf994c06d6.png" alt="img" style="zoom:50%;" />
+<img src="https://picgo.6and.ltd/img/img_5ffcf994c06d6.png" alt="img" style="zoom:50%;" />
 
 第三种情况，这种情况有两种表现形式，如下图。接收端收到了两个数据包，但是这两个数据包要么是不完整的，要么就是多出来一块，这种情况即发生了拆包和粘包。这两种情况如果不加特殊处理，对于接收端同样是不好处理的。
 
-<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffcf99f49620.png" alt="img" style="zoom:50%;" />
+<img src="https://picgo.6and.ltd/img/img_5ffcf99f49620.png" alt="img" style="zoom:50%;" />
 
 <img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffcf9a960ef3.png" alt="img" style="zoom:50%;" />
 
@@ -233,11 +233,11 @@ TCP 使用超时重传来实现可靠传输：如果一个已经发送的报文�
 
 一个报文段从发送再到接收到确认所经过的时间称为往返时间 RTT，加权平均往返时间 RTTs 计算如下：
 
-![img](http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffc10060c8e2.png)
+![img](https://picgo.6and.ltd/img/img_5ffc10060c8e2.png)
 
 其中，0 ≤ a ＜ 1，RTTs 随着 a 的增加更容易受到 RTT 的影响。超时时间 RTO 应该略大于 RTTs，TCP 使用的超时时间计算如下：
 
-![img](http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffc100e14574.png)
+![img](https://picgo.6and.ltd/img/img_5ffc100e14574.png)
 
 其中 RTTd 为偏差的加权平均值。
 
@@ -249,7 +249,7 @@ TCP 使用超时重传来实现可靠传输：如果一个已经发送的报文�
 
 接收窗口只会对窗口内最后一个按序到达的字节进行确认，例如接收窗口已经收到的字节为 {31, 34, 35}，其中 {31} 按序到达，而 {34, 35} 就不是，因此只对字节 31 进行确认。发送方得到一个字节的确认之后，就知道这个字节之前的所有字节都已经被接收。
 
-<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffc10243eaf6.png" alt="img" style="zoom:67%;" />
+<img src="https://picgo.6and.ltd/img/img_5ffc10243eaf6.png" alt="img" style="zoom:67%;" />
 
 ## 10. TCP 流量控制
 
@@ -263,7 +263,7 @@ TCP 使用超时重传来实现可靠传输：如果一个已经发送的报文�
 
 如果网络出现拥塞，分组将会丢失，此时发送方会继续重传，从而导致网络拥塞程度更高。因此当出现拥塞时，应当控制发送方的速率。这一点和流量控制很像，但是出发点不同。流量控制是为了让接收方能来得及接收，而拥塞控制是为了降低整个网络的拥塞程度。
 
-<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffc102d00387.png" alt="img" style="zoom:50%;" />
+<img src="https://picgo.6and.ltd/img/img_5ffc102d00387.png" alt="img" style="zoom:50%;" />
 
 TCP 主要通过四个算法来进行拥塞控制：
 
@@ -276,7 +276,7 @@ TCP 主要通过四个算法来进行拥塞控制：
 - 接收方有足够大的接收缓存，因此不会发生流量控制；
 - 虽然 TCP 的窗口基于字节，但是这里设窗口的大小单位为报文段。
 
-<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffc103426dcd.png" alt="img" style="zoom:50%;" />
+<img src="https://picgo.6and.ltd/img/img_5ffc103426dcd.png" alt="img" style="zoom:50%;" />
 
 ### 11.1 慢开始与拥塞避免
 
@@ -296,7 +296,7 @@ TCP 主要通过四个算法来进行拥塞控制：
 
 慢开始和快恢复的快慢指的是 cwnd 的设定值，而不是 cwnd 的增长速率。慢开始 cwnd 设定为 1，而快恢复 cwnd 设定为 ssthresh。
 
-<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffc103b60d6c.png" alt="img" style="zoom:50%;" />
+<img src="https://picgo.6and.ltd/img/img_5ffc103b60d6c.png" alt="img" style="zoom:50%;" />
 
 ## **12. 提供网络利用率**
 

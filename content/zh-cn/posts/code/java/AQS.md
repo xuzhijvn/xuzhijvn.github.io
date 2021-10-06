@@ -21,7 +21,7 @@ images : [
 
 AQS作为Java并发编程的基石，在Java同步工具中有广泛应用，例如：`ReentrantLock` ,  `Semaphore` ,   `CountDownLatch`   `ReentrantReadWriteLock` ,  `ThreadPoolExecutor`
 
-一般来说，自定义同步器要么是独占方式，要么是共享方式，它们也只需实现 `tryAcquire / tryRelease` ,  `tryAcquireShared / tryReleaseShared` 中的一种即可。AQS也支持自定义同步器同时实现独占和共享两种方式，如ReentrantReadWriteLock。ReentrantLock是独占锁。
+一般来说，自定义同步器要么是独占方式，要么是共享方式，它们也只需实现 `tryAcquire / tryRelease` ,  `tryAcquireShared / tryReleaseShared` 中的一组即可。AQS也支持自定义同步器同时实现独占和共享两种方式，如ReentrantReadWriteLock。ReentrantLock是独占锁。
 
 AQS核心思想是：如果被请求的共享资源（state）空闲，那么就将当前请求资源的线程设置为有效的工作线程，将共享资源设置为锁定状态；如果共享资源被占用，就需要一定的阻塞等待唤醒机制来保证锁分配。这个机制主要用的是CLH队列的变体实现的，将暂时获取不到锁的线程加入到队列中。
 

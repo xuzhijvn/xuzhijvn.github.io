@@ -434,11 +434,11 @@ ECE：若其值为 1 则会通知对方，从对方到这边的网络有阻塞�
 <h3 id="72-什么是粘包拆包">7.2 什么是粘包、拆包？</h3>
 <p>假设 Client 向 Server 连续发送了两个数据包，用 packet1 和 packet2 来表示，那么服务端收到的数据可以分为三种情况，现列举如下：</p>
 <p>第一种情况，接收端正常收到两个数据包，即没有发生拆包和粘包的现象。</p>
-<p><img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffcf969c6e97.png" alt="img" style="zoom:50%;" /></p>
+<p><img src="https://picgo.6and.ltd/img/img_5ffcf969c6e97.png" alt="img" style="zoom:50%;" /></p>
 <p>第二种情况，接收端只收到一个数据包，但是这一个数据包中包含了发送端发送的两个数据包的信息，这种现象即为粘包。这种情况由于接收端不知道这两个数据包的界限，所以对于接收端来说很难处理。</p>
-<p><img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffcf994c06d6.png" alt="img" style="zoom:50%;" /></p>
+<p><img src="https://picgo.6and.ltd/img/img_5ffcf994c06d6.png" alt="img" style="zoom:50%;" /></p>
 <p>第三种情况，这种情况有两种表现形式，如下图。接收端收到了两个数据包，但是这两个数据包要么是不完整的，要么就是多出来一块，这种情况即发生了拆包和粘包。这两种情况如果不加特殊处理，对于接收端同样是不好处理的。</p>
-<p><img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffcf99f49620.png" alt="img" style="zoom:50%;" /></p>
+<p><img src="https://picgo.6and.ltd/img/img_5ffcf99f49620.png" alt="img" style="zoom:50%;" /></p>
 <p><img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffcf9a960ef3.png" alt="img" style="zoom:50%;" /></p>
 <h3 id="73-为什么会发生-tcp-粘包拆包">7.3 为什么会发生 TCP 粘包、拆包？</h3>
 <ul>
@@ -461,12 +461,12 @@ ECE：若其值为 1 则会通知对方，从对方到这边的网络有阻塞�
 <h2 id="8-tcp-可靠传输">8. TCP 可靠传输</h2>
 <p>TCP 使用超时重传来实现可靠传输：如果一个已经发送的报文段在超时时间内没有收到确认，那么就重传这个报文段。</p>
 <p>一个报文段从发送再到接收到确认所经过的时间称为往返时间 RTT，加权平均往返时间 RTTs 计算如下：</p>
-<p><img class="img-fluid" alt="img" src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffc10060c8e2.png"
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5ffc10060c8e2.png"
    loading="lazy" />
 
 </p>
 <p>其中，0 ≤ a ＜ 1，RTTs 随着 a 的增加更容易受到 RTT 的影响。超时时间 RTO 应该略大于 RTTs，TCP 使用的超时时间计算如下：</p>
-<p><img class="img-fluid" alt="img" src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffc100e14574.png"
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5ffc100e14574.png"
    loading="lazy" />
 
 </p>
@@ -475,14 +475,14 @@ ECE：若其值为 1 则会通知对方，从对方到这边的网络有阻塞�
 <p>窗口是缓存的一部分，用来暂时存放字节流。发送方和接收方各有一个窗口，接收方通过 TCP 报文段中的窗口字段告诉发送方自己的窗口大小，发送方根据这个值和其它信息设置自己的窗口大小。</p>
 <p>发送窗口内的字节都允许被发送，接收窗口内的字节都允许被接收。如果发送窗口左部的字节已经发送并且收到了确认，那么就将发送窗口向右滑动一定距离，直到左部第一个字节不是已发送并且已确认的状态；接收窗口的滑动类似，接收窗口左部字节已经发送确认并交付主机，就向右滑动接收窗口。</p>
 <p>接收窗口只会对窗口内最后一个按序到达的字节进行确认，例如接收窗口已经收到的字节为 {31, 34, 35}，其中 {31} 按序到达，而 {34, 35} 就不是，因此只对字节 31 进行确认。发送方得到一个字节的确认之后，就知道这个字节之前的所有字节都已经被接收。</p>
-<p><img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffc10243eaf6.png" alt="img" style="zoom:67%;" /></p>
+<p><img src="https://picgo.6and.ltd/img/img_5ffc10243eaf6.png" alt="img" style="zoom:67%;" /></p>
 <h2 id="10-tcp-流量控制">10. TCP 流量控制</h2>
 <p>流量控制是为了控制发送方发送速率，保证接收方来得及接收。</p>
 <p>接收方发送的确认报文中的窗口字段可以用来控制发送方窗口大小，从而影响发送方的发送速率。将窗口字段设置为 0，则发送方不能发送数据。</p>
 <p><strong>实际上，为了避免此问题的产生，发送端主机会时不时的发送一个叫做窗口探测的数据段</strong>，此数据段仅包含一个字节来获取最新的窗口大小信息。</p>
 <h2 id="11-tcp-拥塞控制">11. TCP 拥塞控制</h2>
 <p>如果网络出现拥塞，分组将会丢失，此时发送方会继续重传，从而导致网络拥塞程度更高。因此当出现拥塞时，应当控制发送方的速率。这一点和流量控制很像，但是出发点不同。流量控制是为了让接收方能来得及接收，而拥塞控制是为了降低整个网络的拥塞程度。</p>
-<p><img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffc102d00387.png" alt="img" style="zoom:50%;" /></p>
+<p><img src="https://picgo.6and.ltd/img/img_5ffc102d00387.png" alt="img" style="zoom:50%;" /></p>
 <p>TCP 主要通过四个算法来进行拥塞控制：</p>
 <p><code>慢开始</code>、<code>拥塞避免</code>、<code>快重传</code>、<code>快恢复</code>。</p>
 <p>发送方需要维护一个叫做拥塞窗口（cwnd）的状态变量，注意拥塞窗口与发送方窗口的区别：拥塞窗口只是一个状态变量，实际决定发送方能发送多少数据的是发送方窗口。</p>
@@ -491,7 +491,7 @@ ECE：若其值为 1 则会通知对方，从对方到这边的网络有阻塞�
 <li>接收方有足够大的接收缓存，因此不会发生流量控制；</li>
 <li>虽然 TCP 的窗口基于字节，但是这里设窗口的大小单位为报文段。</li>
 </ul>
-<p><img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffc103426dcd.png" alt="img" style="zoom:50%;" /></p>
+<p><img src="https://picgo.6and.ltd/img/img_5ffc103426dcd.png" alt="img" style="zoom:50%;" /></p>
 <h3 id="111-慢开始与拥塞避免">11.1 慢开始与拥塞避免</h3>
 <p>发送的最初执行<code>慢开始</code>，令 cwnd = 1，发送方只能发送 1 个报文段；当收到确认后，将 cwnd 加倍，因此之后发送方能够发送的报文段数量为：2、4、8 &hellip;</p>
 <p>注意到慢开始每个轮次都将 cwnd 加倍，这样会让 cwnd 增长速度非常快，从而使得发送方发送的速度增长速度过快，网络拥塞的可能性也就更高。设置一个慢开始门限 ssthresh，当 cwnd &gt;= ssthresh 时，进入<code>拥塞避免</code>，每个轮次只将 cwnd 加 1。</p>
@@ -501,7 +501,7 @@ ECE：若其值为 1 则会通知对方，从对方到这边的网络有阻塞�
 <p>在发送方，如果收到三个重复确认，那么可以知道下一个报文段丢失，此时执行<code>快重传</code>，立即重传下一个报文段。例如收到三个 M2，则 M3 丢失，立即重传 M3。</p>
 <p>在这种情况下，只是丢失个别报文段，而不是网络拥塞。因此执行<code>快恢复</code>，令 ssthresh = cwnd / 2 ，cwnd = ssthresh，注意到此时直接进入拥塞避免。</p>
 <p>慢开始和快恢复的快慢指的是 cwnd 的设定值，而不是 cwnd 的增长速率。慢开始 cwnd 设定为 1，而快恢复 cwnd 设定为 ssthresh。</p>
-<p><img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5ffc103b60d6c.png" alt="img" style="zoom:50%;" /></p>
+<p><img src="https://picgo.6and.ltd/img/img_5ffc103b60d6c.png" alt="img" style="zoom:50%;" /></p>
 <h2 id="12-提供网络利用率"><strong>12. 提供网络利用率</strong></h2>
 <h3 id="121-nagle-算法">12.1 Nagle 算法</h3>
 <p>发送端即使还有应该发送的数据，但如果这部分数据很少的话，则进行延迟发送的一种处理机制。具体来说，就是仅在下列任意一种条件下才能发送数据。如果两个条件都不满足，那么暂时等待一段时间以后再进行数据发送。</p>

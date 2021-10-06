@@ -28,7 +28,7 @@ images = [
 
 在应用运行过程中，我们有可能在一次数据库会话中，执行多次查询条件完全相同的SQL，MyBatis提供了一级缓存的方案优化这部分场景，如果是相同的SQL语句，会优先命中一级缓存，避免直接对数据库进行查询，提高性能。具体执行过程如下图所示。
 
-![img](https://picgo.6and.ltd/img/6e38df6a.jpg)
+<img src="https://picgo.6and.ltd/img/6e38df6a.jpg" alt="img" style="zoom: 40%;" />
 
 每个SqlSession中持有了Executor，每个Executor中有一个LocalCache。当用户发起查询时，MyBatis根据当前执行的语句生成`MappedStatement`，在Local Cache进行查询，如果缓存命中的话，直接返回结果给用户，如果缓存没有命中的话，查询数据库，结果写入`Local Cache`，最后返回结果给用户。具体实现类的类关系图如下图所示。
 
@@ -146,7 +146,7 @@ public void testLocalCacheScope() throws Exception {
 
 在上文中提到的一级缓存中，其最大的共享范围就是一个SqlSession内部，如果多个SqlSession之间需要共享缓存，则需要使用到二级缓存。开启二级缓存后，会使用CachingExecutor装饰Executor，进入一级缓存的查询流程前，先在CachingExecutor进行二级缓存的查询，具体的工作流程如下所示。
 
-![img](https://picgo.6and.ltd/img/28399eba.png)
+<img src="https://picgo.6and.ltd/img/28399eba.png" alt="img" style="zoom: 67%;" />
 
 二级缓存开启后，同一个namespace下的所有操作语句，都影响着同一个Cache，即二级缓存被多个SqlSession共享，是一个全局的变量。
 

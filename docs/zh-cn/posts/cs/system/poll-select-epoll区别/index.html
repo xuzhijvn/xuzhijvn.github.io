@@ -297,7 +297,7 @@
 <p>入参数是文件fds（file descriptor set 描述符集合，即连接集合），调用一次select，由系统内核遍历10000个fd，返回哪些连接是可读状态，上面的例子在select方式下只发生1次select+10次recvfrom系统调用</p>
 <p>poll</p>
 <p>同步多路复用</p>
-<p>和select类似，入参不一样</p>
+<p>和select类似，入参不一样，没有最大文件描述符数量的限制</p>
 <p>epoll</p>
 <p>事件驱动的poll</p>
 <p>不用遍历10000个，而是基于操作系统中断机制，有数据可读的时候，网卡驱动发出cpu中断，然后再调recvfrom去同步读。</p>

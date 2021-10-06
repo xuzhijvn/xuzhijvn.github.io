@@ -140,7 +140,7 @@ StoreLoadBarrie
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/aqs/</guid>
       <description>AQS作为Java并发编程的基石，在Java同步工具中有广泛应用，例如：ReentrantLock , Semaphore , CountDownLatch ReentrantReadWriteLock , ThreadPoolExecutor
-一般来说，自定义同步器要么是独占方式，要么是共享方式，它们也只需实现 tryAcquire / tryRelease , tryAcquireShared / tryReleaseShared 中的一种即可。AQS也支持自定义同步器同时实现独占和共享两种方式，如ReentrantReadWriteLock。ReentrantLock是独占锁。
+一般来说，自定义同步器要么是独占方式，要么是共享方式，它们也只需实现 tryAcquire / tryRelease , tryAcquireShared / tryReleaseShared 中的一组即可。AQS也支持自定义同步器同时实现独占和共享两种方式，如ReentrantReadWriteLock。ReentrantLock是独占锁。
 AQS核心思想是：如果被请求的共享资源（state）空闲，那么就将当前请求资源的线程设置为有效的工作线程，将共享资源设置为锁定状态；如果共享资源被占用，就需要一定的阻塞等待唤醒机制来保证锁分配。这个机制主要用的是CLH队列的变体实现的，将暂时获取不到锁的线程加入到队列中。
 CLH：Craig, Landin, and Hagersten队列，是单向链表，AQS中的队列是CLH变体的虚拟双向队列（FIFO），AQS是通过将每条请求共享资源的线程封装成一个节点来实现锁的分配。
 主要原理图如下：
@@ -218,7 +218,24 @@ switch 底层是使用 int 型 来进行判断的，即使是枚举、String类�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%8D%8F%E7%A8%8B/</guid>
-      <description>参考 为什么 Java 坚持多线程不选择协程？ Kotlin 协程真的比 Java 线程更高效吗？ 硬核系列 | 深入剖析 Java 协程 Golang 的 协程调度机制 与 GOMAXPROCS 性能调优 </description>
+      <description>1. 现状 时至今日，JDK17已经正式发布，Java也没有在语言层面对协程提供原生支持。
+一定要在Java中使用协程的话，可以使用诸如quasar , kilim , coroutines 第三方库感受一下，它们的原理基本都是字节码增强 + Java Agent机制，这种做法一是对性能影响很大，对JIT编译器的影响也非常大，另外这些库都几年前就不在更新了，远达不到生产使用的标准。
+还可以使用Kotlin混合编程，Kotlin中的协程本质上还是一套基于原生Java Thread API 的封装，和Go中的协程完全不是一个东西，不要混淆，更谈不上什么性能更好，Kotlin中的协程最大的价值是写起来比RxJava的线程切换还要方便，几乎就是用阻塞的写法来完成非阻塞的任务。
+openjdk也有正在孵化的官方协程项目loom ，其能否release还需拭目以待。
+2. 成因 是什么原因导致Oracle一直不着急推出对协程的支持呢？
+先返回到问题的本源。当我们希望引入协程，我们想解决什么问题。我想不外乎下面几点：
+  节省资源：
+   节省内存 节省分配线程的开销（创建和销毁线程要各做一次syscall） 节省大量线程切换带来的开销    与NIO配合实现非阻塞的编程，提高系统的吞吐
+  使用起来更加舒服顺畅，同步的编程风格编写异步程序
+  2.1 节省资源 1. 节省内存 我们以常见的Java Web举例，spingboot分配给tomcat的线程池大小默认值是200，即使按照1M线程大小计算，200M的内存占用对于动辄几个G的Java Web应用并不算什么。
+即使是IM的场景，有数百万的长链接需要维护，也可以使用NIO+Worker线程应对。
+还可以调整线程栈占用内存大小（-Xss1024k 或者 -XX:ThreadStackSize=1024k）
+2. 节省线程分配开销 线程池
+3. 节省线程切换开销 我们仍然以Java Web举例，大量的线程大部分时间实际上因为IO（发请求/读DB）而挂起，根本不会参与OS的线程切换，现实当中一个最大200线程的服务器可能同一时刻的“活跃线程”总数只有数十而已。其开销没有想象的那么大。
+2.2 非阻塞编程 nio 👉 netty
+2.3 优雅异步编程 响应式编程库
+可见Java对于引入协程机制并不那么紧迫；并且Java不像Golang等新语言，没有历史包袱，它们可以不提供线程只提供协程编程，但是Java如果没有thread，也没有ThreadLocal，@Transactional不起作用了，又没有等价的工具，是不是很郁闷？
+参考 为什么 Java 坚持多线程不选择协程？ Kotlin 协程真的比 Java 线程更高效吗？ 硬核系列 | 深入剖析 Java 协程 Golang 的 协程调度机制 与 GOMAXPROCS 性能调优 </description>
     </item>
     
     <item>
@@ -258,7 +275,8 @@ GC会回收无用对象，同时还会进行碎片整理，移动对象在内存
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%A6%82%E4%BD%95%E7%BB%91%E5%AE%9A%E7%BA%BF%E7%A8%8B%E5%88%B0%E6%8C%87%E5%AE%9Acpu%E4%B8%8A%E6%89%A7%E8%A1%8C/</guid>
-      <description>不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。
+      <description>绑定核心之后不存在线程的上下文切换，就可以更好的利用CPU缓存。
+ 不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。
 而且它还是一个面试题。
 我懵逼倒不是因为我不知道答案，而是恰好我之前在非常机缘巧合的情况下知道了答案。
 我感觉非常的冷门，作为一个考察候选者的知识点出现在面试环节中不太合适，除非是候选者主动提起做过这样的优化。
@@ -285,8 +303,7 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
 我这里主要说一下使用内核线程实现（1:1实现）的这个模型。
 因为我们用的最多的 HotSpot 虚拟机，就是采用 1:1 模型来实现 Java 线程的。
 这是个啥意思呢？
-说人话就是一个 Java 线程是直接映射为一个操作系统原生线程的，中间没有额外的间接结构。HotSpot 虚拟机也不干涉线程的调度，这事全权交给底下的操作系统去做。
-顶多就是设置一个线程优先级，操作系统来调度的时候给个建议。</description>
+说人话就是一个 Java 线程是直接映射为一个操作系统原生线程的，中间没有额外的间接结构。HotSpot 虚拟机也不干涉线程的调度，这事全权交给底下的操作系统去做。</description>
     </item>
     
     <item>
@@ -324,16 +341,17 @@ public int hashCode() { int h = hash; if (h == 0 &amp;amp;&amp;amp; value.length
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/jit%E5%8D%B3%E6%97%B6%E7%BC%96%E8%AF%91/</guid>
-      <description>1. 编译器与解释器 不做特别说明的话，我们讲的，
+      <description>JIT (just-in-time compilation) 是指程序在运行过程中对热点代码进行编译的过程，编译后的机器码存入CodeCache，下次再遇到这段代码，就会从CodeCache中读取机器码，直接执行，以此来提升程序运行的性能。
+有的JVM全程都是JIT编译运行，例如：JRockit；有的JVM是解释器 + JIT运行，例如：HotSpot, J9（也支持AOT）；有的JVM没有解释器，只支持AOT+JIT或者纯AOT，例如：Excelsior JET
+以HotSpot JVM举例，JIT还可以分为C1, C2等。C1编译快，执行效率低；C2编译慢，效率高。可以通过 -XX:+TieredCompilation 开启分层编译，对热点代码先C1编译以尽快进入到编译执行模式；随着应用继续运行，收集到足够多的指标后，再进行C2编译，以期获得最好的执行效率。
+JIT在编译过程中会采用一些优化手段，包括：公共子表达式消除、数组范围检查消除、方法内联、逃逸分析（目的是栈上分配、同步消除、标量替换、循环变型、窥孔优化与寄存器分配）
+1. 编译器与解释器 不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
  特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT  无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&amp;gt; 语法分析 -&amp;gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
 编译流程： 源码 [字符流] - 词法分析 -&amp;gt; 单词（token）流 - 语法分析 -&amp;gt; 语法树 / 抽象语法树 - 语义分析 -&amp;gt; 标注了属性的抽象语法树 - 代码生成 -&amp;gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&amp;gt; 执行结果 狭义的解释器处理步骤看起来：
-解释执行流程： 源码 [字符流] - 需要做词法分析+语法分析+类型检查的字符流解释器 -&amp;gt; 执行结果  特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：
- 至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行； 兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。  为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？  2. 解释型语言 很多资料会说，Python、Ruby、JavaScript都是“解释型语言”，是通过解释器来实现的。这么说其实很容易引起误解：语言一般只会定义其抽象语义，而不会强制性要求采用某种实现方式。
-例如说C一般被认为是“编译型语言”，但C的解释器也是存在的，例如Ch 。同样，C++也有解释器版本的实现，例如Cint 。
-一般被称为“解释型语言”的是主流实现为解释器的语言，但并不是说它就无法编译。例如说经常被认为是“解释型语言”的Scheme 就有好几种编译器实现，其中率先支持R6RS 规范的大部分内容的是Ikarus ，支持在x86上编译Scheme；它最终不是生成某种虚拟机的字节码，而是直接生成x86机器码。</description>
+解释执行流程： 源码 [字符流] - 需要做词法分析+语法分析+类型检查的字符流解释器 -&amp;gt; 执行结果  特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：</description>
     </item>
     
     <item>
@@ -357,9 +375,10 @@ java.lang.OutOfMemoryError: Java heap space Dumping heap to java_pid3404.hprof .
  lock 的资源是多个线程共享的，所以访问的时候需要加锁。 ThreadLocal 是每个线程都有一个副本，是不需要加锁的。 lock 是通过时间换空间的做法。 ThreadLocal 是典型的通过空间换时间的做法。  当然他们的使用场景也是不同的，关键看你的资源是需要多线程之间共享的还是单线程内部共享的。
 ThreadLocal 的使用是非常简单的，看下面的代码：
 public class Test { public static void main(String[] args) { ThreadLocal&amp;lt;String&amp;gt; local = new ThreadLocal&amp;lt;&amp;gt;(); //设置值  local.set(&amp;#34;hello word&amp;#34;); //获取刚刚设置的值  System.out.println(local.get()); } } ThreadLocal的数据结构 为什么ThreadLocalMap 采用开放地址法来解决哈希冲突? ThreadLocal 往往存放的数据量不会特别大，这个时候开放地址法简单的结构会显得更省空间（链地址法需要额外的指针空间）
+常用的hash解决方法有：拉链法（HashMap，指针需要占用空间）、开发地址（如果发生冲突，那就基于冲突位置再次探测寻址，直至不冲突，适用于记录总数可以预知的场景，如果位桶不够用就得扩容，扩容影响性能）、再hash（如果第1个hash函数冲突，那就使用第2个，多次hash是有时间成本的）
 ThreadLocal应用场景 传递参数 ThreadLocal用于传递参数及优势 保证线程安全 SimpleDateFormat是线程不安全的，例如下面的写法会报错：
 日期转换的一个工具类
-public class DateUtil { private static final SimpleDateFormat sdf = new SimpleDateFormat(&amp;quot;yyyy-MM-dd HH:mm:ss&amp;quot;); public static Date parse(String dateStr) { Date date = null; try { date = sdf.</description>
+public class DateUtil { private static final SimpleDateFormat sdf = new SimpleDateFormat(&amp;#34;yyyy-MM-dd HH:mm:ss&amp;#34;); public static Date parse(String dateStr) { Date date = null; try { date = sdf.</description>
     </item>
     
     <item>

@@ -253,7 +253,10 @@ public class JavaVMStackOOM {
 
  
 
-[v_error]重点提示一下， 如果读者要尝试运行上面这段代码， 记得要先保存当前的工作， 由于在Windows平台的虚拟机中， Java的线程是映射到操作系统的内核线程上[1]， 无限制地创建线程会对操作系统带来很大压力， 上述代码执行时有很高的风险， 可能会由于创建线程数量过多而导致操作系统假死。[/v_error]
+> 重点提示一下， 如果读者要尝试运行上面这段代码， 记得要先保存当前的工作， 由于在Windows平台的虚拟机中， Java的线程是映射到操作系统的内核线程上， 无限制地创建线程会对操作系统带来很大压力， 上述代码执行时有很高的风险， 可能会由于创建线程数量过多而导致操作系统假死。
+
+
+
 运行结果:
 
 ```shell
@@ -271,7 +274,9 @@ Exception in thread "main" java.lang.OutOfMemoryError: unable to create native t
 
 ### 3.1 运行时常量池溢出
 
-[v_tips]String::intern()是一个本地方法， 它的作用是如果字符串常量池中已经包含一个等于此String对象的字符串， 则返回代表池中这个字符串的String对象的引用； 否则， 会将此String对象包含的字符串添加到常量池中， 并且返回此String对象的引用。 [/v_tips]
+```
+String::intern()是一个本地方法， 它的作用是如果字符串常量池中已经包含一个等于此String对象的字符串， 则返回代表池中这个字符串的String对象的引用； 否则， 会将此String对象包含的字符串添加到常量池中， 并且返回此String对象的引用。
+```
 
 在JDK 6或更早之前的HotSpot虚拟机中， 常量池都是分配在永久代中， 我们可以通过-XX： PermSize和-XX： MaxPermSize限制永久代的大小， 即可间接限制其中常量池的容量。
 
@@ -356,7 +361,8 @@ public class RuntimeConstantPoolOOM2 {
 
 JDK 7 及其以上版本会得到(true,false)，而JDK6会得到(false,false)结果。
 
-[v_tips]对str2比较返回false， 这是因为“java”[2]这个字符串在执行String-Builder.toString()之前就已经出现过了，它是加载sun.misc.Vesion的时候加入常量池的， 字符串常量池中已经有它的引用， 不符合intern()方法要求“首次遇到”的原则， “计算机软件”这个字符串则是首次出现的，因此结果返回true。[/v_tips]
+> 对str2比较返回false， 这是因为“java”这个字符串在执行String-Builder.toString()之前就已经出现过了，它是加载sun.misc.Vesion的时候加入常量池的， 字符串常量池中已经有它的引用， 不符合intern()方法要求“首次遇到”的原则， “计算机软件”这个字符串则是首次出现的，因此结果返回true。
+>
 
 ### 3.2 方法区溢出
 
