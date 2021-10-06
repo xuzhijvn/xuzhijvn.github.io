@@ -19,6 +19,10 @@ images : [
 
 [comment]: <> "# BeanFactoryPostProcessor和BeanPostProcessor"
 
+BeanFactoryPostProcessor工作在Bean实例化之前，BeanPostProcessor工作在Bean初始化方法前后。
+
+
+
 BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：
 
 ## 1. BeanFactoryPostProcessor接口

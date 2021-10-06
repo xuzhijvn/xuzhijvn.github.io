@@ -529,7 +529,8 @@ private Node addWaiter(Node mode) { //以给定模式构造结点。mode有两�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/beanfactorypostprocessor%E5%92%8Cbeanpostprocessor/</guid>
-      <description>BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：
+      <description>BeanFactoryPostProcessor工作在Bean实例化之前，BeanPostProcessor工作在Bean初始化方法前后。
+BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：
 1. BeanFactoryPostProcessor接口 该接口的定义如下：
 @FunctionalInterface public interface BeanFactoryPostProcessor { /** * Modify the application context&amp;#39;s internal bean factory after its standard * initialization. All bean definitions will have been loaded, but no beans * will have been instantiated yet. This allows for overriding or adding * properties even to eager-initializing beans. * @param beanFactory the bean factory used by the application context * @throws org.springframework.beans.BeansException in case of errors */ void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException; } 实现该接口，可以在spring的bean创建之前，修改bean的定义属性。也就是说，Spring允许BeanFactoryPostProcessor在容器实例化任何其它bean之前读取配置元数据，并可以根据需要进行修改，例如可以把bean的scope从singleton改为prototype，也可以把property的值给修改掉。可以同时配置多个BeanFactoryPostProcessor，并通过设置&amp;rsquo;order&amp;rsquo;属性来控制各个BeanFactoryPostProcessor的执行次序。</description>
     </item>
@@ -959,8 +960,8 @@ switch 底层是使用 int 型 来进行判断的，即使是枚举、String类�
 openjdk也有正在孵化的官方协程项目loom ，其能否release还需拭目以待。
 2. 成因 是什么原因导致Oracle一直不着急推出对协程的支持呢？
 先返回到问题的本源。当我们希望引入协程，我们想解决什么问题。我想不外乎下面几点：
-  节省资源：
-   节省内存 节省分配线程的开销（创建和销毁线程要各做一次syscall） 节省大量线程切换带来的开销    与NIO配合实现非阻塞的编程，提高系统的吞吐
+  节省资源：节省内存、节省分配线程的开销（创建和销毁线程要各做一次syscall）、节省大量线程切换带来的开销
+  与NIO配合实现非阻塞的编程，提高系统的吞吐
   使用起来更加舒服顺畅，同步的编程风格编写异步程序
   2.1 节省资源 1. 节省内存 我们以常见的Java Web举例，spingboot分配给tomcat的线程池大小默认值是200，即使按照1M线程大小计算，200M的内存占用对于动辄几个G的Java Web应用并不算什么。
 即使是IM的场景，有数百万的长链接需要维护，也可以使用NIO+Worker线程应对。
@@ -1769,7 +1770,8 @@ package test; public class Test { public static void main(String[] args){ System
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/threadpoolexecutor/</guid>
-      <description>构造方法 public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue&amp;lt;Runnable&amp;gt; workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) { if (corePoolSize &amp;lt; 0 || maximumPoolSize &amp;lt;= 0 || maximumPoolSize &amp;lt; corePoolSize || keepAliveTime &amp;lt; 0) throw new IllegalArgumentException(); if (workQueue == null || threadFactory == null || handler == null) throw new NullPointerException(); this.acc = System.getSecurityManager() == null ? null : AccessController.getContext(); this.corePoolSize = corePoolSize; this.maximumPoolSize = maximumPoolSize; this.workQueue = workQueue; this.keepAliveTime = unit.</description>
+      <description>如果采用有界BlockingQueue，队列满后启用maximumPoolSize，达到maximumPoolSize上限后走RejectedExecutionHandler的逻辑；如果采用无界BlockingQueue，maximumPoolSize设置无效。
+构造方法 public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue&amp;lt;Runnable&amp;gt; workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) { if (corePoolSize &amp;lt; 0 || maximumPoolSize &amp;lt;= 0 || maximumPoolSize &amp;lt; corePoolSize || keepAliveTime &amp;lt; 0) throw new IllegalArgumentException(); if (workQueue == null || threadFactory == null || handler == null) throw new NullPointerException(); this.acc = System.getSecurityManager() == null ? null : AccessController.getContext(); this.corePoolSize = corePoolSize; this.maximumPoolSize = maximumPoolSize; this.workQueue = workQueue; this.</description>
     </item>
     
     <item>
@@ -2131,7 +2133,8 @@ CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.SEQUENCE_ID ( id bigint(20) unsigne
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/</guid>
-      <description>分布式事务顾名思义就是要在分布式系统中实现事务，它其实是由多个本地事务组合而成。对于分布式事务而言几乎满足不了 ACID，其实对于单机事务而言大部分情况下也没有满足 ACID，不然怎么会有四种隔离级别呢？所以更别说分布在不同数据库或者不同应用上的分布式事务了。
+      <description>2PC对多方资源进行全局锁定，非常影响性能，例如Spring JTA；3PC尝试解决2PC的问题，引入资源参与者超时机制，一方资源参与者不可用不至于导致全局资源锁定等措施，但是收效甚微，且使得交互流程变长变复杂；TCC需要业务系统自己针对每一个操作实现Try - Confirm - Cancel 方法，好处是可以跨数据库、跨不同的业务系统实现事务，坏处是与业务代码耦合（参考Seata的TCC模式）；Saga参与者提交自己的本地事务，但是每个正向事务操作，就要对应一个逆向的补偿事务操作（参考Seata的Saga模式）;性价比最高的分布式事务应该要数本地消息表；还可以使用RocketMQ消息事务，如果MQ不支持消息事务，可以使用MQ+本地消息表达到一样的效果。
+分布式事务顾名思义就是要在分布式系统中实现事务，它其实是由多个本地事务组合而成。对于分布式事务而言几乎满足不了 ACID，其实对于单机事务而言大部分情况下也没有满足 ACID，不然怎么会有四种隔离级别呢？所以更别说分布在不同数据库或者不同应用上的分布式事务了。
 2PC 2PC（Two-phase commit protocol），中文叫二阶段提交。 二阶段提交是一种强一致性设计，2PC 引入一个事务协调者的角色来协调管理各参与者（也可称之为各本地资源）的提交和回滚，二阶段分别指的是准备（投票）和提交两个阶段。
 **准备阶段**协调者会给各参与者发送准备命令，你可以把准备命令理解成除了提交事务之外啥事都做完了。
 同步等待所有资源的响应之后就进入第二阶段即**提交阶段**（注意提交阶段不一定是提交事务，也可能是回滚事务）。
@@ -2150,9 +2153,7 @@ CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.SEQUENCE_ID ( id bigint(20) unsigne
  3PC 3PC 的出现是为了解决 2PC 的一些问题，相比于 2PC 它在参与者中也引入了超时机制，并且新增了一个阶段使得参与者可以利用这一个阶段统一各自的状态。
 让我们来详细看一下。
 3PC 包含了三个阶段，分别是**准备阶段、预提交阶段、提交阶段**，对应的英文就是：CanCommit、PreCommit 、 DoCommit。
-看起来是把 2PC 的提交阶段变成了预提交阶段和提交阶段，但是 3PC 的准备阶段协调者只是询问参与者的自身状况，比如你现在还好吗？负载重不重？这类的。
-而预提交阶段就是和 2PC 的准备阶段一样，除了事务的提交该做的都做了。
-提交阶段和 2PC 的一样，让我们来看一下图。</description>
+看起来是把 2PC 的提交阶段变成了预提交阶段和提交阶段，但是 3PC 的准备阶段协调者只是询问参与者的自身状况，比如你现在还好吗？负载重不重？这类的。</description>
     </item>
     
     <item>
@@ -2483,12 +2484,20 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</guid>
-      <description>什么是跳跃表？
-答：跳表这种高效的数据结构，值得每一个程序员掌握 为什么使用ziplist？
+      <description>字符串: SDS
+list: 元素少且小 👉🏿 ziplist , 元素多且大 👉🏿 双链表
+hash: 元素少且小 👉🏿 ziplist , 元素多且大 👉🏿 hashtable
+zset: 元素少且小 👉🏿 ziplist , 元素多且大 👉🏿 skiplist
+set: 元素少且小 👉🏿 intset , 元素多且大 👉🏿 hashtable
+ redis的hashtable使用拉链法解决冲突
+ 什么是跳跃表？
+跳表是一种带多级索引的链表。
+有序链表能以log(n)的时间复杂实现查找，但是空间复杂度是O(n)，也就是说，如果将包含 n 个结点的单链表构造成跳表，我们需要额外再用接近 n 个结点的存储空间。
+答：跳表这种高效的数据结构，值得每一个程序员掌握 为什么使用压缩ziplist？
 答：相较于双链表，节省了两个指针的空间。（pre_entry_length前驱数据项的大小。因为不用描述前驱的数据类型，描述较为简单）。相较于数组，ziplist的每个entry所占的内存大小可以不同，便于节省空间。
-为什么list  hash  zset 在数据两大的时候不再使用ziplist？
+为什么list  hash  zset 在数据量大的时候不再使用ziplist？
 答：难以获得大的连续的内存空间。
-参考链接 图解redis五种数据结构底层实现(动图哦) Redis 数据结构 ziplist Redis源码分析-压缩列表ziplist </description>
+参考 图解redis五种数据结构底层实现(动图哦) Redis 数据结构 ziplist Redis源码分析-压缩列表ziplist </description>
     </item>
     
     <item>
@@ -2537,7 +2546,10 @@ int a = 1; a = a + 1; int b = 1; b = b +1 ; 性能好，因为后者的a或b可�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%BC%93%E5%AD%98%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7/</guid>
-      <description>首先，缓存由于其高并发和高性能的特性，已经在项目中被广泛使用。在读取缓存方面，大家没啥疑问，都是按照下图的流程来进行业务操作。
+      <description>数据库与缓存双写可以有4种顺序： 更新缓存-&amp;gt;更新db、更新db-&amp;gt;更新缓存、删除缓存-&amp;gt;更新db、更新db-&amp;gt;删除缓存
+前两种顺序有显著的缺陷：
+ 后更新的数据源失败，因为无法将先更新的数据源回滚（redis）或者不知道该不该回滚（超时）导致数据不一致； 多并发（大于两个并发请求，不一定需要高并发）场景下，因为双写不是原子操作，就有可能发生数据不一致； 读少写多的场景下，大量缓存一直在被更新，却没有被读，一直在做无用功。  后两种顺序也存在在多并发数据场景下数据不一致的情形，但是它们都可以通过 异步延迟双删+失败删除重试机制 解决，其中更新db-&amp;gt;删除缓存 发生不一致的概率更低，所以应该首先最后一种顺序实施双写。
+首先，缓存由于其高并发和高性能的特性，已经在项目中被广泛使用。在读取缓存方面，大家没啥疑问，都是按照下图的流程来进行业务操作。
 、
 双写可分为：更新缓存-&amp;gt;更新db、更新db-&amp;gt;更新缓存、删除缓存-&amp;gt;更新db、更新db-&amp;gt;删除缓存 四种策略。
 并发事务时，前两种策略不仅存在数据不一致的，而且在写多读少的场景下会白白消耗缓存的性能（因为数据还没被读就又被更新了，尤其是在更新的缓存需要通过复杂计算才能得到时，这种消耗更加严重）。后两种策略情况相似，只是更新db-&amp;gt;删除缓存相较于删除缓存-&amp;gt;更新db发生数据不一致的概率更低（因为只有在写操作先于读操作完成才会不一致，而一般来说一个写操作是要比读操作慢的），为防止不一致发生，它们都采用异步延迟双删+删除重试机制的策略，下面详述常见删除重试机制。
@@ -2844,7 +2856,8 @@ mvn archetype:generate -DarchetypeCatalog=local 然后会让你选择模板序�
  使用Zero Copy前后对比：
 使用前：
 使用后：
-Linux支持的(常见)零拷贝 mmap内存映射` `sendfile` `Sendfile With DMA Scatter/Gather Copy` `splice 无论是传统IO方式，还是引入零拷贝之后，2次DMA copy 是都少不了的。因为两次DMA都是依赖硬件完成的。
+Linux支持的(常见)零拷贝 mmap内存映射 sendfile Sendfile With DMA Scatter/Gather Copy splice
+无论是传统IO方式，还是引入零拷贝之后，2次DMA copy 是都少不了的。因为两次DMA都是依赖硬件完成的。
 实际上，零拷贝时有广义和狭义之分的。 广义零拷贝： 能减少拷贝次数，减少不必要的数据拷贝，就算作“零拷贝”。 这是目前，对零拷贝最为广泛的定义，我们需要知道的是，这是广义上的零拷贝，并不是操作系统 意义上的零拷贝。
 Java零拷贝机制解析 Linux提供的领拷贝技术 Java并不是全支持，支持2种(内存映射mmap、sendfile)；
 NIO提供的内存映射：MappedByteBuffer

@@ -254,7 +254,7 @@
    width="120" height="69" loading="lazy" />
 
         
-        分布式事务顾名思义就是要在分布式系统中实现事务，它其实是由多个本地事务组合而成。对于分布式事务而言几乎满足不了 ACID，其实对于单机事务而言大部分情况下也没有满足 ACID，不然怎么会有四种隔离级别呢？所以更别说分布在不同数据库或者不同应 …
+        2PC对多方资源进行全局锁定，非常影响性能，例如Spring JTA；3PC尝试解决2PC的问题，引入资源参与者超时机制，一方资源参与者不可用不至于导致全局资源锁定等措施，但是收效甚微，且使得交互流程变长变复杂；TCC需要业务系统自己针对每 …
       </div>
     </article><article class="post row surface">
       <h2 class="post-title mb-4"><a href="https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%BC%93%E5%AD%98%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7/">数据库和缓存双写一致性
@@ -270,9 +270,9 @@
    width="120" height="69" loading="lazy" />
 
         
-        首先，缓存由于其高并发和高性能的特性，已经在项目中被广泛使用。在读取缓存方面，大家没啥疑问，都是按照下图的流程来进行业务操作。
-、
-双写可分为：更新缓存-&gt;更新db、更新db-&gt;更新缓存、删除缓存-&gt;更新db、更 …
+        数据库与缓存双写可以有4种顺序： 更新缓存-&gt;更新db、更新db-&gt;更新缓存、删除缓存-&gt;更新db、更新db-&gt;删除缓存
+前两种顺序有显著的缺陷：
+ 后更新的数据源失败，因为无法将先更新的数据源回滚（redis）或者 …
       </div>
     </article></div><div class="row table-responsive mb-3"></div>
 </div>

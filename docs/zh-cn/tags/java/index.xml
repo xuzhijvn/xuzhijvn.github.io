@@ -224,8 +224,8 @@ switch 底层是使用 int 型 来进行判断的，即使是枚举、String类�
 openjdk也有正在孵化的官方协程项目loom ，其能否release还需拭目以待。
 2. 成因 是什么原因导致Oracle一直不着急推出对协程的支持呢？
 先返回到问题的本源。当我们希望引入协程，我们想解决什么问题。我想不外乎下面几点：
-  节省资源：
-   节省内存 节省分配线程的开销（创建和销毁线程要各做一次syscall） 节省大量线程切换带来的开销    与NIO配合实现非阻塞的编程，提高系统的吞吐
+  节省资源：节省内存、节省分配线程的开销（创建和销毁线程要各做一次syscall）、节省大量线程切换带来的开销
+  与NIO配合实现非阻塞的编程，提高系统的吞吐
   使用起来更加舒服顺畅，同步的编程风格编写异步程序
   2.1 节省资源 1. 节省内存 我们以常见的Java Web举例，spingboot分配给tomcat的线程池大小默认值是200，即使按照1M线程大小计算，200M的内存占用对于动辄几个G的Java Web应用并不算什么。
 即使是IM的场景，有数百万的长链接需要维护，也可以使用NIO+Worker线程应对。
@@ -398,7 +398,8 @@ package test; public class Test { public static void main(String[] args){ System
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/threadpoolexecutor/</guid>
-      <description>构造方法 public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue&amp;lt;Runnable&amp;gt; workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) { if (corePoolSize &amp;lt; 0 || maximumPoolSize &amp;lt;= 0 || maximumPoolSize &amp;lt; corePoolSize || keepAliveTime &amp;lt; 0) throw new IllegalArgumentException(); if (workQueue == null || threadFactory == null || handler == null) throw new NullPointerException(); this.acc = System.getSecurityManager() == null ? null : AccessController.getContext(); this.corePoolSize = corePoolSize; this.maximumPoolSize = maximumPoolSize; this.workQueue = workQueue; this.keepAliveTime = unit.</description>
+      <description>如果采用有界BlockingQueue，队列满后启用maximumPoolSize，达到maximumPoolSize上限后走RejectedExecutionHandler的逻辑；如果采用无界BlockingQueue，maximumPoolSize设置无效。
+构造方法 public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue&amp;lt;Runnable&amp;gt; workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) { if (corePoolSize &amp;lt; 0 || maximumPoolSize &amp;lt;= 0 || maximumPoolSize &amp;lt; corePoolSize || keepAliveTime &amp;lt; 0) throw new IllegalArgumentException(); if (workQueue == null || threadFactory == null || handler == null) throw new NullPointerException(); this.acc = System.getSecurityManager() == null ? null : AccessController.getContext(); this.corePoolSize = corePoolSize; this.maximumPoolSize = maximumPoolSize; this.workQueue = workQueue; this.</description>
     </item>
     
     <item>
@@ -542,7 +543,8 @@ mvn archetype:generate -DarchetypeCatalog=local 然后会让你选择模板序�
  使用Zero Copy前后对比：
 使用前：
 使用后：
-Linux支持的(常见)零拷贝 mmap内存映射` `sendfile` `Sendfile With DMA Scatter/Gather Copy` `splice 无论是传统IO方式，还是引入零拷贝之后，2次DMA copy 是都少不了的。因为两次DMA都是依赖硬件完成的。
+Linux支持的(常见)零拷贝 mmap内存映射 sendfile Sendfile With DMA Scatter/Gather Copy splice
+无论是传统IO方式，还是引入零拷贝之后，2次DMA copy 是都少不了的。因为两次DMA都是依赖硬件完成的。
 实际上，零拷贝时有广义和狭义之分的。 广义零拷贝： 能减少拷贝次数，减少不必要的数据拷贝，就算作“零拷贝”。 这是目前，对零拷贝最为广泛的定义，我们需要知道的是，这是广义上的零拷贝，并不是操作系统 意义上的零拷贝。
 Java零拷贝机制解析 Linux提供的领拷贝技术 Java并不是全支持，支持2种(内存映射mmap、sendfile)；
 NIO提供的内存映射：MappedByteBuffer

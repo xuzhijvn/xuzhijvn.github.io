@@ -10,13 +10,15 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="BeanFactoryPostProcessor和BeanPostProcessor">
-<meta itemprop="description" content="BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：
+<meta itemprop="description" content="BeanFactoryPostProcessor工作在Bean实例化之前，BeanPostProcessor工作在Bean初始化方法前后。
+BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：
 1. BeanFactoryPostProcessor接口 该接口的定义如下：
 @FunctionalInterface public interface BeanFactoryPostProcessor { /** * Modify the application context&#39;s internal bean factory after its standard * initialization. All bean definitions will have been loaded, but no beans * will have been instantiated yet. This allows for overriding or adding * properties even to eager-initializing beans. * @param beanFactory the bean factory used by the application context * @throws org.springframework.beans.BeansException in case of errors */ void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException; } 实现该接口，可以在spring的bean创建之前，修改bean的定义属性。也就是说，Spring允许BeanFactoryPostProcessor在容器实例化任何其它bean之前读取配置元数据，并可以根据需要进行修改，例如可以把bean的scope从singleton改为prototype，也可以把property的值给修改掉。可以同时配置多个BeanFactoryPostProcessor，并通过设置&rsquo;order&rsquo;属性来控制各个BeanFactoryPostProcessor的执行次序。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="835"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="wordCount" content="836"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="Spring," /><meta property="og:title" content="BeanFactoryPostProcessor和BeanPostProcessor" />
-<meta property="og:description" content="BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：
+<meta property="og:description" content="BeanFactoryPostProcessor工作在Bean实例化之前，BeanPostProcessor工作在Bean初始化方法前后。
+BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：
 1. BeanFactoryPostProcessor接口 该接口的定义如下：
 @FunctionalInterface public interface BeanFactoryPostProcessor { /** * Modify the application context&#39;s internal bean factory after its standard * initialization. All bean definitions will have been loaded, but no beans * will have been instantiated yet. This allows for overriding or adding * properties even to eager-initializing beans. * @param beanFactory the bean factory used by the application context * @throws org.springframework.beans.BeansException in case of errors */ void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException; } 实现该接口，可以在spring的bean创建之前，修改bean的定义属性。也就是说，Spring允许BeanFactoryPostProcessor在容器实例化任何其它bean之前读取配置元数据，并可以根据需要进行修改，例如可以把bean的scope从singleton改为prototype，也可以把property的值给修改掉。可以同时配置多个BeanFactoryPostProcessor，并通过设置&rsquo;order&rsquo;属性来控制各个BeanFactoryPostProcessor的执行次序。" />
 <meta property="og:type" content="article" />
@@ -29,7 +31,8 @@
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
 
 <meta name="twitter:title" content="BeanFactoryPostProcessor和BeanPostProcessor"/>
-<meta name="twitter:description" content="BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：
+<meta name="twitter:description" content="BeanFactoryPostProcessor工作在Bean实例化之前，BeanPostProcessor工作在Bean初始化方法前后。
+BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：
 1. BeanFactoryPostProcessor接口 该接口的定义如下：
 @FunctionalInterface public interface BeanFactoryPostProcessor { /** * Modify the application context&#39;s internal bean factory after its standard * initialization. All bean definitions will have been loaded, but no beans * will have been instantiated yet. This allows for overriding or adding * properties even to eager-initializing beans. * @param beanFactory the bean factory used by the application context * @throws org.springframework.beans.BeansException in case of errors */ void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException; } 实现该接口，可以在spring的bean创建之前，修改bean的定义属性。也就是说，Spring允许BeanFactoryPostProcessor在容器实例化任何其它bean之前读取配置元数据，并可以根据需要进行修改，例如可以把bean的scope从singleton改为prototype，也可以把property的值给修改掉。可以同时配置多个BeanFactoryPostProcessor，并通过设置&rsquo;order&rsquo;属性来控制各个BeanFactoryPostProcessor的执行次序。"/>
 <meta name="twitter:site" content="@razonyang"/>
@@ -278,7 +281,8 @@
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><p>BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：</p>
+</div><div class="post-content mb-3"><p>BeanFactoryPostProcessor工作在Bean实例化之前，BeanPostProcessor工作在Bean初始化方法前后。</p>
+<p>BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：</p>
 <h2 id="1-beanfactorypostprocessor接口">1. BeanFactoryPostProcessor接口</h2>
 <p>该接口的定义如下：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@FunctionalInterface</span>

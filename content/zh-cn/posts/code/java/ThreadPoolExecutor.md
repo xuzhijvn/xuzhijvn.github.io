@@ -19,6 +19,12 @@ images : [
 
 [comment]: <> "# ThreadPoolExecutor"
 
+
+
+如果采用有界BlockingQueue，队列满后启用maximumPoolSize，达到maximumPoolSize上限后走RejectedExecutionHandler的逻辑；如果采用无界BlockingQueue，maximumPoolSize设置无效。
+
+
+
 ## 构造方法
 
 ```java
