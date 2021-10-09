@@ -305,7 +305,8 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
   <i class="fas fa-fw fa-medal"></i>
 </a>
     
-    
+    <a id="btnTOC" class="fas fa-fw fa-list-alt" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+</a>
   </div>
 </div>
 <h1 class="post-title my-3">常用的模型评估指标
@@ -315,7 +316,26 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="post-taxonomy">人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="post-taxonomy">CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="post-taxonomy">AI</a></span>
 </div>
-<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>“没有测量，就没有科学。”这是科学家门捷列夫的名言。在计算机科学中，特别是在机器学习的领域，对模型的测量和评估同样至关重要。只有选择与问题相匹配的评估方法，我们才能够快速的发现在模型选择和训练过程中可能出现的问题，迭代地对模型进行优化。本文将总结机器学习最常见的模型评估指标，其中包括：</p>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+    <a role="button" data-bs-dismiss="offcanvas" aria-label="Close">
+      <span class="fas fa-2x fa-fw fa-times"></span>
+    </a>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#从混淆矩阵谈起">从混淆矩阵谈起</a></li>
+    <li><a href="#precisionrecallprcf1-score">Precision、Recall、PRC、F1-score</a></li>
+    <li><a href="#roc--auc">ROC &amp; AUC</a></li>
+    <li><a href="#怎么选择评估指标">怎么选择评估指标？</a></li>
+    <li><a href="#iou">IOU</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>“没有测量，就没有科学。”这是科学家门捷列夫的名言。在计算机科学中，特别是在机器学习的领域，对模型的测量和评估同样至关重要。只有选择与问题相匹配的评估方法，我们才能够快速的发现在模型选择和训练过程中可能出现的问题，迭代地对模型进行优化。本文将总结机器学习最常见的模型评估指标，其中包括：</p>
 <ul>
 <li>precision</li>
 <li>recall</li>
@@ -324,7 +344,7 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
 <li>ROC和AUC</li>
 <li>IOU</li>
 </ul>
-<h1 id="从混淆矩阵谈起">从混淆矩阵谈起</h1>
+<h2 id="从混淆矩阵谈起">从混淆矩阵谈起</h2>
 <p>看一看下面这个例子：假定瓜农拉来一车西瓜，我们用训练好的模型对这些西瓜进行判别，显然我们可以使用错误率来衡量有多少比例的瓜被判别错误。但如果我们关心的是“挑出的西瓜中有多少比例是好瓜”，或者“所有好瓜中有多少比例被挑出来了”，那么错误率显然就不够用了，这时我们需要引入新的评估指标，比如“查准率”和查全率更适合此类需求的性能度量。</p>
 <p>在引入查全率和查准率之前我们必须先理解到什么是混淆矩阵（Confusion matrix）。这个名字起得是真的好，初学者很容易被这个矩阵搞得晕头转向。下图a就是有名的混淆矩阵，而下图b则是由混淆矩阵推出的一些有名的评估指标。</p>
 <p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/15752039601-20210606001019125.png"
@@ -338,7 +358,7 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
 <li>False Positive （假正, FP）被模型预测为正的负样本</li>
 <li>False Negative（假负 , FN）被模型预测为负的正样本</li>
 </ul>
-<h1 id="precisionrecallprcf1-score">Precision、Recall、PRC、F1-score</h1>
+<h2 id="precisionrecallprcf1-score">Precision、Recall、PRC、F1-score</h2>
 <p>Precision指标在中文里可以称为查准率或者是精确率，Recall指标在中卫里常被称为查全率或者是召回率，查准率 P和查全率 R分别定义为：</p>
 <p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/15752040781-20210606001041338.png"
    loading="lazy" />
@@ -371,7 +391,7 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
 
 </p>
 <p>F1-score 就是一个综合考虑precision和recall的指标，比BEP更为常用。</p>
-<h1 id="roc--auc">ROC &amp; AUC</h1>
+<h2 id="roc--auc">ROC &amp; AUC</h2>
 <p>ROC全称是“受试者工作特征”（Receiver Operating Characteristic）曲线，ROC曲线以“真正例率”（TPR）为Y轴，以“假正例率”（FPR）为X轴，对角线对应于“随机猜测”模型，而（0,1）则对应“理想模型”。ROC形式如下图所示。</p>
 <p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1093303-20180224204355006-1724131879-20210606001115340.png"
    loading="lazy" />
@@ -385,7 +405,7 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
 <p>从形式上看TPR就是我们上面提到的查全率Recall，而FPR的含义就是：所有确实为“假”的样本中，被误判真的样本。</p>
 <p>进行学习器比较时，与PR图相似，若一个学习器的ROC曲线被另一个学习器的曲线包住，那么我们可以断言后者性能优于前者；若两个学习器的ROC曲线发生交叉，则难以一般性断言两者孰优孰劣。此时若要进行比较，那么可以比较ROC曲线下的面积，即AUC，面积大的曲线对应的分类器性能更好。</p>
 <p>AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性能极好，则AUC为1。但现实生活中尤其是工业界不会有如此完美的模型，一般AUC均在0.5到1之间，AUC越高，模型的区分能力越好，上图AUC为0.81。若AUC=0.5，即与上图中红线重合，表示模型的区分能力与随机猜测没有差别。若AUC真的小于0.5，请检查一下是不是好坏标签标反了，或者是模型真的很差。</p>
-<h1 id="怎么选择评估指标">怎么选择评估指标？</h1>
+<h2 id="怎么选择评估指标">怎么选择评估指标？</h2>
 <p>这种问题的答案当然是具体问题具体分析啦，单纯地回答谁好谁坏是没有意义的，我们需要结合实际场景给出合适的回答。</p>
 <p>考虑下面是两个场景，由此看出不同场景下我们关注的点是不一样的：</p>
 <ol>
@@ -393,7 +413,7 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
 <li>嫌疑人定罪基于不错怪一个好人的原则，对于嫌疑人的定罪我们希望是非常准确的。即使有时候放过了一些罪犯（Recall低），但也是值得的。</li>
 </ol>
 <p>ROC和PRC在模型性能评估上效果都差不多，但需要注意的是，在正负样本分布得极不均匀(highly skewed datasets)的情况下，PRC比ROC能更有效地反应分类器的好坏。在数据极度不平衡的情况下，譬如说1万封邮件中只有1封垃圾邮件，那么如果我挑出10封，50封，100&hellip;封垃圾邮件（假设我们每次挑出的N封邮件中都包含真正的那封垃圾邮件），Recall都是100%，但是FPR分别是9/9999, 49/9999, 99/9999（数据都比较好看：FPR越低越好），而Precision却只有1/10，1/50， 1/100 （数据很差：Precision越高越好）。所以在数据非常不均衡的情况下，看ROC的AUC可能是看不出太多好坏的，而PR curve就要敏感的多。</p>
-<h1 id="iou">IOU</h1>
+<h2 id="iou">IOU</h2>
 <p>上面讨论的是分类任务中的评价指标，这里想简单讲讲目标检测任务中常用的评价指标：IOU（Intersection over Union），中文翻译为交并比。</p>
 <p>这里是一个实际例子：下图绿色框是真实感兴趣区域，红色框是预测区域，这种情况下交集确实是最大的，但是红色框并不能准确预测物体位置。因为预测区域总是试图覆盖目标物体而不是正好预测物体位置。这时如果我们能除以一个并集的大小，就可以规避这种问题。这就是IOU要解决的问题了。</p>
 <p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1093303-20180224204408601-1945220368-20210606001133992.png"
@@ -410,7 +430,7 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
    loading="lazy" />
 
 </p>
-<h1 id="参考">参考：</h1>
+<h2 id="参考">参考</h2>
 <p><a href="https://www.cnblogs.com/skyfsm/p/8467613.html" target="_blank" rel="noopener noreferrer">https://www.cnblogs.com/skyfsm/p/8467613.html</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
@@ -479,18 +499,18 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
 </section>
   <section class="recent-posts row surface">
   <h4>最近文章</h4>
-  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/">Redis事务
+  <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/topk/">TopK
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/lrucache/">LRUCache
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/">Redis事务
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/">RPC综述
 </a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/">Java序列化
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/">几种序列化框架对比
-</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E5%AE%9E%E9%AA%8C/">MySQL实验
 </a></li></ul>
 </section><section class="taxonomy-categories row surface">
       <h4>
         <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="编程思想">
-          编程思想 <span class="badge rounded-pill">110</span>
+          编程思想 <span class="badge rounded-pill">112</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="云原生">
           云原生 <span class="badge rounded-pill">32</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="其他">
@@ -511,11 +531,13 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
         <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
       </h4>
       <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="Manual">
-          Manual <span class="badge rounded-pill">166</span>
+          Manual <span class="badge rounded-pill">156</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s">
           k8s <span class="badge rounded-pill">13</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="k8s实战">
           k8s实战 <span class="badge rounded-pill">13</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="算法">
+          算法 <span class="badge rounded-pill">12</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="istio实战">
           istio实战 <span class="badge rounded-pill">4</span>
         </a></div>
@@ -573,6 +595,8 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
           Maven <span class="badge rounded-pill">2</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="MQ">
           MQ <span class="badge rounded-pill">2</span>
+        </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="算法">
+          算法 <span class="badge rounded-pill">2</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="ClickHouse">
           ClickHouse <span class="badge rounded-pill">1</span>
         </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="post-taxonomy rounded btn btn-sm me-2 mb-2" title="docker-compose">

@@ -6,14 +6,34 @@
     <description>Recent content in 编程思想 on 唯有光头👴🏻才能变强💪</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
-    <lastBuildDate>Fri, 08 Oct 2021 16:45:53 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 09 Oct 2021 14:38:30 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>TopK</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/topk/</link>
+      <pubDate>Sat, 09 Oct 2021 14:38:30 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/topk/</guid>
+      <description>public static int topK(int[] arr, int k) { if (arr == null || k &amp;gt; arr.length || arr.length == 0 || k &amp;lt;= 0) { return -1; } PriorityQueue&amp;lt;Integer&amp;gt; queue = new PriorityQueue&amp;lt;&amp;gt;(k, Comparator.reverseOrder()); for (int i = 0; i &amp;lt; k; i++) { queue.add(arr[i]); } for (int i = k; i &amp;lt; arr.length; i++) { if (queue.peek() &amp;gt; arr[i]) { queue.poll(); queue.add(arr[i]); } } return queue.peek(); } </description>
+    </item>
+    
+    <item>
+      <title>LRUCache</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/lrucache/</link>
+      <pubDate>Sat, 09 Oct 2021 14:24:56 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/lrucache/</guid>
+      <description>public class LRUCache&amp;lt;K,V&amp;gt;{ private final int cap; private final Map&amp;lt;K,V&amp;gt; map; private final LinkedList&amp;lt;K&amp;gt; list; public LRUCache(int cap) { this.cap = cap; map = new HashMap&amp;lt;&amp;gt;(cap); list = new LinkedList&amp;lt;&amp;gt;(); } public void put(K key, V value) { if (map.size() == cap){ K first = list.removeFirst(); map.remove(first); } list.addLast(key); map.put(key, value); } public V get(K key) { V value = map.get(key); if (value == null){ return null; }else { list.remove(key); list.</description>
+    </item>
+    
     <item>
       <title>Redis事务</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/</link>
       <pubDate>Fri, 08 Oct 2021 16:45:53 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/</guid>
-      <description></description>
+      <description>redis它只是做到了：
+ 它认为的原子性。（单个命令原子，多条命令不一定原子） 隔离性。（单线程执行，各事务串行执行，天然满足隔离） AOF/RDB保证了部分的持久性。（持久化的时候可能存在数据丢失） 它不存在ACID中的C的概念，因为它没有约束。  1. 命令使用错误 这种错误redis在执行前就能检查出来，因此整个事务都不执行。
+127.0.0.1:6379&amp;gt; get name &amp;#34;xumeili&amp;#34; 127.0.0.1:6379&amp;gt; get age &amp;#34;28&amp;#34; 127.0.0.1:6379&amp;gt; get sex &amp;#34;female&amp;#34; 127.0.0.1:6379&amp;gt; multi OK 127.0.0.1:6379&amp;gt; set name xuzhijun QUEUED 127.0.0.1:6379&amp;gt; set age (error) ERR wrong number of arguments for &amp;#39;set&amp;#39; command 127.0.0.1:6379&amp;gt; set sex male QUEUED 127.0.0.1:6379&amp;gt; exec (error) EXECABORT Transaction discarded because of previous errors. 127.0.0.1:6379&amp;gt; get name &amp;#34;xumeili&amp;#34; 127.0.0.1:6379&amp;gt; get age &amp;#34;28&amp;#34; 127.0.0.1:6379&amp;gt; get sex &amp;#34;female&amp;#34; 2. 命令执行错误 这种错误redis无法在执行前发现，因此不影响这种错误的前后命令被提交。</description>
     </item>
     
     <item>
@@ -198,10 +218,10 @@ StoreLoadBarrie
     
     <item>
       <title>300. 最长递增子序列</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/</guid>
       <description>class Solution { public int lengthOfLIS(int[] nums) { if (nums == null || nums.length == 0){return 0;} int[] dp = new int[nums.length]; Arrays.fill(dp,1); for (int i = 0; i &amp;lt; nums.length; i++) { for (int j = 0; j &amp;lt; i; j++) { if(nums[i] &amp;gt; nums[j] &amp;amp;&amp;amp; dp[j] + 1 &amp;gt; dp[i]){ dp[i] = dp[j] + 1; } } } return Arrays.stream(dp).max().getAsInt(); } } 300. 最长递增子序列 </description>
     </item>
     
@@ -1086,73 +1106,73 @@ public class ThreadSafeCache { int result; public int getResult() { return resul
     
     <item>
       <title>剑指 Offer 09. 用两个栈实现队列</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-09.-%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-09.-%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-09.-%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-09.-%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/</guid>
       <description>class CQueue { Stack&amp;lt;Integer&amp;gt; stack1; Stack&amp;lt;Integer&amp;gt; stack2; public CQueue() { stack1 = new Stack(); stack2 = new Stack(); } public void appendTail(int value) { stack1.push(value); } public int deleteHead() { if(stack2.isEmpty()){ while(stack1.isEmpty() == false){ stack2.push(stack1.pop()); } } if(stack2.isEmpty()){ return -1; }else{ return stack2.pop(); } } } /** * Your CQueue object will be instantiated and called as such: * CQueue obj = new CQueue(); * obj.appendTail(value); * int param_2 = obj.</description>
     </item>
     
     <item>
       <title>剑指 Offer 18. 删除链表的节点</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-18.-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E8%8A%82%E7%82%B9/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-18.-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E8%8A%82%E7%82%B9/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-18.-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E8%8A%82%E7%82%B9/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-18.-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E8%8A%82%E7%82%B9/</guid>
       <description>class CQueue { Stack&amp;lt;Integer&amp;gt; stack1; Stack&amp;lt;Integer&amp;gt; stack2; public CQueue() { stack1 = new Stack(); stack2 = new Stack(); } public void appendTail(int value) { stack1.push(value); } public int deleteHead() { if(stack2.isEmpty()){ while(stack1.isEmpty() == false){ stack2.push(stack1.pop()); } } if(stack2.isEmpty()){ return -1; }else{ return stack2.pop(); } } } /** * Your CQueue object will be instantiated and called as such: * CQueue obj = new CQueue(); * obj.appendTail(value); * int param_2 = obj.</description>
     </item>
     
     <item>
       <title>剑指 Offer 27. 二叉树的镜像</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-27.-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%95%9C%E5%83%8F/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-27.-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%95%9C%E5%83%8F/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-27.-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%95%9C%E5%83%8F/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-27.-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%95%9C%E5%83%8F/</guid>
       <description>剑指 Offer 27. 二叉树的镜像 /** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution { public TreeNode mirrorTree(TreeNode root) { if(root == null){ return root; } TreeNode posL = root.left; TreeNode posR = root.right; root.left = posR; root.right = posL; mirrorTree(root.left); mirrorTree(root.right); return root; } } </description>
     </item>
     
     <item>
       <title>剑指 Offer 28. 对称的二叉树</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-28.-%E5%AF%B9%E7%A7%B0%E7%9A%84%E4%BA%8C%E5%8F%89%E6%A0%91/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-28.-%E5%AF%B9%E7%A7%B0%E7%9A%84%E4%BA%8C%E5%8F%89%E6%A0%91/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-28.-%E5%AF%B9%E7%A7%B0%E7%9A%84%E4%BA%8C%E5%8F%89%E6%A0%91/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-28.-%E5%AF%B9%E7%A7%B0%E7%9A%84%E4%BA%8C%E5%8F%89%E6%A0%91/</guid>
       <description>/** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution { public boolean isSymmetric(TreeNode root) { if(root == null){return true;} return isSymmetric2(root.left, root.right); } private boolean isSymmetric2(TreeNode left, TreeNode right){ if (left == null &amp;amp;&amp;amp; right == null){return true;} if ((left == null &amp;amp;&amp;amp; right !</description>
     </item>
     
     <item>
       <title>剑指 Offer 30. 包含min函数的栈</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-30.-%E5%8C%85%E5%90%ABmin%E5%87%BD%E6%95%B0%E7%9A%84%E6%A0%88/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-30.-%E5%8C%85%E5%90%ABmin%E5%87%BD%E6%95%B0%E7%9A%84%E6%A0%88/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-30.-%E5%8C%85%E5%90%ABmin%E5%87%BD%E6%95%B0%E7%9A%84%E6%A0%88/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-30.-%E5%8C%85%E5%90%ABmin%E5%87%BD%E6%95%B0%E7%9A%84%E6%A0%88/</guid>
       <description>剑指 Offer 30. 包含min函数的栈 class MinStack { Stack&amp;lt;Integer&amp;gt; stack1; Stack&amp;lt;Integer&amp;gt; stack2; /** initialize your data structure here. */ public MinStack() { stack1 = new Stack(); stack2 = new Stack(); } public void push(int x) { stack1.push(x); if(stack2.isEmpty()){ stack2.push(x); }else if(x &amp;gt; stack2.peek()){ stack2.push(stack2.peek()); }else{ stack2.push(x); } } public void pop() { stack1.pop(); stack2.pop(); } public int top() { return stack1.peek(); } public int min() { return stack2.peek(); } } /** * Your MinStack object will be instantiated and called as such: * MinStack obj = new MinStack(); * obj.</description>
     </item>
     
     <item>
       <title>剑指 Offer 32 - I. 从上到下打印二叉树</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-32-i.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-i.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-32-i.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-i.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91/</guid>
       <description>/** * Definition for singly-linked list. * public class ListNode { * int val; * ListNode next; * ListNode(int x) { val = x; } * } */ class Solution { public static int[] levelOrder(TreeNode root) { ArrayList&amp;lt;Integer&amp;gt; list = new ArrayList&amp;lt;Integer&amp;gt;(); if (root == null) { return new int[]{}; } Queue&amp;lt;TreeNode&amp;gt; queue=new LinkedList&amp;lt;TreeNode&amp;gt;(); queue.add(root); while(!queue.isEmpty()){ TreeNode node=queue.poll(); list.add(node.val); if(node.left!=null){ queue.add(node.left); } if(node.right!=null){ queue.add(node.right); } } int[] res = new int[list.</description>
     </item>
     
     <item>
       <title>剑指 Offer 32 - II. 从上到下打印二叉树 II</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-32-ii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-ii/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-ii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-ii/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-32-ii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-ii/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-ii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-ii/</guid>
       <description>剑指 Offer 32 - II. 从上到下打印二叉树 II class Solution { public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; levelOrder(TreeNode root) { Queue&amp;lt;TreeNode&amp;gt; queue = new LinkedList&amp;lt;&amp;gt;(); List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; res = new ArrayList&amp;lt;&amp;gt;(); if(root != null) queue.add(root); while(!queue.isEmpty()) { List&amp;lt;Integer&amp;gt; tmp = new ArrayList&amp;lt;&amp;gt;(); for(int i = queue.size(); i &amp;gt; 0; i--) { TreeNode node = queue.poll(); tmp.add(node.val); if(node.left != null) queue.add(node.left); if(node.right != null) queue.add(node.right); } res.add(tmp); } return res; } } </description>
     </item>
     
     <item>
       <title>剑指 Offer 32 - III. 从上到下打印二叉树 III</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-32-iii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-iii/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-iii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-iii/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/leetcode/%E5%89%91%E6%8C%87-offer-32-iii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-iii/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-iii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-iii/</guid>
       <description>剑指 Offer 32 - III. 从上到下打印二叉树 III package com.xzj; import java.util.*; /** * Definition for singly-linked list. * public class ListNode { * int val; * ListNode next; * ListNode(int x) { val = x; } * } */ class Solution { public static List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; levelOrder(TreeNode root) { List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; res = new ArrayList&amp;lt;&amp;gt;(); if (root == null){return res;} Stack&amp;lt;TreeNode&amp;gt; stack1 = new Stack(); Stack&amp;lt;TreeNode&amp;gt; stack2 = new Stack(); stack1.push(root); while (stack1.</description>
     </item>
     
@@ -1294,10 +1314,10 @@ set: 元素少且小 👉🏿 intset , 元素多且大 👉🏿 hashtable
     
     <item>
       <title>查找重复元素</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/nowcoder/%E6%9F%A5%E6%89%BE%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0/</link>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/nowcoder/%E6%9F%A5%E6%89%BE%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/nowcoder/%E6%9F%A5%E6%89%BE%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0/</guid>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/nowcoder/%E6%9F%A5%E6%89%BE%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0/</guid>
       <description>找出数组 arr 中重复出现过的元素（不用考虑返回顺序）
 示例1
 输入 [1, 2, 4, 4, 3, 3, 1, 5, 3] 输出 [1, 3, 4] 将传入的数组arr中的每一个元素value当作另外一个新数组b的key，然后遍历arr去访问b[value]，若b[value]不存在，则将b[value]设置为1，若b[value]存在，则将其加1。可以想象，若arr中数组没有重复的元素，则b数组中所有元素均为1；若arr数组中存在重复的元素，则在第二次访问该b[value]时，b[value]会加1，其值就为2了。最后遍历b数组，将其值大于1的元素的key存入另一个数组a中，就得到了arr中重复的元素。

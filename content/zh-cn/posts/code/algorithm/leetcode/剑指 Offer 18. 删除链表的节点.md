@@ -1,5 +1,5 @@
 ---
-title: "剑指 Offer 09. 用两个栈实现队列"
+title: "剑指 Offer 18. 删除链表的节点"
 date: 2021-08-27T11:15:10+08:00
 draft: false
 reward: true
@@ -10,14 +10,14 @@ tags : [
 "剑指offer"
 ]
 series : [
-"Manual"
+"算法"
 ]
 images : [
 "images/center.png"
 ]
 ---
 
-[comment]: <> (# 剑指 Offer 09. 用两个栈实现队列)
+[comment]: <> (# 剑指 Offer 18. 删除链表的节点)
 
 
 

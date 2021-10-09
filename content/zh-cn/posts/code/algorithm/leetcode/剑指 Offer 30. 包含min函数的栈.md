@@ -10,7 +10,7 @@ tags : [
 "剑指offer"
 ]
 series : [
-"Manual"
+"算法"
 ]
 images : [
 "images/center.png"
