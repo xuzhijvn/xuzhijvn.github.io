@@ -17,7 +17,7 @@ images : [
 ]
 ---
 
-# 高性能无锁队列Disruptor
+
 
 ## 1. JDK中的队列
 
@@ -48,7 +48,7 @@ Disruptor就是上面说的那个天，Disruptor是英国外汇交易公司LMAX�
 
 - RingBuffer 
 
-  有了这三大杀器，Disruptor才变得如此牛逼。
+有了这三大杀器，Disruptor才变得如此牛逼。
 
 #### 3.1.1 锁和CAS
 
@@ -170,7 +170,7 @@ class RhsPadding extends Value
 
 最后顺便一提，在jdk8中提供了@Contended的注解，当然一般来说只允许Jdk中内部，如果你自己使用那就得配置Jvm参数 -RestricContentended = fase，将限制这个注解置位取消。很多文章分析了ConcurrentHashMap，但是都把这个注解给忽略掉了，在ConcurrentHashMap中就使用了这个注解，在ConcurrentHashMap每个桶都是单独的用计数器去做计算，而这个计数器由于时刻都在变化，所以被用这个注解进行填充缓存行优化，以此来增加性能。
 
-![Padding](https://picgo.6and.ltd/img/Padding.png)
+<img src="https://picgo.6and.ltd/img/Padding.png" alt="Padding" style="zoom:50%;" />
 
 #### 3.1.3 RingBuffer
 

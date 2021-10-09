@@ -430,7 +430,8 @@ public class JoinTest { public static void main(String[] args) { Task task1 = ne
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%AF%B9%E8%B1%A1%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%BA%E5%BA%8F/</guid>
-      <description>Java中类及方法的加载顺序 Java类加载顺序 </description>
+      <description>父类静态成员变量、父类静态代码块 👉🏿 子类静态成员变量、子类静态代码块 👉🏿 父类成员变量、父类代码块 👉🏿 父类构造方法 👉🏿 子类成员变量、子类代码块 👉🏿 子类构造方法
+Java中类及方法的加载顺序 Java类加载顺序 </description>
     </item>
     
     <item>
@@ -469,18 +470,19 @@ public class ToolTest { public static void main(String[] args) { List&amp;lt;Int
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D/</guid>
-      <description>排除应用之外的影响因素： top(cpu)、free(内存)、df(磁盘)、dstat(网络流量)、pstack、vmstat、st1race(底层系统调用)
+      <description>  排除应用之外的影响因素： top(cpu)、free(内存)、df(磁盘)、dstat(网络流量)、pstack、vmstat、st1race(底层系统调用)
   top 定位CPU 最高的进程
   top -Hp pid 定位使用 CPU 最高的线程（或者 ps -mp pid -o THREAD,tid,time）
   printf &#39;0x%x&#39; tid 线程 id 转化 16 进制
   jstack pid | grep tid 找到线程堆栈
 5.1 gc线程（如下是查看gc情况的几种方式）
-    查看gc 日志
-  jstat -gcutil 进程号 统计间隔毫秒 统计次数（缺省代表一致统计
-  如果所在公司有对应用进行监控的组件当然更方便（比如Prometheus + Grafana）
+👉🏿 查看gc 日志
+👉🏿 jstat -gcutil 进程号 统计间隔毫秒 统计次数（缺省代表一致统计
+👉🏿 如果所在公司有对应用进行监控的组件当然更方便（比如Prometheus + Grafana）
 5.2 业务线程
-  关注线程堆栈的lock字段
-  jstack -l pid | grep BLOCKED 查看阻塞态线程堆栈</description>
+👉🏿 关注线程堆栈的lock字段
+👉🏿 jstack -l pid | grep BLOCKED 查看阻塞态线程堆栈
+  </description>
     </item>
     
     <item>
@@ -499,7 +501,18 @@ public class ToolTest { public static void main(String[] args) { List&amp;lt;Int
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81/</guid>
-      <description>Linux线程的状态与调度 Java线程的6种状态及切换 参考 Linux线程的状态与调度 </description>
+      <description>Linux线程的状态与调度 Java线程的6种状态及切换 Java 线程的生命周期中，在 Thread 类里有一个枚举类型 State，定义了线程的几种状态，分别有：
+ New Runnable Blocked Waiting Timed Waiting Terminated  上图有误，根据Blocked注释可知：线程从Waiting或Timed Waiting状态恢复后，应该是去到Blocked状态
+ Thread state for a thread blocked waiting for a monitor lock. A thread in the blocked state is waiting for a monitor lock to enter a synchronized block/method or reenter a synchronized block/method after calling Object.wait.
+ sleep和wait区别 1、sleep方法是Thread类的静态方法；
+wait方法是Object类的成员方法
+2、sleep方法使当前线程暂停执行指定的时间，让出cpu给其他线程，但是它的监控状态依然保持着，当指定的时间到了又会自动恢复运行状态。在调用sleep方法后，线程不会释放对象锁；
+而当调用wait方法时，线程会放弃对象锁，进入等待此对象的等待锁定池，只有针对此对象调用notify()方法后本线程才进入对象锁定池处于准备状态。
+3、sleep方法有可能会抛出异常，所以需要进行异常处理；
+wait方法不需要处理
+4、sleep方法可以在任何地方使用；
+wait方法只能在同步方法和同步代码块中使用
+参考 Linux线程的状态与调度 </description>
     </item>
     
     <item>

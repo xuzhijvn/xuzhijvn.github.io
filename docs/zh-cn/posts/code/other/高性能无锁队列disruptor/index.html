@@ -10,7 +10,7 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="高性能无锁队列Disruptor">
-<meta itemprop="description" content="高性能无锁队列Disruptor 1. JDK中的队列 在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:
+<meta itemprop="description" content="1. JDK中的队列 在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:
    队列名字 是否加锁 数据结构 关键技术点 是否有锁 是否有界     ArrayBlockingQueue 是 数组array ReentrantLock 有锁 有界   LinkedBlockingQueue 是 链表 ReentrantLock 有锁 有界   LinkedTransferQueue 否 链表 CAS 无锁 无界   ConcurrentLinkedQueue 否 链表 CAS 无锁 无界    我们可以看见，我们无锁的队列是无界的，有锁的队列是有界的，这里就会涉及到一个问题，我们在真正的线上环境中，无界的队列，对我们系统的影响比较大，有可能会导致我们内存直接溢出，所以我们首先得排除无界队列，当然并不是无界队列就没用了，只是在某些场景下得排除。其次还剩下ArrayBlockingQueue，LinkedBlockingQueue两个队列，他们两个都是用ReentrantLock控制的线程安全，他们两个的区别一个是数组，一个是链表，在队列中，一般获取这个队列元素之后紧接着会获取下一个元素，或者一次获取多个队列元素都有可能，而数组在内存中地址是连续的，在操作系统中会有缓存的优化(下面也会介绍缓存行)，所以访问的速度会略胜一筹，我们也会尽量去选择ArrayBlockingQueue。而事实证明在很多第三方的框架中，比如早期的log4j异步，都是选择的ArrayBlockingQueue。
 当然ArrayBlockingQueue，也有自己的弊端，就是性能比较低，为什么jdk会增加一些无锁的队列，其实就是为了增加性能，很苦恼，又需要无锁，又需要有界，这个时候恐怕会忍不住说一句你咋不上天呢？但是还真有人上天了。
 2.Disruptor Disruptor就是上面说的那个天，Disruptor是英国外汇交易公司LMAX开发的一个高性能队列，并且是一个开源的并发框架，并获得2011Duke’s程序框架创新奖。能够在无锁的情况下实现网络的Queue并发操作，基于Disruptor开发的系统单线程能支撑每秒600万订单。目前，包括Apache Storm、Camel、Log4j2等等知名的框架都在内部集成了Disruptor用来替代jdk的队列，以此来获得高性能。
@@ -18,12 +18,12 @@
   CAS
   消除伪共享
   RingBuffer
-有了这三大杀器，Disruptor才变得如此牛逼。
-  3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+  有了这三大杀器，Disruptor才变得如此牛逼。
+3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="424"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="wordCount" content="423"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="Other," /><meta property="og:title" content="高性能无锁队列Disruptor" />
-<meta property="og:description" content="高性能无锁队列Disruptor 1. JDK中的队列 在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:
+<meta property="og:description" content="1. JDK中的队列 在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:
    队列名字 是否加锁 数据结构 关键技术点 是否有锁 是否有界     ArrayBlockingQueue 是 数组array ReentrantLock 有锁 有界   LinkedBlockingQueue 是 链表 ReentrantLock 有锁 有界   LinkedTransferQueue 否 链表 CAS 无锁 无界   ConcurrentLinkedQueue 否 链表 CAS 无锁 无界    我们可以看见，我们无锁的队列是无界的，有锁的队列是有界的，这里就会涉及到一个问题，我们在真正的线上环境中，无界的队列，对我们系统的影响比较大，有可能会导致我们内存直接溢出，所以我们首先得排除无界队列，当然并不是无界队列就没用了，只是在某些场景下得排除。其次还剩下ArrayBlockingQueue，LinkedBlockingQueue两个队列，他们两个都是用ReentrantLock控制的线程安全，他们两个的区别一个是数组，一个是链表，在队列中，一般获取这个队列元素之后紧接着会获取下一个元素，或者一次获取多个队列元素都有可能，而数组在内存中地址是连续的，在操作系统中会有缓存的优化(下面也会介绍缓存行)，所以访问的速度会略胜一筹，我们也会尽量去选择ArrayBlockingQueue。而事实证明在很多第三方的框架中，比如早期的log4j异步，都是选择的ArrayBlockingQueue。
 当然ArrayBlockingQueue，也有自己的弊端，就是性能比较低，为什么jdk会增加一些无锁的队列，其实就是为了增加性能，很苦恼，又需要无锁，又需要有界，这个时候恐怕会忍不住说一句你咋不上天呢？但是还真有人上天了。
 2.Disruptor Disruptor就是上面说的那个天，Disruptor是英国外汇交易公司LMAX开发的一个高性能队列，并且是一个开源的并发框架，并获得2011Duke’s程序框架创新奖。能够在无锁的情况下实现网络的Queue并发操作，基于Disruptor开发的系统单线程能支撑每秒600万订单。目前，包括Apache Storm、Camel、Log4j2等等知名的框架都在内部集成了Disruptor用来替代jdk的队列，以此来获得高性能。
@@ -31,8 +31,8 @@
   CAS
   消除伪共享
   RingBuffer
-有了这三大杀器，Disruptor才变得如此牛逼。
-  3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。" />
+  有了这三大杀器，Disruptor才变得如此牛逼。
+3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/other/%E9%AB%98%E6%80%A7%E8%83%BD%E6%97%A0%E9%94%81%E9%98%9F%E5%88%97disruptor/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -43,7 +43,7 @@
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
 
 <meta name="twitter:title" content="高性能无锁队列Disruptor"/>
-<meta name="twitter:description" content="高性能无锁队列Disruptor 1. JDK中的队列 在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:
+<meta name="twitter:description" content="1. JDK中的队列 在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:
    队列名字 是否加锁 数据结构 关键技术点 是否有锁 是否有界     ArrayBlockingQueue 是 数组array ReentrantLock 有锁 有界   LinkedBlockingQueue 是 链表 ReentrantLock 有锁 有界   LinkedTransferQueue 否 链表 CAS 无锁 无界   ConcurrentLinkedQueue 否 链表 CAS 无锁 无界    我们可以看见，我们无锁的队列是无界的，有锁的队列是有界的，这里就会涉及到一个问题，我们在真正的线上环境中，无界的队列，对我们系统的影响比较大，有可能会导致我们内存直接溢出，所以我们首先得排除无界队列，当然并不是无界队列就没用了，只是在某些场景下得排除。其次还剩下ArrayBlockingQueue，LinkedBlockingQueue两个队列，他们两个都是用ReentrantLock控制的线程安全，他们两个的区别一个是数组，一个是链表，在队列中，一般获取这个队列元素之后紧接着会获取下一个元素，或者一次获取多个队列元素都有可能，而数组在内存中地址是连续的，在操作系统中会有缓存的优化(下面也会介绍缓存行)，所以访问的速度会略胜一筹，我们也会尽量去选择ArrayBlockingQueue。而事实证明在很多第三方的框架中，比如早期的log4j异步，都是选择的ArrayBlockingQueue。
 当然ArrayBlockingQueue，也有自己的弊端，就是性能比较低，为什么jdk会增加一些无锁的队列，其实就是为了增加性能，很苦恼，又需要无锁，又需要有界，这个时候恐怕会忍不住说一句你咋不上天呢？但是还真有人上天了。
 2.Disruptor Disruptor就是上面说的那个天，Disruptor是英国外汇交易公司LMAX开发的一个高性能队列，并且是一个开源的并发框架，并获得2011Duke’s程序框架创新奖。能够在无锁的情况下实现网络的Queue并发操作，基于Disruptor开发的系统单线程能支撑每秒600万订单。目前，包括Apache Storm、Camel、Log4j2等等知名的框架都在内部集成了Disruptor用来替代jdk的队列，以此来获得高性能。
@@ -51,8 +51,8 @@
   CAS
   消除伪共享
   RingBuffer
-有了这三大杀器，Disruptor才变得如此牛逼。
-  3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。"/>
+  有了这三大杀器，Disruptor才变得如此牛逼。
+3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta data-name="palette" content="indigo"><link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.c7a1e8273bac175ab92bcb156ffa077e608b2cb3b8fc9137d0b4e790dd1b80bc.css" integrity="sha256-x6HoJzusF1q5K8sVb/oHfmCLLLO4/JE30LTnkN0bgLw=" crossorigin="anonymous"></noscript><script src="https://xuzhijvn.github.io/js/bundle.min.9823d950e7319c8ceb08b6234b64b3736ce36485bc1b6b0689482a5d0c4c1c8f.js" integrity="sha256-mCPZUOcxnIzrCLYjS2Szc2zjZIW8G2sGiUgqXQxMHI8=" crossorigin="anonymous"></script>
@@ -301,8 +301,7 @@
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><h1 id="高性能无锁队列disruptor">高性能无锁队列Disruptor</h1>
-<h2 id="1-jdk中的队列">1. JDK中的队列</h2>
+</div><div class="post-content mb-3"><h2 id="1-jdk中的队列">1. JDK中的队列</h2>
 <p>在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:</p>
 <table>
 <thead>
@@ -365,9 +364,9 @@
 </li>
 <li>
 <p>RingBuffer</p>
-<p>有了这三大杀器，Disruptor才变得如此牛逼。</p>
 </li>
 </ul>
+<p>有了这三大杀器，Disruptor才变得如此牛逼。</p>
 <h4 id="311-锁和cas">3.1.1 锁和CAS</h4>
 <p>CAS实现无锁队列可以参考👉<a href="https://coolshell.cn/articles/8239.html" target="_blank" rel="noopener noreferrer">无锁队列的实现</a>
 </p>
@@ -512,10 +511,7 @@
 <span style="color:#f92672">}</span>
 </code></pre></div><p>其中的Value就被其他一些无用的long变量给填充了。这样你修改Value的时候，就不会影响到其他变量的缓存行。</p>
 <p>最后顺便一提，在jdk8中提供了@Contended的注解，当然一般来说只允许Jdk中内部，如果你自己使用那就得配置Jvm参数 -RestricContentended = fase，将限制这个注解置位取消。很多文章分析了ConcurrentHashMap，但是都把这个注解给忽略掉了，在ConcurrentHashMap中就使用了这个注解，在ConcurrentHashMap每个桶都是单独的用计数器去做计算，而这个计数器由于时刻都在变化，所以被用这个注解进行填充缓存行优化，以此来增加性能。</p>
-<p><img class="img-fluid" alt="Padding" src="https://picgo.6and.ltd/img/Padding.png"
-   loading="lazy" />
-
-</p>
+<p><img src="https://picgo.6and.ltd/img/Padding.png" alt="Padding" style="zoom:50%;" /></p>
 <h4 id="313-ringbuffer">3.1.3 RingBuffer</h4>
 <p>在Disruptor中采用了数组的方式保存了我们的数据，上面我们也介绍了采用数组保存我们访问时很好的利用缓存，但是在Disruptor中进一步选择采用了环形数组进行保存数据，也就是RingBuffer。在这里先说明一下环形数组并不是真正的环形数组，在RingBuffer中是采用取余的方式进行访问的，比如数组大小为 10，0访问的是数组下标为0这个位置，其实10，20等访问的也是数组的下标为0的这个位置。</p>
 <p>当然其不仅解决了数组快速访问的问题，也解决了不需要再次分配内存的问题，减少了垃圾回收，因为我们0，10，20等都是执行的同一片内存区域，这样就不需要再次分配内存，频繁的被JVM垃圾回收器回收。</p>

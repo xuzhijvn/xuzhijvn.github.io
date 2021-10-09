@@ -1966,7 +1966,8 @@ public class JoinTest { public static void main(String[] args) { Task task1 = ne
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%AF%B9%E8%B1%A1%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%BA%E5%BA%8F/</guid>
-      <description>Java中类及方法的加载顺序 Java类加载顺序 </description>
+      <description>父类静态成员变量、父类静态代码块 👉🏿 子类静态成员变量、子类静态代码块 👉🏿 父类成员变量、父类代码块 👉🏿 父类构造方法 👉🏿 子类成员变量、子类代码块 👉🏿 子类构造方法
+Java中类及方法的加载顺序 Java类加载顺序 </description>
     </item>
     
     <item>
@@ -2182,7 +2183,10 @@ public class ToolTest { public static void main(String[] args) { List&amp;lt;Int
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E6%B7%B1%E5%BA%A6%E5%9B%BE%E8%A7%A3redis-cluster%E5%8E%9F%E7%90%86/</guid>
-      <description>前言 上文我们聊了基于Sentinel的Redis高可用架构，了解了Redis基于读写分离的主从架构，同时也知道当Redis的master发生故障之后，Sentinel集群是如何执行failover的，以及其执行failover的原理是什么。
+      <description>主从能实现读能力进行扩展，但无法自动故障切换、写能力和存储能力；
+哨兵能自动故障切换，但无法对写能力和存储能力是无法进行扩展；
+集群能读能力、写能力、存储能力进行扩展，也能自动故障切换
+前言 上文我们聊了基于Sentinel的Redis高可用架构，了解了Redis基于读写分离的主从架构，同时也知道当Redis的master发生故障之后，Sentinel集群是如何执行failover的，以及其执行failover的原理是什么。
 这里大概再提一下，Sentinel集群会对Redis的主从架构中的Redis实例进行监控，一旦发现了master节点宕机了，就会选举出一个Sentinel节点来执行故障转移，从原来的slave节点中选举出一个，将其提升为master节点，然后让其他的节点去复制新选举出来的master节点。
 你可能会觉得这样没有问题啊，甚至能够满足我们生产环境的使用需求了，那我们为什么还需要Redis Cluster呢？
 1. 为什么需要Redis Cluster 的确，在数据上，有replication副本做保证；可用性上，master宕机会自动的执行failover。
@@ -2211,9 +2215,7 @@ Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点�
 即使这个时候Redis实例B挂了，也不会影响到实例A和C的缓存。
 例如此时节点B挂了，那之前计算出来在位置D的key，此时会按照顺时针的顺序，找到节点C。相当于自动的把原来节点B的流量给转移到了节点C上去。而其他原本就在节点A和节点C的数据则完全不受影响。
 这就是一致性哈希，能够在我们后续需要新增节点或者删除节点的时候，不影响其他节点的正常运行。
-5. 虚拟节点机制 但是一致性哈希也存在自身的小问题，例如当我们的Redis节点分布如下时，就有问题了。
-此时数据落在节点A上的概率明显是大于其他两个节点的，其次落在节点C上的概率最小。这样一来会导致整个集群的数据存储不平衡，AB节点压力较大，而C节点资源利用不充分。为了解决这个问题，一致性哈希算法引入了虚拟节点机制。
-在圆环中，增加了对应节点的虚拟节点，然后完成了虚拟节点到真实节点的映射。假设现在计算得出了位置D，那么按照顺时针的顺序，我们找到的第一个节点就是C #1，最终数据实际还是会落在节点C上。</description>
+5. 虚拟节点机制 但是一致性哈希也存在自身的小问题，例如当我们的Redis节点分布如下时，就有问题了。</description>
     </item>
     
     <item>
@@ -2222,18 +2224,19 @@ Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D/</guid>
-      <description>排除应用之外的影响因素： top(cpu)、free(内存)、df(磁盘)、dstat(网络流量)、pstack、vmstat、st1race(底层系统调用)
+      <description>  排除应用之外的影响因素： top(cpu)、free(内存)、df(磁盘)、dstat(网络流量)、pstack、vmstat、st1race(底层系统调用)
   top 定位CPU 最高的进程
   top -Hp pid 定位使用 CPU 最高的线程（或者 ps -mp pid -o THREAD,tid,time）
   printf &#39;0x%x&#39; tid 线程 id 转化 16 进制
   jstack pid | grep tid 找到线程堆栈
 5.1 gc线程（如下是查看gc情况的几种方式）
-    查看gc 日志
-  jstat -gcutil 进程号 统计间隔毫秒 统计次数（缺省代表一致统计
-  如果所在公司有对应用进行监控的组件当然更方便（比如Prometheus + Grafana）
+👉🏿 查看gc 日志
+👉🏿 jstat -gcutil 进程号 统计间隔毫秒 统计次数（缺省代表一致统计
+👉🏿 如果所在公司有对应用进行监控的组件当然更方便（比如Prometheus + Grafana）
 5.2 业务线程
-  关注线程堆栈的lock字段
-  jstack -l pid | grep BLOCKED 查看阻塞态线程堆栈</description>
+👉🏿 关注线程堆栈的lock字段
+👉🏿 jstack -l pid | grep BLOCKED 查看阻塞态线程堆栈
+  </description>
     </item>
     
     <item>
@@ -2261,7 +2264,18 @@ Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81/</guid>
-      <description>Linux线程的状态与调度 Java线程的6种状态及切换 参考 Linux线程的状态与调度 </description>
+      <description>Linux线程的状态与调度 Java线程的6种状态及切换 Java 线程的生命周期中，在 Thread 类里有一个枚举类型 State，定义了线程的几种状态，分别有：
+ New Runnable Blocked Waiting Timed Waiting Terminated  上图有误，根据Blocked注释可知：线程从Waiting或Timed Waiting状态恢复后，应该是去到Blocked状态
+ Thread state for a thread blocked waiting for a monitor lock. A thread in the blocked state is waiting for a monitor lock to enter a synchronized block/method or reenter a synchronized block/method after calling Object.wait.
+ sleep和wait区别 1、sleep方法是Thread类的静态方法；
+wait方法是Object类的成员方法
+2、sleep方法使当前线程暂停执行指定的时间，让出cpu给其他线程，但是它的监控状态依然保持着，当指定的时间到了又会自动恢复运行状态。在调用sleep方法后，线程不会释放对象锁；
+而当调用wait方法时，线程会放弃对象锁，进入等待此对象的等待锁定池，只有针对此对象调用notify()方法后本线程才进入对象锁定池处于准备状态。
+3、sleep方法有可能会抛出异常，所以需要进行异常处理；
+wait方法不需要处理
+4、sleep方法可以在任何地方使用；
+wait方法只能在同步方法和同步代码块中使用
+参考 Linux线程的状态与调度 </description>
     </item>
     
     <item>
@@ -2365,7 +2379,7 @@ NIO提供的sendfile：FileChannel.transferTo() FileChannel.transferFrom()
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/other/%E9%AB%98%E6%80%A7%E8%83%BD%E6%97%A0%E9%94%81%E9%98%9F%E5%88%97disruptor/</guid>
-      <description>高性能无锁队列Disruptor 1. JDK中的队列 在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:
+      <description>1. JDK中的队列 在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:
    队列名字 是否加锁 数据结构 关键技术点 是否有锁 是否有界     ArrayBlockingQueue 是 数组array ReentrantLock 有锁 有界   LinkedBlockingQueue 是 链表 ReentrantLock 有锁 有界   LinkedTransferQueue 否 链表 CAS 无锁 无界   ConcurrentLinkedQueue 否 链表 CAS 无锁 无界    我们可以看见，我们无锁的队列是无界的，有锁的队列是有界的，这里就会涉及到一个问题，我们在真正的线上环境中，无界的队列，对我们系统的影响比较大，有可能会导致我们内存直接溢出，所以我们首先得排除无界队列，当然并不是无界队列就没用了，只是在某些场景下得排除。其次还剩下ArrayBlockingQueue，LinkedBlockingQueue两个队列，他们两个都是用ReentrantLock控制的线程安全，他们两个的区别一个是数组，一个是链表，在队列中，一般获取这个队列元素之后紧接着会获取下一个元素，或者一次获取多个队列元素都有可能，而数组在内存中地址是连续的，在操作系统中会有缓存的优化(下面也会介绍缓存行)，所以访问的速度会略胜一筹，我们也会尽量去选择ArrayBlockingQueue。而事实证明在很多第三方的框架中，比如早期的log4j异步，都是选择的ArrayBlockingQueue。
 当然ArrayBlockingQueue，也有自己的弊端，就是性能比较低，为什么jdk会增加一些无锁的队列，其实就是为了增加性能，很苦恼，又需要无锁，又需要有界，这个时候恐怕会忍不住说一句你咋不上天呢？但是还真有人上天了。
 2.Disruptor Disruptor就是上面说的那个天，Disruptor是英国外汇交易公司LMAX开发的一个高性能队列，并且是一个开源的并发框架，并获得2011Duke’s程序框架创新奖。能够在无锁的情况下实现网络的Queue并发操作，基于Disruptor开发的系统单线程能支撑每秒600万订单。目前，包括Apache Storm、Camel、Log4j2等等知名的框架都在内部集成了Disruptor用来替代jdk的队列，以此来获得高性能。
@@ -2373,8 +2387,8 @@ NIO提供的sendfile：FileChannel.transferTo() FileChannel.transferFrom()
   CAS
   消除伪共享
   RingBuffer
-有了这三大杀器，Disruptor才变得如此牛逼。
-  3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。</description>
+  有了这三大杀器，Disruptor才变得如此牛逼。
+3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。</description>
     </item>
     
   </channel>
