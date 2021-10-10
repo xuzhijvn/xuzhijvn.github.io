@@ -172,4 +172,30 @@ Topic Exchange 支持对 RoutingKey 模糊匹配，`多播`
 
 
 
+### 常用Http状态码
+
+
+
+301 Moved Permanently ：永久重定向（优先使用301）
+
+302 Found（临时重定向）
+
+
+
+401 Unauthorized
+
+403 Forbidden：资源不可用，防盗链
+
+429 Too Many Requests
+
+
+
+500 Internal Server Error
+
+502 Bad Gateway
+
+503 Service Unavailable
+
+504 Gateway Timeout
+
 ### 3个问题，技术栈是什么？+ 团队负责的工作内容是？+  今天的表现做怎么样的评价？
