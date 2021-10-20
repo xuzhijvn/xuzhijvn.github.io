@@ -57,7 +57,7 @@ A->C->Y(2.0)
 
 ### 2.2 如何查看当前项目的maven依赖树？
 
-```
+```sh
 //进入项目的pom.xml文件的目录下，运行如下命令
 //这个是正常依赖的树
 mvn dependency:tree
@@ -73,7 +73,7 @@ mvn -Dverbose  dependency:tree -Doutput=/Users/shangxiaofei/sxfoutput.txt
 
 ![img](https://picgo.6and.ltd/img/645085-20190110173328966-1325435360.png)
 
-![img](https://img2018.cnblogs.com/blog/645085/201901/645085-20190110182627824-965290088.png)
+![img](https://picgo.6and.ltd/img/645085-20190110182627824-965290088-20211010213928890.png)
 
  
 
@@ -101,7 +101,7 @@ mvn -Dverbose  dependency:tree -Doutput=/Users/shangxiaofei/sxfoutput.txt
 
 可以这么写：
 
-```
+```xml
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>dubbo</artifactId>
@@ -123,7 +123,7 @@ mvn -Dverbose  dependency:tree -Doutput=/Users/shangxiaofei/sxfoutput.txt
 
 ### 3.1 maven的依赖基础
 
-```
+```xml
 <dependency>    
 <groupId>com.alibaba.share</groupId>    
 <artifactId>test</artifactId>    
@@ -150,7 +150,7 @@ TestNG强制需要你提供分类器，以区别jdk14和jdk15
 
 ### 3.2 maven依赖范围 
 
-```
+```xml
 <dependency>    
       <groupId>junit</groupId>    
       <artifactId>junit</artifactId>    
@@ -171,7 +171,7 @@ system：不推荐使用
 避免不同子模块中依赖版本冲突 
 在父pom中配置依赖 
 
-```
+```xml
 <dependencyManagement>      
     <dependencies>      
      <dependency>      
@@ -186,7 +186,7 @@ system：不推荐使用
 
 在子pom中添加依赖 
 
-```
+```xml
 <dependencies>      
    <dependency>      
     <groupId>mysql</groupId>      
@@ -199,13 +199,13 @@ dependencyManagement实际上不会真正引入任何依赖，在子pom中添加
 
 ### 3.4 可选依赖
 
-```
+```xml
 <dependency>    
       <groupId>mysql</groupId>    
       <artifactId>mysql-connector-java</artifactId>    
       <version>1.5</version>    
       <optional>true</optional>    
-    </dependency>   
+</dependency>   
 ```
 
 [maven可选依赖（Optional Dependencies）和依赖排除（Dependency Exclusions）](https://developer.aliyun.com/article/659868)
@@ -214,19 +214,19 @@ dependencyManagement实际上不会真正引入任何依赖，在子pom中添加
 
 要求的依赖版本>=3.8且<4.0 
 
-```
+```xml
 <version>[3.8,4.0)</version>   
 ```
 
 要求的依赖版本<=3.8.1 
 
-```
+```xml
 <version>[,3.8.1]</version>    
 ```
 
 要求必须是3.8.1版本，如果不是的话会构建失败，提示版本冲突。原来的写法<version>3.8.1</version>的意思是所有版本都可以，但最好是3.8.1 
 
-```
+```xml
 <version>[3.8.1]</version>   
 ```
 
@@ -234,7 +234,7 @@ dependencyManagement实际上不会真正引入任何依赖，在子pom中添加
 
  *依赖project-a但是排除掉对project-a中引入的project-b的依赖* 
 
-```
+```xml
 <dependency>    
   <groupId>org.sonatype.mavenbook</groupId>    
   <artifactId>project-a</artifactId>    
@@ -267,7 +267,7 @@ dependencyManagement实际上不会真正引入任何依赖，在子pom中添加
 
 查看那些jar包依赖了冲突包的命令
 
-```
+```sh
 mvn dependency:tree -Dverbose -Dincludes=被依赖的包
 ```
 
@@ -299,7 +299,7 @@ mvn dependency:tree -Dverbose -Dincludes=被依赖的包
 
 承上，假设我们不希望asm:asm:jar:1.5.3出现，根据分析，我们知道它是经由org.unitils:unitils-dbmaintainer:jar:3.3引入的，那么在pom.xml中找到这个依赖，做其它的调整：
 
-```
+```xml
     <dependency>  
         <groupId>org.unitils</groupId>  
         <artifactId>unitils-dbmaintainer</artifactId>  
