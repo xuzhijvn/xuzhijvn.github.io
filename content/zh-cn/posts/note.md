@@ -47,6 +47,12 @@ Mock接口模拟20ms时延，报文大小约2K。
 
 当map中包含的Entry的数量大于等于threshold = loadFactor * capacity的时候，且新建的Entry刚好落在一个非空的桶上，此刻触发扩容机制，将其容量扩大为2倍。调用resize扩容。
 
+### ConcurrentHashMap
+
+**JDK7**
+
+数忿吉构：ReentrantLock + Segment + HashEntry, 是一个链表结构 元素查询二二次hash第一次Hash定位到Segment 
+
 ### 印象深刻的经历
 
 一次缓存优化经历
