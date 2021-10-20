@@ -17,7 +17,7 @@ images : [
 ]
 ---
 
-[comment]: <> (# 剑指 Offer 32 - I. 从上到下打印二叉树)
+[comment]: <> "# 剑指 Offer 32 - I. 从上到下打印二叉树"
 
 
 
@@ -48,6 +48,7 @@ class Solution {
                 queue.add(node.right);
             }
         }
+      	//list.stream().mapToInt(Integer::intValue).toArray();
         int[] res = new int[list.size()];
         for (int i = 0; i < list.size(); i++) {
             res[i] =  list.get(i);

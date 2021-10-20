@@ -17,11 +17,56 @@ images : [
 ]
 ---
 
-[comment]: <> (# 剑指 Offer 32 - III. 从上到下打印二叉树 III)
+[comment]: <> "# 剑指 Offer 32 - III. 从上到下打印二叉树 III"
 
 
 
 [剑指 Offer 32 - III. 从上到下打印二叉树 III](https://leetcode-cn.com/problems/cong-shang-dao-xia-da-yin-er-cha-shu-iii-lcof/)
+
+
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+
+        LinkedList<TreeNode> queue = new LinkedList<>();
+        if (root != null){
+            queue.add(root);
+        }
+        List<List<Integer>> res = new ArrayList<>();
+        while (!queue.isEmpty()) {
+            LinkedList<Integer> deque = new LinkedList<>();
+            for (int i = queue.size(); i > 0; i--) {
+                TreeNode node = queue.poll();
+                if (res.size() % 2 == 0) {
+                    deque.addLast(node.val);
+                } else {
+                    deque.addFirst(node.val);
+                }
+                if (node.left != null) {
+                    queue.add(node.left);
+                }
+                if (node.right != null) {
+                    queue.add(node.right);
+                }
+            }
+            res.add(deque);
+        }
+        return res;
+    }
+}
+```
+
+
 
 ```java
 package com.xzj;

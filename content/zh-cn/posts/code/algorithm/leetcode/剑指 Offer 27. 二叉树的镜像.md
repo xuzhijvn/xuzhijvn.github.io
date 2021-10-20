@@ -17,7 +17,7 @@ images : [
 ]
 ---
 
-[comment]: <> (# 剑指 Offer 27. 二叉树的镜像)
+[comment]: <> "# 剑指 Offer 27. 二叉树的镜像"
 
 
 
@@ -38,10 +38,14 @@ class Solution {
         if(root == null){
             return root;
         }
-        TreeNode posL = root.left;
-        TreeNode posR = root.right;
-        root.left = posR;
-        root.right = posL;
+        //TreeNode posL = root.left;
+        //TreeNode posR = root.right;
+        //root.left = posR;
+        //root.right = posL;
+        TreeNode tmp = null;
+        tmp = root.left;
+        root.left = root.right;
+        root.right = tmp;
         mirrorTree(root.left);
         mirrorTree(root.right);
         return root;
