@@ -65,7 +65,93 @@ Mock接口模拟20ms时延，报文大小约2K。
 
 **JDK7**
 
-数忿吉构：ReentrantLock + Segment + HashEntry, 是一个链表结构 元素查询二二次hash第一次Hash定位到Segment 
+`数据结构`：ReentrantLock + Segment + HashEntry
+
+map一个Segment数组，Segment又是一个HashEntry数组，HashEntry有next指针，是一个链表结构
+
+`元素查询`：二次hash + 链表遍历，第一次Hash定位到Segment ，第二次Hash定位到元索所在的链表的头部
+
+`锁`：Segment继承了ReentrantLock，锁定操作的Segment，其他的Segment不受影响，并发度为Segment个数，可以通过构造函数指定，数组扩容不会影晌其他Segment
+
+**JDK8**
+
+`数据结构`：synchronized + CAS + Node + 红黑树
+
+> 其实 Node 和 HashEntry 的内容一样
+
+`元素查询`：一次hash + 遍历红黑树（元素个数小于8的时候还是链表）
+
+`锁`：锁链表的head节点，不影响其他元素的读写，锁粒度更细，效率更高，扩容时阻赛所有的读写操作、并发扩容
+
+
+
+**下面简单介绍下主要的几个方法的一些区别：**
+
+|        | JDK1.7                                                       | JDK1.8                                                       |
+| ------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| put    | 需要定位 2 次 （segments[i]，segment中的table[i]） 没获取到 segment锁的线程，没有权力进行put操作，不是像HashTable一样去挂起等待，而是会去做一下put操作前的准备：  table[i]的位置(你的值要put到哪个桶中) 通过首节点first遍历链表找有没有相同key 在进行1、2的期间还不断自旋获取锁，超过 `64次` 线程挂起！（单处理器自旋1次） | 先拿到根据 rehash值定位，拿到table[i]的 首节点first，然后：如果为 `null` ，通过 `CAS` 的方式把 value put进去 如果 `非null` ，并且 `first.hash == -1` ，说明其他线程在扩容，参与一起扩容 如果 `非null` ，并且 `first.hash != -1` ，Synchronized锁住 first节点，判断是链表还是红黑树，遍历插入。 |
+| get    |                                                              |                                                              |
+| resize |                                                              |                                                              |
+| size   |                                                              |                                                              |
+
+
+
+#### 1. put() 方法
+
+**JDK1.7中的实现：**
+
+- 需要定位 2 次 （segments[i]，segment中的table[i]）
+- 没获取到 segment锁的线程，没有权力进行put操作，不是像HashTable一样去挂起等待，而是会去做一下put操作前的准备：
+  1. table[i]的位置(你的值要put到哪个桶中)
+  2. 通过首节点first遍历链表找有没有相同key
+  3. 在进行1、2的期间还不断自旋获取锁，超过 `64次` 线程挂起！（单处理器自旋1次）
+
+**JDK1.8中的实现：**
+
+- 先拿到根据 rehash值定位，拿到table[i]的 首节点first，然后：
+  1. 如果为 `null` ，通过 `CAS` 的方式把 value put进去
+  2. 如果 `非null` ，并且 `first.hash == -1` ，说明其他线程在扩容，参与一起扩容
+  3. 如果 `非null` ，并且 `first.hash != -1` ，Synchronized锁住 first节点，判断是链表还是红黑树，遍历插入。
+
+#### 2. get() 方法
+
+**JDK1.7中的实现：**
+
+- 由于变量 `value` 是由 `volatile` 修饰的，java内存模型中的 `happen before` 规则保证了 对于 volatile 修饰的变量始终是 `写操作` 先于 `读操作` 的，并且还有 volatile 的 `内存可见性` 保证修改完的数据可以马上更新到主存中，所以能保证在并发情况下，读出来的数据是最新的数据。
+- 如果get()到的是null值才去加锁。
+
+**JDK1.8中的实现：**
+
+- 和 JDK1.7类似
+
+#### 3. resize() 方法
+
+**JDK1.7中的实现：**
+
+- 跟HashMap的 resize() 没太大区别，都是在 put() 元素时去做的扩容，所以在1.7中的实现是获得了锁之后，在单线程中去做扩
+  1. `new个2倍数组`
+  2. `遍历old数组节点搬去新数组`
+
+**JDK1.8中的实现：**
+
+- jdk1.8的扩容支持并发迁移节点，从old数组的尾部开始，如果该桶被其他线程处理过了，就创建一个 ForwardingNode 放到该桶的首节点，hash值为-1，其他线程判断hash值为-1后就知道该桶被处理过了。
+
+#### 4. 计算size
+
+**JDK1.7中的实现：**
+
+- 先采用不加锁的方式，计算两次，如果两次结果一样，说明是正确的，返回。
+- 如果两次结果不一样，则把所有 segment 锁住，重新计算所有 segment的 `Count` 的和
+
+**JDK1.8中的实现：**
+
+由于没有segment的概念，所以只需要用一个 `baseCount` 变量来记录ConcurrentHashMap 当前 `节点的个数`。
+
+- 先尝试通过CAS 修改 `baseCount`
+- 如果多线程竞争激烈，某些线程CAS失败，那就CAS尝试将 `CELLSBUSY` 置1，成功则可以把 `baseCount变化的次数` 暂存到一个数组 `counterCells` 里，后续数组 `counterCells` 的值会加到 `baseCount` 中。
+- 如果 `CELLSBUSY` 置1失败又会反复进行CAS`baseCount` 和 CAS`counterCells`数组
+
+
 
 ### 印象深刻的经历
 
