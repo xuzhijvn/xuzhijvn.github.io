@@ -83,18 +83,7 @@ map一个Segment数组，Segment又是一个HashEntry数组，HashEntry有next�
 
 `锁`：锁链表的head节点，不影响其他元素的读写，锁粒度更细，效率更高，扩容时阻赛所有的读写操作、并发扩容
 
-
-
 **下面简单介绍下主要的几个方法的一些区别：**
-
-|        | JDK1.7                                                       | JDK1.8                                                       |
-| ------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| put    | 需要定位 2 次 （segments[i]，segment中的table[i]） 没获取到 segment锁的线程，没有权力进行put操作，不是像HashTable一样去挂起等待，而是会去做一下put操作前的准备：  table[i]的位置(你的值要put到哪个桶中) 通过首节点first遍历链表找有没有相同key 在进行1、2的期间还不断自旋获取锁，超过 `64次` 线程挂起！（单处理器自旋1次） | 先拿到根据 rehash值定位，拿到table[i]的 首节点first，然后：如果为 `null` ，通过 `CAS` 的方式把 value put进去 如果 `非null` ，并且 `first.hash == -1` ，说明其他线程在扩容，参与一起扩容 如果 `非null` ，并且 `first.hash != -1` ，Synchronized锁住 first节点，判断是链表还是红黑树，遍历插入。 |
-| get    |                                                              |                                                              |
-| resize |                                                              |                                                              |
-| size   |                                                              |                                                              |
-
-
 
 #### 1. put() 方法
 
@@ -104,11 +93,11 @@ map一个Segment数组，Segment又是一个HashEntry数组，HashEntry有next�
 - 没获取到 segment锁的线程，没有权力进行put操作，不是像HashTable一样去挂起等待，而是会去做一下put操作前的准备：
   1. table[i]的位置(你的值要put到哪个桶中)
   2. 通过首节点first遍历链表找有没有相同key
-  3. 在进行1、2的期间还不断自旋获取锁，超过 `64次` 线程挂起！（单处理器自旋1次）
+  3. 在进行1、2的期间还不断自旋获取锁，超过 `64次` 线程挂起！（单处理器自旋`1次`）
 
 **JDK1.8中的实现：**
 
-- 先拿到根据 rehash值定位，拿到table[i]的 首节点first，然后：
+- 先根据 rehash值定位，拿到table[i]的 首节点first，然后：
   1. 如果为 `null` ，通过 `CAS` 的方式把 value put进去
   2. 如果 `非null` ，并且 `first.hash == -1` ，说明其他线程在扩容，参与一起扩容
   3. 如果 `非null` ，并且 `first.hash != -1` ，Synchronized锁住 first节点，判断是链表还是红黑树，遍历插入。
@@ -218,6 +207,40 @@ public class TestServiceImpl {
 ### Spring设计模式
 
 适配器 + 工厂 + 代理 + 单例
+
+### Spring启动流程
+
+因为是基于 java-config 技术分析源码，所以这里的入口是 AnnotationConfigApplicationContext ，如果是使用 xml 分析，那么入口即为 ClassPathXmlApplicationContext ，它们俩的共同特征便是都继承了 AbstractApplicationContext 类，而大名鼎鼎的 refresh()便是在这个类中定义的。我们接着分析 AnnotationConfigApplicationContext 类，源码如下：
+
+```java
+// 初始化容器
+public AnnotationConfigApplicationContext(Class<?>... annotatedClasses) {
+    // 注册 Spring 内置后置处理器的 BeanDefinition 到容器
+    this();
+    // 注册配置类 BeanDefinition 到容器
+    register(annotatedClasses);
+    // 加载或者刷新容器中的Bean
+    refresh();
+}
+```
+
+Spring的启动流程可以归纳为四个步骤：
+
+1. 创建Spring容器，如：new AnnotationConfigApplicationContext 
+
+2. 初始化Spring容器
+
+   spring容器的初始化时，通过this()调用了无参构造函数，主要做了以下三个事情：
+
+   - 实例化BeanFactory【DefaultListableBeanFactory】工厂，用于生成Bean对象
+   - 实例化BeanDefinitionReader注解配置读取器，用于对特定注解（如@Service、@Repository）的类进行读取转化成  BeanDefinition 对象，（BeanDefinition 是 Spring 中极其重要的一个概念，它存储了 bean 对象的所有特征信息，如是否单例，是否懒加载，factoryBeanName 等）➕ 注册内置的BeanPostProcessor的BeanDefinition到容器中
+   - 实例化ClassPathBeanDefinitionScanner路径扫描器，用于对指定的包目录进行扫描查找 bean 对象
+
+3. 将配置类的BeanDefinition注册到容器中
+
+4. 调用refresh()方法刷新容器
+
+![Spring的启动流程](https://picgo.6and.ltd/img/a7w2l-z3a3r.jpg)
 
 ### 数据库深分页优化
 
