@@ -17,44 +17,30 @@ images : [
 ]
 ---
 
-[comment]: <> (# 剑指 Offer 18. 删除链表的节点)
+[comment]: <> "# 剑指 Offer 18. 删除链表的节点"
 
 
 
 ```java
-class CQueue {
-    Stack<Integer> stack1;
-    Stack<Integer> stack2;
+class Solution {
+    public ListNode deleteNode(ListNode head, int val) {
 
-    public CQueue() {
-        stack1 = new Stack();
-        stack2 = new Stack();
-    }
-    
-    public void appendTail(int value) {
-        stack1.push(value);
-    }
-    
-    public int deleteHead() {
-        if(stack2.isEmpty()){
-            while(stack1.isEmpty() ==  false){
-                stack2.push(stack1.pop());
-            }
+        ListNode myHead = new ListNode(-1);
+        myHead.next = head;
+
+        ListNode pos1 = head;
+        ListNode pos2 = myHead;
+
+        //定位
+        while (pos1.val != val) {
+            pos2 = pos1;
+            pos1 = pos1.next;
         }
-        if(stack2.isEmpty()){
-            return -1;
-        }else{
-            return stack2.pop();
-        }
+        //删除
+        pos2.next = pos1.next;
+        return myHead.next;
     }
 }
-
-/**
- * Your CQueue object will be instantiated and called as such:
- * CQueue obj = new CQueue();
- * obj.appendTail(value);
- * int param_2 = obj.deleteHead();
- */
 ```
 
-[剑指 Offer 09. 用两个栈实现队列](https://leetcode-cn.com/problems/yong-liang-ge-zhan-shi-xian-dui-lie-lcof/)
+[剑指 Offer 18. 删除链表的节点](https://leetcode-cn.com/problems/shan-chu-lian-biao-de-jie-dian-lcof/)

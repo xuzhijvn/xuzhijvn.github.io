@@ -240,7 +240,7 @@ Spring的启动流程可以归纳为四个步骤：
 
 4. 调用refresh()方法刷新容器
 
-![Spring的启动流程](https://picgo.6and.ltd/img/a7w2l-z3a3r.jpg)
+<img src="https://picgo.6and.ltd/img/a7w2l-z3a3r.jpg" alt="Spring的启动流程" style="zoom: 25%;" />
 
 ### 数据库深分页优化
 
@@ -268,7 +268,7 @@ id要是递增，不能跳页
 
 ### RabbitMQ交换机类型
 
-<img src="https://pic2.zhimg.com/80/v2-a8594e4f7fec1495e692bdd1dc152d19_1440w.jpg" alt="img" style="zoom:67%;" />
+<img src="https://picgo.6and.ltd/img/v2-a8594e4f7fec1495e692bdd1dc152d19_1440w-20211022144237394.jpg" alt="img" style="zoom:67%;" />
 
 Exchange 的三种主要类型：`Fanout`、`Direct` 和 `Topic`
 
