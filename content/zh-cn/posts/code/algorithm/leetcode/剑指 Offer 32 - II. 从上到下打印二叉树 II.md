@@ -17,7 +17,7 @@ images : [
 ]
 ---
 
-[comment]: <> (# 剑指 Offer 32 - II. 从上到下打印二叉树 II)
+[comment]: <> "# 剑指 Offer 32 - II. 从上到下打印二叉树 II"
 
 
 
@@ -45,4 +45,39 @@ class Solution {
 ```
 
  
+
+这种方法，要用到两个队列，但是思路比较清晰，也记录一下
+
+```java
+class Solution {
+    LinkedList<TreeNode> queue1 = new LinkedList<>();
+    LinkedList<TreeNode> queue2 = new LinkedList<>();
+    
+    public List<List<Integer>> levelOrder(TreeNode root) {
+
+        List<List<Integer>> res = new ArrayList<>();
+        if (root != null) {
+            queue1.add(root);
+        }
+        while (!queue1.isEmpty()) {
+            List<Integer> list = new ArrayList<>();
+            while (!queue1.isEmpty()) {
+                TreeNode node = queue1.poll();
+                list.add(node.val);
+                if (node.left != null) {
+                    queue2.add(node.left);
+                }
+                if (node.right != null) {
+                    queue2.add(node.right);
+                }
+            }
+            res.add(list);
+            LinkedList<TreeNode> tmp = queue1;
+            queue1 = queue2;
+            queue2 = tmp;
+        }
+        return res;
+    }
+}
+```
 
