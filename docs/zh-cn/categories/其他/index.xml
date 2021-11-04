@@ -66,16 +66,15 @@ What does &amp;ldquo;local address&amp;rdquo; and &amp;ldquo;foreign address&amp
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/other/docker-compose%E7%BD%91%E7%BB%9C%E8%AE%BE%E7%BD%AE/</guid>
-      <description>Docker Compose 网络设置
-基本概念 默认情况下，Compose 会为我们的应用创建一个网络，服务的每个容器都会加入该网络中。这样，容器就可被该网络中的其他容器访问，不仅如此，该容器还能以服务名称作为 hostname 被其他容器访问。
+      <description>基本概念 默认情况下，Compose 会为我们的应用创建一个网络，服务的每个容器都会加入该网络中。这样，容器就可被该网络中的其他容器访问，不仅如此，该容器还能以服务名称作为 hostname 被其他容器访问。
 默认情况下，应用程序的网络名称基于 Compose 的工程名称，而项目名称基于 docker-compose.yml 所在目录的名称。如需修改工程名称，可使用&amp;ndash;project-name 标识或 COMPOSE_PORJECT_NAME 环境变量。
 举个例子，假如一个应用程序在名为 myapp 的目录中，并且 docker-compose.yml 如下所示：
 version: &amp;#39;2&amp;#39; services: web: build: . ports: - &amp;#34;8000:8000&amp;#34; db: image: postgres 当我们运行 docker-compose up 时，将会执行以下几步：
-- 创建一个名为 myapp_default 的网络； - 使用 web 服务的配置创建容器，它以“web”这个名称加入网络 myapp_default； - 使用 db 服务的配置创建容器，它以“db”这个名称加入网络 myapp_default。
-容器间可使用服务名称（web 或 db）作为 hostname 相互访问。例如，web 这个服务可使用postgres://db:5432 访问 db 容器。
+ 创建一个名为 myapp_default 的网络； 使用 web 服务的配置创建容器，它以“web”这个名称加入网络 myapp_default； 使用 db 服务的配置创建容器，它以“db”这个名称加入网络 myapp_default。  容器间可使用服务名称（web 或 db）作为 hostname 相互访问。例如，web 这个服务可使用postgres://db:5432 访问 db 容器。
 更新容器 当服务的配置发生更改时，可使用 docker-compose up 命令更新配置。
 此时，Compose 会删除旧容器并创建新容器。新容器会以不同的 IP 地址加入网络，名称保持不变。任何指向旧容器的连接都会被关闭，容器会重新找到新容器并连接上去。
-links 前文讲过，默认情况下，服务之间可使用服务名称相互访问。links 允许我们定义一个别名，从而使用该别名访问其他服务。举个例子：</description>
+links 前文讲过，默认情况下，服务之间可使用服务名称相互访问。links 允许我们定义一个别名，从而使用该别名访问其他服务。举个例子：
+version: &amp;#39;2&amp;#39; services: web: build: .</description>
     </item>
     
     <item>

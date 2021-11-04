@@ -298,7 +298,7 @@ location ^~/gateway/ { proxy_set_header Host $host:$server_port; proxy_set_heade
 nonce随机数：防重复提交  上述验证timestamp的过程中存在一个问题，例如：阈值 = 60s，那么60s内发生重复提交怎么办？
 解决办法是：server端保存带随机数的请求（随机数+原请求 = 新请求，通常是redis保存）。
 接口幂等性保证（唯一主键、乐观锁）  幂等性：以相同的请求调用这个接口一次和调用这个接口多次，对系统产生的影响是相同的。
-恶意的重复提交：请求的timestamp、nonce较上一次没变，这种情况通过redis保存带随机数的请求可以杜绝。
+高并发下接口幂等性解决方案 恶意的重复提交：请求的timestamp、nonce较上一次没变，这种情况通过redis保存带随机数的请求可以杜绝。
 用户误操作导致的重复提交：前端控制+幂等设计。
 幂等与重复提交的区别在于：幂等是在重复提交已经发生了的情况下，如何保证多次调用接口的结果一致，重复提交在前，幂等保证在后。
 参考链接： 如何保证接口的幂等性 说说API的防重放机制 Java生鲜电商平台-API接口设计之token、timestamp、sign 具体架构与实现（APP/小程序，传输安全） 阿里一面：如何保证API接口数据安全？ 实现接口幂等性的几种方案 </description>
@@ -476,16 +476,15 @@ What does &amp;ldquo;local address&amp;rdquo; and &amp;ldquo;foreign address&amp
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/other/docker-compose%E7%BD%91%E7%BB%9C%E8%AE%BE%E7%BD%AE/</guid>
-      <description>Docker Compose 网络设置
-基本概念 默认情况下，Compose 会为我们的应用创建一个网络，服务的每个容器都会加入该网络中。这样，容器就可被该网络中的其他容器访问，不仅如此，该容器还能以服务名称作为 hostname 被其他容器访问。
+      <description>基本概念 默认情况下，Compose 会为我们的应用创建一个网络，服务的每个容器都会加入该网络中。这样，容器就可被该网络中的其他容器访问，不仅如此，该容器还能以服务名称作为 hostname 被其他容器访问。
 默认情况下，应用程序的网络名称基于 Compose 的工程名称，而项目名称基于 docker-compose.yml 所在目录的名称。如需修改工程名称，可使用&amp;ndash;project-name 标识或 COMPOSE_PORJECT_NAME 环境变量。
 举个例子，假如一个应用程序在名为 myapp 的目录中，并且 docker-compose.yml 如下所示：
 version: &amp;#39;2&amp;#39; services: web: build: . ports: - &amp;#34;8000:8000&amp;#34; db: image: postgres 当我们运行 docker-compose up 时，将会执行以下几步：
-- 创建一个名为 myapp_default 的网络； - 使用 web 服务的配置创建容器，它以“web”这个名称加入网络 myapp_default； - 使用 db 服务的配置创建容器，它以“db”这个名称加入网络 myapp_default。
-容器间可使用服务名称（web 或 db）作为 hostname 相互访问。例如，web 这个服务可使用postgres://db:5432 访问 db 容器。
+ 创建一个名为 myapp_default 的网络； 使用 web 服务的配置创建容器，它以“web”这个名称加入网络 myapp_default； 使用 db 服务的配置创建容器，它以“db”这个名称加入网络 myapp_default。  容器间可使用服务名称（web 或 db）作为 hostname 相互访问。例如，web 这个服务可使用postgres://db:5432 访问 db 容器。
 更新容器 当服务的配置发生更改时，可使用 docker-compose up 命令更新配置。
 此时，Compose 会删除旧容器并创建新容器。新容器会以不同的 IP 地址加入网络，名称保持不变。任何指向旧容器的连接都会被关闭，容器会重新找到新容器并连接上去。
-links 前文讲过，默认情况下，服务之间可使用服务名称相互访问。links 允许我们定义一个别名，从而使用该别名访问其他服务。举个例子：</description>
+links 前文讲过，默认情况下，服务之间可使用服务名称相互访问。links 允许我们定义一个别名，从而使用该别名访问其他服务。举个例子：
+version: &amp;#39;2&amp;#39; services: web: build: .</description>
     </item>
     
     <item>

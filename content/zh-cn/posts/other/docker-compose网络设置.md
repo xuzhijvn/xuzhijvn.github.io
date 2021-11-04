@@ -17,8 +17,6 @@ images : [
 ]
 ---
 
-Docker Compose 网络设置
-
 ## 基本概念
 
 默认情况下，Compose 会为我们的应用创建一个网络，服务的每个容器都会加入该网络中。这样，容器就可被该网络中的其他容器访问，不仅如此，该容器还能以服务名称作为 hostname 被其他容器访问。
@@ -42,9 +40,9 @@ services:
 
 当我们运行 docker-compose up 时，将会执行以下几步：
 
-\- 创建一个名为 myapp_default 的网络；
-\- 使用 web 服务的配置创建容器，它以“web”这个名称加入网络 myapp_default；
-\- 使用 db 服务的配置创建容器，它以“db”这个名称加入网络 myapp_default。
+1. 创建一个名为 myapp_default 的网络；
+2. 使用 web 服务的配置创建容器，它以“web”这个名称加入网络 myapp_default；
+3. 使用 db 服务的配置创建容器，它以“db”这个名称加入网络 myapp_default。
 
 容器间可使用服务名称（web 或 db）作为 hostname 相互访问。例如，web 这个服务可使用`postgres://db:5432` 访问 db 容器。
 
@@ -177,8 +175,8 @@ services:
 
 最终效果与使用普通的 Docker 命令`docker run xxxx`建立的链接并无区别。这只是一种最为理想的情况。
 
-\1. 如果容器没有定义在同一个`docker-compose.yml`文件中，应该如何链接它们呢？
-\2. 又如果定义在`docker-compose.yml`文件中的容器需要与`docker run xxx`启动的容器链接，需要如何处理？
+1. 如果容器没有定义在同一个`docker-compose.yml`文件中，应该如何链接它们呢？
+2. 又如果定义在`docker-compose.yml`文件中的容器需要与`docker run xxx`启动的容器链接，需要如何处理？
 
 针对这两种典型的情况，下面给出我个人测试可行的办法：
 
@@ -275,7 +273,8 @@ services:
     network_mode: bridge
 ```
 
-[v_tips]需要特别说明的是，这里的`external_links`是不能省略的，而且`nginx1`的启动必须要在`nginx2`之后，否则可能会报找不到容器`nginx2`的错误。[/v_tips]
+> 需要特别说明的是，这里的`external_links`是不能省略的，而且`nginx1`的启动必须要在`nginx2`之后，否则可能会报找不到容器`nginx2`的错误。
+>
 
 接着我们使用 ping 来测试下连通性：
 
@@ -293,4 +292,3 @@ ping: unknown host
 以上也能充分证明这种方式是属于单向联通的。
 
 在实际应用中根据自己的需要灵活的选择这两种链接方式，如果想偷懒的话，大可选择第二种。不过我更推荐第一种，不难看出无论是联通性还是灵活性，较为更改网络模式的第二种都更为友好。
-附：[docker-compose.yml文件详解](http://106.55.152.92:30989/archives/878)
