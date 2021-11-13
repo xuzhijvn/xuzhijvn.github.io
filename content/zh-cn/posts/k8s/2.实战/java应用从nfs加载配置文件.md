@@ -1,5 +1,5 @@
 ---
-title: "java应用从nfs加载配置文件"
+title: "Java应用从nfs加载配置文件"
 date: 2021-08-27T11:15:10+08:00
 draft: false
 reward: true
@@ -18,7 +18,7 @@ images : [
 ]
 ---
 
-java应用从nfs加载配置文件
+Java应用从nfs加载配置文件
 
 ## 背景
 
@@ -73,7 +73,8 @@ spec:
             path: /mnt/nfs/k8s
 ```
 
-[v_warn]k8s node节点可以不启用`rpcbind`服务，但必须安装`nfs-utils`。[/v_warn]
+> k8s node节点可以不启用`rpcbind`服务，但必须安装`nfs-utils`。
+>
 
 ### 2.2 nfs-client-sa.yaml
 

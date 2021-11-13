@@ -20,15 +20,15 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
     </item>
     
     <item>
-      <title>java应用从nfs加载配置文件</title>
+      <title>Java应用从nfs加载配置文件</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/java%E5%BA%94%E7%94%A8%E4%BB%8Enfs%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/2.%E5%AE%9E%E6%88%98/java%E5%BA%94%E7%94%A8%E4%BB%8Enfs%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</guid>
-      <description>java应用从nfs加载配置文件
+      <description>Java应用从nfs加载配置文件
 背景 配置文件变化，无需重新构建镜像部署。
 1. 准备nfs 1、准备好nfs服务器。参考：nfs安装 的nfs服务端配置。 2、k8s node节点可以不启用rpcbind服务，但是必须安装nfs-utils（yum install nfs-utils），否则nfs-client-provisioner pod无法启动，因为nfs-client.yaml里面有nfs的相关配置，而这些nfs配置要生效需依赖nfs-utils。参考：nfs安装 的nfs客户端配置。
-2. 创建StorageClass对象 理论部分参考：StorageClass 2.1 nfs-client.yaml kind: Deployment apiVersion: apps/v1 metadata: name: nfs-client-provisioner spec: replicas: 1 strategy: type: Recreate selector: matchLabels: app: nfs-client-provisioner template: metadata: labels: app: nfs-client-provisioner spec: serviceAccountName: nfs-client-provisioner containers: - name: nfs-client-provisioner image: quay.io/external_storage/nfs-client-provisioner:latest volumeMounts: - name: nfs-client-root mountPath: /persistentvolumes env: - name: PROVISIONER_NAME value: fuseim.pri/ifs - name: NFS_SERVER value: nfs - name: NFS_PATH value: /mnt/nfs/k8s volumes: - name: nfs-client-root nfs: server: nfs path: /mnt/nfs/k8s [v_warn]k8s node节点可以不启用rpcbind服务，但必须安装nfs-utils。[/v_warn]</description>
+2. 创建StorageClass对象 理论部分参考：StorageClass 2.1 nfs-client.yaml kind: Deployment apiVersion: apps/v1 metadata: name: nfs-client-provisioner spec: replicas: 1 strategy: type: Recreate selector: matchLabels: app: nfs-client-provisioner template: metadata: labels: app: nfs-client-provisioner spec: serviceAccountName: nfs-client-provisioner containers: - name: nfs-client-provisioner image: quay.io/external_storage/nfs-client-provisioner:latest volumeMounts: - name: nfs-client-root mountPath: /persistentvolumes env: - name: PROVISIONER_NAME value: fuseim.pri/ifs - name: NFS_SERVER value: nfs - name: NFS_PATH value: /mnt/nfs/k8s volumes: - name: nfs-client-root nfs: server: nfs path: /mnt/nfs/k8s  k8s node节点可以不启用rpcbind服务，但必须安装nfs-utils。</description>
     </item>
     
     <item>
