@@ -129,7 +129,8 @@ Export list for localhost:
 
 ### ~~3.2 配置并启动服务（非必须步骤）~~
 
-[v_warn]开启`rpcbind`服务不是必须的，经过实测只要安装了nfs-utils到本机，就可以实现挂载。[/v_warn]
+> 开启`rpcbind`服务不是必须的，经过实测只要安装了nfs-utils到本机，就可以实现挂载。
+>
 
 设置`rpcbind`服务开机启动：
 
