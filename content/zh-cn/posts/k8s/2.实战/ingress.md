@@ -18,12 +18,13 @@ images : [
 ]
 ---
 
-# ingress
+
 
 ## 1. ingress是什么
 
 `ingress`是k8s一种资源对象，如k8s的`Deployment`、`Service`资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的`ClusterIP`、`NodePort`、`LoadBalance`一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。
-![img](http://106.55.152.92:30989/wp-content/uploads/2020/08/img_5f40a321e4f83.png)
+
+<img src="https://picgo.6and.ltd/img/img_5f40a321e4f83.png" alt="ingress" style="zoom:67%;" />
 
 ## 2. ingress与ingress-controller
 

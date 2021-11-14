@@ -10,14 +10,16 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="ingress">
-<meta itemprop="description" content="ingress 1. ingress是什么 ingress是k8s一种资源对象，如k8s的Deployment、Service资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的ClusterIP、NodePort、LoadBalance一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。 2. ingress与ingress-controller 要理解ingress，需要区分两个概念，ingress和ingress-controller：
+<meta itemprop="description" content="1. ingress是什么 ingress是k8s一种资源对象，如k8s的Deployment、Service资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的ClusterIP、NodePort、LoadBalance一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。
+2. ingress与ingress-controller 要理解ingress，需要区分两个概念，ingress和ingress-controller：
  ingress：指的是k8s中的一个api对象，一般用yaml配置。作用是定义请求如何转发到service的规则，可以理解为配置模板。 ingress-controller：具体实现反向代理及负载均衡的程序，对ingress定义的规则进行解析，根据配置的规则来实现请求转发。  简单来说，ingress-controller才是负责具体转发的组件，通过各种方式将它暴露在集群入口，外部对集群的请求流量会先到ingress-controller，而ingress对象是用来告诉ingress-controller该如何转发请求，比如哪些域名哪些path要转发到哪些服务等等。
 2.1 ingress ingress是一个API对象，和其他对象一样，通过yaml文件来配置。ingress通过http或https暴露集群内部service，给service提供外部URL、负载均衡、SSL/TLS能力以及基于host的方向代理。ingress要依靠ingress-controller来具体实现以上功能。前一小节的图如果用ingress来表示，大概就是如下配置：
 apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotations: kubernetes.io/ingress.class: &#34;nginx&#34; nginx.ingress.kubernetes.io/use-regex: &#34;true&#34; spec: tls: - hosts: - api.abc.com secretName: abc-tls rules: - host: api.abc.com http: paths: - backend: serviceName: apiserver servicePort: 80 - host: www.abc.com http: paths: - path: /image/* backend: serviceName: fileserver servicePort: 80 - host: www.abc.com http: paths: - backend: serviceName: feserver servicePort: 8080 2."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="342"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="wordCount" content="341"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="云原生,k8s," /><meta property="og:title" content="ingress" />
-<meta property="og:description" content="ingress 1. ingress是什么 ingress是k8s一种资源对象，如k8s的Deployment、Service资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的ClusterIP、NodePort、LoadBalance一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。 2. ingress与ingress-controller 要理解ingress，需要区分两个概念，ingress和ingress-controller：
+<meta property="og:description" content="1. ingress是什么 ingress是k8s一种资源对象，如k8s的Deployment、Service资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的ClusterIP、NodePort、LoadBalance一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。
+2. ingress与ingress-controller 要理解ingress，需要区分两个概念，ingress和ingress-controller：
  ingress：指的是k8s中的一个api对象，一般用yaml配置。作用是定义请求如何转发到service的规则，可以理解为配置模板。 ingress-controller：具体实现反向代理及负载均衡的程序，对ingress定义的规则进行解析，根据配置的规则来实现请求转发。  简单来说，ingress-controller才是负责具体转发的组件，通过各种方式将它暴露在集群入口，外部对集群的请求流量会先到ingress-controller，而ingress对象是用来告诉ingress-controller该如何转发请求，比如哪些域名哪些path要转发到哪些服务等等。
 2.1 ingress ingress是一个API对象，和其他对象一样，通过yaml文件来配置。ingress通过http或https暴露集群内部service，给service提供外部URL、负载均衡、SSL/TLS能力以及基于host的方向代理。ingress要依靠ingress-controller来具体实现以上功能。前一小节的图如果用ingress来表示，大概就是如下配置：
 apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotations: kubernetes.io/ingress.class: &#34;nginx&#34; nginx.ingress.kubernetes.io/use-regex: &#34;true&#34; spec: tls: - hosts: - api.abc.com secretName: abc-tls rules: - host: api.abc.com http: paths: - backend: serviceName: apiserver servicePort: 80 - host: www.abc.com http: paths: - path: /image/* backend: serviceName: fileserver servicePort: 80 - host: www.abc.com http: paths: - backend: serviceName: feserver servicePort: 8080 2." />
@@ -31,7 +33,8 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
 
 <meta name="twitter:title" content="ingress"/>
-<meta name="twitter:description" content="ingress 1. ingress是什么 ingress是k8s一种资源对象，如k8s的Deployment、Service资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的ClusterIP、NodePort、LoadBalance一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。 2. ingress与ingress-controller 要理解ingress，需要区分两个概念，ingress和ingress-controller：
+<meta name="twitter:description" content="1. ingress是什么 ingress是k8s一种资源对象，如k8s的Deployment、Service资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的ClusterIP、NodePort、LoadBalance一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。
+2. ingress与ingress-controller 要理解ingress，需要区分两个概念，ingress和ingress-controller：
  ingress：指的是k8s中的一个api对象，一般用yaml配置。作用是定义请求如何转发到service的规则，可以理解为配置模板。 ingress-controller：具体实现反向代理及负载均衡的程序，对ingress定义的规则进行解析，根据配置的规则来实现请求转发。  简单来说，ingress-controller才是负责具体转发的组件，通过各种方式将它暴露在集群入口，外部对集群的请求流量会先到ingress-controller，而ingress对象是用来告诉ingress-controller该如何转发请求，比如哪些域名哪些path要转发到哪些服务等等。
 2.1 ingress ingress是一个API对象，和其他对象一样，通过yaml文件来配置。ingress通过http或https暴露集群内部service，给service提供外部URL、负载均衡、SSL/TLS能力以及基于host的方向代理。ingress要依靠ingress-controller来具体实现以上功能。前一小节的图如果用ingress来表示，大概就是如下配置：
 apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotations: kubernetes.io/ingress.class: &#34;nginx&#34; nginx.ingress.kubernetes.io/use-regex: &#34;true&#34; spec: tls: - hosts: - api.abc.com secretName: abc-tls rules: - host: api.abc.com http: paths: - backend: serviceName: apiserver servicePort: 80 - host: www.abc.com http: paths: - path: /image/* backend: serviceName: fileserver servicePort: 80 - host: www.abc.com http: paths: - backend: serviceName: feserver servicePort: 8080 2."/>
@@ -326,14 +329,9 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><h1 id="ingress">ingress</h1>
-<h2 id="1-ingress是什么">1. ingress是什么</h2>
-<p><code>ingress</code>是k8s一种资源对象，如k8s的<code>Deployment</code>、<code>Service</code>资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的<code>ClusterIP</code>、<code>NodePort</code>、<code>LoadBalance</code>一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。
-<img class="img-fluid" alt="img" src="http://106.55.152.92:30989/wp-content/uploads/2020/08/img_5f40a321e4f83.png" loading="lazy"
-  
-   />
-
-</p>
+</div><div class="post-content mb-3"><h2 id="1-ingress是什么">1. ingress是什么</h2>
+<p><code>ingress</code>是k8s一种资源对象，如k8s的<code>Deployment</code>、<code>Service</code>资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的<code>ClusterIP</code>、<code>NodePort</code>、<code>LoadBalance</code>一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。</p>
+<p><img src="https://picgo.6and.ltd/img/img_5f40a321e4f83.png" alt="ingress" style="zoom:67%;" /></p>
 <h2 id="2-ingress与ingress-controller">2. ingress与ingress-controller</h2>
 <p>要理解ingress，需要区分两个概念，<code>ingress</code>和<code>ingress-controller</code>：</p>
 <ul>
