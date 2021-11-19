@@ -1,0 +1,1085 @@
+<!doctype html><html lang="zh-cn"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>operator实战 - 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://xuzhijvn.github.io/images/favicons/manifest.json">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="operator实战">
+<meta itemprop="description" content="operator实战 1⃣️ 需求 我们将定义一个 crd ，spec 包含以下信息：
+Replicas	# 副本数 Image	# 镜像 Resources	# 资源限制 Envs	# 环境变量 Ports	# 服务端口 2⃣️ 编码 初始化项目目录：
+tony@192 k8s % pwd /Users/tony/workspace/k8s tony@192 k8s % mkdir -p app-operator/src/github.com/xuzhijvn/app cd app-operator/src/github.com/xuzhijvn/app 初始化operator项目结构，并创建api：
+operator-sdk init --domain=huolala.cn --repo=github.com/xuzhijvn/app operator-sdk create api --group app --version v1 --kind App --resource=true --controller=true 修改 CRD 类型定义代码 api/v1/app_types.go:
+/* Copyright 2021. Licensed under the Apache License, Version 2.0 (the &#34;License&#34;); you may not use this file except in compliance with the License."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="1442"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="keywords" content="云原生,k8s," /><meta property="og:title" content="operator实战" />
+<meta property="og:description" content="operator实战 1⃣️ 需求 我们将定义一个 crd ，spec 包含以下信息：
+Replicas	# 副本数 Image	# 镜像 Resources	# 资源限制 Envs	# 环境变量 Ports	# 服务端口 2⃣️ 编码 初始化项目目录：
+tony@192 k8s % pwd /Users/tony/workspace/k8s tony@192 k8s % mkdir -p app-operator/src/github.com/xuzhijvn/app cd app-operator/src/github.com/xuzhijvn/app 初始化operator项目结构，并创建api：
+operator-sdk init --domain=huolala.cn --repo=github.com/xuzhijvn/app operator-sdk create api --group app --version v1 --kind App --resource=true --controller=true 修改 CRD 类型定义代码 api/v1/app_types.go:
+/* Copyright 2021. Licensed under the Apache License, Version 2.0 (the &#34;License&#34;); you may not use this file except in compliance with the License." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/operator%E5%AE%9E%E6%88%98/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
+
+<meta name="twitter:title" content="operator实战"/>
+<meta name="twitter:description" content="operator实战 1⃣️ 需求 我们将定义一个 crd ，spec 包含以下信息：
+Replicas	# 副本数 Image	# 镜像 Resources	# 资源限制 Envs	# 环境变量 Ports	# 服务端口 2⃣️ 编码 初始化项目目录：
+tony@192 k8s % pwd /Users/tony/workspace/k8s tony@192 k8s % mkdir -p app-operator/src/github.com/xuzhijvn/app cd app-operator/src/github.com/xuzhijvn/app 初始化operator项目结构，并创建api：
+operator-sdk init --domain=huolala.cn --repo=github.com/xuzhijvn/app operator-sdk create api --group app --version v1 --kind App --resource=true --controller=true 修改 CRD 类型定义代码 api/v1/app_types.go:
+/* Copyright 2021. Licensed under the Apache License, Version 2.0 (the &#34;License&#34;); you may not use this file except in compliance with the License."/>
+<meta name="twitter:site" content="@razonyang"/>
+<link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.3cecd960b71660d3d8ac067f39179d263d479ccac6af4dd6965d97a6a0a00962.css" integrity="sha256-POzZYLcWYNPYrAZ/ORedJj1HnMrGr03Wll2XpqCgCWI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.3cecd960b71660d3d8ac067f39179d263d479ccac6af4dd6965d97a6a0a00962.css" integrity="sha256-POzZYLcWYNPYrAZ/ORedJj1HnMrGr03Wll2XpqCgCWI=" crossorigin="anonymous"></noscript></head>
+  <body><script src="https://xuzhijvn.github.io/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button><a class="navbar-brand me-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+   width="400" height="400"
+   />
+👴🏻💪
+    </a>
+    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+  <i class="fas fa-share-alt"></i>
+</button>
+
+<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Share</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=operator%e5%ae%9e%e6%88%98&url=https%3a%2f%2fxuzhijvn.github.io%2fzh-cn%2fposts%2fk8s%2f%25E5%25AE%259E%25E6%2588%2598%2foperator%25E5%25AE%259E%25E6%2588%2598%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fxuzhijvn.github.io%2fzh-cn%2fposts%2fk8s%2f%25E5%25AE%259E%25E6%2588%2598%2foperator%25E5%25AE%259E%25E6%2588%2598%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</div>
+    <button class="navbar-settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-ellipsis-v"></i>
+</button>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-language"></i> 语言</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="dropdown">
+        <a class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          简体中文
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/en/"></a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm palette" data-palette="yellow">
+      </button></div>
+</section>
+</div>
+</div>
+
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://xuzhijvn.github.io/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-categories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-categories"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3">
+                <i class="fas fa-fw fa-code"></i>编程思想
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD">
+                <i class="fas fa-fw fa-robot"></i>人工智能
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/categories/%E5%8C%BA%E5%9D%97%E9%93%BE">
+                <i class="fas fa-fw fa-cubes"></i>区块链
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6">
+                <i class="fas fa-fw fa-server"></i>计算机科学
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B">
+                <i class="fas fa-fw fa-sitemap"></i>架构演进
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/categories/%E4%BA%91%E5%8E%9F%E7%94%9F">
+                <i class="fas fa-fw fa-cloud"></i>云原生
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-tags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/tags/java">
+                <i class="fab fa-fw fa-java"></i>Java
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">operator实战</li></ol>
+  </div>
+</nav>    <article class="row card component mb-4 post"><div class="post-panel-wrapper">
+  <div class="d-flex flex-column component rounded post-panel">
+    
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    
+  </div>
+</div>
+<div class="card-body">
+        <h1 class="card-title my-3">operator实战
+</h1><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>7 分钟阅读
+  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded-pill text-white bg-primary post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded-pill text-white bg-primary post-taxonomy">k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded-pill text-white bg-primary post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded-pill text-white bg-primary post-taxonomy">k8s</a></div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-需求">1⃣️ 需求</a></li>
+    <li><a href="#2-编码">2⃣️ 编码</a></li>
+    <li><a href="#3-部署">3⃣️ 部署</a>
+      <ul>
+        <li><a href="#安装crd到集群">安装crd到集群</a></li>
+        <li><a href="#构建镜像">构建镜像</a></li>
+        <li><a href="#推送镜像到仓库">推送镜像到仓库</a></li>
+        <li><a href="#部署">部署</a></li>
+        <li><a href="#创建自定义资源">创建自定义资源</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考链接">参考链接🔗</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><h1 id="operator实战">operator实战</h1>
+<h2 id="1-需求">1⃣️ 需求</h2>
+<p>我们将定义一个 crd ，spec 包含以下信息：</p>
+<pre><code>Replicas	# 副本数
+Image		# 镜像
+Resources	# 资源限制
+Envs		# 环境变量
+Ports		# 服务端口
+</code></pre><h2 id="2-编码">2⃣️ 编码</h2>
+<p>初始化项目目录：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">tony@192 k8s % pwd
+/Users/tony/workspace/k8s
+tony@192 k8s % mkdir -p app-operator/src/github.com/xuzhijvn/app
+cd app-operator/src/github.com/xuzhijvn/app
+</code></pre></div><p>初始化operator项目结构，并创建api：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> operator-sdk init --domain<span style="color:#f92672">=</span>huolala.cn --repo<span style="color:#f92672">=</span>github.com/xuzhijvn/app
+ operator-sdk create api --group app --version v1 --kind App --resource<span style="color:#f92672">=</span>true --controller<span style="color:#f92672">=</span>true
+</code></pre></div><p>修改 CRD 类型定义代码 api/v1/app_types.go:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">/*
+</span><span style="color:#75715e">Copyright 2021.
+</span><span style="color:#75715e">
+</span><span style="color:#75715e">Licensed under the Apache License, Version 2.0 (the &#34;License&#34;);
+</span><span style="color:#75715e">you may not use this file except in compliance with the License.
+</span><span style="color:#75715e">You may obtain a copy of the License at
+</span><span style="color:#75715e">
+</span><span style="color:#75715e">    http://www.apache.org/licenses/LICENSE-2.0
+</span><span style="color:#75715e">
+</span><span style="color:#75715e">Unless required by applicable law or agreed to in writing, software
+</span><span style="color:#75715e">distributed under the License is distributed on an &#34;AS IS&#34; BASIS,
+</span><span style="color:#75715e">WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+</span><span style="color:#75715e">See the License for the specific language governing permissions and
+</span><span style="color:#75715e">limitations under the License.
+</span><span style="color:#75715e">*/</span>
+
+<span style="color:#f92672">package</span> <span style="color:#a6e22e">v1</span>
+
+<span style="color:#f92672">import</span> (
+	<span style="color:#a6e22e">appsv1</span> <span style="color:#e6db74">&#34;k8s.io/api/apps/v1&#34;</span>
+	<span style="color:#a6e22e">corev1</span> <span style="color:#e6db74">&#34;k8s.io/api/core/v1&#34;</span>
+	<span style="color:#a6e22e">metav1</span> <span style="color:#e6db74">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
+)
+
+<span style="color:#75715e">// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
+</span><span style="color:#75715e">// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">// AppSpec defines the desired state of App
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">AppSpec</span> <span style="color:#66d9ef">struct</span> {
+	<span style="color:#75715e">// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// Important: Run &#34;make&#34; to regenerate code after modifying this file
+</span><span style="color:#75715e"></span>
+	<span style="color:#75715e">// Foo is an example field of App. Edit app_types.go to remove/update
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">//Foo string `json:&#34;foo,omitempty&#34;`
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">Replicas</span>  <span style="color:#f92672">*</span><span style="color:#66d9ef">int32</span>                      <span style="color:#e6db74">`json:&#34;replicas&#34;`</span>            <span style="color:#75715e">// 副本数
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">Image</span>     <span style="color:#66d9ef">string</span>                      <span style="color:#e6db74">`json:&#34;image&#34;`</span>               <span style="color:#75715e">// 镜像
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">Resources</span> <span style="color:#a6e22e">corev1</span>.<span style="color:#a6e22e">ResourceRequirements</span> <span style="color:#e6db74">`json:&#34;resources,omitempty&#34;`</span> <span style="color:#75715e">// 资源限制
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">Envs</span>      []<span style="color:#a6e22e">corev1</span>.<span style="color:#a6e22e">EnvVar</span>             <span style="color:#e6db74">`json:&#34;envs,omitempty&#34;`</span>      <span style="color:#75715e">// 环境变量
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">Ports</span>     []<span style="color:#a6e22e">corev1</span>.<span style="color:#a6e22e">ServicePort</span>        <span style="color:#e6db74">`json:&#34;ports,omitempty&#34;`</span>     <span style="color:#75715e">// 服务端口
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#75715e">// AppStatus defines the observed state of App
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">AppStatus</span> <span style="color:#66d9ef">struct</span> {
+	<span style="color:#75715e">// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// Important: Run &#34;make&#34; to regenerate code after modifying this file
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">appsv1</span>.<span style="color:#a6e22e">DeploymentStatus</span> <span style="color:#e6db74">`json:&#34;,inline&#34;`</span> <span style="color:#75715e">// 直接引用 DeploymentStatus
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#75715e">//+kubebuilder:object:root=true
+</span><span style="color:#75715e">//+kubebuilder:subresource:status
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">// App is the Schema for the apps API
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">App</span> <span style="color:#66d9ef">struct</span> {
+	<span style="color:#a6e22e">metav1</span>.<span style="color:#a6e22e">TypeMeta</span>   <span style="color:#e6db74">`json:&#34;,inline&#34;`</span>
+	<span style="color:#a6e22e">metav1</span>.<span style="color:#a6e22e">ObjectMeta</span> <span style="color:#e6db74">`json:&#34;metadata,omitempty&#34;`</span>
+
+	<span style="color:#a6e22e">Spec</span>   <span style="color:#a6e22e">AppSpec</span>   <span style="color:#e6db74">`json:&#34;spec,omitempty&#34;`</span>
+	<span style="color:#a6e22e">Status</span> <span style="color:#a6e22e">AppStatus</span> <span style="color:#e6db74">`json:&#34;status,omitempty&#34;`</span>
+}
+
+<span style="color:#75715e">//+kubebuilder:object:root=true
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">// AppList contains a list of App
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">AppList</span> <span style="color:#66d9ef">struct</span> {
+	<span style="color:#a6e22e">metav1</span>.<span style="color:#a6e22e">TypeMeta</span> <span style="color:#e6db74">`json:&#34;,inline&#34;`</span>
+	<span style="color:#a6e22e">metav1</span>.<span style="color:#a6e22e">ListMeta</span> <span style="color:#e6db74">`json:&#34;metadata,omitempty&#34;`</span>
+	<span style="color:#a6e22e">Items</span>           []<span style="color:#a6e22e">App</span> <span style="color:#e6db74">`json:&#34;items&#34;`</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">init</span>() {
+	<span style="color:#a6e22e">SchemeBuilder</span>.<span style="color:#a6e22e">Register</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">App</span>{}, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">AppList</span>{})
+}
+
+</code></pre></div><p>新增 resource/deployment/deployment.go：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">deployment</span>
+
+<span style="color:#f92672">import</span> (
+	<span style="color:#a6e22e">appv1</span> <span style="color:#e6db74">&#34;github.com/xuzhijvn/app/api/v1&#34;</span>
+	<span style="color:#a6e22e">appsv1</span> <span style="color:#e6db74">&#34;k8s.io/api/apps/v1&#34;</span>
+	<span style="color:#a6e22e">corev1</span> <span style="color:#e6db74">&#34;k8s.io/api/core/v1&#34;</span>
+	<span style="color:#a6e22e">metav1</span> <span style="color:#e6db74">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
+	<span style="color:#e6db74">&#34;k8s.io/apimachinery/pkg/runtime/schema&#34;</span>
+)
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">New</span>(<span style="color:#a6e22e">app</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">appv1</span>.<span style="color:#a6e22e">App</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">appsv1</span>.<span style="color:#a6e22e">Deployment</span> {
+	<span style="color:#a6e22e">labels</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;app.example.com/v1&#34;</span>: <span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">Name</span>}
+	<span style="color:#a6e22e">selector</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">metav1</span>.<span style="color:#a6e22e">LabelSelector</span>{<span style="color:#a6e22e">MatchLabels</span>: <span style="color:#a6e22e">labels</span>}
+	<span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">appsv1</span>.<span style="color:#a6e22e">Deployment</span>{
+		<span style="color:#a6e22e">TypeMeta</span>: <span style="color:#a6e22e">metav1</span>.<span style="color:#a6e22e">TypeMeta</span>{
+			<span style="color:#a6e22e">APIVersion</span>: <span style="color:#e6db74">&#34;apps/v1&#34;</span>,
+			<span style="color:#a6e22e">Kind</span>:       <span style="color:#e6db74">&#34;Deployment&#34;</span>,
+		},
+		<span style="color:#a6e22e">ObjectMeta</span>: <span style="color:#a6e22e">metav1</span>.<span style="color:#a6e22e">ObjectMeta</span>{
+			<span style="color:#a6e22e">Name</span>:      <span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">Name</span>,
+			<span style="color:#a6e22e">Namespace</span>: <span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">Namespace</span>,
+			<span style="color:#a6e22e">OwnerReferences</span>: []<span style="color:#a6e22e">metav1</span>.<span style="color:#a6e22e">OwnerReference</span>{
+				<span style="color:#f92672">*</span><span style="color:#a6e22e">metav1</span>.<span style="color:#a6e22e">NewControllerRef</span>(<span style="color:#a6e22e">app</span>, <span style="color:#a6e22e">schema</span>.<span style="color:#a6e22e">GroupVersionKind</span>{
+					<span style="color:#a6e22e">Group</span>:   <span style="color:#a6e22e">appv1</span>.<span style="color:#a6e22e">GroupVersion</span>.<span style="color:#a6e22e">Group</span>,
+					<span style="color:#a6e22e">Version</span>: <span style="color:#a6e22e">appv1</span>.<span style="color:#a6e22e">GroupVersion</span>.<span style="color:#a6e22e">Version</span>,
+					<span style="color:#a6e22e">Kind</span>:    <span style="color:#e6db74">&#34;App&#34;</span>,
+				}),
+			},
+		},
+		<span style="color:#a6e22e">Spec</span>: <span style="color:#a6e22e">appsv1</span>.<span style="color:#a6e22e">DeploymentSpec</span>{
+			<span style="color:#a6e22e">Replicas</span>: <span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">Spec</span>.<span style="color:#a6e22e">Replicas</span>,
+			<span style="color:#a6e22e">Selector</span>: <span style="color:#a6e22e">selector</span>,
+			<span style="color:#a6e22e">Template</span>: <span style="color:#a6e22e">corev1</span>.<span style="color:#a6e22e">PodTemplateSpec</span>{
+				<span style="color:#a6e22e">ObjectMeta</span>: <span style="color:#a6e22e">metav1</span>.<span style="color:#a6e22e">ObjectMeta</span>{
+					<span style="color:#a6e22e">Labels</span>: <span style="color:#a6e22e">labels</span>,
+				},
+				<span style="color:#a6e22e">Spec</span>: <span style="color:#a6e22e">corev1</span>.<span style="color:#a6e22e">PodSpec</span>{
+					<span style="color:#a6e22e">Containers</span>: <span style="color:#a6e22e">newContainers</span>(<span style="color:#a6e22e">app</span>),
+				},
+			},
+		},
+	}
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">newContainers</span>(<span style="color:#a6e22e">app</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">appv1</span>.<span style="color:#a6e22e">App</span>) []<span style="color:#a6e22e">corev1</span>.<span style="color:#a6e22e">Container</span> {
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">containerPorts</span> []<span style="color:#a6e22e">corev1</span>.<span style="color:#a6e22e">ContainerPort</span>
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">servicePort</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">Spec</span>.<span style="color:#a6e22e">Ports</span> {
+		<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">cport</span> <span style="color:#a6e22e">corev1</span>.<span style="color:#a6e22e">ContainerPort</span>
+		<span style="color:#a6e22e">cport</span>.<span style="color:#a6e22e">ContainerPort</span> = <span style="color:#a6e22e">servicePort</span>.<span style="color:#a6e22e">TargetPort</span>.<span style="color:#a6e22e">IntVal</span>
+		<span style="color:#a6e22e">containerPorts</span> = append(<span style="color:#a6e22e">containerPorts</span>, <span style="color:#a6e22e">cport</span>)
+	}
+	<span style="color:#66d9ef">return</span> []<span style="color:#a6e22e">corev1</span>.<span style="color:#a6e22e">Container</span>{
+		{
+			<span style="color:#a6e22e">Name</span>:            <span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">Name</span>,
+			<span style="color:#a6e22e">Image</span>:           <span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">Spec</span>.<span style="color:#a6e22e">Image</span>,
+			<span style="color:#a6e22e">Ports</span>:           <span style="color:#a6e22e">containerPorts</span>,
+			<span style="color:#a6e22e">Env</span>:             <span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">Spec</span>.<span style="color:#a6e22e">Envs</span>,
+			<span style="color:#a6e22e">Resources</span>:       <span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">Spec</span>.<span style="color:#a6e22e">Resources</span>,
+			<span style="color:#a6e22e">ImagePullPolicy</span>: <span style="color:#a6e22e">corev1</span>.<span style="color:#a6e22e">PullIfNotPresent</span>,
+		},
+	}
+}
+</code></pre></div><p>新增 resource/service/service.go</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">service</span>
+
+<span style="color:#f92672">import</span> (
+	<span style="color:#a6e22e">appv1</span> <span style="color:#e6db74">&#34;github.com/xuzhijvn/app-operator/api/v1&#34;</span>
+	<span style="color:#a6e22e">corev1</span> <span style="color:#e6db74">&#34;k8s.io/api/core/v1&#34;</span>
+	<span style="color:#a6e22e">metav1</span> <span style="color:#e6db74">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
+	<span style="color:#e6db74">&#34;k8s.io/apimachinery/pkg/runtime/schema&#34;</span>
+)
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">New</span>(<span style="color:#a6e22e">app</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">appv1</span>.<span style="color:#a6e22e">App</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">corev1</span>.<span style="color:#a6e22e">Service</span> {
+	<span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">corev1</span>.<span style="color:#a6e22e">Service</span>{
+		<span style="color:#a6e22e">TypeMeta</span>: <span style="color:#a6e22e">metav1</span>.<span style="color:#a6e22e">TypeMeta</span>{
+			<span style="color:#a6e22e">Kind</span>:       <span style="color:#e6db74">&#34;Service&#34;</span>,
+			<span style="color:#a6e22e">APIVersion</span>: <span style="color:#e6db74">&#34;v1&#34;</span>,
+		},
+		<span style="color:#a6e22e">ObjectMeta</span>: <span style="color:#a6e22e">metav1</span>.<span style="color:#a6e22e">ObjectMeta</span>{
+			<span style="color:#a6e22e">Name</span>:      <span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">Name</span>,
+			<span style="color:#a6e22e">Namespace</span>: <span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">Namespace</span>,
+			<span style="color:#a6e22e">OwnerReferences</span>: []<span style="color:#a6e22e">metav1</span>.<span style="color:#a6e22e">OwnerReference</span>{
+				<span style="color:#f92672">*</span><span style="color:#a6e22e">metav1</span>.<span style="color:#a6e22e">NewControllerRef</span>(<span style="color:#a6e22e">app</span>, <span style="color:#a6e22e">schema</span>.<span style="color:#a6e22e">GroupVersionKind</span>{
+					<span style="color:#a6e22e">Group</span>:   <span style="color:#a6e22e">appv1</span>.<span style="color:#a6e22e">GroupVersion</span>.<span style="color:#a6e22e">Group</span>,
+					<span style="color:#a6e22e">Version</span>: <span style="color:#a6e22e">appv1</span>.<span style="color:#a6e22e">GroupVersion</span>.<span style="color:#a6e22e">Version</span>,
+					<span style="color:#a6e22e">Kind</span>:    <span style="color:#e6db74">&#34;App&#34;</span>,
+				}),
+			},
+		},
+		<span style="color:#a6e22e">Spec</span>: <span style="color:#a6e22e">corev1</span>.<span style="color:#a6e22e">ServiceSpec</span>{
+			<span style="color:#a6e22e">Ports</span>: <span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">Spec</span>.<span style="color:#a6e22e">Ports</span>,
+			<span style="color:#a6e22e">Selector</span>: <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>{
+				<span style="color:#e6db74">&#34;app.example.com/v1&#34;</span>: <span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">Name</span>,
+			},
+		},
+	}
+}
+</code></pre></div><p>修改 controller 代码 controllers/app_controller.go</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">/*
+</span><span style="color:#75715e">Copyright 2021.
+</span><span style="color:#75715e">
+</span><span style="color:#75715e">Licensed under the Apache License, Version 2.0 (the &#34;License&#34;);
+</span><span style="color:#75715e">you may not use this file except in compliance with the License.
+</span><span style="color:#75715e">You may obtain a copy of the License at
+</span><span style="color:#75715e">
+</span><span style="color:#75715e">    http://www.apache.org/licenses/LICENSE-2.0
+</span><span style="color:#75715e">
+</span><span style="color:#75715e">Unless required by applicable law or agreed to in writing, software
+</span><span style="color:#75715e">distributed under the License is distributed on an &#34;AS IS&#34; BASIS,
+</span><span style="color:#75715e">WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+</span><span style="color:#75715e">See the License for the specific language governing permissions and
+</span><span style="color:#75715e">limitations under the License.
+</span><span style="color:#75715e">*/</span>
+
+<span style="color:#f92672">package</span> <span style="color:#a6e22e">controllers</span>
+
+<span style="color:#f92672">import</span> (
+	<span style="color:#e6db74">&#34;context&#34;</span>
+	<span style="color:#e6db74">&#34;encoding/json&#34;</span>
+	<span style="color:#e6db74">&#34;github.com/xuzhijvn/app/resource/deployment&#34;</span>
+	<span style="color:#e6db74">&#34;github.com/xuzhijvn/app/resource/service&#34;</span>
+	<span style="color:#a6e22e">appsv1</span> <span style="color:#e6db74">&#34;k8s.io/api/apps/v1&#34;</span>
+	<span style="color:#a6e22e">corev1</span> <span style="color:#e6db74">&#34;k8s.io/api/core/v1&#34;</span>
+	<span style="color:#e6db74">&#34;k8s.io/apimachinery/pkg/api/errors&#34;</span>
+	<span style="color:#e6db74">&#34;reflect&#34;</span>
+
+	<span style="color:#e6db74">&#34;github.com/go-logr/logr&#34;</span>
+	<span style="color:#e6db74">&#34;k8s.io/apimachinery/pkg/runtime&#34;</span>
+	<span style="color:#a6e22e">ctrl</span> <span style="color:#e6db74">&#34;sigs.k8s.io/controller-runtime&#34;</span>
+	<span style="color:#e6db74">&#34;sigs.k8s.io/controller-runtime/pkg/client&#34;</span>
+
+	<span style="color:#a6e22e">appv1</span> <span style="color:#e6db74">&#34;github.com/xuzhijvn/app-operator/api/v1&#34;</span>
+)
+
+<span style="color:#75715e">// AppReconciler reconciles a App object
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">AppReconciler</span> <span style="color:#66d9ef">struct</span> {
+	<span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">Client</span>
+	<span style="color:#a6e22e">Log</span>    <span style="color:#a6e22e">logr</span>.<span style="color:#a6e22e">Logger</span>
+	<span style="color:#a6e22e">Scheme</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">runtime</span>.<span style="color:#a6e22e">Scheme</span>
+}
+
+<span style="color:#75715e">//+kubebuilder:rbac:groups=app.huolala.cn,resources=apps,verbs=get;list;watch;create;update;patch;delete
+</span><span style="color:#75715e">//+kubebuilder:rbac:groups=app.huolala.cn,resources=apps/status,verbs=get;update;patch
+</span><span style="color:#75715e">//+kubebuilder:rbac:groups=app.huolala.cn,resources=apps/finalizers,verbs=update
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">// Reconcile is part of the main kubernetes reconciliation loop which aims to
+</span><span style="color:#75715e">// move the current state of the cluster closer to the desired state.
+</span><span style="color:#75715e">// TODO(user): Modify the Reconcile function to compare the state specified by
+</span><span style="color:#75715e">// the App object against the actual cluster state, and then
+</span><span style="color:#75715e">// perform operations to make the cluster state reflect the state specified by
+</span><span style="color:#75715e">// the user.
+</span><span style="color:#75715e">//
+</span><span style="color:#75715e">// For more details, check Reconcile and its Result here:
+</span><span style="color:#75715e">// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.8.3/pkg/reconcile
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">AppReconciler</span>) <span style="color:#a6e22e">Reconcile</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">req</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Request</span>) (<span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Result</span>, <span style="color:#66d9ef">error</span>) {
+	<span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Log</span>.<span style="color:#a6e22e">WithValues</span>(<span style="color:#e6db74">&#34;app&#34;</span>, <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">NamespacedName</span>)
+
+	<span style="color:#75715e">// your logic here
+</span><span style="color:#75715e"></span>
+	<span style="color:#75715e">// 获取 crd 资源
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">instance</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">appv1</span>.<span style="color:#a6e22e">App</span>{}
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Client</span>.<span style="color:#a6e22e">Get</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">NamespacedName</span>, <span style="color:#a6e22e">instance</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">errors</span>.<span style="color:#a6e22e">IsNotFound</span>(<span style="color:#a6e22e">err</span>) {
+			<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Result</span>{}, <span style="color:#66d9ef">nil</span>
+		}
+		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Result</span>{}, <span style="color:#a6e22e">err</span>
+	}
+
+	<span style="color:#75715e">// crd 资源已经标记为删除
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">instance</span>.<span style="color:#a6e22e">DeletionTimestamp</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Result</span>{}, <span style="color:#66d9ef">nil</span>
+	}
+
+	<span style="color:#a6e22e">oldDeploy</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">appsv1</span>.<span style="color:#a6e22e">Deployment</span>{}
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Client</span>.<span style="color:#a6e22e">Get</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">NamespacedName</span>, <span style="color:#a6e22e">oldDeploy</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#75715e">// deployment 不存在，创建
+</span><span style="color:#75715e"></span>		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">errors</span>.<span style="color:#a6e22e">IsNotFound</span>(<span style="color:#a6e22e">err</span>) {
+			<span style="color:#75715e">// 创建deployment
+</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Client</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">deployment</span>.<span style="color:#a6e22e">New</span>(<span style="color:#a6e22e">instance</span>)); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+				<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Result</span>{}, <span style="color:#a6e22e">err</span>
+			}
+
+			<span style="color:#75715e">// 创建service
+</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Client</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">service</span>.<span style="color:#a6e22e">New</span>(<span style="color:#a6e22e">instance</span>)); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+				<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Result</span>{}, <span style="color:#a6e22e">err</span>
+			}
+
+			<span style="color:#75715e">// 更新 crd 资源的 Annotations
+</span><span style="color:#75715e"></span>			<span style="color:#a6e22e">data</span>, <span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">json</span>.<span style="color:#a6e22e">Marshal</span>(<span style="color:#a6e22e">instance</span>.<span style="color:#a6e22e">Spec</span>)
+			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">instance</span>.<span style="color:#a6e22e">Annotations</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+				<span style="color:#a6e22e">instance</span>.<span style="color:#a6e22e">Annotations</span>[<span style="color:#e6db74">&#34;spec&#34;</span>] = string(<span style="color:#a6e22e">data</span>)
+			} <span style="color:#66d9ef">else</span> {
+				<span style="color:#a6e22e">instance</span>.<span style="color:#a6e22e">Annotations</span> = <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;spec&#34;</span>: string(<span style="color:#a6e22e">data</span>)}
+			}
+			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Client</span>.<span style="color:#a6e22e">Update</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">instance</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+				<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Result</span>{}, <span style="color:#a6e22e">err</span>
+			}
+		} <span style="color:#66d9ef">else</span> {
+			<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Result</span>{}, <span style="color:#a6e22e">err</span>
+		}
+	} <span style="color:#66d9ef">else</span> {
+		<span style="color:#75715e">// deployment 存在，更新
+</span><span style="color:#75715e"></span>		<span style="color:#a6e22e">oldSpec</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">appv1</span>.<span style="color:#a6e22e">AppSpec</span>{}
+		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">json</span>.<span style="color:#a6e22e">Unmarshal</span>([]byte(<span style="color:#a6e22e">instance</span>.<span style="color:#a6e22e">Annotations</span>[<span style="color:#e6db74">&#34;spec&#34;</span>]), <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">oldSpec</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+			<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Result</span>{}, <span style="color:#a6e22e">err</span>
+		}
+
+		<span style="color:#66d9ef">if</span> !<span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">DeepEqual</span>(<span style="color:#a6e22e">instance</span>.<span style="color:#a6e22e">Spec</span>, <span style="color:#a6e22e">oldSpec</span>) {
+			<span style="color:#75715e">// 更新deployment
+</span><span style="color:#75715e"></span>			<span style="color:#a6e22e">newDeploy</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">deployment</span>.<span style="color:#a6e22e">New</span>(<span style="color:#a6e22e">instance</span>)
+			<span style="color:#a6e22e">oldDeploy</span>.<span style="color:#a6e22e">Spec</span> = <span style="color:#a6e22e">newDeploy</span>.<span style="color:#a6e22e">Spec</span>
+			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Client</span>.<span style="color:#a6e22e">Update</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">oldDeploy</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+				<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Result</span>{}, <span style="color:#a6e22e">err</span>
+			}
+
+			<span style="color:#75715e">// 更新service
+</span><span style="color:#75715e"></span>			<span style="color:#a6e22e">newService</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">service</span>.<span style="color:#a6e22e">New</span>(<span style="color:#a6e22e">instance</span>)
+			<span style="color:#a6e22e">oldService</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">corev1</span>.<span style="color:#a6e22e">Service</span>{}
+			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Client</span>.<span style="color:#a6e22e">Get</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">NamespacedName</span>, <span style="color:#a6e22e">oldService</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+				<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Result</span>{}, <span style="color:#a6e22e">err</span>
+			}
+			<span style="color:#a6e22e">clusterIP</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">oldService</span>.<span style="color:#a6e22e">Spec</span>.<span style="color:#a6e22e">ClusterIP</span> <span style="color:#75715e">// 更新 service 必须设置老的 clusterIP
+</span><span style="color:#75715e"></span>			<span style="color:#a6e22e">oldService</span>.<span style="color:#a6e22e">Spec</span> = <span style="color:#a6e22e">newService</span>.<span style="color:#a6e22e">Spec</span>
+			<span style="color:#a6e22e">oldService</span>.<span style="color:#a6e22e">Spec</span>.<span style="color:#a6e22e">ClusterIP</span> = <span style="color:#a6e22e">clusterIP</span>
+			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Client</span>.<span style="color:#a6e22e">Update</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">oldService</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+				<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Result</span>{}, <span style="color:#a6e22e">err</span>
+			}
+
+			<span style="color:#75715e">// 更新 crd 资源的 Annotations
+</span><span style="color:#75715e"></span>			<span style="color:#a6e22e">data</span>, <span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">json</span>.<span style="color:#a6e22e">Marshal</span>(<span style="color:#a6e22e">instance</span>.<span style="color:#a6e22e">Spec</span>)
+			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">instance</span>.<span style="color:#a6e22e">Annotations</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+				<span style="color:#a6e22e">instance</span>.<span style="color:#a6e22e">Annotations</span>[<span style="color:#e6db74">&#34;spec&#34;</span>] = string(<span style="color:#a6e22e">data</span>)
+			} <span style="color:#66d9ef">else</span> {
+				<span style="color:#a6e22e">instance</span>.<span style="color:#a6e22e">Annotations</span> = <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;spec&#34;</span>: string(<span style="color:#a6e22e">data</span>)}
+			}
+			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Client</span>.<span style="color:#a6e22e">Update</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">instance</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+				<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Result</span>{}, <span style="color:#a6e22e">err</span>
+			}
+		}
+	}
+
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Result</span>{}, <span style="color:#66d9ef">nil</span>
+}
+
+<span style="color:#75715e">// SetupWithManager sets up the controller with the Manager.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">AppReconciler</span>) <span style="color:#a6e22e">SetupWithManager</span>(<span style="color:#a6e22e">mgr</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">Manager</span>) <span style="color:#66d9ef">error</span> {
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctrl</span>.<span style="color:#a6e22e">NewControllerManagedBy</span>(<span style="color:#a6e22e">mgr</span>).
+		<span style="color:#a6e22e">For</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">appv1</span>.<span style="color:#a6e22e">App</span>{}).
+		<span style="color:#a6e22e">Complete</span>(<span style="color:#a6e22e">r</span>)
+}
+</code></pre></div><p>修改 CRD 资源定义 config/samples/app_v1_app.yaml</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">app.huolala.cn/v1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">App</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nginx-app</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">default</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#75715e"># Add fields here</span>
+  <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">2</span>
+  <span style="color:#f92672">image</span>: <span style="color:#ae81ff">nginx:1.16.1</span>
+  <span style="color:#f92672">ports</span>:
+    - <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">80</span>
+      <span style="color:#f92672">port</span>: <span style="color:#ae81ff">8080</span>
+  <span style="color:#f92672">envs</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">DEMO</span>
+      <span style="color:#f92672">value</span>: <span style="color:#ae81ff">app</span>
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">GOPATH</span>
+      <span style="color:#f92672">value</span>: <span style="color:#ae81ff">gopath</span>
+  <span style="color:#f92672">resources</span>:
+    <span style="color:#f92672">limits</span>:
+      <span style="color:#f92672">cpu</span>: <span style="color:#ae81ff">500m</span>
+      <span style="color:#f92672">memory</span>: <span style="color:#ae81ff">500Mi</span>
+    <span style="color:#f92672">requests</span>:
+      <span style="color:#f92672">cpu</span>: <span style="color:#ae81ff">100m</span>
+      <span style="color:#f92672">memory</span>: <span style="color:#ae81ff">100Mi</span>
+</code></pre></div><p>修改 Dockerfile</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#75715e"># Build the manager binary</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">FROM</span><span style="color:#e6db74"> golang:1.15 as builder</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">WORKDIR</span><span style="color:#e6db74"> /workspace</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># Copy the Go Modules manifests</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> go.mod go.mod<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> go.sum go.sum<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># cache deps before building and copying source so that we don&#39;t need to re-download as much</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># and so that source changes don&#39;t invalidate our downloaded layer</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">ENV</span> GOPROXY https://goproxy.cn,direct<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> go mod download<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># Copy the go source</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> main.go main.go<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> api/ api/<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> controllers/ controllers/<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> resource/ resource/<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># Build</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> CGO_ENABLED<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span> GOOS<span style="color:#f92672">=</span>linux GOARCH<span style="color:#f92672">=</span>amd64 GO111MODULE<span style="color:#f92672">=</span>on go build -a -o manager main.go<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># Use distroless as minimal base image to package the manager binary</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># Refer to https://github.com/GoogleContainerTools/distroless for more details</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e">#FROM gcr.io/distroless/static:nonroot</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">FROM</span><span style="color:#e6db74"> kubeimages/distroless-static:latest</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">WORKDIR</span><span style="color:#e6db74"> /</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --from<span style="color:#f92672">=</span>builder /workspace/manager .<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">USER</span><span style="color:#e6db74"> 65532:65532</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">ENTRYPOINT</span> [<span style="color:#e6db74">&#34;/manager&#34;</span>]<span style="color:#960050;background-color:#1e0010">
+</span></code></pre></div><ul>
+<li>添加了 goproxy 环境变量</li>
+<li>新增 COPY 自定义的文件夹 resource</li>
+<li><code>gcr.io/distroless/static:nonroot</code> 变更为 <code>kubeimages/distroless-static:latest</code></li>
+</ul>
+<h2 id="3-部署">3⃣️ 部署</h2>
+<p>xuzhijvn 项目根目录执行：</p>
+<h3 id="安装crd到集群">安装crd到集群</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">make generate <span style="color:#f92672">&amp;&amp;</span> make manifests <span style="color:#f92672">&amp;&amp;</span> make install
+</code></pre></div><p>结果确认</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl get crd | grep huolala</span>
+apps.app.huolala.cn                                   2021-06-27T13:42:09Z
+</code></pre></div><h3 id="构建镜像">构建镜像</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">make docker-build IMG<span style="color:#f92672">=</span>ccr.ccs.tencentyun.com/huolala.cn/app:v1
+</code></pre></div><p>==特别注意==☢️</p>
+<p>⚠️ 1. 因为docker-build会执行测试，测试的时候需要连接github下载脚本运行，此时极有可能会报443的连接错误，所以我们把test注释掉。</p>
+<p><img class="img-fluid" alt="image-20210627223227260" src="https://picgo.6and.ltd/img/image-20210627223227260.png" loading="lazy"
+  
+   />
+
+</p>
+<p>⚠️ 2. 下图位置默认的镜像地址是<code>gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0</code> 这个地址国内无法拉取到镜像，所以需要替换成自己的镜像地址（可以先找台国外的服务器拉取下来，重新打tag后推送到自己的镜像仓库），如果不修改，容器<code>ccr.ccs.tencentyun.com/huolala.cn/app:v1</code>无法启动。</p>
+<p><img class="img-fluid" alt="image-20210627223536610" src="https://picgo.6and.ltd/img/image-20210627223536610.png" loading="lazy"
+  
+   />
+
+</p>
+<p>⚠️ 3. 将 controller 部署到 k8s 集群的时候，可能会出现 RBAC 权限错误，解决方法是修改部署时的权限配置，这里我们使用最简单的方法是直接给 controller 绑定到 cluster-admin 集群管理员即可</p>
+<p><img class="img-fluid" alt="image-20210627225840775" src="https://picgo.6and.ltd/img/image-20210627225840775.png" loading="lazy"
+  
+   />
+
+</p>
+<p>如果不修改，报错如下：</p>
+<p><img class="img-fluid" alt="image-20210627230328638" src="https://picgo.6and.ltd/img/image-20210627230328638.png" loading="lazy"
+  
+   />
+
+</p>
+<h3 id="推送镜像到仓库">推送镜像到仓库</h3>
+<p>这里直接使用docker push，因为make docker-push也只使用了docker push</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> docker push ccr.ccs.tencentyun.com/huolala.cn/app:v1 
+</code></pre></div><h3 id="部署">部署</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> make deploy IMG<span style="color:#f92672">=</span>ccr.ccs.tencentyun.com/huolala.cn/app:v1   
+</code></pre></div><p>结果确认</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl get svc -n app-system</span>
+NAME                                     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT<span style="color:#f92672">(</span>S<span style="color:#f92672">)</span>    AGE
+app-controller-manager-metrics-service   ClusterIP   10.107.174.87   &lt;none&gt;        8443/TCP   12s
+<span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl get pod -n app-system</span>
+NAME                                     READY   STATUS    RESTARTS   AGE
+app-controller-manager-c49568d65-86tpj   2/2     Running   <span style="color:#ae81ff">0</span>          22s
+<span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl get deployment -n app-system</span>
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+app-controller-manager   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           24s
+</code></pre></div><p><img class="img-fluid" alt="image-20210628092101436" src="https://picgo.6and.ltd/img/image-20210628092101436.png" loading="lazy"
+  
+   />
+
+</p>
+<h3 id="创建自定义资源">创建自定义资源</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ kubectl apply -f config/samples/app_v1_app.yaml 
+app.app.example.com/app-sample created
+</code></pre></div><p>结果确认</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl get svc | grep nginx</span>
+nginx-app                    ClusterIP      10.103.202.0     &lt;none&gt;        8080/TCP         73m
+<span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl get pod | grep nginx</span>
+nginx-app-57d9d68fb7-8rpc6                           2/2     Running   <span style="color:#ae81ff">0</span>          73m
+nginx-app-57d9d68fb7-cwnv9                           2/2     Running   <span style="color:#ae81ff">0</span>          73m
+<span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># curl http://10.103.202.0:8080</span>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Welcome to nginx!&lt;/title&gt;
+&lt;style&gt;
+    body <span style="color:#f92672">{</span>
+        width: 35em;
+        margin: <span style="color:#ae81ff">0</span> auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    <span style="color:#f92672">}</span>
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;
+&lt;p&gt;If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.&lt;/p&gt;
+
+&lt;p&gt;For online documentation and support please refer to
+&lt;a href<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;http://nginx.org/&#34;</span>&gt;nginx.org&lt;/a&gt;.&lt;br/&gt;
+Commercial support is available at
+&lt;a href<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;http://nginx.com/&#34;</span>&gt;nginx.com&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Thank you <span style="color:#66d9ef">for</span> using nginx.&lt;/em&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+<span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># </span>
+</code></pre></div><h2 id="参考链接">参考链接🔗</h2>
+<p><a href="https://www.qikqiak.com/post/k8s-operator-101/" target="_blank" rel="noopener noreferrer">Kubernetes Operator 快速入门教程</a>
+</p>
+<p><a href="https://www.cnblogs.com/leffss/p/14732645.html" target="_blank" rel="noopener noreferrer">operator-sdk 实战开发</a>
+</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/block-chain/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/pbft/">pbft
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/openresty/openresty%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">openresty最佳实践
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div><section class="related-posts-wrapper">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/java%E5%BA%94%E7%94%A8%E4%BB%8Enfs%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/">Java应用从nfs加载配置文件
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E8%B5%84%E6%BA%90%E5%AF%B9%E8%B1%A1/pv-pvc-storageclass/">PV/PVC/StorageClass
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E8%B5%84%E6%BA%90%E5%AF%B9%E8%B1%A1/services/">Services
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/ingress/">ingress
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/ingress%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/">ingress实现灰度
+</a></li></ul>
+  </section></div>
+    </article><div class="card component row post-comments">
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container">
+    <section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony" src="https://xuzhijvn.github.io/images/profile.webp" loading="lazy"
+   width="400" height="400"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+  </div>
+</section>
+  <section class="recent-posts row card component">
+  <div class="card-body">
+    <h2 class="card-title">最近文章</h2>
+    <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-04.-%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9F%A5%E6%89%BE/">剑指 Offer 04. 二维数组中的查找
+</a></li></ul>
+  </div>
+</section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+        </h2>
+        <div><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge bg-primary text-white rounded post-taxonomy" title="编程思想">
+            编程思想
+          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge bg-primary text-white rounded post-taxonomy" title="云原生">
+            云原生
+          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge bg-primary text-white rounded post-taxonomy" title="其他">
+            其他
+          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge bg-primary text-white rounded post-taxonomy" title="计算机科学">
+            计算机科学
+          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge bg-primary text-white rounded post-taxonomy" title="架构演进">
+            架构演进
+          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge bg-primary text-white rounded post-taxonomy" title="持续集成部署">
+            持续集成部署
+          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge bg-primary text-white rounded post-taxonomy" title="人工智能">
+            人工智能
+          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge bg-primary text-white rounded post-taxonomy" title="区块链">
+            区块链
+          </a></div>
+      </div>
+    </section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
+        </h2>
+        <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge bg-primary text-white rounded post-taxonomy" title="Manual">
+            Manual
+          </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge bg-primary text-white rounded post-taxonomy" title="k8s">
+            k8s
+          </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge bg-primary text-white rounded post-taxonomy" title="k8s实战">
+            k8s实战
+          </a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge bg-primary text-white rounded post-taxonomy" title="算法">
+            算法
+          </a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge bg-primary text-white rounded post-taxonomy" title="istio实战">
+            istio实战
+          </a></div>
+      </div>
+    </section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
+        </h2>
+        <div><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="badge bg-primary text-white rounded post-taxonomy" title="Java">
+            Java
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge bg-primary text-white rounded post-taxonomy" title="云原生">
+            云原生
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge bg-primary text-white rounded post-taxonomy" title="k8s">
+            k8s
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge bg-primary text-white rounded post-taxonomy" title="CS">
+            CS
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge bg-primary text-white rounded post-taxonomy" title="Other">
+            Other
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge bg-primary text-white rounded post-taxonomy" title="spring">
+            spring
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge bg-primary text-white rounded post-taxonomy" title="MySQL">
+            MySQL
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge bg-primary text-white rounded post-taxonomy" title="redis">
+            redis
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge bg-primary text-white rounded post-taxonomy" title="SA">
+            SA
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge bg-primary text-white rounded post-taxonomy" title="剑指offer">
+            剑指offer
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge bg-primary text-white rounded post-taxonomy" title="WordPress">
+            WordPress
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge bg-primary text-white rounded post-taxonomy" title="istio">
+            istio
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge bg-primary text-white rounded post-taxonomy" title="nginx">
+            nginx
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge bg-primary text-white rounded post-taxonomy" title="ZK">
+            ZK
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge bg-primary text-white rounded post-taxonomy" title="Jenkins">
+            Jenkins
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge bg-primary text-white rounded post-taxonomy" title="AI">
+            AI
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge bg-primary text-white rounded post-taxonomy" title="CNN">
+            CNN
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge bg-primary text-white rounded post-taxonomy" title="http">
+            http
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge bg-primary text-white rounded post-taxonomy" title="System">
+            System
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge bg-primary text-white rounded post-taxonomy" title="分布式">
+            分布式
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge bg-primary text-white rounded post-taxonomy" title="算法">
+            算法
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge bg-primary text-white rounded post-taxonomy" title="BlockChain">
+            BlockChain
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge bg-primary text-white rounded post-taxonomy" title="docker">
+            docker
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge bg-primary text-white rounded post-taxonomy" title="GO">
+            GO
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge bg-primary text-white rounded post-taxonomy" title="Maven">
+            Maven
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge bg-primary text-white rounded post-taxonomy" title="MQ">
+            MQ
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge bg-primary text-white rounded post-taxonomy" title="ClickHouse">
+            ClickHouse
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge bg-primary text-white rounded post-taxonomy" title="docker-compose">
+            docker-compose
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge bg-primary text-white rounded post-taxonomy" title="ES">
+            ES
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge bg-primary text-white rounded post-taxonomy" title="github">
+            github
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge bg-primary text-white rounded post-taxonomy" title="IO">
+            IO
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge bg-primary text-white rounded post-taxonomy" title="Kafka">
+            Kafka
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge bg-primary text-white rounded post-taxonomy" title="LeetCode">
+            LeetCode
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge bg-primary text-white rounded post-taxonomy" title="MongoDB">
+            MongoDB
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge bg-primary text-white rounded post-taxonomy" title="MyBatis">
+            MyBatis
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge bg-primary text-white rounded post-taxonomy" title="openresty">
+            openresty
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge bg-primary text-white rounded post-taxonomy" title="SpringBoot">
+            SpringBoot
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge bg-primary text-white rounded post-taxonomy" title="牛客">
+            牛客
+          </a></div>
+      </div>
+    </section>
+    <section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=783175223&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2021 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<script src="https://xuzhijvn.github.io/js/bundle.min.fb05bfc7968380f8d3228b5828f0b4ac2d12c4f0929ae296e4dcd5261b269dc9.js" integrity="sha256-&#43;wW/x5aDgPjTIotYKPC0rC0SxPCSmuKW5NzVJhsmnck=" crossorigin="anonymous" defer></script><script defer src="https://xuzhijvn.github.io/js/viewer.min.9f39f897757e616b3f6faf1d7955ea42a180a4e71d898e80f1c13d45e59b9abb.js" integrity="sha256-nzn4l3V&#43;YWs/b68deVXqQqGApOcdiY6A8cE9ReWbmrs=" crossorigin="anonymous"></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></body>
+</html>

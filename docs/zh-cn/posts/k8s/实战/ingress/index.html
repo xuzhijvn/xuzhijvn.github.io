@@ -1,0 +1,799 @@
+<!doctype html><html lang="zh-cn"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ingress - 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://xuzhijvn.github.io/images/favicons/manifest.json">
+<link rel="icon" href="https://xuzhijvn.github.io/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="ingress">
+<meta itemprop="description" content="1. ingress是什么 ingress是k8s一种资源对象，如k8s的Deployment、Service资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的ClusterIP、NodePort、LoadBalance一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。
+2. ingress与ingress-controller 要理解ingress，需要区分两个概念，ingress和ingress-controller：
+ ingress：指的是k8s中的一个api对象，一般用yaml配置。作用是定义请求如何转发到service的规则，可以理解为配置模板。 ingress-controller：具体实现反向代理及负载均衡的程序，对ingress定义的规则进行解析，根据配置的规则来实现请求转发。  简单来说，ingress-controller才是负责具体转发的组件，通过各种方式将它暴露在集群入口，外部对集群的请求流量会先到ingress-controller，而ingress对象是用来告诉ingress-controller该如何转发请求，比如哪些域名哪些path要转发到哪些服务等等。
+2.1 ingress ingress是一个API对象，和其他对象一样，通过yaml文件来配置。ingress通过http或https暴露集群内部service，给service提供外部URL、负载均衡、SSL/TLS能力以及基于host的方向代理。ingress要依靠ingress-controller来具体实现以上功能。前一小节的图如果用ingress来表示，大概就是如下配置：
+apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotations: kubernetes.io/ingress.class: &#34;nginx&#34; nginx.ingress.kubernetes.io/use-regex: &#34;true&#34; spec: tls: - hosts: - api.abc.com secretName: abc-tls rules: - host: api.abc.com http: paths: - backend: serviceName: apiserver servicePort: 80 - host: www.abc.com http: paths: - path: /image/* backend: serviceName: fileserver servicePort: 80 - host: www.abc.com http: paths: - backend: serviceName: feserver servicePort: 8080 2."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="341"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="keywords" content="云原生,k8s," /><meta property="og:title" content="ingress" />
+<meta property="og:description" content="1. ingress是什么 ingress是k8s一种资源对象，如k8s的Deployment、Service资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的ClusterIP、NodePort、LoadBalance一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。
+2. ingress与ingress-controller 要理解ingress，需要区分两个概念，ingress和ingress-controller：
+ ingress：指的是k8s中的一个api对象，一般用yaml配置。作用是定义请求如何转发到service的规则，可以理解为配置模板。 ingress-controller：具体实现反向代理及负载均衡的程序，对ingress定义的规则进行解析，根据配置的规则来实现请求转发。  简单来说，ingress-controller才是负责具体转发的组件，通过各种方式将它暴露在集群入口，外部对集群的请求流量会先到ingress-controller，而ingress对象是用来告诉ingress-controller该如何转发请求，比如哪些域名哪些path要转发到哪些服务等等。
+2.1 ingress ingress是一个API对象，和其他对象一样，通过yaml文件来配置。ingress通过http或https暴露集群内部service，给service提供外部URL、负载均衡、SSL/TLS能力以及基于host的方向代理。ingress要依靠ingress-controller来具体实现以上功能。前一小节的图如果用ingress来表示，大概就是如下配置：
+apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotations: kubernetes.io/ingress.class: &#34;nginx&#34; nginx.ingress.kubernetes.io/use-regex: &#34;true&#34; spec: tls: - hosts: - api.abc.com secretName: abc-tls rules: - host: api.abc.com http: paths: - backend: serviceName: apiserver servicePort: 80 - host: www.abc.com http: paths: - path: /image/* backend: serviceName: fileserver servicePort: 80 - host: www.abc.com http: paths: - backend: serviceName: feserver servicePort: 8080 2." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/ingress/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
+
+<meta name="twitter:title" content="ingress"/>
+<meta name="twitter:description" content="1. ingress是什么 ingress是k8s一种资源对象，如k8s的Deployment、Service资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的ClusterIP、NodePort、LoadBalance一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。
+2. ingress与ingress-controller 要理解ingress，需要区分两个概念，ingress和ingress-controller：
+ ingress：指的是k8s中的一个api对象，一般用yaml配置。作用是定义请求如何转发到service的规则，可以理解为配置模板。 ingress-controller：具体实现反向代理及负载均衡的程序，对ingress定义的规则进行解析，根据配置的规则来实现请求转发。  简单来说，ingress-controller才是负责具体转发的组件，通过各种方式将它暴露在集群入口，外部对集群的请求流量会先到ingress-controller，而ingress对象是用来告诉ingress-controller该如何转发请求，比如哪些域名哪些path要转发到哪些服务等等。
+2.1 ingress ingress是一个API对象，和其他对象一样，通过yaml文件来配置。ingress通过http或https暴露集群内部service，给service提供外部URL、负载均衡、SSL/TLS能力以及基于host的方向代理。ingress要依靠ingress-controller来具体实现以上功能。前一小节的图如果用ingress来表示，大概就是如下配置：
+apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotations: kubernetes.io/ingress.class: &#34;nginx&#34; nginx.ingress.kubernetes.io/use-regex: &#34;true&#34; spec: tls: - hosts: - api.abc.com secretName: abc-tls rules: - host: api.abc.com http: paths: - backend: serviceName: apiserver servicePort: 80 - host: www.abc.com http: paths: - path: /image/* backend: serviceName: fileserver servicePort: 80 - host: www.abc.com http: paths: - backend: serviceName: feserver servicePort: 8080 2."/>
+<meta name="twitter:site" content="@razonyang"/>
+<link rel="preload" href="https://xuzhijvn.github.io/css/bundle.min.3cecd960b71660d3d8ac067f39179d263d479ccac6af4dd6965d97a6a0a00962.css" integrity="sha256-POzZYLcWYNPYrAZ/ORedJj1HnMrGr03Wll2XpqCgCWI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.3cecd960b71660d3d8ac067f39179d263d479ccac6af4dd6965d97a6a0a00962.css" integrity="sha256-POzZYLcWYNPYrAZ/ORedJj1HnMrGr03Wll2XpqCgCWI=" crossorigin="anonymous"></noscript></head>
+  <body><script src="https://xuzhijvn.github.io/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button><a class="navbar-brand me-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+   width="400" height="400"
+   />
+👴🏻💪
+    </a>
+    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+  <i class="fas fa-share-alt"></i>
+</button>
+
+<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Share</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=ingress&url=https%3a%2f%2fxuzhijvn.github.io%2fzh-cn%2fposts%2fk8s%2f%25E5%25AE%259E%25E6%2588%2598%2fingress%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fxuzhijvn.github.io%2fzh-cn%2fposts%2fk8s%2f%25E5%25AE%259E%25E6%2588%2598%2fingress%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</div>
+    <button class="navbar-settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-ellipsis-v"></i>
+</button>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-language"></i> 语言</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="dropdown">
+        <a class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          简体中文
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/en/"></a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm palette" data-palette="yellow">
+      </button></div>
+</section>
+</div>
+</div>
+
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://xuzhijvn.github.io/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-categories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-categories"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3">
+                <i class="fas fa-fw fa-code"></i>编程思想
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD">
+                <i class="fas fa-fw fa-robot"></i>人工智能
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/categories/%E5%8C%BA%E5%9D%97%E9%93%BE">
+                <i class="fas fa-fw fa-cubes"></i>区块链
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6">
+                <i class="fas fa-fw fa-server"></i>计算机科学
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B">
+                <i class="fas fa-fw fa-sitemap"></i>架构演进
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/categories/%E4%BA%91%E5%8E%9F%E7%94%9F">
+                <i class="fas fa-fw fa-cloud"></i>云原生
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-tags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-tags"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/tags/java">
+                <i class="fab fa-fw fa-java"></i>Java
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-projects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">ingress</li></ol>
+  </div>
+</nav>    <article class="row card component mb-4 post"><div class="post-panel-wrapper">
+  <div class="d-flex flex-column component rounded post-panel">
+    
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    
+  </div>
+</div>
+<div class="card-body">
+        <h1 class="card-title my-3">ingress
+</h1><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-08-27
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded-pill text-white bg-primary post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded-pill text-white bg-primary post-taxonomy">k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded-pill text-white bg-primary post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded-pill text-white bg-primary post-taxonomy">k8s</a></div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-ingress是什么">1. ingress是什么</a></li>
+    <li><a href="#2-ingress与ingress-controller">2. ingress与ingress-controller</a>
+      <ul>
+        <li><a href="#21-ingress">2.1 ingress</a></li>
+        <li><a href="#22-ingress-controller">2.2 ingress-controller</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-部署ingress对象">3. 部署ingress对象</a></li>
+    <li><a href="#4-部署ingress-controller">4. 部署ingress-controller</a>
+      <ul>
+        <li><a href="#41-deploymentloadbalancer模式的service">4.1 Deployment+LoadBalancer模式的Service</a></li>
+        <li><a href="#42-deploymentnodeport模式的service">4.2 Deployment+NodePort模式的Service</a></li>
+        <li><a href="#43-daemonsethostnetworknodeselector">4.3 DaemonSet+HostNetwork+nodeSelector</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考链接">参考链接</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><h2 id="1-ingress是什么">1. ingress是什么</h2>
+<p><code>ingress</code>是k8s一种资源对象，如k8s的<code>Deployment</code>、<code>Service</code>资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的<code>ClusterIP</code>、<code>NodePort</code>、<code>LoadBalance</code>一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。</p>
+<p><img src="https://picgo.6and.ltd/img/img_5f40a321e4f83.png" alt="ingress" style="zoom:67%;" /></p>
+<h2 id="2-ingress与ingress-controller">2. ingress与ingress-controller</h2>
+<p>要理解ingress，需要区分两个概念，<code>ingress</code>和<code>ingress-controller</code>：</p>
+<ul>
+<li><code>ingress</code>：指的是k8s中的一个api对象，一般用yaml配置。作用是定义请求如何转发到service的规则，可以理解为配置模板。</li>
+<li><code>ingress-controller</code>：具体实现反向代理及负载均衡的程序，对ingress定义的规则进行解析，根据配置的规则来实现请求转发。</li>
+</ul>
+<p>简单来说，ingress-controller才是负责具体转发的组件，通过各种方式将它暴露在集群入口，外部对集群的请求流量会先到ingress-controller，而ingress对象是用来告诉ingress-controller该如何转发请求，比如哪些域名哪些path要转发到哪些服务等等。</p>
+<h3 id="21-ingress">2.1 ingress</h3>
+<p><code>ingress</code>是一个API对象，和其他对象一样，通过yaml文件来配置。ingress通过http或https暴露集群内部service，给service提供外部URL、负载均衡、SSL/TLS能力以及基于host的方向代理。ingress要依靠ingress-controller来具体实现以上功能。前一小节的图如果用ingress来表示，大概就是如下配置：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">extensions/v1beta1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Ingress</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">abc-ingress</span>
+  <span style="color:#f92672">annotations</span>: 
+    <span style="color:#f92672">kubernetes.io/ingress.class</span>: <span style="color:#e6db74">&#34;nginx&#34;</span>
+    <span style="color:#f92672">nginx.ingress.kubernetes.io/use-regex</span>: <span style="color:#e6db74">&#34;true&#34;</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">tls</span>:
+  - <span style="color:#f92672">hosts</span>:
+    - <span style="color:#ae81ff">api.abc.com</span>
+    <span style="color:#f92672">secretName</span>: <span style="color:#ae81ff">abc-tls</span>
+  <span style="color:#f92672">rules</span>:
+  - <span style="color:#f92672">host</span>: <span style="color:#ae81ff">api.abc.com</span>
+    <span style="color:#f92672">http</span>:
+      <span style="color:#f92672">paths</span>:
+      - <span style="color:#f92672">backend</span>:
+          <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">apiserver</span>
+          <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">80</span>
+  - <span style="color:#f92672">host</span>: <span style="color:#ae81ff">www.abc.com</span>
+    <span style="color:#f92672">http</span>:
+      <span style="color:#f92672">paths</span>:
+      - <span style="color:#f92672">path</span>: <span style="color:#ae81ff">/image/*</span>
+        <span style="color:#f92672">backend</span>:
+          <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">fileserver</span>
+          <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">80</span>
+  - <span style="color:#f92672">host</span>: <span style="color:#ae81ff">www.abc.com</span>
+    <span style="color:#f92672">http</span>:
+      <span style="color:#f92672">paths</span>:
+      - <span style="color:#f92672">backend</span>:
+          <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">feserver</span>
+          <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">8080</span>
+</code></pre></div><h3 id="22-ingress-controller">2.2 ingress-controller</h3>
+<p><code>ingress-controller</code>并不是k8s自带的组件，实际上ingress-controller只是一个统称，用户可以选择不同的ingress-controller实现，目前，由k8s维护的ingress-controller只有google云的<code>GCE</code>与<code>ingress-nginx</code>两个，其他还有很多第三方维护的ingress-controller，具体可以参考官方文档。但是不管哪一种ingress-controller，实现的机制都大同小异，只是在具体配置上有差异。一般来说，ingress-controller的形式都是一个pod，里面跑着daemon程序和反向代理程序。daemon负责不断监控集群的变化，根据ingress对象生成配置并应用新配置到反向代理，比如nginx-ingress就是动态生成nginx配置，动态更新upstream，并在需要的时候reload程序应用新配置。为了方便，后面的例子都以k8s官方维护的<code>nginx-ingress</code>为例。</p>
+<h2 id="3-部署ingress对象">3. 部署ingress对象</h2>
+<p>下面会介绍到<code>ingress-controller</code>有多种部署方式，但无论ingress-controller采用何种方式部署，<code>ingress</code>资源对象的部署都一样：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">[<span style="color:#ae81ff">root@k8s-master ingress-nginx]# vi ingress-all.yaml </span>
+
+<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.k8s.io/v1beta1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Ingress</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">ingress-all</span>
+  <span style="color:#f92672">annotations</span>:
+    <span style="color:#f92672">kubernetes.io/ingress.class</span>: <span style="color:#e6db74">&#34;nginx&#34;</span>
+    <span style="color:#75715e"># 开启use-regex，启用path的正则匹配</span>
+    <span style="color:#f92672">nginx.ingress.kubernetes.io/use-regex</span>: <span style="color:#e6db74">&#34;true&#34;</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">rules</span>:
+    <span style="color:#75715e"># 定义域名</span>
+    - <span style="color:#f92672">host</span>: <span style="color:#ae81ff">ceres-admin-web.6and.ltd</span>
+      <span style="color:#f92672">http</span>:
+        <span style="color:#f92672">paths</span>:
+        <span style="color:#75715e"># 不同path转发到不同端口</span>
+          - <span style="color:#f92672">path</span>: <span style="color:#ae81ff">/</span>
+            <span style="color:#f92672">backend</span>:
+              <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">ceres-admin-web-svc</span>
+              <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">80</span>
+          <span style="color:#75715e">#- path: /merchant</span>
+          <span style="color:#75715e">#  backend:</span>
+          <span style="color:#75715e">#    serviceName: ceres-merchant-web-svc</span>
+          <span style="color:#75715e">#    servicePort: 80</span>
+    - <span style="color:#f92672">host</span>: <span style="color:#ae81ff">ceres-merchant-web.6and.ltd</span>
+      <span style="color:#f92672">http</span>:
+        <span style="color:#f92672">paths</span>:
+        <span style="color:#75715e"># 不同path转发到不同端口</span>
+          - <span style="color:#f92672">path</span>: <span style="color:#ae81ff">/</span>
+            <span style="color:#f92672">backend</span>:
+              <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">ceres-merchant-web-svc</span>
+              <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">80</span>
+    - <span style="color:#f92672">host</span>: <span style="color:#ae81ff">ceres-admin-server.6and.ltd</span>
+      <span style="color:#f92672">http</span>:
+        <span style="color:#f92672">paths</span>:
+        <span style="color:#75715e"># 不同path转发到不同端口</span>
+          - <span style="color:#f92672">path</span>: <span style="color:#ae81ff">/</span>
+            <span style="color:#f92672">backend</span>:
+              <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">ceres-admin-server-svc</span>
+              <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">8764</span>
+</code></pre></div><h2 id="4-部署ingress-controller">4. 部署ingress-controller</h2>
+<p><code>ingress-controller</code>的部署，需要考虑两个方面：</p>
+<ul>
+<li>ingress-controller是作为pod来运行的，以什么方式部署比较好</li>
+<li>ingress-controller解决了把如何请求路由到集群内部，那它自己怎么暴露给外部比较好</li>
+</ul>
+<p>下面列举一些目前常见的部署和暴露方式，具体使用哪种方式还是得根据实际需求来考虑决定。</p>
+<h3 id="41-deploymentloadbalancer模式的service">4.1 Deployment+LoadBalancer模式的Service</h3>
+<p>如果要把ingress部署在公有云，那用这种方式比较合适。用Deployment部署ingress-controller，创建一个type为LoadBalancer的service关联这组pod。大部分公有云，都会为LoadBalancer的service自动创建一个负载均衡器，通常还绑定了公网地址。只要把域名解析指向该地址，就实现了集群服务的对外暴露。</p>
+<h3 id="42-deploymentnodeport模式的service">4.2 Deployment+NodePort模式的Service</h3>
+<p>同样用deployment模式部署ingress-controller，并创建对应的服务，但是type为NodePort。这样，ingress就会暴露在集群节点ip的特定端口上。由于nodeport暴露的端口是随机端口，一般会在前面再搭建一套负载均衡器来转发请求。该方式一般用于宿主机是相对固定的环境ip地址不变的场景。
+NodePort方式暴露ingress虽然简单方便，但是NodePort多了一层NAT，在请求量级很大时可能对性能会有一定影响。</p>
+<h4 id="421-下载部署ingress-nginxhttpsgithubcomkubernetesingress-nginx-controller所需要的deployyaml文件">4.2.1 下载部署<a href="https://github.com/kubernetes/ingress-nginx" target="_blank" rel="noopener noreferrer">ingress-nginx</a>
+ controller所需要的deploy.yaml文件</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">wget https://github.com/kubernetes/ingress-nginx/blob/master/deploy/static/provider/baremetal/deploy.yaml
+</code></pre></div><p>该yaml默认使用nodePort方式部署Service，我们可以指定nodePort，而不是让k8s自己分配。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Service</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">labels</span>:
+    <span style="color:#f92672">helm.sh/chart</span>: <span style="color:#ae81ff">ingress-nginx-2.11.1</span>
+    <span style="color:#f92672">app.kubernetes.io/name</span>: <span style="color:#ae81ff">ingress-nginx</span>
+    <span style="color:#f92672">app.kubernetes.io/instance</span>: <span style="color:#ae81ff">ingress-nginx</span>
+    <span style="color:#f92672">app.kubernetes.io/version</span>: <span style="color:#ae81ff">0.34.1</span>
+    <span style="color:#f92672">app.kubernetes.io/managed-by</span>: <span style="color:#ae81ff">Helm</span>
+    <span style="color:#f92672">app.kubernetes.io/component</span>: <span style="color:#ae81ff">controller</span>
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">ingress-nginx-controller</span>
+  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">ingress-nginx</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">NodePort</span>
+  <span style="color:#f92672">ports</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">http</span>
+      <span style="color:#f92672">nodePort</span>: <span style="color:#ae81ff">31080</span>
+      <span style="color:#f92672">port</span>: <span style="color:#ae81ff">80</span>
+      <span style="color:#f92672">protocol</span>: <span style="color:#ae81ff">TCP</span>
+      <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">http</span>
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">https</span>
+      <span style="color:#f92672">nodePort</span>: <span style="color:#ae81ff">31443</span>
+      <span style="color:#f92672">port</span>: <span style="color:#ae81ff">443</span>
+      <span style="color:#f92672">protocol</span>: <span style="color:#ae81ff">TCP</span>
+      <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">https</span>
+</code></pre></div><p>不要试图将nodePort指定为<code>80</code>或者<code>443</code>，否则你会得到如下提示：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">The Service <span style="color:#e6db74">&#34;ingress-nginx-controller&#34;</span> is invalid: spec.ports<span style="color:#f92672">[</span>0<span style="color:#f92672">]</span>.nodePort: Invalid value: 80: provided port is not in the valid range. The range of valid ports is 30000-32767
+</code></pre></div><h4 id="422-修改镜像仓库地址">4.2.2 修改镜像仓库地址</h4>
+<p>deploy.yaml里面的镜像地址是：<code>us.gcr.io/k8s-artifacts-prod/ingress-nginx/controller:v0.34.1@sha256:0e072dddd1f7f8fc8909a2ca6f65e76c5f0d2fcfb8be47935ae3457e8bbceb20</code></p>
+<p>该地址无法被访问，解决办法参考：<a href="https://mp.weixin.qq.com/s/kf0SrktAze3bT7LcIveDYw" target="_blank" rel="noopener noreferrer">如何在国内顺畅下载被墙的 Docker 镜像？</a>
+</p>
+<p>修改后如下图所示：</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40b9365a422-20210621140800469.png" loading="lazy"
+  
+   />
+
+</p>
+<h4 id="423-部署ingress-nginx-controller">4.2.3 部署<strong>ingress-nginx controller</strong></h4>
+<pre><code>kubectl apply -f deploy.yaml
+</code></pre><p>如果修改了yaml重新部署：</p>
+<pre><code>kubectl replace --force -f deploy.yaml
+</code></pre><h4 id="424-检查是否部署成功">4.2.4 检查是否部署成功</h4>
+<p>查看controller是否running</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40b97a7c88d-20210621140805590.png" loading="lazy"
+  
+   />
+
+</p>
+<p>查看service</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40ba7ebd446-20210621140808992.png" loading="lazy"
+  
+   />
+
+</p>
+<p>登陆任意节点，运行：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-node1 ~<span style="color:#f92672">]</span><span style="color:#75715e"># curl -i localhost:31080/healthz</span>
+HTTP/1.1 <span style="color:#ae81ff">200</span> OK
+Server: nginx/1.19.1
+Date: Sat, <span style="color:#ae81ff">22</span> Aug <span style="color:#ae81ff">2020</span> 06:22:15 GMT
+Content-Type: text/html
+Content-Length: <span style="color:#ae81ff">0</span>
+Connection: keep-alive
+</code></pre></div><p>返回 200 ，说明 nginx OK。</p>
+<p>至此，ingress-nginx controller已经部署完毕。通过<code>域名</code>+<code>nodePort</code>的方式访问相应的service，例：<code>http://ceres-admin-web.6and.ltd:31080</code>，如果你跟我一样是强迫症晚期，一定期望完美的访问方式是：<code>http://ceres-admin-web.6and.ltd</code>，下面的4.3小节将是强迫症晚期的福音。</p>
+<h3 id="43-daemonsethostnetworknodeselector">4.3 DaemonSet+HostNetwork+nodeSelector</h3>
+<p>用<code>DaemonSet</code>结合nodeselector来部署ingress-controller到特定的node上，然后使用HostNetwork直接把该pod与宿主机node的网络打通，直接使用宿主机的80/433端口就能访问服务。这时，ingress-controller所在的node机器就很类似传统架构的边缘节点，比如机房入口的nginx服务器。该方式整个请求链路最简单，性能相对NodePort模式更好。缺点是由于直接利用宿主机节点的网络和端口，一个node只能部署一个ingress-controller pod。比较适合大并发的生产环境使用。</p>
+<h4 id="431-给要部署nginx-ingress的node打上特定标签">4.3.1 给要部署nginx-ingress的node打上特定标签</h4>
+<p>我们需要使用daemonset部署到特定node，需要修改部分配置：先给要部署nginx-ingress的node打上特定标签，这里测试部署在<code>k8s-node1</code>这个节点。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl label node k8s-node1 isIngress<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;true&#34;</span>
+</code></pre></div><h4 id="432-修改deployyaml的deployment部分配置">4.3.2 修改deploy.yaml的deployment部分配置</h4>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40d9927f98b-20210621140820358.png" loading="lazy"
+  
+   />
+
+</p>
+<p>删除指定的nodePort：</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40da20d4f52-20210621140825440.png" loading="lazy"
+  
+   />
+
+</p>
+<h4 id="433-重启">4.3.3 重启</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl replace --force -f deploy.yaml
+</code></pre></div><h4 id="434-检查">4.3.4 检查</h4>
+<p>可以看到，nginx-controller的pod已经部署在在k8s-node1上了：</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40dc88f1c92-20210621140832249.png" loading="lazy"
+  
+   />
+
+</p>
+<p>到k8s-node1上看下本地端口：</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40dcba3965c.png" loading="lazy"
+  
+   />
+
+</p>
+<p>由于配置了hostnetwork，nginx已经在node主机本地监听80/443/8181端口。其中8181是nginx-controller默认配置的一个default backend。这样，只要访问node主机有公网IP，就可以直接映射域名来对外网暴露服务了。如果要nginx高可用的话，可以在多个node上部署，并在前面再搭建一套LVS+keepalive做负载均衡。用hostnetwork的另一个好处是，如果lvs用DR模式的话，是不支持端口映射的，这时候如果用nodeport，暴露非标准的端口，管理起来会很麻烦。</p>
+<p>现在我们就可以优雅的使用：<code>http://ceres-admin-web.6and.ltd</code>来访问我们的服务了。</p>
+<h2 id="参考链接">参考链接</h2>
+<p><a href="https://segmentfault.com/a/1190000019908991" target="_blank" rel="noopener noreferrer">k8s ingress原理及ingress-nginx部署测试</a>
+</p>
+<p><a href="https://www.cnblogs.com/dudu/p/12334613.html" target="_blank" rel="noopener noreferrer">见异思迁：K8s 部署 Nginx Ingress Controller 之 kubernetes/ingress-nginx</a>
+</p>
+<p><a href="https://mp.weixin.qq.com/s/kf0SrktAze3bT7LcIveDYw" target="_blank" rel="noopener noreferrer">如何在国内顺畅下载被墙的 Docker 镜像？</a>
+</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/ingress%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/">ingress实现灰度
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/http/http2/">http2
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div><section class="related-posts-wrapper">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/java%E5%BA%94%E7%94%A8%E4%BB%8Enfs%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/">Java应用从nfs加载配置文件
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E8%B5%84%E6%BA%90%E5%AF%B9%E8%B1%A1/pv-pvc-storageclass/">PV/PVC/StorageClass
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E8%B5%84%E6%BA%90%E5%AF%B9%E8%B1%A1/services/">Services
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/ingress%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/">ingress实现灰度
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%8A%9F%E8%83%BD/">k8s功能
+</a></li></ul>
+  </section></div>
+    </article><div class="card component row post-comments">
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container">
+    <section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony" src="https://xuzhijvn.github.io/images/profile.webp" loading="lazy"
+   width="400" height="400"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+  </div>
+</section>
+  <section class="recent-posts row card component">
+  <div class="card-body">
+    <h2 class="card-title">最近文章</h2>
+    <ul><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
+</a></li><li><a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-04.-%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9F%A5%E6%89%BE/">剑指 Offer 04. 二维数组中的查找
+</a></li></ul>
+  </div>
+</section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+        </h2>
+        <div><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge bg-primary text-white rounded post-taxonomy" title="编程思想">
+            编程思想
+          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge bg-primary text-white rounded post-taxonomy" title="云原生">
+            云原生
+          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge bg-primary text-white rounded post-taxonomy" title="其他">
+            其他
+          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge bg-primary text-white rounded post-taxonomy" title="计算机科学">
+            计算机科学
+          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge bg-primary text-white rounded post-taxonomy" title="架构演进">
+            架构演进
+          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge bg-primary text-white rounded post-taxonomy" title="持续集成部署">
+            持续集成部署
+          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge bg-primary text-white rounded post-taxonomy" title="人工智能">
+            人工智能
+          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge bg-primary text-white rounded post-taxonomy" title="区块链">
+            区块链
+          </a></div>
+      </div>
+    </section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
+        </h2>
+        <div><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge bg-primary text-white rounded post-taxonomy" title="Manual">
+            Manual
+          </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge bg-primary text-white rounded post-taxonomy" title="k8s">
+            k8s
+          </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge bg-primary text-white rounded post-taxonomy" title="k8s实战">
+            k8s实战
+          </a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge bg-primary text-white rounded post-taxonomy" title="算法">
+            算法
+          </a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge bg-primary text-white rounded post-taxonomy" title="istio实战">
+            istio实战
+          </a></div>
+      </div>
+    </section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
+        </h2>
+        <div><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="badge bg-primary text-white rounded post-taxonomy" title="Java">
+            Java
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge bg-primary text-white rounded post-taxonomy" title="云原生">
+            云原生
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge bg-primary text-white rounded post-taxonomy" title="k8s">
+            k8s
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge bg-primary text-white rounded post-taxonomy" title="CS">
+            CS
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge bg-primary text-white rounded post-taxonomy" title="Other">
+            Other
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge bg-primary text-white rounded post-taxonomy" title="spring">
+            spring
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge bg-primary text-white rounded post-taxonomy" title="MySQL">
+            MySQL
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge bg-primary text-white rounded post-taxonomy" title="redis">
+            redis
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge bg-primary text-white rounded post-taxonomy" title="SA">
+            SA
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge bg-primary text-white rounded post-taxonomy" title="剑指offer">
+            剑指offer
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge bg-primary text-white rounded post-taxonomy" title="WordPress">
+            WordPress
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge bg-primary text-white rounded post-taxonomy" title="istio">
+            istio
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge bg-primary text-white rounded post-taxonomy" title="nginx">
+            nginx
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge bg-primary text-white rounded post-taxonomy" title="ZK">
+            ZK
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge bg-primary text-white rounded post-taxonomy" title="Jenkins">
+            Jenkins
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge bg-primary text-white rounded post-taxonomy" title="AI">
+            AI
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge bg-primary text-white rounded post-taxonomy" title="CNN">
+            CNN
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge bg-primary text-white rounded post-taxonomy" title="http">
+            http
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge bg-primary text-white rounded post-taxonomy" title="System">
+            System
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge bg-primary text-white rounded post-taxonomy" title="分布式">
+            分布式
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge bg-primary text-white rounded post-taxonomy" title="算法">
+            算法
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge bg-primary text-white rounded post-taxonomy" title="BlockChain">
+            BlockChain
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge bg-primary text-white rounded post-taxonomy" title="docker">
+            docker
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge bg-primary text-white rounded post-taxonomy" title="GO">
+            GO
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge bg-primary text-white rounded post-taxonomy" title="Maven">
+            Maven
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge bg-primary text-white rounded post-taxonomy" title="MQ">
+            MQ
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge bg-primary text-white rounded post-taxonomy" title="ClickHouse">
+            ClickHouse
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge bg-primary text-white rounded post-taxonomy" title="docker-compose">
+            docker-compose
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge bg-primary text-white rounded post-taxonomy" title="ES">
+            ES
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge bg-primary text-white rounded post-taxonomy" title="github">
+            github
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge bg-primary text-white rounded post-taxonomy" title="IO">
+            IO
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge bg-primary text-white rounded post-taxonomy" title="Kafka">
+            Kafka
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge bg-primary text-white rounded post-taxonomy" title="LeetCode">
+            LeetCode
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge bg-primary text-white rounded post-taxonomy" title="MongoDB">
+            MongoDB
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge bg-primary text-white rounded post-taxonomy" title="MyBatis">
+            MyBatis
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge bg-primary text-white rounded post-taxonomy" title="openresty">
+            openresty
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge bg-primary text-white rounded post-taxonomy" title="SpringBoot">
+            SpringBoot
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge bg-primary text-white rounded post-taxonomy" title="牛客">
+            牛客
+          </a></div>
+      </div>
+    </section>
+    <section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=783175223&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2021 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<script src="https://xuzhijvn.github.io/js/bundle.min.fb05bfc7968380f8d3228b5828f0b4ac2d12c4f0929ae296e4dcd5261b269dc9.js" integrity="sha256-&#43;wW/x5aDgPjTIotYKPC0rC0SxPCSmuKW5NzVJhsmnck=" crossorigin="anonymous" defer></script><script defer src="https://xuzhijvn.github.io/js/viewer.min.9f39f897757e616b3f6faf1d7955ea42a180a4e71d898e80f1c13d45e59b9abb.js" integrity="sha256-nzn4l3V&#43;YWs/b68deVXqQqGApOcdiY6A8cE9ReWbmrs=" crossorigin="anonymous"></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></body>
+</html>
