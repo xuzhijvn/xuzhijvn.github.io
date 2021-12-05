@@ -1140,7 +1140,7 @@ https://blog.csdn.net/Appleyk/article/details/77879073 </description>
 为何一定要复制到DirectByteBuffer来读写（系统调用）？
 GC会回收无用对象，同时还会进行碎片整理，移动对象在内存中的位置，来减少内存碎片。DirectByteBuffer不受GC控制。如果不用DirectByteBuffer而是用HeapByteBuffer，如果在调用系统调用时，发生了GC，导致HeapByteBuffer内存位置发生了变化，但是内核态并不能感知到这个变化导致系统调用读取或者写入错误的数据。所以一定要通过不受GC影响的DirectByteBuffer来进行IO系统调用。
 假设我们要从网络中读入一段数据，再把这段数据发送出去的话，采用Non-direct ByteBuffer的流程是这样的：
-网络 –&amp;gt; 临时的DirectByteBuffer –&amp;gt; 应用 Non-direct ByteBuffer –&amp;gt; 临时的Direct ByteBuffer –&amp;gt; 网络</description>
+网络 –&amp;gt; 临时的DirectByteBuffer –&amp;gt; 应用 Non-direct ByteBuffer –&amp;gt; 临时的Direct ByteBuffer –&amp;gt; 网络 这种方式是直接在堆外分配一个内存(即，native memory)来存储数据， 程序通过JNI直接将数据读/写到堆外内存中。因为数据直接写入到了堆外内存中，所以这种方式就不会再在JVM管控的堆内再分配内存来存储数据了，也就不存在堆内内存和堆外内存数据拷贝的操作了。这样在进行I/O操作时，只需要将这个堆外内存地址传给JNI的I/O的函数就好了。</description>
     </item>
     
     <item>
@@ -1222,21 +1222,32 @@ public int hashCode() { int h = hash; if (h == 0 &amp;amp;&amp;amp; value.length
     </item>
     
     <item>
-      <title>jenkins&#43;docker&#43;腾讯云容器仓库&#43;github搭建CI/CD环境</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/cicd/jenkins&#43;docker&#43;%E8%85%BE%E8%AE%AF%E4%BA%91%E5%AE%B9%E5%99%A8%E4%BB%93%E5%BA%93&#43;github%E6%90%AD%E5%BB%BAci_cd%E7%8E%AF%E5%A2%83/</link>
+      <title>Jenkins&#43;Docker&#43;腾讯云容器仓库&#43;Github搭建CI/CD环境.md</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/cicd/jenkins&#43;docker&#43;%E8%85%BE%E8%AE%AF%E4%BA%91%E5%AE%B9%E5%99%A8%E4%BB%93%E5%BA%93&#43;github%E6%90%AD%E5%BB%BAcicd%E7%8E%AF%E5%A2%83/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/cicd/jenkins&#43;docker&#43;%E8%85%BE%E8%AE%AF%E4%BA%91%E5%AE%B9%E5%99%A8%E4%BB%93%E5%BA%93&#43;github%E6%90%AD%E5%BB%BAci_cd%E7%8E%AF%E5%A2%83/</guid>
-      <description>jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境
-持续集成/持续部署的重要性不必多言，都什么年代了，没有哪个正紧项目还在人工构建/测试/部署。本文手把手教你搭建jenkins+docker+腾讯云容器仓库+github的CI/CD环境。妥妥的干活，绝对是解放生产力的利器。架构图如下：
- step1: 程序猿git push代码到github step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像） step3: 推送镜像到容器仓库 step4: 应用服务器拉去镜像到本地运行
-为了不让文章篇幅过长，本系列tony徐老师将文章分成两个小章节：
-github webhooks+jenkins搭建持续集成环境  本文是jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境 的第一子章节。意在教您通过github webhooks+jenkins搭建持续集成环境，如果您已经完成webhooks+jenkins的配置，可以直接调整到第二子章节jenkins+腾讯云容器仓库+docker持续部署  1. github配置Personal access tokens 没什么好说的，按图操作：   记下生成的token，待会儿要用的。
-2. github配置webhooks 去到你的github项目仓库，按图操作：   这里的Payload URL = 你的jenkins地址+/github-webhook/
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/cicd/jenkins&#43;docker&#43;%E8%85%BE%E8%AE%AF%E4%BA%91%E5%AE%B9%E5%99%A8%E4%BB%93%E5%BA%93&#43;github%E6%90%AD%E5%BB%BAcicd%E7%8E%AF%E5%A2%83/</guid>
+      <description>持续集成/持续部署的重要性不必多言，都什么年代了，没有哪个正紧项目还在人工构建/测试/部署。本文手把手教你搭建Jenkins+docker+腾讯云容器仓库+github的CI/CD环境。妥妥的干活，绝对是解放生产力的利器。架构图如下：
+step1: 程序猿git push代码到github step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像） step3: 推送镜像到容器仓库 step4: 应用服务器拉去镜像到本地运行
+为了不让文章篇幅过长，本系列tony老师将文章分成两个小章节：
+Github webhooks+Jenkins搭建持续集成环境 第一章节，意在教您通过github webhooks+jenkins搭建持续集成环境，如果您已经完成webhooks+jenkins的配置，可以直接调整到第二章节
+1. github配置Personal access tokens 没什么好说的，按图操作：
+记下生成的token，待会儿要用的。
+2. github配置webhooks 去到你的github项目仓库，按图操作：
+这里的Payload URL = 你的jenkins地址+/github-webhook/
 至此，github上的配置全部完成。接下来，我们配置jenkins。
- 3. jenkins配置凭据   这里的Secret就是在第1节配置的Personal access tokens
-  添加一个github登陆凭据，username和password对应github的登陆账号密码。 添加一个宿主机登陆凭据，username和password对应登陆的账号密码（因为小编的jenkins是容器的方式运行的，因此后面需要这个凭据ssh到宿主机上执行命令）。  4. 配置ssh sites 接下来配置一个ssh sites，用于后面需要ssh到宿主机。  5. 配置jenkins运行环境 这里的环境取决与你的项目需要的环境。  如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。
-6. 新建一个maven项目 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。  请按图操作：  请按图操作：  请按图操作：  这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！</description>
+ 3. jenkins配置凭据 这里的Secret就是在第1节配置的Personal access tokens
+ 添加一个github登陆凭据，username和password对应github的登陆账号密码。 添加一个宿主机登陆凭据，username和password对应登陆的账号密码（因为小编的jenkins是容器的方式运行的，因此后面需要这个凭据ssh到宿主机上执行命令）。  4. 配置ssh sites 接下来配置一个ssh sites，用于后面需要ssh到宿主机。
+5. 配置jenkins运行环境 这里的环境取决与你的项目需要的环境。
+如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。
+6. 新建一个maven项目 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。
+请按图操作：
+请按图操作：
+请按图操作：
+这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！
+7. 新建一个vue项目 你的前端可能是通过vue实现前后端分离的，那么你肯定也存在对vue编译构建的需求。
+这里大部分配置和第5小节是一样的，不再赘述，需要注意的是：
+上图中command的含义是: 1. 构建项目 2. 运行项目 3. 制作镜像 4，推送镜像到仓库。同第5节的maven项目一样，需要哪些步骤取决于你的需求。</description>
     </item>
     
     <item>

@@ -1,5 +1,5 @@
 ---
-title: "Jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境"
+title: "Jenkins+Docker+腾讯云容器仓库+Github搭建CI/CD环境.md"
 date: 2021-08-27T11:15:10+08:00
 draft: false
 reward: true
@@ -170,6 +170,7 @@ step4: 应用服务器拉去镜像到本地运行
 #### 2.3 后台项目新增docker配置
 
 新增如下10个配置：
+
 <img src="https://picgo.6and.ltd/img/2020051010521993.png" alt="img"  />
 
 <!--文章末尾获取配置文件！-->
@@ -207,6 +208,8 @@ step4: 应用服务器拉去镜像到本地运行
 #### 4.3 新增后台项目的Execute shell script on remote host using ssh
 
 ![img](https://picgo.6and.ltd/img/2020051011255759.png)
+
+
 
 1. jenkins宿主机构建镜像并push到容器仓库
 2. ssh到应用服务器下载镜像并启动项目

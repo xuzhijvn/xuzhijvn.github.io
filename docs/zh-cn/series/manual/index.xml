@@ -732,7 +732,7 @@ https://blog.csdn.net/Appleyk/article/details/77879073 </description>
 为何一定要复制到DirectByteBuffer来读写（系统调用）？
 GC会回收无用对象，同时还会进行碎片整理，移动对象在内存中的位置，来减少内存碎片。DirectByteBuffer不受GC控制。如果不用DirectByteBuffer而是用HeapByteBuffer，如果在调用系统调用时，发生了GC，导致HeapByteBuffer内存位置发生了变化，但是内核态并不能感知到这个变化导致系统调用读取或者写入错误的数据。所以一定要通过不受GC影响的DirectByteBuffer来进行IO系统调用。
 假设我们要从网络中读入一段数据，再把这段数据发送出去的话，采用Non-direct ByteBuffer的流程是这样的：
-网络 –&amp;gt; 临时的DirectByteBuffer –&amp;gt; 应用 Non-direct ByteBuffer –&amp;gt; 临时的Direct ByteBuffer –&amp;gt; 网络</description>
+网络 –&amp;gt; 临时的DirectByteBuffer –&amp;gt; 应用 Non-direct ByteBuffer –&amp;gt; 临时的Direct ByteBuffer –&amp;gt; 网络 这种方式是直接在堆外分配一个内存(即，native memory)来存储数据， 程序通过JNI直接将数据读/写到堆外内存中。因为数据直接写入到了堆外内存中，所以这种方式就不会再在JVM管控的堆内再分配内存来存储数据了，也就不存在堆内内存和堆外内存数据拷贝的操作了。这样在进行I/O操作时，只需要将这个堆外内存地址传给JNI的I/O的函数就好了。</description>
     </item>
     
     <item>
