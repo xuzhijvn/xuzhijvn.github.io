@@ -6,7 +6,16 @@
     <description>Recent content in Manual on 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
-    <lastBuildDate>Fri, 08 Oct 2021 16:45:53 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/series/manual/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 05 Dec 2021 11:48:50 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/series/manual/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>JVM OOM</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/</link>
+      <pubDate>Sun, 05 Dec 2021 11:48:50 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>Redis事务</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/</link>
@@ -2141,19 +2150,20 @@ Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D/</guid>
-      <description>  排除应用之外的影响因素： top(cpu)、free(内存)、df(磁盘)、dstat(网络流量)、pstack、vmstat、st1race(底层系统调用)
+      <description>排除应用之外的影响因素： top(cpu)、free(内存)、df(磁盘)、dstat(网络流量)、pstack、vmstat、st1race(底层系统调用)
   top 定位CPU 最高的进程
   top -Hp pid 定位使用 CPU 最高的线程（或者 ps -mp pid -o THREAD,tid,time）
   printf &#39;0x%x&#39; tid 线程 id 转化 16 进制
   jstack pid | grep tid 找到线程堆栈
 5.1 gc线程（如下是查看gc情况的几种方式）
 👉🏿 查看gc 日志
-👉🏿 jstat -gcutil 进程号 统计间隔毫秒 统计次数（缺省代表一致统计
+👉🏿 jstat -gcutil 进程号 统计间隔毫秒 统计次数（缺省代表一次统计）
 👉🏿 如果所在公司有对应用进行监控的组件当然更方便（比如Prometheus + Grafana）
-5.2 业务线程
-👉🏿 关注线程堆栈的lock字段
-👉🏿 jstack -l pid | grep BLOCKED 查看阻塞态线程堆栈
-  </description>
+ 结合内存dump日志分析：
+  哪些对象导致的内存溢出导致频繁gc（尤其是full gc）
+  如果不是内存溢出导致频繁gc，也可能是代码或者第三方依赖的包中有显示的System.gc()调用，此时可以通过添加 -XX:+DisableExplicitGC来禁用JVM对显示GC的响应。
+在分配堆外内存的时候，内存不足时会显示的调用System.gc()，如果显示gc被禁用，则可能会导致堆外内存溢出，所以堆外内存的回收最好就不要依赖jvm，主动回收吧。
+   5.2 业务线程</description>
     </item>
     
     <item>
