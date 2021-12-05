@@ -17,7 +17,7 @@ images : [
 ]
 ---
 
-[comment]: <> (# Java堆外内存溢出)
+[comment]: <> "# Java堆外内存溢出"
 
 前段时间在做一个实时人脸抓拍项目的时候，遇到了一个堆外内存OOM的问题，现在把思路好好整理一下。
 
@@ -66,20 +66,29 @@ GC会回收无用对象，同时还会进行碎片整理，移动对象在内存
 
 假设我们要从网络中读入一段数据，再把这段数据发送出去的话，采用Non-direct ByteBuffer的流程是这样的：
 
-*网络 –> 临时的DirectByteBuffer –> 应用 Non-direct ByteBuffer –> 临时的Direct ByteBuffer –> 网络*
+```
+网络 –> 临时的DirectByteBuffer –> 应用 Non-direct ByteBuffer –> 临时的Direct ByteBuffer –> 网络
+```
 
 这种方式是直接在堆外分配一个内存(即，native memory)来存储数据，
 程序通过JNI直接将数据读/写到堆外内存中。因为数据直接写入到了堆外内存中，所以这种方式就不会再在JVM管控的堆内再分配内存来存储数据了，也就不存在堆内内存和堆外内存数据拷贝的操作了。这样在进行I/O操作时，只需要将这个堆外内存地址传给JNI的I/O的函数就好了。
 
 采用Direct ByteBuffer的流程是这样的：
 
-*网络 –> 应用 Direct ByteBuffer –> 网络*
+```
+网络 –> 应用 Direct ByteBuffer –> 网络
+```
+
+
 
 #### 参考：
 
-https://blog.csdn.net/zhxdick/article/details/81084672
+[JDK核心JAVA源码解析（4） - 堆外内存、零拷贝、DirectByteBuffer以及针对于NIO中的FileChannel的思考](https://blog.csdn.net/zhxdick/article/details/81084672)
 
- 
+[Java 内存之直接内存（堆外内存）](https://www.kancloud.cn/zhangchio/springboot/806316)
 
- 
+[10 双刃剑：合理管理 Netty 堆外内存](http://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/Netty%20%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90%E4%B8%8E%20RPC%20%E5%AE%9E%E8%B7%B5-%E5%AE%8C/10%20%20%E5%8F%8C%E5%88%83%E5%89%91%EF%BC%9A%E5%90%88%E7%90%86%E7%AE%A1%E7%90%86%20Netty%20%E5%A0%86%E5%A4%96%E5%86%85%E5%AD%98.md)
 
+[Java直接内存是属于内核态还是用户态？](https://www.zhihu.com/question/376317973)
+
+[堆外内存 之 DirectByteBuffer 详解](https://www.jianshu.com/p/007052ee3773)

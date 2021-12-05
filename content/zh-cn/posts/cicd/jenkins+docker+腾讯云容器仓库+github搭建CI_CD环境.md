@@ -15,11 +15,9 @@ images : [
 ]
 ---
 
-jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境
-
 持续集成/持续部署的重要性不必多言，都什么年代了，没有哪个正紧项目还在人工构建/测试/部署。本文手把手教你搭建jenkins+docker+腾讯云容器仓库+github的CI/CD环境。妥妥的干活，绝对是解放生产力的利器。架构图如下：
 
-[![jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境](https://picgo.6and.ltd/img/20200510052839100.png)](https://xuzhijun.ltd/wp-content/uploads/2020/05/20200510052839100.png)
+<img src="https://picgo.6and.ltd/img/20200510052839100.png" alt="jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境" style="zoom: 33%;" />
 
 step1: 程序猿git push代码到github
 step2: jenkins通过github webhooks触发任务（ jenkins构建项目，并制作docker镜像）
@@ -28,7 +26,7 @@ step4: 应用服务器拉去镜像到本地运行
 
 为了不让文章篇幅过长，本系列tony徐老师将文章分成两个小章节：
 
-# [github webhooks+jenkins搭建持续集成环境](https://xuzhijun.ltd/?p=670)
+# github webhooks+jenkins搭建持续集成环境
 
 本文是[jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境](https://xuzhijun.ltd/archives/626)的第一子章节。意在教您通过github webhooks+jenkins搭建持续集成环境，如果您已经完成webhooks+jenkins的配置，可以直接调整到第二子章节[jenkins+腾讯云容器仓库+docker持续部署](https://xuzhijun.ltd/archives/677)
 
@@ -83,14 +81,14 @@ step4: 应用服务器拉去镜像到本地运行
 ## 6. 新建一个maven项目
 
 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。
-[![img](https://picgo.6and.ltd/img/202005100909402.png)](https://xuzhijun.ltd/wp-content/uploads/2020/05/202005100909402.png)
+<img src="https://picgo.6and.ltd/img/202005100909402.png" alt="img" style="zoom:50%;" />
 请按图操作：
-[![img](https://picgo.6and.ltd/img/2020051009372456.png)](https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009372456.png)
+<img src="https://picgo.6and.ltd/img/2020051009372456.png" alt="img" style="zoom: 50%;" />
 
 请按图操作：
-[![img](https://picgo.6and.ltd/img/2020051009154947.png)](https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009154947.png)
+<img src="https://picgo.6and.ltd/img/2020051009154947.png" alt="img" style="zoom:50%;" />
 请按图操作：
-[![img](https://picgo.6and.ltd/img/2020051009181624.png)](https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009181624.png)
+<img src="https://picgo.6and.ltd/img/2020051009181624.png" alt="img" style="zoom:50%;" />
 
 这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！
 
@@ -98,11 +96,11 @@ step4: 应用服务器拉去镜像到本地运行
 
 你的前端可能是通过vue实现前后端分离的，那么你肯定也存在对vue编译构建的需求。
 
-[![img](https://picgo.6and.ltd/img/2020051009305674.png)](https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009305674.png)
+<img src="https://picgo.6and.ltd/img/2020051009305674.png" alt="img" style="zoom:50%;" />
 
 这里大部分配置和第5小节是一样的，不再赘述，需要注意的是：
 
-[![img](https://picgo.6and.ltd/img/2020051009404851.png)](https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051009404851.png)
+<img src="https://picgo.6and.ltd/img/2020051009404851.png" alt="img" style="zoom: 50%;" />
 
 上图中command的含义是: 1. 构建项目 2. 运行项目 3. 制作镜像 4，推送镜像到仓库。同第5节的maven项目一样，需要哪些步骤取决于你的需求。
 
@@ -110,13 +108,11 @@ step4: 应用服务器拉去镜像到本地运行
 
 本系列文章的[jenkins+腾讯云容器仓库+docker持续部署](https://xuzhijun.ltd/archives/677)将教你将构建好的项目制作成docker镜像，并由真正的应用服务器去运行项目，真正实现CI/CD，解放生产力。
 
-# [jenkins+腾讯云容器仓库+docker持续部署](https://xuzhijun.ltd/?p=677)
+# jenkins+腾讯云容器仓库+docker持续部署
 
 本文是[jenkins+docker+腾讯云容器仓库+github搭建CI/CD环境](https://xuzhijun.ltd/archives/626)的第二子章节。意在教您通过jenkins+腾讯云容器仓库+docker搭建持续部署环境，如果您还没有完成webhooks+jenkins的配置，请完成第一章节的学习[github webhooks+jenkins搭建持续集成环境](https://xuzhijun.ltd/archives/670)
 
-[![img](https://picgo.6and.ltd/img/2020051008231993.png)](https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051008231993.png)
-
-## 1. 准备
+<img src="https://picgo.6and.ltd/img/2020051008231993.png" alt="img" style="zoom:50%;" />1. 准备
 
 在上一个章节的基础上，您首先要：
 
@@ -143,13 +139,14 @@ step4: 应用服务器拉去镜像到本地运行
 ### 2.3 后台项目新增docker配置
 
 新增如下10个配置：
-[![img](https://picgo.6and.ltd/img/2020051010521993.png)](https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051010521993.png)
-[v_notice]文章末尾获取配置文件！[/v_notice]
+<img src="https://picgo.6and.ltd/img/2020051010521993.png" alt="img" style="zoom:50%;" />
+
+<!--文章末尾获取配置文件！-->
 
 ## 3. 修改项目配置文件
 
 修改mysql的地址为“db”,redis的地址为“redis”,mysql链接新增 allowPublicKeyRetrieval=true&useSSL=false参数
-[![img](https://picgo.6and.ltd/img/2020051011013955.png)](https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011013955.png)
+<img src="https://picgo.6and.ltd/img/2020051011013955.png" alt="img" style="zoom: 50%;" />
 
 [![img](https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011035934.png)](https://xuzhijun.ltd/wp-content/uploads/2020/05/2020051011035934.png)
 
