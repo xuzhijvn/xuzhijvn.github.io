@@ -204,4 +204,5 @@ images : [
 
 ## 参考
 
-https://easyai.tech/ai-definition/cnn/
+[卷积神经网络 – CNN](https://easyai.tech/ai-definition/cnn/)
+
