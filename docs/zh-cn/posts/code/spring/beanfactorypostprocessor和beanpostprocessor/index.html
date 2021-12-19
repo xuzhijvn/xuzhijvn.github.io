@@ -25,7 +25,7 @@ BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/spring/beanfactorypostprocessor%E5%92%8Cbeanpostprocessor/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E5%AE%9E%E9%AA%8C/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
@@ -36,8 +36,7 @@ BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初
 1. BeanFactoryPostProcessor接口 该接口的定义如下：
 @FunctionalInterface public interface BeanFactoryPostProcessor { /** * Modify the application context&#39;s internal bean factory after its standard * initialization. All bean definitions will have been loaded, but no beans * will have been instantiated yet. This allows for overriding or adding * properties even to eager-initializing beans. * @param beanFactory the bean factory used by the application context * @throws org.springframework.beans.BeansException in case of errors */ void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException; } 实现该接口，可以在spring的bean创建之前，修改bean的定义属性。也就是说，Spring允许BeanFactoryPostProcessor在容器实例化任何其它bean之前读取配置元数据，并可以根据需要进行修改，例如可以把bean的scope从singleton改为prototype，也可以把property的值给修改掉。可以同时配置多个BeanFactoryPostProcessor，并通过设置&rsquo;order&rsquo;属性来控制各个BeanFactoryPostProcessor的执行次序。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -48,12 +47,7 @@ BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -151,11 +145,16 @@ BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -280,17 +279,23 @@ BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -328,7 +333,7 @@ BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初
   </div>
 </div><div class="post-content mb-3"><p>BeanFactoryPostProcessor工作在Bean实例化之前，BeanPostProcessor工作在Bean初始化方法前后。</p>
 <p>BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：</p>
-<h2 id="1-beanfactorypostprocessor接口">1. BeanFactoryPostProcessor接口</h2>
+<h2 id="1-beanfactorypostprocessor接口">1. BeanFactoryPostProcessor接口<a class="anchor ms-1" href="#1-beanfactorypostprocessor接口"><i class="fas fa-link"></i></a></h2>
 <p>该接口的定义如下：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@FunctionalInterface</span>
 <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">BeanFactoryPostProcessor</span> <span style="color:#f92672">{</span>
@@ -348,7 +353,7 @@ BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初
 <blockquote>
 <p>注意：BeanFactoryPostProcessor是在spring容器加载了bean的定义文件之后，在bean实例化之前执行的。接口方法的入参是ConfigurrableListableBeanFactory，使用该参数，可以获取到相关bean的定义信息。</p>
 </blockquote>
-<h2 id="2-beanpostprocessor接口">2. BeanPostProcessor接口</h2>
+<h2 id="2-beanpostprocessor接口">2. BeanPostProcessor接口<a class="anchor ms-1" href="#2-beanpostprocessor接口"><i class="fas fa-link"></i></a></h2>
 <p>该接口的定义如下：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">BeanPostProcessor</span> <span style="color:#f92672">{</span>
 
@@ -402,7 +407,7 @@ BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初
 <blockquote>
 <p>注意：BeanPostProcessor是在spring容器加载了bean的定义文件并且实例化bean之后执行的。BeanPostProcessor的执行顺序是在BeanFactoryPostProcessor之后。</p>
 </blockquote>
-<h2 id="3-实战">3. 实战</h2>
+<h2 id="3-实战">3. 实战<a class="anchor ms-1" href="#3-实战"><i class="fas fa-link"></i></a></h2>
 <p>BeanFactoryPostProcessor</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyBeanFactoryPostProcessor</span> <span style="color:#66d9ef">implements</span> BeanFactoryPostProcessor <span style="color:#f92672">{</span>
 
@@ -562,12 +567,12 @@ remark<span style="color:#960050;background-color:#1e0010">：</span>BeanFactory
 </code></pre></div><blockquote>
 <p>BeanFactoryPostProcessor对Bean属性的修改延迟到了Bean初始化完成之后才执行</p>
 </blockquote>
-<h2 id="4-进一步深入分析">4. 进一步深入分析</h2>
+<h2 id="4-进一步深入分析">4. 进一步深入分析<a class="anchor ms-1" href="#4-进一步深入分析"><i class="fas fa-link"></i></a></h2>
 <p>在使用ApplicationContext启动spring容器的时候，在AbstractApplicationContext.refresh()方法中，完成相关初始化工作：</p>
 <p><img src="https://picgo.6and.ltd/img/20140628121008984" alt="img" style="zoom: 67%;" /></p>
 <p>1）BeanFactoryPostProcessor.postProcessBeanFactory，是在第5步执行的</p>
 <p>2）而BeanPostProcessor的执行，取决于配置文件中bean的定义，如果定义的bean是singleton并且不是抽象类，也不延迟初始化，则BeanPostProcessor是在第11步中执行；而对于prototype的bean，BeanPostProcessor是在程序getBean的时候执行的。在第6步中，调用registerBeanPostProcessors方法，注册所有实现BeanPostProcessor接口的bean</p>
-<h2 id="5-总结">5. 总结</h2>
+<h2 id="5-总结">5. 总结<a class="anchor ms-1" href="#5-总结"><i class="fas fa-link"></i></a></h2>
 <ol>
 <li>创建（调用构造函数）</li>
 <li>set属性（set方法注入属性）</li>
@@ -609,7 +614,7 @@ remark<span style="color:#960050;background-color:#1e0010">：</span>BeanFactory
         System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;******applicationContext = &#34;</span> <span style="color:#f92672">+</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">applicationContext</span><span style="color:#f92672">);</span>
     <span style="color:#f92672">}</span>
 <span style="color:#f92672">}</span>
-</code></pre></div><h2 id="参考">参考</h2>
+</code></pre></div><h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://blog.csdn.net/caihaijiang/article/details/35552859" target="_blank" rel="noopener noreferrer">Spring的BeanFactoryPostProcessor和BeanPostProcessor</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
@@ -637,7 +642,7 @@ remark<span style="color:#960050;background-color:#1e0010">：</span>BeanFactory
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/code/spring/bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">bean生命周期
 </a>
@@ -678,7 +683,7 @@ remark<span style="color:#960050;background-color:#1e0010">：</span>BeanFactory
 </span>
         </li></ul>
     </div>
-  </section><div class="card component row post-comments">
+  </section><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -719,30 +724,20 @@ remark<span style="color:#960050;background-color:#1e0010">：</span>BeanFactory
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -889,7 +884,7 @@ remark<span style="color:#960050;background-color:#1e0010">：</span>BeanFactory
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -914,7 +909,8 @@ remark<span style="color:#960050;background-color:#1e0010">：</span>BeanFactory
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

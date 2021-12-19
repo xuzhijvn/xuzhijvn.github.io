@@ -19,14 +19,13 @@
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-09-26T19:49:15+08:00" />
 <meta property="article:modified_time" content="2021-09-26T19:49:15+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E5%AE%9E%E9%AA%8C/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="几种序列化框架对比"/>
 <meta name="twitter:description" content="JDK Serializable, FST 只适用于Java；Protobuf, Thrift, Avro 支持多种语言，但都需要先通过IDL（接口描述语言，Interface description language）定义Schema；Avro和Kryo序列化后的数据最小，FST和Kryo序列化时间开销表现最好；Hessian支持多语言，无需IDL定义Schema，对Java数据类型、语法的支持最佳。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -37,12 +36,7 @@
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -140,11 +134,16 @@
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -269,17 +268,23 @@
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -332,7 +337,7 @@
 </nav>
   </div>
 </div><div class="post-content mb-3"><p><code>JDK Serializable</code>, <code>FST</code> 只适用于Java；<code>Protobuf</code>, <code>Thrift</code>, <code>Avro</code> 支持多种语言，但都需要先通过IDL（接口描述语言，Interface description language）定义Schema；<code>Avro</code>和<code>Kryo</code>序列化后的数据最小，<code>FST</code>和<code>Kryo</code>序列化时间开销表现最好；<code>Hessian</code>支持多语言，无需IDL定义Schema，对Java数据类型、语法的支持最佳。</p>
-<h2 id="1-背景介绍">1. 背景介绍</h2>
+<h2 id="1-背景介绍">1. 背景介绍<a class="anchor ms-1" href="#1-背景介绍"><i class="fas fa-link"></i></a></h2>
 <p>序列化与反序列化是我们日常数据持久化和网络传输中经常使用的技术，但是目前各种序列化框架让人眼花缭乱，不清楚什么场景到底采用哪种序列化框架。本文会将业界开源的序列化框架进行对比测试，分别从通用性、易用性、可扩展性、性能和数据类型与Java语法支持五方面给出对比测试。</p>
 <ul>
 <li>
@@ -352,8 +357,8 @@
 </li>
 </ul>
 <p>下面分别对JDK Serializable、FST、Kryo、Protobuf、Thrift、Hession和Avro进行对比测试。</p>
-<h2 id="2-序列化框架">2. 序列化框架</h2>
-<h3 id="1-jdk-serializable">1 JDK Serializable</h3>
+<h2 id="2-序列化框架">2. 序列化框架<a class="anchor ms-1" href="#2-序列化框架"><i class="fas fa-link"></i></a></h2>
+<h3 id="1-jdk-serializable">1 JDK Serializable<a class="anchor ms-1" href="#1-jdk-serializable"><i class="fas fa-link"></i></a></h3>
 <p>JDK Serializable是Java自带的序列化框架，我们只需要实现java.io.Serializable或java.io.Externalizable接口，就可以使用Java自带的序列化机制。实现序列化接口只是表示该类能够被序列化/反序列化，我们还需要借助I/O操作的ObjectInputStream和ObjectOutputStream对对象进行序列化和反序列化。</p>
 <p>下面是使用JDK 序列化框架进行编解码的Demo：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
@@ -524,7 +529,7 @@
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">com<span style="color:#f92672">.</span><span style="color:#a6e22e">yjz</span><span style="color:#f92672">.</span><span style="color:#a6e22e">serialization</span><span style="color:#f92672">.</span><span style="color:#a6e22e">SerializerFunctionTest$$Lambda$1</span><span style="color:#f92672">/</span>189568618
 </code></pre></div><p>原因就是我们Runnable的Lambda并没有实现Serializable接口。我们可以做如下修改，即可支持Lambda表达式序列化。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Runnable runnable <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Runnable <span style="color:#f92672">&amp;</span> Serializable<span style="color:#f92672">)</span> <span style="color:#f92672">()</span> <span style="color:#f92672">-&gt;</span> System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Hello&#34;</span><span style="color:#f92672">);</span>
-</code></pre></div><h3 id="2-fst序列化框架">2 FST序列化框架</h3>
+</code></pre></div><h3 id="2-fst序列化框架">2 FST序列化框架<a class="anchor ms-1" href="#2-fst序列化框架"><i class="fas fa-link"></i></a></h3>
 <p>FST(fast-serialization)是完全兼容JDK序列化协议的Java序列化框架，它在序列化速度上能达到JDK的10倍，序列化结果只有JDK的1/3。目前FST的版本为2.56，在2.17版本之后提供了对Android的支持。</p>
 <p>下面是使用FST序列化的Demo，FSTConfiguration是线程安全的，但是为了防止频繁调用时其成为性能瓶颈，一般会使用TreadLocal为每个线程分配一个FSTConfiguration。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ThreadLocal<span style="color:#f92672">&lt;</span>FSTConfiguration<span style="color:#f92672">&gt;</span> conf <span style="color:#f92672">=</span> ThreadLocal<span style="color:#f92672">.</span><span style="color:#a6e22e">withInitial</span><span style="color:#f92672">(()</span> <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
@@ -687,7 +692,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="3-kryo序列化框架">3 Kryo序列化框架</h3>
+<h3 id="3-kryo序列化框架">3 Kryo序列化框架<a class="anchor ms-1" href="#3-kryo序列化框架"><i class="fas fa-link"></i></a></h3>
 <p>Kryo一个快速有效的Java二进制序列化框架，它依赖底层ASM库用于字节码生成，因此有比较好的运行速度。Kryo的目标就是提供一个序列化速度快、结果体积小、API简单易用的序列化框架。Kryo支持自动深/浅拷贝，它是直接通过对象-&gt;对象的深度拷贝，而不是对象-&gt;字节-&gt;对象的过程。</p>
 <p>下面是使用Kryo进行序列化的Demo：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> ThreadLocal<span style="color:#f92672">&lt;</span>Kryo<span style="color:#f92672">&gt;</span> kryoLocal <span style="color:#f92672">=</span> ThreadLocal<span style="color:#f92672">.</span><span style="color:#a6e22e">withInitial</span><span style="color:#f92672">(()</span> <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
@@ -841,7 +846,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="4-protocol-buffer">4 Protocol buffer</h3>
+<h3 id="4-protocol-buffer">4 Protocol buffer<a class="anchor ms-1" href="#4-protocol-buffer"><i class="fas fa-link"></i></a></h3>
 <p>Protocol buffer是一种语言中立、平台无关、可扩展的序列化框架。Protocol buffer相较于前面几种序列化框架而言，它是需要预先定义Schema的。</p>
 <p>下面是使用Protobuf的Demo：</p>
 <p>（1）编写proto描述文件：</p>
@@ -935,7 +940,7 @@
 </tbody>
 </table>
 <p>注：List、Set、Queue通过protobuf repeated定义测试的。只要实现Iterable接口的类都可以使用repeated列表。</p>
-<h3 id="5-thrift序列化框架">5 Thrift序列化框架</h3>
+<h3 id="5-thrift序列化框架">5 Thrift序列化框架<a class="anchor ms-1" href="#5-thrift序列化框架"><i class="fas fa-link"></i></a></h3>
 <p>Thrift是由Facebook实现的一种高效的、支持多种语言的远程服务调用框架，即RPC(Remote Procedure Call)。后来Facebook将Thrift开源到Apache。可以看到Thrift是一个RPC框架，但是由于Thrift提供了多语言之间的RPC服务，所以很多时候被用于序列化中。</p>
 <p>使用Thrift实现序列化主要分为三步，创建thrift IDL文件、编译生成Java代码、使用TSerializer和TDeserializer进行序列化和反序列化。</p>
 <p>（1）使用Thrift IDL定义thrift文件：</p>
@@ -1010,7 +1015,7 @@ struct MessageInfo{
 <li>字节数组。</li>
 </ol>
 <p>Thrift同样不支持定义Java方法。</p>
-<h3 id="6-hessian序列化框架">6 Hessian序列化框架</h3>
+<h3 id="6-hessian序列化框架">6 Hessian序列化框架<a class="anchor ms-1" href="#6-hessian序列化框架"><i class="fas fa-link"></i></a></h3>
 <p>Hessian是caucho公司开发的轻量级RPC(Remote Procedure Call)框架，它使用HTTP协议传输，使用Hessian二进制序列化。</p>
 <p>Hessian由于其支持跨语言、高效的二进制序列化协议，被经常用于序列化框架使用。Hessian序列化协议分为Hessian1.0和Hessian2.0，Hessian2.0协议对序列化过程进行了优化(优化内容待看)，在性能上相较Hessian1.0有明显提升。</p>
 <p>使用Hessian序列化非常简单，只需要通过HessianInput和HessianOutput即可完成对象的序列化，下面是Hessian序列化的Demo：</p>
@@ -1066,7 +1071,7 @@ struct MessageInfo{
 <p>可以看到Hessian1.0的无论在序列化后体积大小，还是在序列化、反序列化时间上都比Hessian2.0相差很远。</p>
 <p><strong>数据类型和语法结构支持</strong></p>
 <p>由于Hession使用Java自描述序列化类，所以Java原生数据类型、集合类、自定义类、枚举等基本都能够支持(SynchronousQueue不支持)，Java语法结构也能够很好的支持。</p>
-<h3 id="7-avro序列化框架">7 Avro序列化框架</h3>
+<h3 id="7-avro序列化框架">7 Avro序列化框架<a class="anchor ms-1" href="#7-avro序列化框架"><i class="fas fa-link"></i></a></h3>
 <p>Avro是一个数据序列化框架。它是Apache Hadoop下的一个子项目，由Doug Cutting主导Hadoop过程中开发的数据序列化框架。Avro在设计之初就用于支持数据密集型应用，很适合远程或本地大规模数据交换和存储。</p>
 <p>使用Avro序列化分为三步：</p>
 <p>（1）定义avsc文件：</p>
@@ -1132,8 +1137,8 @@ struct MessageInfo{
 <p><strong>数据类型和语法结构支持</strong></p>
 <p>Avro需要使用Avro所支持的数据类型来编写Schema信息，所以能够支持的Java数据类型即为Avro所支持的数据类型。Avro支持数据类型有：基础类型(null、boolean、int、long、float、double、bytes、string)，复杂数据类型(Record、Enum、Array、Map、Union、Fixed)。</p>
 <p>Avro自动生成代码，或者直接使用Schema，不能支持在序列化类中定义java方法。</p>
-<h2 id="3-总结">3. 总结</h2>
-<h3 id="1-通用性">1 通用性</h3>
+<h2 id="3-总结">3. 总结<a class="anchor ms-1" href="#3-总结"><i class="fas fa-link"></i></a></h2>
+<h3 id="1-通用性">1 通用性<a class="anchor ms-1" href="#1-通用性"><i class="fas fa-link"></i></a></h3>
 <p>下面是从通用性上对比各个序列化框架，可以看出Protobuf在通用上是最佳的，能够支持多种主流变成语言。</p>
 <table>
 <thead>
@@ -1173,7 +1178,7 @@ struct MessageInfo{
 </tr>
 </tbody>
 </table>
-<h3 id="2-易用性">2 易用性</h3>
+<h3 id="2-易用性">2 易用性<a class="anchor ms-1" href="#2-易用性"><i class="fas fa-link"></i></a></h3>
 <p>下面是从API使用的易用性上面来对比各个序列化框架，可以说除了JDK Serializer外的序列化框架都提供了不错API使用方式。</p>
 <table>
 <thead>
@@ -1213,7 +1218,7 @@ struct MessageInfo{
 </tr>
 </tbody>
 </table>
-<h3 id="3-可扩展性">3 可扩展性</h3>
+<h3 id="3-可扩展性">3 可扩展性<a class="anchor ms-1" href="#3-可扩展性"><i class="fas fa-link"></i></a></h3>
 <p>下面是各个序列化框架的可扩展性对比，可以看到Protobuf的可扩展性是最方便、自然的。其它序列化框架都需要一些配置、注解等操作。</p>
 <table>
 <thead>
@@ -1253,14 +1258,14 @@ struct MessageInfo{
 </tr>
 </tbody>
 </table>
-<h3 id="4-性能">4 性能</h3>
+<h3 id="4-性能">4 性能<a class="anchor ms-1" href="#4-性能"><i class="fas fa-link"></i></a></h3>
 <p><strong>序列化大小对比</strong></p>
 <p>对比各个序列化框架序列化后的数据大小如下，可以看出kryo preregister(预先注册序列化类)和Avro序列化结果都很不错。所以，如果在序列化大小上有需求，可以选择Kryo或Avro。</p>
 <p><img src="https://picgo.6and.ltd/img/asgpg-27v39.jpg" alt="序列化大小对比" style="zoom: 50%;" /></p>
 <p><strong>序列化时间开销对比</strong></p>
 <p>下面是序列化与反序列化的时间开销，kryo preregister和fst preregister都能提供优异的性能，其中fst pre序列化时间就最佳，而kryo pre在序列化和反序列化时间开销上基本一致。所以，如果序列化时间是主要的考虑指标，可以选择Kryo或FST，都能提供不错的性能体验。</p>
 <p><img src="https://picgo.6and.ltd/img/alke8-p8d4o-20210926201322402.jpg" alt="序列化时间开销对比" style="zoom:50%;" /></p>
-<h3 id="5-数据类型和语法结构支持">5 数据类型和语法结构支持</h3>
+<h3 id="5-数据类型和语法结构支持">5 数据类型和语法结构支持<a class="anchor ms-1" href="#5-数据类型和语法结构支持"><i class="fas fa-link"></i></a></h3>
 <p>各序列化框架对Java数据类型支持的对比：</p>
 <p><img src="https://picgo.6and.ltd/img/apo0o-bnctj-20210926201315400.jpg" alt="Java数据类型支持的对比" style="zoom:50%;" /></p>
 <p>注：集合类型测试基本覆盖了所有对应的实现类。</p>
@@ -1280,7 +1285,7 @@ struct MessageInfo{
 <blockquote>
 <p>由于Protobuf、Thrift是IDL定义类文件，然后使用各自的编译器生成Java代码。IDL没有提供定义staic内部类、非static内部类等语法，所以这些功能无法测试。</p>
 </blockquote>
-<h2 id="参考">参考</h2>
+<h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://mp.weixin.qq.com/s/DiphH8bvR8TtLyQmnTkpuw" target="_blank" rel="noopener noreferrer">几种Java常用序列化框架的选型与对比</a>
 </p>
 <p><a href="https://mp.weixin.qq.com/s/Zpb2OuZxJpWX2mow3qd-xg" target="_blank" rel="noopener noreferrer">Java对象为啥要实现Serializable接口？</a>
@@ -1309,7 +1314,7 @@ struct MessageInfo{
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E5%AE%9E%E9%AA%8C/">MySQL实验
 </a>
@@ -1350,7 +1355,7 @@ struct MessageInfo{
 </span>
         </li></ul>
     </div>
-  </section><div class="card component row post-comments">
+  </section><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -1391,30 +1396,20 @@ struct MessageInfo{
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -1561,7 +1556,7 @@ struct MessageInfo{
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -1586,7 +1581,8 @@ struct MessageInfo{
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

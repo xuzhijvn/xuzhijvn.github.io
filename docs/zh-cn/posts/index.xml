@@ -6,7 +6,16 @@
     <description>Recent content in 文章 on 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
-    <lastBuildDate>Sun, 05 Dec 2021 11:48:50 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 19 Dec 2021 22:55:54 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Log4j2 JNDI远程注入漏洞引发的思考</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/</link>
+      <pubDate>Sun, 19 Dec 2021 22:55:54 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/</guid>
+      <description>&lt;p&gt;12月10日凌晨，Apache 开源项目 Log4j 的远程代码执行漏洞细节被公开，由于其利用简单、危害巨大，一时引起不小的热度。本文将以该事件为切入点，浅析其中涉及的一些技术点。&lt;/p&gt;</description>
+    </item>
+    
     <item>
       <title>JVM OOM</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/</link>
@@ -1329,7 +1338,7 @@ $ kubectl autoscale deployment wordpress --namespace kube-example --cpu-percent=
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/k8s%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</guid>
       <description>1⃣️ Container Container（容器）是一种便携式、轻量级的操作系统级虚拟化技术。它使用 namespace 隔离不同的软件运行环境，并通过镜像自包含软件的运行环境，从而使得容器可以很方便的在任何地方运行。
-2⃣️ Pod  Kubernetes 使用 Pod 来管理容器，每个 Pod 可以包含一个或多个紧密关联的容器。
+2⃣️ 2⃣️ Pod Kubernetes 使用 Pod 来管理容器，每个 Pod 可以包含一个或多个紧密关联的容器。
 Pod 是一组紧密关联的容器集合，它们共享 PID（同一个Pod中应用可以看到其它进程）、IPC（同一个Pod中的应用可以通过VPC或者POSIX进行通信）、Network （同一个Pod的中的应用对相同的IP地址和端口有权限）和 UTS namespace（同一个Pod中的应用共享一个主机名称），是 Kubernetes 调度的基本单位。Pod 内的多个容器共享网络和文件系统，可以通过进程间通信和文件共享这种简单高效的方式组合完成服务。
 在 Kubernetes 中，所有对象都使用 manifest（yaml 或 json）来定义，比如一个简单的 nginx 服务可以定义为 nginx.yaml，它包含一个镜像为 nginx 的容器：
 apiVersion: v1 kind: Pod metadata: name: nginx labels: app: nginx spec: containers: - name: nginx image: nginx ports: - containerPort: 80 3⃣️ Node Node 是 Pod 真正运行的主机，可以是物理机，也可以是虚拟机。为了管理 Pod，每个 Node 节点上至少要运行 container runtime（比如 docker 或者 rkt）、kubelet 和 kube-proxy 服务。</description>
@@ -1371,10 +1380,10 @@ apiVersion: v1 kind: Pod metadata: name: nginx labels: app: nginx spec: containe
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E7%BB%84%E4%BB%B6/</guid>
-      <description>Master（控制平面）组件 1⃣️ kube-apiserver   提供集群管理的 REST API 接口，包括认证授权、数据校验以及集群状态变更等 提供其他模块之间的数据交互和通信的枢纽（其他模块通过 API Server 查询或修改数据，只有 API Server 才直接操作 etcd）  2⃣️ etcd  etcd 是 CoreOS 基于 Raft 开发的分布式 key-value 存储，可用于服务发现、共享配置以及一致性保障（如数据库选主、分布式锁等）。
+      <description>Master（控制平面）组件 1⃣️ 1⃣️ kube-apiserver  提供集群管理的 REST API 接口，包括认证授权、数据校验以及集群状态变更等 提供其他模块之间的数据交互和通信的枢纽（其他模块通过 API Server 查询或修改数据，只有 API Server 才直接操作 etcd）  2⃣️ 2⃣️ etcd etcd 是 CoreOS 基于 Raft 开发的分布式 key-value 存储，可用于服务发现、共享配置以及一致性保障（如数据库选主、分布式锁等）。
 主要功能🔧包括：
  基本的 key-value 存储 监听机制 key 的过期及续约机制，用于监控和服务发现 原子 CAS 和 CAD，用于分布式锁和 leader 选举  Etcd，Zookeeper，Consul 比较 🆚：
- Etcd 和 Zookeeper 提供的能力非常相似，都是通用的一致性元信息存储，都提供 watch 机制用于变更通知和分发，也都被分布式系统用来作为共享信息存储，在软件生态中所处的位置也几乎是一样的，可以互相替代的。二者除了实现细节，语言，一致性协议上的区别，最大的区别在周边生态圈。Zookeeper 是 apache 下的，用 java 写的，提供 rpc 接口，最早从 hadoop 项目中孵化出来，在分布式系统中得到广泛使用（hadoop, solr, kafka, mesos 等）。Etcd 是 coreos 公司旗下的开源产品，比较新，以其简单好用的 rest 接口以及活跃的社区俘获了一批用户，在新的一些集群中得到使用（比如 kubernetes）。虽然 v3 为了性能也改成二进制 rpc 接口了，但其易用性上比 Zookeeper 还是好一些。 而 Consul 的目标则更为具体一些，Etcd 和 Zookeeper 提供的是分布式一致性存储能力，具体的业务场景需要用户自己实现，比如服务发现，比如配置变更。而 Consul 则以服务发现和配置变更为主要目标，同时附带了 kv 存储。  3⃣️ kube-scheduler  kube-scheduler 负责分配调度 Pod 到集群内的节点上，它监听 kube-apiserver，查询还未分配 Node 的 Pod，然后根据调度策略为这些 Pod 分配节点（更新 Pod 的 NodeName 字段）。</description>
+ Etcd 和 Zookeeper 提供的能力非常相似，都是通用的一致性元信息存储，都提供 watch 机制用于变更通知和分发，也都被分布式系统用来作为共享信息存储，在软件生态中所处的位置也几乎是一样的，可以互相替代的。二者除了实现细节，语言，一致性协议上的区别，最大的区别在周边生态圈。Zookeeper 是 apache 下的，用 java 写的，提供 rpc 接口，最早从 hadoop 项目中孵化出来，在分布式系统中得到广泛使用（hadoop, solr, kafka, mesos 等）。Etcd 是 coreos 公司旗下的开源产品，比较新，以其简单好用的 rest 接口以及活跃的社区俘获了一批用户，在新的一些集群中得到使用（比如 kubernetes）。虽然 v3 为了性能也改成二进制 rpc 接口了，但其易用性上比 Zookeeper 还是好一些。 而 Consul 的目标则更为具体一些，Etcd 和 Zookeeper 提供的是分布式一致性存储能力，具体的业务场景需要用户自己实现，比如服务发现，比如配置变更。而 Consul 则以服务发现和配置变更为主要目标，同时附带了 kv 存储。  3⃣️ 3⃣️ kube-scheduler kube-scheduler 负责分配调度 Pod 到集群内的节点上，它监听 kube-apiserver，查询还未分配 Node 的 Pod，然后根据调度策略为这些 Pod 分配节点（更新 Pod 的 NodeName 字段）。</description>
     </item>
     
     <item>
@@ -1506,12 +1515,12 @@ Merkle树具有下列特性:
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E6%B6%88%E6%81%AF%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</guid>
       <description>只有RocketMQ支持事务消息，如果我们的MQ不是RocketMQ，可以采用本地消息+MQ达到同样的效果，并且本地消息表还可以做出独立的服务。
 随着分布式服务架构的流行与普及，原来在单体应用中执行的多个逻辑操作，现在被拆分成了多个服务之间的远程调用。虽然服务化为我们的系统带来了水平伸缩的能力，然而随之而来挑战就是分布式事务问题，多个服务之间使用自己单独维护的数据库，它们彼此之间不在同一个事务中，假如A执行成功了，B执行却失败了，而A的事务此时已经提交，无法回滚，那么最终就会导致两边数据不一致性的问题；尽管很早之前就有基于两阶段提交的XA分布式事务，但是这类方案因为需要资源的全局锁定，导致性能极差；因此后面就逐渐衍生出了消息最终一致性、TCC等柔性事务的分布式事务方案，本文主要分析的是基于消息的最终一致性方案。
-0. 简单RPC处理存在的一致性问题 在正式开始讲述正题之前，我们先看一下，不依赖任何分布式事务手段，单纯将本地业务逻辑和远程调用逻辑放在同一个本地事务中会有什么问题。
+0\. 简单RPC处理存在的一致性问题 在正式开始讲述正题之前，我们先看一下，不依赖任何分布式事务手段，单纯将本地业务逻辑和远程调用逻辑放在同一个本地事务中会有什么问题。
 我们以订单创建为例，订单系统先创建订单(本地事务)，然后RPC调用库存扣减服务。
 @Transactionnal public void processOrder() { try{ // 订单处理(业务操作)  orderService.process(); // 库存扣减（RPC远程调用）  storageService.deduction(); }catch(Exception e){ 事务回滚; } } 如果库存服务由于DB数据量比较大，导致处理超时，订单服务在出现超时异常后，直接回滚本地事务，从而导致订单服务这边没数据，而库存服务那边数据却已经写入了，最终导致两边业务数据的不一致。
 即使不存在 “DB数据量比较大” 这种特殊情况，也一定会存在因为网络抖动，订单服务调用库存服务超时而本地回滚，但是库存服务实际操作成功的情况。
 其根本的原因就在于：远程调用，结果最终可能为成功、失败、超时；而对于超时的情况，处理方最终的结果可能是成功，也可能是失败，调用方是无法知晓的。
-1. 普通消息的处理流程  消息生成者发送消息 MQ收到消息，将消息进行持久化，在存储中新增一条记录 返回ACK给生产者 MQ push 消息给对应的消费者，然后等待消费者返回ACK 如果消息消费者在指定时间内成功返回ack，那么MQ认为消息消费成功，在存储中删除消息，即执行第6步；如果MQ在指定时间内没有收到ACK，则认为消息消费失败，会尝试重新push消息,重复执行4、5、6步骤 MQ删除消息  1.2 普通消息处理存在的一致性问题 我们还是以订单创建为例，订单系统先创建订单(本地事务)，再发送消息给下游处理；如果订单创建成功，然而消息没有发送出去，那么下游所有系统都无法感知到这个事件，会出现脏数据；
+1\. 普通消息的处理流程  消息生成者发送消息 MQ收到消息，将消息进行持久化，在存储中新增一条记录 返回ACK给生产者 MQ push 消息给对应的消费者，然后等待消费者返回ACK 如果消息消费者在指定时间内成功返回ack，那么MQ认为消息消费成功，在存储中删除消息，即执行第6步；如果MQ在指定时间内没有收到ACK，则认为消息消费失败，会尝试重新push消息,重复执行4、5、6步骤 MQ删除消息  1.2 普通消息处理存在的一致性问题 我们还是以订单创建为例，订单系统先创建订单(本地事务)，再发送消息给下游处理；如果订单创建成功，然而消息没有发送出去，那么下游所有系统都无法感知到这个事件，会出现脏数据；
 public void processOrder() { // 订单处理(业务操作)  orderService.process(); // 发送订单处理成功消息(发送消息)  sendBizMsg (); } 如果先发送订单消息，再创建订单；那么就有可能消息发送成功，但是在订单创建的时候却失败了，此时下游系统却认为这个订单已经创建，也会出现脏数据。
 public void processOrder() { // 发送订单处理成功消息(发送消息)  sendBizMsg (); // 订单处理(业务操作)  orderService.</description>
     </item>
@@ -2172,7 +2181,7 @@ HA 高可用性 这个应该是很常见的，比如 hadoop、hdfs、yarn 等很
 具体来说，zookeeper就是个分布式文件系统，每当一个服务提供者部署后都要将自己的服务注册到zookeeper的某一路径上: /{service}/{version}/{ip:port}, 比如我们的HelloWorldService部署到两台机器，那么zookeeper上就会创建两条目录：分别为/HelloWorldService/1.0.0/100.19.20.01:16888 /HelloWorldService/1.0.0/100.19.20.02:16888。
 这么描述有点不好理解，下图更直观，
 在zookeeper中，进行服务注册，实际上就是在zookeeper中创建了一个znode节点，该节点存储了该服务的IP、端口、调用方式(协议、序列化方式)等。该节点承担着最重要的职责，它由服务提供者(发布服务时)创建，以供服务消费者获取节点中的信息，从而定位到服务提供者真正网络拓扑位置以及得知如何调用。RPC服务注册、发现过程简述如下：
- 服务提供者启动时，会将其服务名称，ip地址注册到配置中心。 服务消费者在第一次调用服务时，会通过注册中心找到相应的服务的IP地址列表，并缓存到本地，以供后续使用。当消费者调用服务时，不会再去请求注册中心，而是直接通过负载均衡算法从IP列表中取一个服务提供者的服务器调用服务。 当服务提供者的某台服务器宕机或下线时，相应的ip会从服务提供者IP列表中移除。同时，注册中心会将新的服务IP地址列表发送给服务消费者机器，缓存在消费者本机。 当某个服务的所有服务器都下线了，那么这个服务也就下线了。 同样，当服务提供者的某台服务器上线时，注册中心会将新的服务IP地址列表发送给服务消费者机器，缓存在消费者本机。 服务提供方可以根据服务消费者的数量来作为服务下线的依据。  感知服务的下线&amp;amp;上线 zookeeper提供了“心跳检测”功能，它会定时向各个服务提供者发送一个请求（实际上建立的是一个 socket 长连接），如果长期没有响应，服务中心就认为该服务提供者已经“挂了”，并将其剔除，比如100.19.20.02这台机器如果宕机了，那么zookeeper上的路径就会只剩/HelloWorldService/1.0.0/100.19.20.01:16888。
+ 服务提供者启动时，会将其服务名称，ip地址注册到配置中心。 服务消费者在第一次调用服务时，会通过注册中心找到相应的服务的IP地址列表，并缓存到本地，以供后续使用。当消费者调用服务时，不会再去请求注册中心，而是直接通过负载均衡算法从IP列表中取一个服务提供者的服务器调用服务。 当服务提供者的某台服务器宕机或下线时，相应的ip会从服务提供者IP列表中移除。同时，注册中心会将新的服务IP地址列表发送给服务消费者机器，缓存在消费者本机。 当某个服务的所有服务器都下线了，那么这个服务也就下线了。 同样，当服务提供者的某台服务器上线时，注册中心会将新的服务IP地址列表发送给服务消费者机器，缓存在消费者本机。 服务提供方可以根据服务消费者的数量来作为服务下线的依据。  感知服务的下线&amp;上线 zookeeper提供了“心跳检测”功能，它会定时向各个服务提供者发送一个请求（实际上建立的是一个 socket 长连接），如果长期没有响应，服务中心就认为该服务提供者已经“挂了”，并将其剔除，比如100.19.20.02这台机器如果宕机了，那么zookeeper上的路径就会只剩/HelloWorldService/1.0.0/100.19.20.01:16888。
 服务消费者会去监听相应路径（/HelloWorldService/1.0.0），一旦路径上的数据有任务变化（增加或减少），zookeeper都会通知服务消费方服务提供者地址列表已经发生改变，从而进行更新。
 更为重要的是zookeeper 与生俱来的容错容灾能力（比如leader选举），可以确保服务注册表的高可用性。
 使用 zookeeper 作为注册中心时，客户端订阅服务时会向 zookeeper 注册自身；主要是方便对调用方进行统计、管理。但订阅时是否注册 client 不是必要行为，和不同的注册中心实现有关，例如使用 consul 时便没有注册。
@@ -2250,10 +2259,10 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/</guid>
-      <description>什么是云原生？  云原生是一种构建和运行应用程序的方法，是一套技术体系和方法论。云原生（CloudNative）是一个组合词，Cloud+Native。Cloud表示应用程序位于云中，而不是传统的数据中心；Native表示应用程序从设计之初即考虑到云的环境，原生为云而设计，在云上以最佳姿势运行，充分利用和发挥云平台的弹性+分布式优势。
+      <description>什么是云原生？ 云原生是一种构建和运行应用程序的方法，是一套技术体系和方法论。云原生（CloudNative）是一个组合词，Cloud+Native。Cloud表示应用程序位于云中，而不是传统的数据中心；Native表示应用程序从设计之初即考虑到云的环境，原生为云而设计，在云上以最佳姿势运行，充分利用和发挥云平台的弹性+分布式优势。
  什么是云原生架构？ 采用开源堆栈（K8S+Docker）进行容器化，基于微服务架构提高灵活性和可维护性，借助敏捷方法、DevOps支持持续迭代和运维自动化，利用云平台设施实现弹性伸缩、动态调度、优化资源利用率。
 什么是云原生应用？ 在架构设计、开发方式、部署维护等各个阶段和方面都基于云的特点建设的应用。
- 什么是容器编排？  容器编排是指自动化容器的部署、管理、扩展和联网。
+ 什么是容器编排？ 容器编排是指自动化容器的部署、管理、扩展和联网。
  k8s周边：
  k3s : 轻量化k8s k9s : kubectl命令的封装 KubeOperator : 国产k8s发行版 Kubesphere : k8s企业级别增强（多云、多集群） kubeedge : 边缘计算 Kubeless : 面向serverless的k8s   什么是服务网格？ k8s/istio与云原生的关系？ </description>
     </item>
@@ -2799,7 +2808,7 @@ Java中类及方法的加载顺序 Java类加载顺序 </description>
 上图就是一幅P-R图，它能直观地显示出学习器在样本总体上的查全率和查准率，显然它是一条总体趋势是递减的曲线。在进行比较时，若一个学习器的PR曲线被另一个学习器的曲线完全包住，则可断言后者的性能优于前者，比如上图中A优于C。但是B和A谁更好呢？因为AB两条曲线交叉了，所以很难比较，这时比较合理的判据就是比较PR曲线下的面积，该指标在一定程度上表征了学习器在查准率和查全率上取得相对“双高”的比例。因为这个值不容易估算，所以人们引入“平衡点”(BEP)来度量，他表示“查准率=查全率”时的取值，值越大表明分类器性能越好，以此比较我们一下子就能判断A较B好。
 BEP还是有点简化了，更常用的是F1度量：
 F1-score 就是一个综合考虑precision和recall的指标，比BEP更为常用。
-ROC &amp;amp; AUC ROC全称是“受试者工作特征”（Receiver Operating Characteristic）曲线，ROC曲线以“真正例率”（TPR）为Y轴，以“假正例率”（FPR）为X轴，对角线对应于“随机猜测”模型，而（0,1）则对应“理想模型”。ROC形式如下图所示。
+ROC &amp; AUC ROC全称是“受试者工作特征”（Receiver Operating Characteristic）曲线，ROC曲线以“真正例率”（TPR）为Y轴，以“假正例率”（FPR）为X轴，对角线对应于“随机猜测”模型，而（0,1）则对应“理想模型”。ROC形式如下图所示。
 TPR和FPR的定义如下：
 从形式上看TPR就是我们上面提到的查全率Recall，而FPR的含义就是：所有确实为“假”的样本中，被误判真的样本。
 进行学习器比较时，与PR图相似，若一个学习器的ROC曲线被另一个学习器的曲线包住，那么我们可以断言后者性能优于前者；若两个学习器的ROC曲线发生交叉，则难以一般性断言两者孰优孰劣。此时若要进行比较，那么可以比较ROC曲线下的面积，即AUC，面积大的曲线对应的分类器性能更好。

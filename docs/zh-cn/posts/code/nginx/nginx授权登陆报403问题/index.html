@@ -25,7 +25,7 @@ server{	listen 443 ssl; server_name netdata.6and.ltd; #listen [::]:81 default_se
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/nginx/nginx%E6%8E%88%E6%9D%83%E7%99%BB%E9%99%86%E6%8A%A5403%E9%97%AE%E9%A2%98/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E5%AE%9E%E9%AA%8C/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
@@ -36,8 +36,7 @@ server{	listen 443 ssl; server_name netdata.6and.ltd; #listen [::]:81 default_se
 1. 生成密码文件 printf &#34;yourusername:$(openssl passwd -apr1)&#34; &gt; /etc/nginx/passwords 2. nginx配置 server { # ... auth_basic &#34;Protected&#34;; auth_basic_user_file passwords; # ... } [v_error]auth_basic_user_file 后面跟的是相对路径，这样配置很容易导致nginx找不到文件，因此改成绝对路径就万事大吉了：[/v_error]
 server{	listen 443 ssl; server_name netdata.6and.ltd; #listen [::]:81 default_server ipv6only=on; #ssl on; ssl_certificate httpssl/1_netdata.6and.ltd_bundle.crt; ssl_certificate_key httpssl/2_netdata.6and.ltd.key; ssl_session_timeout 5m; ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4; ssl_protocols TLSv1 TLSv1.1 TLSv1.2; ssl_prefer_server_ciphers on; #index index.html index.htm index.php; #root /home/wwwroot/; #error_page 404 /404.html; #include enable-php.conf; auth_basic &#34;Protected&#34;; auth_basic_user_file /usr/local/nginx/passwords; location / { proxy_pass http://127."/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -48,12 +47,7 @@ server{	listen 443 ssl; server_name netdata.6and.ltd; #listen [::]:81 default_se
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -151,11 +145,16 @@ server{	listen 443 ssl; server_name netdata.6and.ltd; #listen [::]:81 default_se
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -280,17 +279,23 @@ server{	listen 443 ssl; server_name netdata.6and.ltd; #listen [::]:81 default_se
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -328,9 +333,9 @@ server{	listen 443 ssl; server_name netdata.6and.ltd; #listen [::]:81 default_se
   </div>
 </div><div class="post-content mb-3"><p>在给nginx加上授权模块后，再访问应用报403访问禁止的错误。</p>
 <p>一开始是这样：</p>
-<h3 id="1-生成密码文件">1. 生成密码文件</h3>
+<h3 id="1-生成密码文件">1. 生成密码文件<a class="anchor ms-1" href="#1-生成密码文件"><i class="fas fa-link"></i></a></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">printf <span style="color:#e6db74">&#34;yourusername:</span><span style="color:#66d9ef">$(</span>openssl passwd -apr1<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span> &gt; /etc/nginx/passwords
-</code></pre></div><h3 id="2-nginx配置">2. nginx配置</h3>
+</code></pre></div><h3 id="2-nginx配置">2. nginx配置<a class="anchor ms-1" href="#2-nginx配置"><i class="fas fa-link"></i></a></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">server <span style="color:#f92672">{</span>
     <span style="color:#75715e"># ...</span>
     auth_basic <span style="color:#e6db74">&#34;Protected&#34;</span>;
@@ -394,7 +399,7 @@ server <span style="color:#f92672">{</span>
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/other/oauth2/">OAuth2
 </a>
@@ -425,7 +430,7 @@ server <span style="color:#f92672">{</span>
 </span>
         </li></ul>
     </div>
-  </section><div class="card component row post-comments">
+  </section><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -466,30 +471,20 @@ server <span style="color:#f92672">{</span>
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -636,7 +631,7 @@ server <span style="color:#f92672">{</span>
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -661,7 +656,8 @@ server <span style="color:#f92672">{</span>
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

@@ -16,7 +16,7 @@
 2.1 ingress ingress是一个API对象，和其他对象一样，通过yaml文件来配置。ingress通过http或https暴露集群内部service，给service提供外部URL、负载均衡、SSL/TLS能力以及基于host的方向代理。ingress要依靠ingress-controller来具体实现以上功能。前一小节的图如果用ingress来表示，大概就是如下配置：
 apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotations: kubernetes.io/ingress.class: &#34;nginx&#34; nginx.ingress.kubernetes.io/use-regex: &#34;true&#34; spec: tls: - hosts: - api.abc.com secretName: abc-tls rules: - host: api.abc.com http: paths: - backend: serviceName: apiserver servicePort: 80 - host: www.abc.com http: paths: - path: /image/* backend: serviceName: fileserver servicePort: 80 - host: www.abc.com http: paths: - backend: serviceName: feserver servicePort: 8080 2."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="341"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="wordCount" content="342"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
 <meta itemprop="keywords" content="云原生,k8s," /><meta property="og:title" content="ingress" />
 <meta property="og:description" content="1. ingress是什么 ingress是k8s一种资源对象，如k8s的Deployment、Service资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的ClusterIP、NodePort、LoadBalance一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。
 2. ingress与ingress-controller 要理解ingress，需要区分两个概念，ingress和ingress-controller：
@@ -39,8 +39,7 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
 2.1 ingress ingress是一个API对象，和其他对象一样，通过yaml文件来配置。ingress通过http或https暴露集群内部service，给service提供外部URL、负载均衡、SSL/TLS能力以及基于host的方向代理。ingress要依靠ingress-controller来具体实现以上功能。前一小节的图如果用ingress来表示，大概就是如下配置：
 apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotations: kubernetes.io/ingress.class: &#34;nginx&#34; nginx.ingress.kubernetes.io/use-regex: &#34;true&#34; spec: tls: - hosts: - api.abc.com secretName: abc-tls rules: - host: api.abc.com http: paths: - backend: serviceName: apiserver servicePort: 80 - host: www.abc.com http: paths: - path: /image/* backend: serviceName: fileserver servicePort: 80 - host: www.abc.com http: paths: - backend: serviceName: feserver servicePort: 8080 2."/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -51,12 +50,7 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -154,11 +148,16 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -283,17 +282,23 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -339,17 +344,17 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><h2 id="1-ingress是什么">1. ingress是什么</h2>
+</div><div class="post-content mb-3"><h2 id="1-ingress是什么">1. ingress是什么<a class="anchor ms-1" href="#1-ingress是什么"><i class="fas fa-link"></i></a></h2>
 <p><code>ingress</code>是k8s一种资源对象，如k8s的<code>Deployment</code>、<code>Service</code>资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的<code>ClusterIP</code>、<code>NodePort</code>、<code>LoadBalance</code>一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。</p>
 <p><img src="https://picgo.6and.ltd/img/img_5f40a321e4f83.png" alt="ingress" style="zoom:67%;" /></p>
-<h2 id="2-ingress与ingress-controller">2. ingress与ingress-controller</h2>
+<h2 id="2-ingress与ingress-controller">2. ingress与ingress-controller<a class="anchor ms-1" href="#2-ingress与ingress-controller"><i class="fas fa-link"></i></a></h2>
 <p>要理解ingress，需要区分两个概念，<code>ingress</code>和<code>ingress-controller</code>：</p>
 <ul>
 <li><code>ingress</code>：指的是k8s中的一个api对象，一般用yaml配置。作用是定义请求如何转发到service的规则，可以理解为配置模板。</li>
 <li><code>ingress-controller</code>：具体实现反向代理及负载均衡的程序，对ingress定义的规则进行解析，根据配置的规则来实现请求转发。</li>
 </ul>
 <p>简单来说，ingress-controller才是负责具体转发的组件，通过各种方式将它暴露在集群入口，外部对集群的请求流量会先到ingress-controller，而ingress对象是用来告诉ingress-controller该如何转发请求，比如哪些域名哪些path要转发到哪些服务等等。</p>
-<h3 id="21-ingress">2.1 ingress</h3>
+<h3 id="21-ingress">2.1 ingress<a class="anchor ms-1" href="#21-ingress"><i class="fas fa-link"></i></a></h3>
 <p><code>ingress</code>是一个API对象，和其他对象一样，通过yaml文件来配置。ingress通过http或https暴露集群内部service，给service提供外部URL、负载均衡、SSL/TLS能力以及基于host的方向代理。ingress要依靠ingress-controller来具体实现以上功能。前一小节的图如果用ingress来表示，大概就是如下配置：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">extensions/v1beta1</span>
 <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Ingress</span>
@@ -383,9 +388,9 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
       - <span style="color:#f92672">backend</span>:
           <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">feserver</span>
           <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">8080</span>
-</code></pre></div><h3 id="22-ingress-controller">2.2 ingress-controller</h3>
+</code></pre></div><h3 id="22-ingress-controller">2.2 ingress-controller<a class="anchor ms-1" href="#22-ingress-controller"><i class="fas fa-link"></i></a></h3>
 <p><code>ingress-controller</code>并不是k8s自带的组件，实际上ingress-controller只是一个统称，用户可以选择不同的ingress-controller实现，目前，由k8s维护的ingress-controller只有google云的<code>GCE</code>与<code>ingress-nginx</code>两个，其他还有很多第三方维护的ingress-controller，具体可以参考官方文档。但是不管哪一种ingress-controller，实现的机制都大同小异，只是在具体配置上有差异。一般来说，ingress-controller的形式都是一个pod，里面跑着daemon程序和反向代理程序。daemon负责不断监控集群的变化，根据ingress对象生成配置并应用新配置到反向代理，比如nginx-ingress就是动态生成nginx配置，动态更新upstream，并在需要的时候reload程序应用新配置。为了方便，后面的例子都以k8s官方维护的<code>nginx-ingress</code>为例。</p>
-<h2 id="3-部署ingress对象">3. 部署ingress对象</h2>
+<h2 id="3-部署ingress对象">3. 部署ingress对象<a class="anchor ms-1" href="#3-部署ingress对象"><i class="fas fa-link"></i></a></h2>
 <p>下面会介绍到<code>ingress-controller</code>有多种部署方式，但无论ingress-controller采用何种方式部署，<code>ingress</code>资源对象的部署都一样：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">[<span style="color:#ae81ff">root@k8s-master ingress-nginx]# vi ingress-all.yaml </span>
 
@@ -428,20 +433,19 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
             <span style="color:#f92672">backend</span>:
               <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">ceres-admin-server-svc</span>
               <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">8764</span>
-</code></pre></div><h2 id="4-部署ingress-controller">4. 部署ingress-controller</h2>
+</code></pre></div><h2 id="4-部署ingress-controller">4. 部署ingress-controller<a class="anchor ms-1" href="#4-部署ingress-controller"><i class="fas fa-link"></i></a></h2>
 <p><code>ingress-controller</code>的部署，需要考虑两个方面：</p>
 <ul>
 <li>ingress-controller是作为pod来运行的，以什么方式部署比较好</li>
 <li>ingress-controller解决了把如何请求路由到集群内部，那它自己怎么暴露给外部比较好</li>
 </ul>
 <p>下面列举一些目前常见的部署和暴露方式，具体使用哪种方式还是得根据实际需求来考虑决定。</p>
-<h3 id="41-deploymentloadbalancer模式的service">4.1 Deployment+LoadBalancer模式的Service</h3>
+<h3 id="41-deploymentloadbalancer模式的service">4.1 Deployment+LoadBalancer模式的Service<a class="anchor ms-1" href="#41-deploymentloadbalancer模式的service"><i class="fas fa-link"></i></a></h3>
 <p>如果要把ingress部署在公有云，那用这种方式比较合适。用Deployment部署ingress-controller，创建一个type为LoadBalancer的service关联这组pod。大部分公有云，都会为LoadBalancer的service自动创建一个负载均衡器，通常还绑定了公网地址。只要把域名解析指向该地址，就实现了集群服务的对外暴露。</p>
-<h3 id="42-deploymentnodeport模式的service">4.2 Deployment+NodePort模式的Service</h3>
+<h3 id="42-deploymentnodeport模式的service">4.2 Deployment+NodePort模式的Service<a class="anchor ms-1" href="#42-deploymentnodeport模式的service"><i class="fas fa-link"></i></a></h3>
 <p>同样用deployment模式部署ingress-controller，并创建对应的服务，但是type为NodePort。这样，ingress就会暴露在集群节点ip的特定端口上。由于nodeport暴露的端口是随机端口，一般会在前面再搭建一套负载均衡器来转发请求。该方式一般用于宿主机是相对固定的环境ip地址不变的场景。
 NodePort方式暴露ingress虽然简单方便，但是NodePort多了一层NAT，在请求量级很大时可能对性能会有一定影响。</p>
-<h4 id="421-下载部署ingress-nginxhttpsgithubcomkubernetesingress-nginx-controller所需要的deployyaml文件">4.2.1 下载部署<a href="https://github.com/kubernetes/ingress-nginx" target="_blank" rel="noopener noreferrer">ingress-nginx</a>
- controller所需要的deploy.yaml文件</h4>
+4.2.1 下载部署<h4 id="421-下载部署ingress-nginxhttpsgithubcomkubernetesingress-nginx-controller所需要的deployyaml文件">4.2.1 下载部署ingress-nginx controller所需要的deploy.yaml文件<a class="anchor ms-1" href="#421-下载部署ingress-nginxhttpsgithubcomkubernetesingress-nginx-controller所需要的deployyaml文件"><i class="fas fa-link"></i></a></h4>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">wget https://github.com/kubernetes/ingress-nginx/blob/master/deploy/static/provider/baremetal/deploy.yaml
 </code></pre></div><p>该yaml默认使用nodePort方式部署Service，我们可以指定nodePort，而不是让k8s自己分配。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
@@ -471,7 +475,7 @@ NodePort方式暴露ingress虽然简单方便，但是NodePort多了一层NAT，
       <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">https</span>
 </code></pre></div><p>不要试图将nodePort指定为<code>80</code>或者<code>443</code>，否则你会得到如下提示：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">The Service <span style="color:#e6db74">&#34;ingress-nginx-controller&#34;</span> is invalid: spec.ports<span style="color:#f92672">[</span>0<span style="color:#f92672">]</span>.nodePort: Invalid value: 80: provided port is not in the valid range. The range of valid ports is 30000-32767
-</code></pre></div><h4 id="422-修改镜像仓库地址">4.2.2 修改镜像仓库地址</h4>
+</code></pre></div><h4 id="422-修改镜像仓库地址">4.2.2 修改镜像仓库地址<a class="anchor ms-1" href="#422-修改镜像仓库地址"><i class="fas fa-link"></i></a></h4>
 <p>deploy.yaml里面的镜像地址是：<code>us.gcr.io/k8s-artifacts-prod/ingress-nginx/controller:v0.34.1@sha256:0e072dddd1f7f8fc8909a2ca6f65e76c5f0d2fcfb8be47935ae3457e8bbceb20</code></p>
 <p>该地址无法被访问，解决办法参考：<a href="https://mp.weixin.qq.com/s/kf0SrktAze3bT7LcIveDYw" target="_blank" rel="noopener noreferrer">如何在国内顺畅下载被墙的 Docker 镜像？</a>
 </p>
@@ -481,11 +485,11 @@ NodePort方式暴露ingress虽然简单方便，但是NodePort多了一层NAT，
    />
 
 </p>
-<h4 id="423-部署ingress-nginx-controller">4.2.3 部署<strong>ingress-nginx controller</strong></h4>
+<h4 id="423-部署ingress-nginx-controller">4.2.3 部署ingress-nginx controller<a class="anchor ms-1" href="#423-部署ingress-nginx-controller"><i class="fas fa-link"></i></a></h4>
 <pre><code>kubectl apply -f deploy.yaml
 </code></pre><p>如果修改了yaml重新部署：</p>
 <pre><code>kubectl replace --force -f deploy.yaml
-</code></pre><h4 id="424-检查是否部署成功">4.2.4 检查是否部署成功</h4>
+</code></pre><h4 id="424-检查是否部署成功">4.2.4 检查是否部署成功<a class="anchor ms-1" href="#424-检查是否部署成功"><i class="fas fa-link"></i></a></h4>
 <p>查看controller是否running</p>
 <p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40b97a7c88d-20210621140805590.png" loading="lazy"
   
@@ -508,12 +512,12 @@ Content-Length: <span style="color:#ae81ff">0</span>
 Connection: keep-alive
 </code></pre></div><p>返回 200 ，说明 nginx OK。</p>
 <p>至此，ingress-nginx controller已经部署完毕。通过<code>域名</code>+<code>nodePort</code>的方式访问相应的service，例：<code>http://ceres-admin-web.6and.ltd:31080</code>，如果你跟我一样是强迫症晚期，一定期望完美的访问方式是：<code>http://ceres-admin-web.6and.ltd</code>，下面的4.3小节将是强迫症晚期的福音。</p>
-<h3 id="43-daemonsethostnetworknodeselector">4.3 DaemonSet+HostNetwork+nodeSelector</h3>
+<h3 id="43-daemonsethostnetworknodeselector">4.3 DaemonSet+HostNetwork+nodeSelector<a class="anchor ms-1" href="#43-daemonsethostnetworknodeselector"><i class="fas fa-link"></i></a></h3>
 <p>用<code>DaemonSet</code>结合nodeselector来部署ingress-controller到特定的node上，然后使用HostNetwork直接把该pod与宿主机node的网络打通，直接使用宿主机的80/433端口就能访问服务。这时，ingress-controller所在的node机器就很类似传统架构的边缘节点，比如机房入口的nginx服务器。该方式整个请求链路最简单，性能相对NodePort模式更好。缺点是由于直接利用宿主机节点的网络和端口，一个node只能部署一个ingress-controller pod。比较适合大并发的生产环境使用。</p>
-<h4 id="431-给要部署nginx-ingress的node打上特定标签">4.3.1 给要部署nginx-ingress的node打上特定标签</h4>
+<h4 id="431-给要部署nginx-ingress的node打上特定标签">4.3.1 给要部署nginx-ingress的node打上特定标签<a class="anchor ms-1" href="#431-给要部署nginx-ingress的node打上特定标签"><i class="fas fa-link"></i></a></h4>
 <p>我们需要使用daemonset部署到特定node，需要修改部分配置：先给要部署nginx-ingress的node打上特定标签，这里测试部署在<code>k8s-node1</code>这个节点。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl label node k8s-node1 isIngress<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;true&#34;</span>
-</code></pre></div><h4 id="432-修改deployyaml的deployment部分配置">4.3.2 修改deploy.yaml的deployment部分配置</h4>
+</code></pre></div><h4 id="432-修改deployyaml的deployment部分配置">4.3.2 修改deploy.yaml的deployment部分配置<a class="anchor ms-1" href="#432-修改deployyaml的deployment部分配置"><i class="fas fa-link"></i></a></h4>
 <p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40d9927f98b-20210621140820358.png" loading="lazy"
   
    />
@@ -525,9 +529,9 @@ Connection: keep-alive
    />
 
 </p>
-<h4 id="433-重启">4.3.3 重启</h4>
+<h4 id="433-重启">4.3.3 重启<a class="anchor ms-1" href="#433-重启"><i class="fas fa-link"></i></a></h4>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl replace --force -f deploy.yaml
-</code></pre></div><h4 id="434-检查">4.3.4 检查</h4>
+</code></pre></div><h4 id="434-检查">4.3.4 检查<a class="anchor ms-1" href="#434-检查"><i class="fas fa-link"></i></a></h4>
 <p>可以看到，nginx-controller的pod已经部署在在k8s-node1上了：</p>
 <p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40dc88f1c92-20210621140832249.png" loading="lazy"
   
@@ -542,7 +546,7 @@ Connection: keep-alive
 </p>
 <p>由于配置了hostnetwork，nginx已经在node主机本地监听80/443/8181端口。其中8181是nginx-controller默认配置的一个default backend。这样，只要访问node主机有公网IP，就可以直接映射域名来对外网暴露服务了。如果要nginx高可用的话，可以在多个node上部署，并在前面再搭建一套LVS+keepalive做负载均衡。用hostnetwork的另一个好处是，如果lvs用DR模式的话，是不支持端口映射的，这时候如果用nodeport，暴露非标准的端口，管理起来会很麻烦。</p>
 <p>现在我们就可以优雅的使用：<code>http://ceres-admin-web.6and.ltd</code>来访问我们的服务了。</p>
-<h2 id="参考链接">参考链接</h2>
+<h2 id="参考链接">参考链接<a class="anchor ms-1" href="#参考链接"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://segmentfault.com/a/1190000019908991" target="_blank" rel="noopener noreferrer">k8s ingress原理及ingress-nginx部署测试</a>
 </p>
 <p><a href="https://www.cnblogs.com/dudu/p/12334613.html" target="_blank" rel="noopener noreferrer">见异思迁：K8s 部署 Nginx Ingress Controller 之 kubernetes/ingress-nginx</a>
@@ -574,7 +578,7 @@ Connection: keep-alive
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/ingress%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/">ingress实现灰度
 </a>
@@ -615,7 +619,7 @@ Connection: keep-alive
 </span>
         </li></ul>
     </div>
-  </section><div class="card component row post-comments">
+  </section><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -656,30 +660,20 @@ Connection: keep-alive
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -826,7 +820,7 @@ Connection: keep-alive
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -851,7 +845,8 @@ Connection: keep-alive
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

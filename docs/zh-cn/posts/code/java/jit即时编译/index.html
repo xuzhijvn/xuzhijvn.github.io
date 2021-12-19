@@ -39,7 +39,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jit%E5%8D%B3%E6%97%B6%E7%BC%96%E8%AF%91/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E5%AE%9E%E9%AA%8C/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
@@ -57,8 +57,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
 解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果  特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常："/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -69,12 +68,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -172,11 +166,16 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -301,17 +300,23 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -377,7 +382,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <p>有的JVM全程都是<code>JIT编译运行</code>，例如：JRockit；有的JVM是<code>解释器 + JIT运行</code>，例如：HotSpot, J9（也支持AOT）；有的JVM没有解释器，只支持<code>AOT+JIT或者纯AOT</code>，例如：Excelsior JET</p>
 <p>以HotSpot JVM举例，JIT还可以分为C1, C2等。C1编译快，执行效率低；C2编译慢，效率高。可以通过 <code>-XX:+TieredCompilation</code> 开启分层编译，对热点代码先C1编译以尽快进入到编译执行模式；随着应用继续运行，收集到足够多的指标后，再进行C2编译，以期获得最好的执行效率。</p>
 <p>JIT在编译过程中会采用一些优化手段，包括：公共子表达式消除、数组范围检查消除、方法内联、逃逸分析（目的是栈上分配、同步消除、标量替换、循环变型、窥孔优化与寄存器分配）</p>
-<h2 id="1-编译器与解释器">1. 编译器与解释器</h2>
+<h2 id="1-编译器与解释器">1. 编译器与解释器<a class="anchor ms-1" href="#1-编译器与解释器"><i class="fas fa-link"></i></a></h2>
 <p>不做特别说明的话，我们讲的，</p>
 <p>编译器：程序运行前将其编译成机器码的程序</p>
 <p>解释器：程序运作中逐行解释源码得到结果的程序</p>
@@ -410,7 +415,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <p><a href="https://www.zhihu.com/question/29126804/answer/43274994" target="_blank" rel="noopener noreferrer">为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？</a>
 </p>
 </blockquote>
-<h2 id="2-解释型语言">2. <strong>解释型语言</strong></h2>
+<h2 id="2-解释型语言">2. 解释型语言<a class="anchor ms-1" href="#2-解释型语言"><i class="fas fa-link"></i></a></h2>
 <p>很多资料会说，Python、Ruby、JavaScript都是“解释型语言”，是通过解释器来实现的。这么说其实很容易引起误解：语言一般只会定义其抽象语义，而不会强制性要求采用某种实现方式。</p>
 <p>例如说C一般被认为是“编译型语言”，但C的解释器也是存在的，例如<a href="http://www.softintegration.com/" target="_blank" rel="noopener noreferrer">Ch</a>
 。同样，C++也有解释器版本的实现，例如<a href="http://root.cern.ch/drupal/content/cint" target="_blank" rel="noopener noreferrer">Cint</a>
@@ -421,7 +426,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 ，支持在x86上编译Scheme；它最终不是生成某种虚拟机的字节码，而是直接生成x86机器码。</p>
 <p><a href="https://www.iteye.com/blog/rednaxelafx-492667" target="_blank" rel="noopener noreferrer">虚拟机随谈（一）：解释器，树遍历解释器，基于栈与基于寄存器，大杂烩</a>
 </p>
-<h2 id="3-jvm是否jit全程编译">3. JVM是否JIT全程编译？</h2>
+<h2 id="3-jvm是否jit全程编译">3. JVM是否JIT全程编译？<a class="anchor ms-1" href="#3-jvm是否jit全程编译"><i class="fas fa-link"></i></a></h2>
 <ul>
 <li>HotSpot VM、J9 VM：<code>不是</code>，这两个JVM默认用混合模式执行引擎，以解释为基础，然后对热点做编译；这两者同时还支持AOT编译执行。J9 VM对AOT编译的支持早就有了；HotSpot VM的将在JDK9的某个更新版中发布，请参考<a href="https://link.zhihu.com/?target=https%3A//www.youtube.com/watch%3Fv%3DXybzyv8qbOc%26list%3DPLX8CzqL3ArzUo2dtMurvpUTAaujPMeuuU%26index%3D16" target="_blank" rel="noopener noreferrer">Java Goes AOT</a>
 （打不开请自备工具…）</li>
@@ -433,8 +438,8 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <li><a href="https://link.zhihu.com/?target=http%3A//www.excelsiorjet.com/" target="_blank" rel="noopener noreferrer">Excelsior JET</a>
 ：<code>不是</code>，可配置为用纯AOT编译，或者AOT+JIT编译执行。</li>
 </ul>
-<h2 id="4-为什么有些jvm会选择不总是做jit编译而是选择用解释器jit编译器的混合执行引擎">4. 为什么有些JVM会选择不总是做JIT编译，而是选择用解释器+JIT编译器的混合执行引擎</h2>
-<h3 id="1-编译的时间开销">1. 编译的时间开销</h3>
+<h2 id="4-为什么有些jvm会选择不总是做jit编译而是选择用解释器jit编译器的混合执行引擎">4. 为什么有些JVM会选择不总是做JIT编译，而是选择用解释器+JIT编译器的混合执行引擎<a class="anchor ms-1" href="#4-为什么有些jvm会选择不总是做jit编译而是选择用解释器jit编译器的混合执行引擎"><i class="fas fa-link"></i></a></h2>
+<h3 id="1-编译的时间开销">1. 编译的时间开销<a class="anchor ms-1" href="#1-编译的时间开销"><i class="fas fa-link"></i></a></h3>
 <p>解释器的执行，抽象的看是这样的：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">输入的代码 -&gt; [ 解释器 解释执行 ] -&gt; 执行结果
 </code></pre></div><p>而要JIT编译然后再执行的话，抽象的看则是：</p>
@@ -452,7 +457,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 只有对频繁执行的代码，JIT编译才能保证有正面的收益。</p>
 <p>况且，并<strong>不是</strong>说JIT编译了的代码就<strong>一定</strong>会比解释执行快。切不可盲目认为有了JIT就可以鄙视解释器了，还是得看实现细节如何。
 有个很经典的例子：LuaJIT 2里有一个实现得非常优化的解释器，它解释执行的速度甚至比LuaJIT 1的JIT编译后的代码的速度还要快。</p>
-<h3 id="2-编译的空间开销">2. 编译的空间开销</h3>
+<h3 id="2-编译的空间开销">2. 编译的空间开销<a class="anchor ms-1" href="#2-编译的空间开销"><i class="fas fa-link"></i></a></h3>
 <p>举个最简单的例子：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">foo</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
     <span style="color:#66d9ef">return</span> 42<span style="color:#f92672">;</span>
@@ -491,7 +496,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
   0x00000001017b8237: hlt    
 </code></pre></div><p>对一般的Java方法而言，编译后代码的大小相对于字节码的大小，膨胀比达到10x是很正常的。上面的例子比较极端一些，但还是很能反映现实状况的。</p>
 <p>同上面说的时间开销一样，这里的空间开销也是，只有对执行频繁的代码才值得编译，如果把所有代码都编译则会显著增加代码所占空间，导致“代码爆炸”（code size explosion）。</p>
-<h3 id="3-编译时机对优化的影响">3. 编译时机对优化的影响</h3>
+<h3 id="3-编译时机对优化的影响">3. 编译时机对优化的影响<a class="anchor ms-1" href="#3-编译时机对优化的影响"><i class="fas fa-link"></i></a></h3>
 <p>有些JIT编译器非常简单，基本上不做啥优化，也倒也没啥影响。</p>
 <p>但现代做优化的JIT编译器都非常注重使用profile信息，而profile是需要通过执行用户程序来获取的。</p>
 <p>这样，编译得太早的话，就来不及收集足够profile信息，进而会影响优化的效果；而编译太迟的话，即便收集了很多高质量的profile，但却也已经付出了profile的额外开销，编译出来的代码再快或许也弥补不过来了。</p>
@@ -499,7 +504,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <p>当然，收集profile也可以在JIT编译器里做：一开始先JIT编译生成收集profile的版本的代码，等收集了到足够profile后触发重新编译，再生成出优化的、不带profile的版本。JRockit基本上就是这样做的。</p>
 <p><a href="https://www.zhihu.com/question/37389356/answer/73820511" target="_blank" rel="noopener noreferrer">为什么 JVM 不用 JIT 全程编译？</a>
 </p>
-<h2 id="5-java的执行过程">5. Java的执行过程</h2>
+<h2 id="5-java的执行过程">5. Java的执行过程<a class="anchor ms-1" href="#5-java的执行过程"><i class="fas fa-link"></i></a></h2>
 <p>Java的执行过程整体可以分为两个部分，第一步由javac将源码编译成字节码，在这个过程中会进行词法分析、语法分析、语义分析，编译原理中这部分的编译称为前端编译。接下来无需编译直接逐条将字节码解释执行，在解释执行的过程中，虚拟机同时对程序运行的信息进行收集，在这些信息的基础上，编译器会逐渐发挥作用，它会进行后端编译——把字节码编译成机器码，但不是所有的代码都会被编译，只有被JVM认定为的热点代码，才可能被编译。</p>
 <p>怎么样才会被认为是热点代码呢？JVM中会设置一个阈值，当方法或者代码块的在一定时间内的调用次数超过这个阈值时就会被编译，存入codeCache中。当下次执行时，再遇到这段代码，就会从codeCache中读取机器码，直接执行，以此来提升程序运行的性能。整体的执行过程大致如下图所示：</p>
 <p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/ba83857ecf9f344e4972fd551c4973d653952.png@648w_454h_80q" loading="lazy"
@@ -507,7 +512,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
    />
 
 </p>
-<h2 id="6-jvm-client-模式和-server模式的区别">6. JVM Client 模式和 Server模式的区别</h2>
+<h2 id="6-jvm-client-模式和-server模式的区别">6. JVM Client 模式和 Server模式的区别<a class="anchor ms-1" href="#6-jvm-client-模式和-server模式的区别"><i class="fas fa-link"></i></a></h2>
 <p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/16453677b5ddbb34" loading="lazy"
   
    />
@@ -516,14 +521,14 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <p>通过 java -version 可查看 JVM 所处的模式，并可以通过修改配置文件进行配置，那它们有什么区别呢？</p>
 <p>Server：-Server 模式启动时，速度较慢，但是启动之后，性能更高，适合运行服务器后台程序</p>
 <p>Client：-Client 模式启动时，速度较快，启动之后不如 Server，适合用于桌面等有界面的程序</p>
-<h2 id="7-即时编译器的分类">7. 即时编译器的分类</h2>
+<h2 id="7-即时编译器的分类">7. 即时编译器的分类<a class="anchor ms-1" href="#7-即时编译器的分类"><i class="fas fa-link"></i></a></h2>
 <ul>
 <li>Client Compiler - C1编译器</li>
 <li>Server Compiler - C2编译器、Graal Compiler</li>
 </ul>
 <p>目前主流的 HotSpot 虚拟机（JDK1.7 及之前版本的虚拟机）默认采用一个解释器和其中一个编译器直接配合的方式工作，程序使用哪个编译器，取决于虚拟机运行的模式，就是文章开头提到的两种模式。</p>
 <p>在 HotSpot 中，解释器和 JIT 即时编译器是同时存在的，他们是 JVM 的两个组件。对于不同类型的应用程序，用户可以根据自身的特点和需求，灵活选择是基于解释器运行还是基于 JIT 编译器运行。HotSpot 为用户提供了几种运行模式供选择，可通过参数设定，分别为：解释模式、编译模式、混合模式，HotSpot 默认是混合模式，需要注意的是编译模式并不是完全通过 JIT 进行编译，只是优先采用编译方式执行程序，但是解释器仍然要在编译无法进行的情况下介入执行过程。</p>
-<h2 id="8-分层编译">8. 分层编译</h2>
+<h2 id="8-分层编译">8. 分层编译<a class="anchor ms-1" href="#8-分层编译"><i class="fas fa-link"></i></a></h2>
 <p>产生的原因：由于即时编译器编译本地代码需要占用程序运行时间，要编译出优化程度更高的代码，所花费的时间可能更长；而且要想编译出优化程度更高的代码，解释器可能还要替编译器收集性能监控信息，这对解释执行的速度也有影响。为了在程序启动响应速度与运行效率之间达到最佳平衡，HotSpot 虚拟机启用<strong>分层编译</strong>的策略</p>
 <p>分层编译根据编译器编译、优化的规模与耗时，划分出不同的编译层次：</p>
 <ul>
@@ -532,8 +537,8 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <li>第 2 层（或 2 层以上）：也称为 C2 编译，也是将字节码编译为本地代码，但是会启用一些编译耗时较长的优化，甚至会根据性能监控信息进行一些不可靠的激进优化。</li>
 </ul>
 <p>实施分层编译后，Client Compiler 和 Server Compiler 将会同时工作，许多代码都可能会被多次编译看，用 Client Compiler 获取更高的编译速度，用 Server Compiler 获取更好的编译质量，在解释执行的时候也无须再承担收集性能监控信息的任务</p>
-<h2 id="9-热点代码">9. 热点代码</h2>
-<h3 id="1-热点代码的分类"><strong>1. 热点代码的分类</strong></h3>
+<h2 id="9-热点代码">9. 热点代码<a class="anchor ms-1" href="#9-热点代码"><i class="fas fa-link"></i></a></h2>
+<h3 id="1-热点代码的分类">1. 热点代码的分类<a class="anchor ms-1" href="#1-热点代码的分类"><i class="fas fa-link"></i></a></h3>
 <ul>
 <li>被多次调用的方法</li>
 </ul>
@@ -542,7 +547,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <li>被多次执行的循环体</li>
 </ul>
 <p>一个方法只被调用过一次或少量的几次，但是方法体内部存在循环次数较多的循环体，这样循环体的代码也被重复执行多次，因此这些代码也应该认为是“热点代码”。</p>
-<h3 id="2-如何检测热点代码"><strong>2. 如何检测热点代码</strong></h3>
+<h3 id="2-如何检测热点代码">2. 如何检测热点代码<a class="anchor ms-1" href="#2-如何检测热点代码"><i class="fas fa-link"></i></a></h3>
 <p>判断一段代码是否是热点代码，是否需要触发即使编译，这样的行为称为<strong>热点探测</strong>，热点探测并不一定知道方法具体被调用了多少次，目前主要的热点探测判定方式有两种：</p>
 <ul>
 <li>基于采样的热点探测：采用这种方法的虚拟机会周期性地检查各个线程的栈顶如果发现某个（或某些）方法经常出现在栈顶，那这个方法就是“热点方法”</li>
@@ -560,18 +565,18 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 </blockquote>
 <p>HotSpot使用第二种 - 基于计数器的热点探测方法。</p>
 <p>确定了检测热点代码的方式，如何计算具体的次数呢？</p>
-<h3 id="3-计数器的种类两种共同协作"><strong>3. 计数器的种类（两种共同协作）</strong></h3>
+<h3 id="3-计数器的种类两种共同协作">3. 计数器的种类（两种共同协作）<a class="anchor ms-1" href="#3-计数器的种类两种共同协作"><i class="fas fa-link"></i></a></h3>
 <ul>
 <li>方法调用计数器：这个计数器用于统计方法被调用的次数。默认阈值在 Client 模式下是 1500 次，在 Server 模式下是 10000 次</li>
 <li>回边计数器：统计一个方法中循环体代码执行的次数</li>
 </ul>
 <p>了解了热点代码和计数器有什么用呢？达到计数器的阈值会触发后文讲解的即时编译，也就是说即时编译是需要达到某种条件才会触发的。</p>
-<h2 id="10-编译优化技术">10. 编译优化技术</h2>
-<h3 id="1-语言无关的经典优化技术之一公共子表达式消除">1. 语言无关的经典优化技术之一：公共子表达式消除</h3>
+<h2 id="10-编译优化技术">10. 编译优化技术<a class="anchor ms-1" href="#10-编译优化技术"><i class="fas fa-link"></i></a></h2>
+<h3 id="1-语言无关的经典优化技术之一公共子表达式消除">1. 语言无关的经典优化技术之一：公共子表达式消除<a class="anchor ms-1" href="#1-语言无关的经典优化技术之一公共子表达式消除"><i class="fas fa-link"></i></a></h3>
 <p>如果一个表达式 E 已经计算过了，并且从先前的计算到现在 E 中所有变量的值都没有发生变化，那么 E 的这次出现就成为了公共子表达式。对于这种表达式，没必要花时间再对它进行计算，只需要直接使用前面计算过的表达式结果代替 E 就可以了。例子：int d = (c*b) * 12 + a + (a+ b * c) -&gt; int d = E * 12 + a + (a+ E)</p>
-<h3 id="2-语言相关的经典优化技术之一数组范围检查消除">2. 语言相关的经典优化技术之一：数组范围检查消除</h3>
+<h3 id="2-语言相关的经典优化技术之一数组范围检查消除">2. 语言相关的经典优化技术之一：数组范围检查消除<a class="anchor ms-1" href="#2-语言相关的经典优化技术之一数组范围检查消除"><i class="fas fa-link"></i></a></h3>
 <p>在 Java 语言中访问数组元素的时候系统将会自动进行上下界的范围检查，超出边界会抛出异常。对于虚拟机的执行子系统来说，每次数组元素的读写都带有一次隐含的条件判定操作，对于拥有大量数组访问的程序代码，这无疑是一种性能负担。Java 在编译期根据数据流分析可以判定范围进而消除上下界检查，节省多次的条件判断操作。</p>
-<h3 id="3-最重要的优化技术之一方法内联">3. 最重要的优化技术之一：方法内联</h3>
+<h3 id="3-最重要的优化技术之一方法内联">3. 最重要的优化技术之一：方法内联<a class="anchor ms-1" href="#3-最重要的优化技术之一方法内联"><i class="fas fa-link"></i></a></h3>
 <p>简单的理解为把目标方法的代码“复制”到发起调用的方法中，消除一些无用的代码。</p>
 <p>方法内联，是指在编译过程中遇到方法调用时，将目标方法的方法体纳入编译范围之中，并取代原方法调用的优化手段。JIT大部分的优化都是在内联的基础上进行的，方法内联是即时编译器中非常重要的一环。</p>
 <p>Java服务中存在大量getter/setter方法，如果没有方法内联，在调用getter/setter时，程序执行时<strong>需要保存当前方法的执行位置，创建并压入用于getter/setter的栈帧、访问字段、弹出栈帧，最后再恢复当前方法的执行</strong>。内联了对 getter/setter的方法调用后，上述操作仅剩字段访问。在C2编译器 中，方法内联在解析字节码的过程中完成。当遇到方法调用字节码时，编译器将根据一些阈值参数决定是否需要内联当前方法的调用。如果需要内联，则开始解析目标方法的字节码。比如下面这个示例（来源于网络）：</p>
@@ -596,7 +601,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <p><img src="https://picgo.6and.ltd/img/857398429cf23f82f291a9cbaceecea122617.png@794w_480h_80q" alt="img" style="zoom:67%;" /></p>
 <p>内联后的IR图：</p>
 <p><img src="https://picgo.6and.ltd/img/524631fb0c1db243b5b1fd08b185c23f59399.png@802w_1202h_80q" alt="img" style="zoom:67%;" /></p>
-<h3 id="4-最前沿的优化技术之一逃逸分析">4. 最前沿的优化技术之一：逃逸分析</h3>
+<h3 id="4-最前沿的优化技术之一逃逸分析">4. 最前沿的优化技术之一：逃逸分析<a class="anchor ms-1" href="#4-最前沿的优化技术之一逃逸分析"><i class="fas fa-link"></i></a></h3>
 <p>逃逸分析的基本行为就是分析对象动态作用域：当一个对象在方法中杯定义后，它可能被外部方法所引用，例如作为调用参数传递到其他方法中，称为<strong>方法逃逸。<strong>甚至可能被外部线程访问到，譬如赋值给类变量或可以在其他线程中访问的实例变量，称为</strong>线程逃逸。</strong></p>
 <p>如果能证明一个对象不会逃逸到方法或线程之外，也就是别的方法或线程无法通过任何途径访问到这个对象，则可以为这个变量进行一些高效的优化：</p>
 <ul>
@@ -629,9 +634,9 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
     addAgeAndWeight<span style="color:#f92672">(</span>age<span style="color:#f92672">,</span>weight<span style="color:#f92672">);</span>
   <span style="color:#f92672">}</span>
 <span style="color:#f92672">}</span>
-</code></pre></div><h3 id="5--loop-transformations">5.  Loop Transformations</h3>
+</code></pre></div><h3 id="5--loop-transformations">5.  Loop Transformations<a class="anchor ms-1" href="#5--loop-transformations"><i class="fas fa-link"></i></a></h3>
 <p>C2编译器在构建Ideal Graph后会进行很多的全局优化，其中就包括对循环的转换，最重要的两种转换就是循环展开和循环分离。</p>
-<h4 id="1-循环展开"><strong>1. 循环展开</strong></h4>
+<h4 id="1-循环展开">1. 循环展开<a class="anchor ms-1" href="#1-循环展开"><i class="fas fa-link"></i></a></h4>
 <p>循环展开是一种循环转换技术，它试图以牺牲程序二进制码大小为代价来优化程序的执行速度，是一种用空间换时间的优化手段。</p>
 <p>循环展开通过减少或消除控制程序循环的指令，来减少计算开销，这种开销包括增加指向数组中下一个索引或者指令的指针算数等。如果编译器可以提前计算这些索引，并且构建到机器代码指令中，那么程序运行时就可以不必进行这种计算。也就是说有些循环可以写成一些重复独立的代码。比如下面这个循环：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">loopRolling</span><span style="color:#f92672">(){</span>
@@ -650,7 +655,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
   <span style="color:#f92672">}</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>这样展开就可以减少循环的次数，每次循环内的计算也可以利用CPU的流水线提升效率。当然这只是一个示例，实际进行展开时，JVM会去评估展开带来的收益，再决定是否进行展开。</p>
-<h4 id="2-循环分离"><strong>2. 循环分离</strong></h4>
+<h4 id="2-循环分离">2. 循环分离<a class="anchor ms-1" href="#2-循环分离"><i class="fas fa-link"></i></a></h4>
 <p>循环分离也是循环转换的一种手段。它把循环中一次或多次的特殊迭代分离出来，在循环外执行。举个例子，下面这段代码：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">int</span> a <span style="color:#f92672">=</span> 10<span style="color:#f92672">;</span>
 <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>i<span style="color:#f92672">&lt;</span>10<span style="color:#f92672">;</span>i<span style="color:#f92672">++){</span>
@@ -663,14 +668,14 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
   b<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> x<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> x<span style="color:#f92672">[</span>i<span style="color:#f92672">-</span>1<span style="color:#f92672">];</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>这种等效的转换消除了在循环中对a变量的需求，从而减少了开销。</p>
-<h3 id="6-窥孔优化与寄存器分配">6. 窥孔优化与寄存器分配</h3>
+<h3 id="6-窥孔优化与寄存器分配">6. 窥孔优化与寄存器分配<a class="anchor ms-1" href="#6-窥孔优化与寄存器分配"><i class="fas fa-link"></i></a></h3>
 <p>前文提到的窥孔优化是优化的最后一步，这之后就会程序就会转换成机器码，窥孔优化就是将编译器所生成的中间代码（或目标代码）中相邻指令，将其中的某些组合替换为效率更高的指令组，常见的比如强度削减、常数合并等，看下面这个例子就是一个强度削减的例子：</p>
 <p>强度削减</p>
 <pre><code>y1=x1*3  经过强度削减后得到  y1=(x1&lt;&lt;1)+x1
 </code></pre><p>编译器使用移位和加法削减乘法的强度，使用更高效率的指令组。</p>
 <p>寄存器分配也是一种编译的优化手段，在C2编译器中普遍的使用。它是通过把频繁使用的变量保存在寄存器中，CPU访问寄存器的速度比内存快得多，可以提升程序的运行速度。</p>
 <p>寄存器分配和窥孔优化是程序优化的最后一步。经过寄存器分配和窥孔优化之后，程序就会被转换成机器码保存在codeCache中。</p>
-<h2 id="参考">参考：</h2>
+<h2 id="参考">参考：<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://tech.meituan.com/2020/10/22/java-jit-practice-in-meituan.html" target="_blank" rel="noopener noreferrer">基本功 | Java即时编译器原理解析及实践</a>
 </p>
 <p><a href="https://juejin.cn/post/6844903630408155150" target="_blank" rel="noopener noreferrer">你了解JVM中的 JIT 即时编译及优化技术吗？</a>
@@ -710,7 +715,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%8A%9F%E8%83%BD/">k8s功能
 </a>
@@ -751,7 +756,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 </span>
         </li></ul>
     </div>
-  </section><div class="card component row post-comments">
+  </section><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -792,30 +797,20 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -962,7 +957,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -987,7 +982,8 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

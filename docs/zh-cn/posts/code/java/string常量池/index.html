@@ -19,7 +19,7 @@
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/string%E5%B8%B8%E9%87%8F%E6%B1%A0/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-09-05T11:54:01+08:00" />
 <meta property="article:modified_time" content="2021-09-05T11:54:01+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E5%AE%9E%E9%AA%8C/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
@@ -27,8 +27,7 @@
 <meta name="twitter:title" content="String常量池"/>
 <meta name="twitter:description" content=""/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -39,12 +38,7 @@
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -142,11 +136,16 @@
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -271,17 +270,23 @@
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -348,16 +353,16 @@
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><h2 id="引言">引言</h2>
+</div><div class="post-content mb-3"><h2 id="引言">引言<a class="anchor ms-1" href="#引言"><i class="fas fa-link"></i></a></h2>
 <p>在Java开发中不管是前后端交互的JSON串，还是数据库中的数据存储，我们常常需要使用到String类型的字符串。作为最常用也是最基础的引用数据类型，JVM为String提供了字符串常量池来提高性能，本篇文章我们一起从底层JVM中认识并学习字符串常量池的概念和设计原理。</p>
-<h2 id="字符串常量池由来">字符串常量池由来</h2>
+<h2 id="字符串常量池由来">字符串常量池由来<a class="anchor ms-1" href="#字符串常量池由来"><i class="fas fa-link"></i></a></h2>
 <p>在日常开发过程中，字符串的创建是比较频繁的，而字符串的分配和其他对象的分配是类似的，需要耗费大量的时间和空间，从而影响程序的运行性能，所以作为最基础最常用的引用数据类型，Java设计者在JVM层面提供了字符串常量池。</p>
-<h3 id="实现前提">实现前提</h3>
+<h3 id="实现前提">实现前提<a class="anchor ms-1" href="#实现前提"><i class="fas fa-link"></i></a></h3>
 <ol>
 <li>实现这种设计的一个很重要的因素是：String类型是不可变的，实例化后，不可变，就不会存在多个同样的字符串实例化后有数据冲突；</li>
 <li>运行时，实例创建的全局字符串常量池中会有一张表，记录着常量池中每个唯一的字符串对象维护一个引用，当垃圾回收时，发现该字符串被引用时，就不会被回收。</li>
 </ol>
-<h3 id="实现原理">实现原理</h3>
+<h3 id="实现原理">实现原理<a class="anchor ms-1" href="#实现原理"><i class="fas fa-link"></i></a></h3>
 <p>为了提高性能并减少内存的开销，JVM在实例化字符串常量时进行了一系列的优化操作：</p>
 <ol>
 <li>在JVM层面为字符串提供字符串常量池，可以理解为是一个缓存区；</li>
@@ -367,20 +372,20 @@
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">String str1 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;abc&#34;</span><span style="color:#f92672">;</span>
 String str2 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;abc&#34;</span><span style="color:#f92672">;</span>
 System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;str1 == str2: &#34;</span> <span style="color:#f92672">+</span> <span style="color:#f92672">(</span>str1 <span style="color:#f92672">==</span> str2<span style="color:#f92672">));</span> <span style="color:#75715e">//结果：str1 == str2: true
-</span></code></pre></div><h2 id="字符串常量池位置变化">字符串常量池位置变化</h2>
-<h3 id="方法区">方法区</h3>
+</span></code></pre></div><h2 id="字符串常量池位置变化">字符串常量池位置变化<a class="anchor ms-1" href="#字符串常量池位置变化"><i class="fas fa-link"></i></a></h2>
+<h3 id="方法区">方法区<a class="anchor ms-1" href="#方法区"><i class="fas fa-link"></i></a></h3>
 <p>提到字符串常量池，还得先从方法区说起。方法区和Java堆一样（但是方法区是<code>非堆</code>），是各个线程共享的内存区域，是用于存储已经被<strong>JVM加载的类信息、常量、静态变量、即时编译器编译后的代码</strong>等数据。
 很多人会把方法区称为<code>永久代</code>，其实本质上是不等价的，只不过HotSpot虚拟机设计团队是选择把GC分代收集扩展到了方法区，使用永久代来代替实现方法区。其实，在方法区中的垃圾收集行为还是比较少的，这个区域的内存回收目标主要是针对常量池的回收和对类型的卸载，但是这个区域的回收总是不尽如人意的，如果该区域回收不完全就会出现内存泄露。当然，对于<code>JDK1.8</code>时，HostSpot VM对JVM模型进行了改造，将<code>元数据放到本地内存</code>，将<code>常量池和静态变量放到了Java堆</code>里。</p>
-<h3 id="元空间">元空间</h3>
+<h3 id="元空间">元空间<a class="anchor ms-1" href="#元空间"><i class="fas fa-link"></i></a></h3>
 <p>JDK 1.8, HotSpot JVM将永久代移除了，使用本地内存来存储类的元数据信息，即为<code>元空间（Metaspace）</code></p>
 <p>所以，字符串常量池的具体位置是在哪里？当然这个我们后面需要区分jdk的版本，jdk1.7之前，jdk1.7，以及jdk1.8，因为这些版本中，字符串常量池因为方法区的改变而做了一些变化。</p>
-<h3 id="jdk17之前">JDK1.7之前</h3>
+<h3 id="jdk17之前">JDK1.7之前<a class="anchor ms-1" href="#jdk17之前"><i class="fas fa-link"></i></a></h3>
 <p>在jdk1.7之前，常量池是存放在方法区中的。</p>
 <p><img src="https://picgo.6and.ltd/img/20201126173632432.png" alt="JDK1.7之前" style="zoom:50%;" /></p>
-<h3 id="jdk17">JDK1.7</h3>
+<h3 id="jdk17">JDK1.7<a class="anchor ms-1" href="#jdk17"><i class="fas fa-link"></i></a></h3>
 <p>在jdk1.7中，字符串常量池移到了堆中，运行时常量池还在方法区中。</p>
 <p><img src="https://picgo.6and.ltd/img/20201126173618236.png" alt="JDK1.7" style="zoom:50%;" /></p>
-<h3 id="jdk18">JDK1.8</h3>
+<h3 id="jdk18">JDK1.8<a class="anchor ms-1" href="#jdk18"><i class="fas fa-link"></i></a></h3>
 <p>jdk1.8删除了永久代，方法区这个概念还是保留的，但是方法区的实现变成了<code>元空间</code>，常量池沿用jdk1.7，还是放在了堆中。这样的效果就变成了：常量池和静态变量存储到了堆中，类的元数据及运行时常量池存储到元空间中。</p>
 <p><img src="https://picgo.6and.ltd/img/20201126172724596.png" alt="JDK1.8" style="zoom:50%;" /></p>
 <p>为啥要把方法区从JVM内存（永久代）移到直接内存（元空间)？主要有两个原因：</p>
@@ -388,14 +393,14 @@ System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span>
 <li>直接内存属于本地系统的IO操作，具有更高的一个IO操作性能，而JVM的堆内存这种，如果有IO操作，也是先复制到直接内存，然后再去进行本地IO操作。经过了一系列的中间流程，性能就会差一些。非直接内存操作：<code>本地IO操作——&gt;直接内存操作——&gt;非直接内存操作——&gt;直接内存操作——&gt;本地IO操作</code>，而直接内存操作：<code>本地IO操作——&gt;直接内存操作——&gt;本地IO操作</code>。</li>
 <li>永久代有一个无法调整更改的JVM固定大小上限，回收不完全时，会出现<code>OutOfMemoryError</code>问题；而直接内存（元空间）是受到本地机器内存的限制，不会有这种问题。</li>
 </ol>
-<h3 id="变化">变化</h3>
+<h3 id="变化">变化<a class="anchor ms-1" href="#变化"><i class="fas fa-link"></i></a></h3>
 <ol>
 <li>在JDK1.7前，运行时常量池+字符串常量池是存放在方法区中，HotSpot VM对方法区的实现称为永久代。</li>
 <li>在JDK1.7中，字符串常量池从方法区移到堆中，运行时常量池保留在方法区中。</li>
 <li>在JDK1.8中，HotSpot移除永久代，使用元空间代替，此时字符串常量池保留在堆中，运行时常量池保留在方法区中，只是实现不一样了，JVM内存变成了直接内存。</li>
 </ol>
-<h2 id="结合代码">结合代码</h2>
-<h3 id="代码示例">代码示例</h3>
+<h2 id="结合代码">结合代码<a class="anchor ms-1" href="#结合代码"><i class="fas fa-link"></i></a></h2>
+<h3 id="代码示例">代码示例<a class="anchor ms-1" href="#代码示例"><i class="fas fa-link"></i></a></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">String str1 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;123&#34;</span><span style="color:#f92672">;</span>
 String str2 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;123&#34;</span><span style="color:#f92672">;</span>
 String str3 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;123&#34;</span><span style="color:#f92672">;</span>
@@ -408,9 +413,9 @@ str2 <span style="color:#f92672">==</span> str3<span style="color:#960050;backgr
 str3 <span style="color:#f92672">==</span> str4<span style="color:#960050;background-color:#1e0010">：</span><span style="color:#66d9ef">false</span>
 str4 <span style="color:#f92672">==</span> str5<span style="color:#960050;background-color:#1e0010">：</span><span style="color:#66d9ef">false</span>
 str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;background-color:#1e0010">：</span><span style="color:#66d9ef">false</span>
-</code></pre></div><h3 id="jvm存储示例">jvm存储示例</h3>
+</code></pre></div><h3 id="jvm存储示例">jvm存储示例<a class="anchor ms-1" href="#jvm存储示例"><i class="fas fa-link"></i></a></h3>
 <p><img src="https://picgo.6and.ltd/img/20201130112956433.png" alt="在这里插入图片描述" style="zoom:50%;" /></p>
-<h3 id="创建对象流程">创建对象流程</h3>
+<h3 id="创建对象流程">创建对象流程<a class="anchor ms-1" href="#创建对象流程"><i class="fas fa-link"></i></a></h3>
 <p>对于jvm底层，<code>String str = new String(&quot;123&quot;)</code>创建对象流程是什么？</p>
 <ol>
 <li>在常量池中查找是否存在&quot;123&quot;这个字符串；若有，则返回对应的引用实例；若无，则创建对应的实例对象；</li>
@@ -419,8 +424,8 @@ str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
 </ol>
 <p><strong>注意</strong>：
 若常量池里没有&quot;123&quot;字符串，则创建了2个对象；若有该字符串，则创建了一个对象及对应的引用。</p>
-<h2 id="qa">Q&amp;A</h2>
-<h3 id="string-str-ab--cd对象个数">String str =&ldquo;ab&rdquo; + &ldquo;cd&rdquo;;对象个数？</h3>
+<h2 id="qa">Q&A<a class="anchor ms-1" href="#qa"><i class="fas fa-link"></i></a></h2>
+<h3 id="string-str-ab--cd对象个数">String str =&ldquo;ab&rdquo; + &ldquo;cd&rdquo;;对象个数？<a class="anchor ms-1" href="#string-str-ab--cd对象个数"><i class="fas fa-link"></i></a></h3>
 <p>分析：若字符串常量池无该字符串对象</p>
 <ol>
 <li>字符串常量池：（1个对象）&ldquo;abcd&rdquo;;</li>
@@ -428,7 +433,7 @@ str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
 <li>栈：（1个引用）str
 总共：1个对象+1个引用</li>
 </ol>
-<h3 id="string-str--new-stringabc对象个数">String str = new String(&ldquo;abc&rdquo;);对象个数？</h3>
+<h3 id="string-str--new-stringabc对象个数">String str = new String(&ldquo;abc&rdquo;);对象个数？<a class="anchor ms-1" href="#string-str--new-stringabc对象个数"><i class="fas fa-link"></i></a></h3>
 <p>分析：若字符串常量池无该字符串对象</p>
 <ol>
 <li>字符串常量池：（1个对象）&ldquo;abc&rdquo;;</li>
@@ -436,7 +441,7 @@ str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
 <li>栈：（1个引用）str
 总共：2个对象+1个引用</li>
 </ol>
-<h3 id="string-str--new-stringa--b对象个数">String str = new String(&ldquo;a&rdquo; + &ldquo;b&rdquo;);对象个数？</h3>
+<h3 id="string-str--new-stringa--b对象个数">String str = new String(&ldquo;a&rdquo; + &ldquo;b&rdquo;);对象个数？<a class="anchor ms-1" href="#string-str--new-stringa--b对象个数"><i class="fas fa-link"></i></a></h3>
 <p>分析：若字符串常量池无该字符串对象</p>
 <ol>
 <li>字符串常量池：（3个对象）&ldquo;a&rdquo;，&ldquo;b&rdquo;，&ldquo;ab&rdquo;;</li>
@@ -444,7 +449,7 @@ str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
 <li>栈：（1个引用）str
 总共：4个对象+1个引用</li>
 </ol>
-<h3 id="string-str--new-stringab--ab对象个数">String str = new String(&ldquo;ab&rdquo;) + &ldquo;ab&rdquo;;对象个数？</h3>
+<h3 id="string-str--new-stringab--ab对象个数">String str = new String(&ldquo;ab&rdquo;) + &ldquo;ab&rdquo;;对象个数？<a class="anchor ms-1" href="#string-str--new-stringab--ab对象个数"><i class="fas fa-link"></i></a></h3>
 <p>分析：若字符串常量池无该字符串对象</p>
 <ol>
 <li>字符串常量池：（1个对象）&ldquo;ab&rdquo;;</li>
@@ -452,7 +457,7 @@ str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
 <li>栈：（1个引用）str
 总共：2个对象+1个引用</li>
 </ol>
-<h3 id="string-str--new-stringab--new-stringab对象个数">String str = new String(&ldquo;ab&rdquo;) + new String(&ldquo;ab&rdquo;);对象个数？</h3>
+<h3 id="string-str--new-stringab--new-stringab对象个数">String str = new String(&ldquo;ab&rdquo;) + new String(&ldquo;ab&rdquo;);对象个数？<a class="anchor ms-1" href="#string-str--new-stringab--new-stringab对象个数"><i class="fas fa-link"></i></a></h3>
 <p>分析：若字符串常量池无该字符串对象</p>
 <ol>
 <li>字符串常量池：（1个对象）&ldquo;ab&rdquo;;</li>
@@ -460,7 +465,7 @@ str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
 <li>栈：（1个引用）str
 总共：3个对象+1个引用</li>
 </ol>
-<h3 id="string-str--new-stringab--new-stringcd对象个数">String str = new String(&ldquo;ab&rdquo;) + new String(&ldquo;cd&rdquo;);对象个数？</h3>
+<h3 id="string-str--new-stringab--new-stringcd对象个数">String str = new String(&ldquo;ab&rdquo;) + new String(&ldquo;cd&rdquo;);对象个数？<a class="anchor ms-1" href="#string-str--new-stringab--new-stringcd对象个数"><i class="fas fa-link"></i></a></h3>
 <p>分析：若字符串常量池无该字符串对象</p>
 <ol>
 <li>字符串常量池：（2个对象）&ldquo;ab&rdquo;，&ldquo;cd&rdquo;;</li>
@@ -468,7 +473,7 @@ str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
 <li>栈：（1个引用）str
 总共：4个对象+1个引用</li>
 </ol>
-<h3 id="string-str3--str1--str2对象个数">String str3 = str1 + str2;对象个数？</h3>
+<h3 id="string-str3--str1--str2对象个数">String str3 = str1 + str2;对象个数？<a class="anchor ms-1" href="#string-str3--str1--str2对象个数"><i class="fas fa-link"></i></a></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">String str1 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;ab&#34;</span><span style="color:#f92672">;</span>
 String str2 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;cd&#34;</span><span style="color:#f92672">;</span>
 String str3 <span style="color:#f92672">=</span> str1 <span style="color:#f92672">+</span> str2<span style="color:#f92672">;</span>
@@ -479,7 +484,7 @@ String str3 <span style="color:#f92672">=</span> str1 <span style="color:#f92672
 <li>栈：（3个引用）str1，str2，str3
 总共：3个对象+3个引用</li>
 </ol>
-<h3 id="如何指向字符串池中特定的对象">如何指向字符串池中特定的对象？</h3>
+<h3 id="如何指向字符串池中特定的对象">如何指向字符串池中特定的对象？<a class="anchor ms-1" href="#如何指向字符串池中特定的对象"><i class="fas fa-link"></i></a></h3>
 <p>通过<code>intern()</code>方法。
 <strong>代码</strong></p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">String str1 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;123&#34;</span><span style="color:#f92672">;</span>
@@ -503,7 +508,7 @@ str1 <span style="color:#f92672">==</span> str3<span style="color:#960050;backgr
 str1 <span style="color:#f92672">==</span> str4<span style="color:#960050;background-color:#1e0010">：</span><span style="color:#66d9ef">true</span>
 str1 <span style="color:#f92672">==</span> str5<span style="color:#960050;background-color:#1e0010">：</span><span style="color:#66d9ef">true</span>
 str1 <span style="color:#f92672">==</span> str6<span style="color:#960050;background-color:#1e0010">：</span><span style="color:#66d9ef">true</span>
-</code></pre></div><h2 id="参考">参考</h2>
+</code></pre></div><h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://www.cnblogs.com/Andya/p/14067618.html" target="_blank" rel="noopener noreferrer">JVM——字符串常量池详解</a>
 </p></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -530,7 +535,7 @@ str1 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/sa/%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">秒杀系统设计
 </a>
@@ -571,7 +576,7 @@ str1 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
 </span>
         </li></ul>
     </div>
-  </section><div class="card component row post-comments">
+  </section><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -612,30 +617,20 @@ str1 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -782,7 +777,7 @@ str1 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -807,7 +802,8 @@ str1 <span style="color:#f92672">==</span> str6<span style="color:#960050;backgr
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

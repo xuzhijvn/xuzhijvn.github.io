@@ -41,7 +41,7 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E6%A0%B8%E5%BF%83%E8%AE%BE%E8%AE%A1%E7%90%86%E8%A7%A3%E4%B8%8E%E5%AE%9E%E6%88%98/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E5%AE%9E%E9%AA%8C/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
@@ -60,8 +60,7 @@ Observer 角色只能提供读服务，不能选举和被选举，所以它存�
 1.3 Zookeeper 同时满足了 CAP 吗？ 答案是否，CAP 只能同时满足其二。
 Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的写入一致性，牺牲的是 C的读一致性。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -72,12 +71,7 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -175,11 +169,16 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -304,17 +303,23 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -367,20 +372,20 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><h2 id="1-zookeeper-核心架构设计">1. Zookeeper 核心架构设计</h2>
-<h3 id="11-zookeeper-特点">1.1 Zookeeper 特点</h3>
+</div><div class="post-content mb-3"><h2 id="1-zookeeper-核心架构设计">1. Zookeeper 核心架构设计<a class="anchor ms-1" href="#1-zookeeper-核心架构设计"><i class="fas fa-link"></i></a></h2>
+<h3 id="11-zookeeper-特点">1.1 Zookeeper 特点<a class="anchor ms-1" href="#11-zookeeper-特点"><i class="fas fa-link"></i></a></h3>
 <p>（1）Zookeeper 是一个分布式协调服务，是为了解决多个节点状态不一致的问题，充当中间机构来调停。如果出现了不一致，则把这个不一致的情况写入到 Zookeeper 中，Zookeeper 会返回响应，响应成功，则表示帮你达成了一致。</p>
 <p>比如，A、B、C 节点在集群启动时，需要推举出一个主节点，这个时候，A、B、C 只要同时往 Zookeeper 上注册临时节点，谁先注册成功，谁就是主节点。</p>
 <p>（2）Zookeeper 虽然是一个集群，但是数据并不是分散存储在各个节点上的，而是每个节点都保存了集群所有的数据。</p>
 <p>其中一个节点作为主节点，提供分布式事务的写服务，其他节点和这个节点同步数据，保持和主节点状态一致。</p>
 <p>（3）Zookeeper 所有节点的数据状态通过 Zab 协议保持一致。当集群中没有 Leader 节点时，内部会执行选举，选举结束，Follower 和 Leader 执行状态同步；当有 Leader 节点时，Leader 通过 ZAB 协议主导分布式事务的执行，并且所有的事务都是串行执行的。</p>
 <p>（4）Zookeeper 的节点个数是不能线性扩展的，节点越多，同步数据的压力越大，执行分布式事务性能越差。推荐3、5、7 这样的数目。</p>
-<h3 id="11-zookeeper-角色的理解">1.1 Zookeeper 角色的理解</h3>
+<h3 id="11-zookeeper-角色的理解">1.1 Zookeeper 角色的理解<a class="anchor ms-1" href="#11-zookeeper-角色的理解"><i class="fas fa-link"></i></a></h3>
 <p>Zookeeper 并没有沿用 Master/Slave 概念，而是引入了 Leader，Follower，Observer 三种角色。</p>
 <p>通过 Leader 选举算法来选定一台服务器充当 Leader 节点，Leader 服务器为客户端提供读、写服务。</p>
 <p>Follower 节点可以参加选举，也可以接受客户端的读请求，但是接受到客户端的写请求时，会转发到 Leader 服务器去处理。</p>
 <p>Observer 角色只能提供读服务，不能选举和被选举，所以它存在的意义是在不影响写性能的前提下，提升集群的读性能。</p>
-<h3 id="13-zookeeper-同时满足了-cap-吗">1.3 Zookeeper 同时满足了 CAP 吗？</h3>
+<h3 id="13-zookeeper-同时满足了-cap-吗">1.3 Zookeeper 同时满足了 CAP 吗？<a class="anchor ms-1" href="#13-zookeeper-同时满足了-cap-吗"><i class="fas fa-link"></i></a></h3>
 <p>答案是否，CAP 只能同时满足其二。</p>
 <p>Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的写入一致性，牺牲的是 C的读一致性。</p>
 <p>也就是说，Zookeeper 并不保证读取的一定是最新的数据。如果一定要最新，需要使用 sync 回调处理。</p>
@@ -394,10 +399,10 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
 <p><a href="https://mikechen.cc/4733.html" target="_blank" rel="noopener noreferrer">服务注册与发现的实现原理、及实现优劣势比较</a>
 </p>
 </blockquote>
-<h2 id="2-核心机制一znode-数据模型">2. 核心机制一：ZNode 数据模型</h2>
+<h2 id="2-核心机制一znode-数据模型">2. 核心机制一：ZNode 数据模型<a class="anchor ms-1" href="#2-核心机制一znode-数据模型"><i class="fas fa-link"></i></a></h2>
 <p>Zookeeper 的 ZNode 模型其实可以理解为类文件系统，如下图：</p>
 <p><img src="https://picgo.6and.ltd/img/image-20210804004139634.png" alt="image-20210804004139634" style="zoom: 15%;" /></p>
-<h3 id="21-znode-并不适合存储太大的数据">2.1 ZNode 并不适合存储太大的数据</h3>
+<h3 id="21-znode-并不适合存储太大的数据">2.1 ZNode 并不适合存储太大的数据<a class="anchor ms-1" href="#21-znode-并不适合存储太大的数据"><i class="fas fa-link"></i></a></h3>
 <p>为什么是类文件系统呢？因为 ZNode 模型没有文件和文件夹的概念，每个节点既可以有子节点，也可以存储数据。</p>
 <p>那么既然每个节点可以存储数据，是不是可以任意存储无限制的数据呢？答案是否定的。在 Zookeeper 中，限制了每个节点只能存储小于 1 M 的数据，实际应用中，最好不要超过 1kb。</p>
 <p>原因有以下四点：</p>
@@ -410,7 +415,7 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
 <blockquote>
 <p>除非集群是以ZNode为单位进行同步的，否则以上四点不能算作限定ZNode大小的原因</p>
 </blockquote>
-<h3 id="22-znode-的分类">2.2 ZNode 的分类</h3>
+<h3 id="22-znode-的分类">2.2 ZNode 的分类<a class="anchor ms-1" href="#22-znode-的分类"><i class="fas fa-link"></i></a></h3>
 <p>（1）按生命周期分类</p>
 <p>按照声明周期，ZNode 可分为永久节点和临时节点。</p>
 <p>很好理解，永久节点就是要显示的删除，否则会一直存在；临时节点，是和会话绑定的，会话创建的所有节点，会在会话断开连接时，全部被 Zookeeper 系统删除。</p>
@@ -426,7 +431,7 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
 </ul>
 <p>（4）注意的点</p>
 <p>临时节点下面不能挂载子节点，只能作为其他节点的叶子节点。</p>
-<h3 id="23-代码实战">2.3 代码实战</h3>
+<h3 id="23-代码实战">2.3 代码实战<a class="anchor ms-1" href="#23-代码实战"><i class="fas fa-link"></i></a></h3>
 <p>ZNode 的数据模型其实很简单，只有这么多知识。下面用代码来巩固一下。</p>
 <p>这里我们使用 curator 框架来做 demo。（当然，你可以选择使用 Zookeeper 官方自带的 Api）</p>
 <p>引入 pom 坐标：</p>
@@ -488,9 +493,9 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
 
         Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">sleep</span><span style="color:#f92672">(</span>10000<span style="color:#f92672">);</span>
     <span style="color:#f92672">}</span>
-</code></pre></div><h2 id="3-核心机制二watcher-监听机制">3. 核心机制二：Watcher 监听机制</h2>
+</code></pre></div><h2 id="3-核心机制二watcher-监听机制">3. 核心机制二：Watcher 监听机制<a class="anchor ms-1" href="#3-核心机制二watcher-监听机制"><i class="fas fa-link"></i></a></h2>
 <p>Watcher 监听机制是 Zookeeper 解决各种分布式不一致疑难杂症的独家法门，也是学习 Zookeeper 必学的知识点。</p>
-<h3 id="31-对于-watcher-机制的理解">3.1 对于 Watcher 机制的理解</h3>
+<h3 id="31-对于-watcher-机制的理解">3.1 对于 Watcher 机制的理解<a class="anchor ms-1" href="#31-对于-watcher-机制的理解"><i class="fas fa-link"></i></a></h3>
 <p>Zookeeper 提供了数据的发布与订阅的功能，多个订阅者可以同时监听某一个对象，当这个对象自身状态发生变化时（例如节点数据或者节点的子节点个数变化），Zookeeper 系统会通知这些订阅者。</p>
 <p>对于发布和订阅这个概念的理解，我们可以用这个场景来理解：</p>
 <p>比如前两天的台风，老板想发一个通知给员工：明天在家办公。</p>
@@ -518,7 +523,7 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
 </tr>
 </tbody>
 </table>
-<h3 id="32--watcher-机制的流程">3.2  Watcher 机制的流程</h3>
+<h3 id="32--watcher-机制的流程">3.2  Watcher 机制的流程<a class="anchor ms-1" href="#32--watcher-机制的流程"><i class="fas fa-link"></i></a></h3>
 <p>客户端首先将 Watcher 注册到服务器上，同时将 Watcher 对象保存在客户端的 Watcher 管理器中。当 Zookeeper 服务端监听到数据状态发生变化时，服务端会首先主动通知客户端，接着客户端的 Watcher 管理器会触发相关的 Watcher 来回调响应的逻辑，从而完成整体的发布/订阅流程。</p>
 <p>监听器 Watcher 的定义：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Watcher</span> <span style="color:#f92672">{</span>
@@ -540,7 +545,7 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
 <li>节点数据发生改变；</li>
 <li>节点的子节点个数发生改变</li>
 </ul>
-<h3 id="33-通过代码来初步理解">3.3 通过代码来初步理解</h3>
+<h3 id="33-通过代码来初步理解">3.3 通过代码来初步理解<a class="anchor ms-1" href="#33-通过代码来初步理解"><i class="fas fa-link"></i></a></h3>
 <p>我们还是用 Curator 框架来验证一下这个监听器</p>
 <p>代码很简单，这里我们使用 TreeCache 表示对于 /app2 的监听，并且注册了监听的方法</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CuratorWatcher</span> <span style="color:#f92672">{</span>
@@ -568,7 +573,7 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
 </code></pre></div><p>当 /app2 的状态发生变化时，就会调用监听的方法。</p>
 <p>Curator 是对原生的 Zookeeper Api 有封装的，原生的 Zookeeper 提供的 Api ，注册监听后，当数据发生改变时，监听就被服务端删除了，要重复注册监听。</p>
 <p>Curator 则对这个做了相应的封装和改进。</p>
-<h2 id="4-代码实战实现主备选举">4. 代码实战：实现主备选举</h2>
+<h2 id="4-代码实战实现主备选举">4. 代码实战：实现主备选举<a class="anchor ms-1" href="#4-代码实战实现主备选举"><i class="fas fa-link"></i></a></h2>
 <p>这里我们主要想实现的功能是：</p>
 <ul>
 <li>有两个节点，bigdata001，bigdata002 ，他们互相主备。</li>
@@ -689,7 +694,7 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
         <span style="color:#f92672">}</span>
     <span style="color:#f92672">}</span>
 <span style="color:#f92672">}</span>
-</code></pre></div><h2 id="参考">参考</h2>
+</code></pre></div><h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://cloud.tencent.com/developer/article/1855269" target="_blank" rel="noopener noreferrer">分布式协调框架 Zookeeper 核心设计 理解与实战，并实现一个主备切换</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
@@ -717,7 +722,7 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E7%9A%84stat%E7%BB%93%E6%9E%84/">ZooKeeper的stat结构
 </a>
@@ -758,7 +763,7 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
 </span>
         </li></ul>
     </div>
-  </section><div class="card component row post-comments">
+  </section><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -799,30 +804,20 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -969,7 +964,7 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -994,7 +989,8 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

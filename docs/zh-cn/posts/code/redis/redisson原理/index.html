@@ -25,7 +25,7 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redisson%E5%8E%9F%E7%90%86/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E5%AE%9E%E9%AA%8C/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
@@ -36,8 +36,7 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
  互斥性：在任意时刻，只能有一个进程持有锁。 防死锁：即使有一个进程在持有锁的期间崩溃而未能主动释放锁，要有其他方式去释放锁从而保证其他进程能获取到锁。 加锁和解锁的必须是同一个进程。 锁的续期问题。  常见的分布式锁实现方案  基于 Redis 实现分布式锁 基于 Zookeeper 实现分布式锁  本文采用第一种方案，也就是基于 Redis 的分布式锁实现方案。
 Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 Redis 中，指定一个 唯一的用户标识 作为 value。 当 key 不存在时才能设置值，确保同一时间只有一个客户端进程获得锁，满足 互斥性 特性。 设置一个过期时间，防止因系统异常导致没能删除这个 key，满足 防死锁 特性。 当处理完业务之后需要清除这个 key 来释放锁，清除 key 时需要校验 value 值，需要满足 只有加锁的人才能释放锁 。   特别注意：以上实现步骤考虑到了使用分布式锁需要考虑的互斥性、防死锁、加锁和解锁必须为同一个进程等问题，但是锁的续期无法实现。所以，博主采用 Redisson 实现 Redis 的分布式锁，借助 Redisson 的 WatchDog 机制 能够很好的解决锁续期的问题，同样 Redisson 也是 Redis 官方推荐分布式锁实现方案，实现起来较为简单。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -48,12 +47,7 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -151,11 +145,16 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -280,17 +279,23 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -337,7 +342,7 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
 </nav>
   </div>
 </div><div class="post-content mb-3"><p>使用 <code>set  key  value  ex/px   秒/毫秒  xx/nx</code>  的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是<code>多锁</code>，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（<code>RedissonPriorityDeque</code>）和分布式同步工具（<code>RedissonCountDownLatch</code>,  <code>RedissonSemaphore</code>）</p>
-<h2 id="写在前面"><strong>写在前面</strong></h2>
+<h2 id="写在前面">写在前面<a class="anchor ms-1" href="#写在前面"><i class="fas fa-link"></i></a></h2>
 <p>在了解分布式锁具体实现方案之前，我们应该先思考一下使用分布式锁必须要考虑的一些问题。</p>
 <ul>
 <li>互斥性：在任意时刻，只能有一个进程持有锁。</li>
@@ -345,13 +350,13 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
 <li>加锁和解锁的必须是同一个进程。</li>
 <li>锁的续期问题。</li>
 </ul>
-<h2 id="常见的分布式锁实现方案"><strong>常见的分布式锁实现方案</strong></h2>
+<h2 id="常见的分布式锁实现方案">常见的分布式锁实现方案<a class="anchor ms-1" href="#常见的分布式锁实现方案"><i class="fas fa-link"></i></a></h2>
 <ul>
 <li>基于 Redis 实现分布式锁</li>
 <li>基于 Zookeeper 实现分布式锁</li>
 </ul>
 <p>本文采用第一种方案，也就是基于 Redis 的分布式锁实现方案。</p>
-<h2 id="redis-实现分布式锁主要步骤"><strong>Redis 实现分布式锁主要步骤</strong></h2>
+<h2 id="redis-实现分布式锁主要步骤">Redis 实现分布式锁主要步骤<a class="anchor ms-1" href="#redis-实现分布式锁主要步骤"><i class="fas fa-link"></i></a></h2>
 <ol>
 <li>指定一个 key 作为锁标记，存入 Redis 中，指定一个 <strong>唯一的用户标识</strong> 作为 value。</li>
 <li>当 key 不存在时才能设置值，确保同一时间只有一个客户端进程获得锁，满足 <strong>互斥性</strong> 特性。</li>
@@ -361,12 +366,12 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
 <blockquote>
 <p>特别注意：以上实现步骤考虑到了使用分布式锁需要考虑的互斥性、防死锁、加锁和解锁必须为同一个进程等问题，<strong>但是锁的续期无法实现</strong>。所以，博主采用 Redisson 实现 Redis 的分布式锁，借助 <strong>Redisson 的 WatchDog 机制</strong> 能够很好的解决锁续期的问题，同样 Redisson 也是 Redis 官方推荐分布式锁实现方案，实现起来较为简单。</p>
 </blockquote>
-<h2 id="redisson-实现分布式锁"><strong>Redisson 实现分布式锁</strong></h2>
+<h2 id="redisson-实现分布式锁">Redisson 实现分布式锁<a class="anchor ms-1" href="#redisson-实现分布式锁"><i class="fas fa-link"></i></a></h2>
 <blockquote>
 <p>具体实现代码已经上传到博主的仓库，需要的朋友可以在公众号内回复 【分布式锁代码】 获取码云或 GitHub 项目下载地址。</p>
 </blockquote>
 <p><strong>下面从加锁机制、锁互斥机制、Watch dog 机制、可重入加锁机制、锁释放机制、等五个方面对 Redisson 实现分布式锁的底层原理进行分析。</strong></p>
-<h3 id="加锁原理"><strong>加锁原理</strong></h3>
+<h3 id="加锁原理">加锁原理<a class="anchor ms-1" href="#加锁原理"><i class="fas fa-link"></i></a></h3>
 <p>加锁其实是通过一段 lua 脚本实现的，如下：</p>
 <p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/v2-edd7847d81d487fd42b38c5d36c6c8fe_720w.jpg" loading="lazy"
   
@@ -398,7 +403,7 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
 <span style="color:#f92672">(</span>integer<span style="color:#f92672">)</span> <span style="color:#ae81ff">1</span>
 </code></pre></div><p>接着会执行 <code>pexpire myLock 30000</code> 命令，设置 myLock 这个锁 key 的生存时间是 30 秒。到此为止，加锁完成。</p>
 <p>有的小伙伴可能此时就有疑问了，<strong>如果此时有第二个客户端请求加锁呢？</strong> 这就是下面要说的锁互斥机制。</p>
-<h3 id="锁互斥机制"><strong>锁互斥机制</strong></h3>
+<h3 id="锁互斥机制">锁互斥机制<a class="anchor ms-1" href="#锁互斥机制"><i class="fas fa-link"></i></a></h3>
 <p>此时，如果客户端 2 来尝试加锁，会如何呢？首先，第一个 if 判断会执行 <code>exists myLock</code>，发现 myLock 这个锁 key 已经存在了。接着第二个 if 判断，判断一下，myLock 锁 key 的 hash 数据结构中，是否包含客户端 2 的 ID，这里明显不是，因为那里包含的是客户端 1 的 ID。所以，客户端 2 会执行：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">return</span> redis<span style="color:#f92672">.</span><span style="color:#a6e22e">call</span><span style="color:#f92672">(</span><span style="color:#960050;background-color:#1e0010">&#39;</span>pttl<span style="color:#960050;background-color:#1e0010">&#39;</span><span style="color:#f92672">,</span> KEYS<span style="color:#f92672">[</span>1<span style="color:#f92672">]);</span>
 </code></pre></div><p>返回的一个数字，这个数字代表了 myLock 这个锁 key 的剩余生存时间。</p>
@@ -508,7 +513,7 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
 <blockquote>
 <p>特别注意：以上过程存在一个细节，这里有必要说明一下，也是分布式锁的一个关键点：当锁正在被占用时，等待获取锁的进程并不是通过一个 <code>while(true)</code> 死循环去获取锁，而是利用了 Redis 的发布订阅机制,通过 Semaphore的tryAcquire方法阻塞等待锁的进程，有效的解决了<strong>无效的锁申请浪费资源的问题</strong>。</p>
 </blockquote>
-<h3 id="锁的续期机制"><strong>锁的续期机制</strong></h3>
+<h3 id="锁的续期机制">锁的续期机制<a class="anchor ms-1" href="#锁的续期机制"><i class="fas fa-link"></i></a></h3>
 <p>客户端 1 加锁的锁 key 默认生存时间才 30 秒，如果超过了 30 秒，客户端 1 还想一直持有这把锁，怎么办呢？</p>
 <p>Redisson 提供了一个续期机制， 只要客户端 1 一旦加锁成功，就会启动一个 Watch Dog。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> RFuture<span style="color:#f92672">&lt;</span>Long<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">tryAcquireAsync</span><span style="color:#f92672">(</span><span style="color:#66d9ef">long</span> leaseTime<span style="color:#f92672">,</span> TimeUnit unit<span style="color:#f92672">,</span> <span style="color:#66d9ef">long</span> threadId<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
@@ -556,7 +561,7 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
 <blockquote>
 <p>注意：这里有一个细节问题，如果服务宕机了，Watch Dog 机制线程也就没有了，此时就不会延长 key 的过期时间，到了 30s 之后就会自动过期了，其他线程就可以获取到锁。</p>
 </blockquote>
-<h3 id="可重入加锁机制"><strong>可重入加锁机制</strong></h3>
+<h3 id="可重入加锁机制">可重入加锁机制<a class="anchor ms-1" href="#可重入加锁机制"><i class="fas fa-link"></i></a></h3>
 <p>Redisson 也是支持可重入锁的，比如下面这种代码：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Override</span>
 <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">lock</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
@@ -596,7 +601,7 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
 2<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;2&#34;</span>
 </code></pre></div><p>到这里，小伙伴本就都明白了 hash 结构的 key 是锁的名称，field 是客户端 ID，value 是该客户端加锁的次数。</p>
 <p>这里有一个细节，如果加锁支持可重入锁，那么解锁呢？</p>
-<h3 id="释放锁机制"><strong>释放锁机制</strong></h3>
+<h3 id="释放锁机制">释放锁机制<a class="anchor ms-1" href="#释放锁机制"><i class="fas fa-link"></i></a></h3>
 <p>执行</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">lock<span style="color:#f92672">.</span><span style="color:#a6e22e">unlock</span><span style="color:#f92672">()</span>
 </code></pre></div><p>就可以释放分布式锁。我们来看一下释放锁的流程代码：</p>
@@ -653,21 +658,21 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
 <li>广播释放锁的消息，通知阻塞等待的进程（向通道名为 <code>redisson_lock__channel</code> publish 一条 <code>UNLOCK_MESSAGE</code> 信息）。</li>
 <li>取消 Watch Dog 机制，即将 <code>RedissonLock.EXPIRATION_RENEWAL_MAP</code> 里面的线程 id 删除，并且 cancel 掉 Netty 的那个定时任务线程。</li>
 </ol>
-<h2 id="方案优点"><strong>方案优点</strong></h2>
+<h2 id="方案优点">方案优点<a class="anchor ms-1" href="#方案优点"><i class="fas fa-link"></i></a></h2>
 <ol>
 <li>Redisson 通过 Watch Dog 机制很好的解决了锁的续期问题。</li>
 <li>和 Zookeeper 相比较，Redisson 基于 Redis 性能更高，适合对性能要求高的场景。</li>
 <li>通过 Redisson 实现分布式可重入锁，比原生的 <code>SET mylock userId NX PX milliseconds</code> + lua 实现的效果更好些，虽然基本原理都一样，但是它帮我们屏蔽了内部的执行细节。</li>
 <li>在等待申请锁资源的进程等待申请锁的实现上也做了一些优化，减少了无效的锁申请，提升了资源的利用率。</li>
 </ol>
-<h2 id="方案缺点"><strong>方案缺点</strong></h2>
+<h2 id="方案缺点">方案缺点<a class="anchor ms-1" href="#方案缺点"><i class="fas fa-link"></i></a></h2>
 <ol>
 <li>使用 Redisson 实现分布式锁方案最大的问题就是如果你对某个 Redis Master 实例完成了加锁，此时 Master 会异步复制给其对应的 slave 实例。但是这个过程中一旦 Master 宕机，主备切换，slave 变为了 Master。接着就会导致，客户端 2 来尝试加锁的时候，在新的 Master 上完成了加锁，而客户端 1 也以为自己成功加了锁，此时就会导致多个客户端对一个分布式锁完成了加锁，这时系统在业务语义上一定会出现问题，导致各种脏数据的产生。所以这个就是 Redis Cluster 或者说是 Redis Master-Slave 架构的主从异步复制导致的 Redis 分布式锁的最大缺陷（在 Redis Master 实例宕机的时候，可能导致多个客户端同时完成加锁）。<code>Redisson有RedLock算法实现RedissonRedLock，所以这个问题在使用Redisson时不存在</code></li>
 <li>有个别观点说使用 Watch Dog 机制开启一个定时线程去不断延长锁的时间对系统有所损耗（这里只是网络上的一种说法，博主查了很多资料并且结合实际生产并不认为有很大系统损耗，这个仅供大家参考）。</li>
 </ol>
-<h2 id="总结"><strong>总结</strong></h2>
+<h2 id="总结">总结<a class="anchor ms-1" href="#总结"><i class="fas fa-link"></i></a></h2>
 <p>以上就是基于 Redis 使用 Redisson 实现分布式锁的所有原理分析，希望可以帮助小伙伴们对分布式锁的理解有所加深。其实分析完源码后发现基于 Redis 自己手动实现一个简版的分布式锁工具也并不是很难，有兴趣的小伙伴可以试试。</p>
-<h2 id="参考">参考</h2>
+<h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://zhuanlan.zhihu.com/p/135864820" target="_blank" rel="noopener noreferrer">Redisson 实现分布式锁原理分析</a>
 </p>
 <p><a href="https://cloud.tencent.com/developer/article/1823777" target="_blank" rel="noopener noreferrer">Redisson实现分布式锁原理</a>
@@ -699,7 +704,7 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/">Redis主从复制
 </a>
@@ -740,7 +745,7 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
 </span>
         </li></ul>
     </div>
-  </section><div class="card component row post-comments">
+  </section><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -781,30 +786,20 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -951,7 +946,7 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -976,7 +971,8 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

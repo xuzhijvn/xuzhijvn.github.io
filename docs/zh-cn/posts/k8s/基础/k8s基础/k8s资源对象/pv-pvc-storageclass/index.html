@@ -63,8 +63,7 @@ Using Pod使用PVC作为卷。 集群检查声明以找到绑定的卷并挂载�
 Releasing 当用户完成卷时，他们可以从允许资源回收的API中删除PVC对象。 当声明被删除时，卷被认为是“释放的”，但是它还不能用于另一个声明。 以前的索赔人的数据仍然保留在必须根据政策处理的卷上.
 Reclaiming PersistentVolume的回收策略告诉集群在释放其声明后，该卷应该如何处理。 目前，卷可以是保留，回收或删除。 保留可以手动回收资源。 对于那些支持它的卷插件，删除将从Kubernetes中删除PersistentVolume对象，以及删除外部基础架构（如AWS EBS，GCE PD，Azure Disk或Cinder卷）中关联的存储资产。 动态配置的卷始终被删除"/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -75,12 +74,7 @@ Reclaiming PersistentVolume的回收策略告诉集群在释放其声明后，�
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -178,11 +172,16 @@ Reclaiming PersistentVolume的回收策略告诉集群在释放其声明后，�
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -307,17 +306,23 @@ Reclaiming PersistentVolume的回收策略告诉集群在释放其声明后，�
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -359,8 +364,8 @@ Reclaiming PersistentVolume的回收策略告诉集群在释放其声明后，�
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><h3 id="本文较老建议查看新文档httpdocskubernetesorgcn429html">本文较老，建议查看新文档：http://docs.kubernetes.org.cn/429.html</h3>
-<h3 id="介绍">介绍</h3>
+</div><div class="post-content mb-3"><h3 id="本文较老建议查看新文档httpdocskubernetesorgcn429html">本文较老，建议查看新文档：http://docs.kubernetes.org.cn/429.html<a class="anchor ms-1" href="#本文较老建议查看新文档httpdocskubernetesorgcn429html"><i class="fas fa-link"></i></a></h3>
+<h3 id="介绍">介绍<a class="anchor ms-1" href="#介绍"><i class="fas fa-link"></i></a></h3>
 <p>PersistentVolume（PV）是集群中已由管理员配置的一段网络存储。 集群中的资源就像一个节点是一个集群资源。 PV是诸如卷之类的卷插件，但是具有独立于使用PV的任何单个pod的生命周期。 该API对象捕获存储的实现细节，即NFS，iSCSI或云提供商特定的存储系统。</p>
 <p>PersistentVolumeClaim（PVC）是用户存储的请求。 它类似于pod。Pod消耗节点资源，PVC消耗存储资源。 pod可以请求特定级别的资源（CPU和内存）。 权限要求可以请求特定的大小和访问模式。</p>
 <p>虽然PersistentVolumeClaims允许用户使用抽象存储资源，但是常见的是，用户需要具有不同属性（如性能）的PersistentVolumes，用于不同的问题。 群集管理员需要能够提供多种不同于PersistentVolumes的PersistentVolumes，而不仅仅是大小和访问模式，而不会使用户了解这些卷的实现细节。 对于这些需求，存在StorageClass资源。</p>
@@ -368,26 +373,26 @@ Reclaiming PersistentVolume的回收策略告诉集群在释放其声明后，�
 <p>例子
 <a href="https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/" target="_blank" rel="noopener noreferrer">https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/</a>
 </p>
-<h3 id="lifecycle-of-a-volume-and-claim">Lifecycle of a volume and claim</h3>
+<h3 id="lifecycle-of-a-volume-and-claim">Lifecycle of a volume and claim<a class="anchor ms-1" href="#lifecycle-of-a-volume-and-claim"><i class="fas fa-link"></i></a></h3>
 <p>PV是集群中的资源。 PVC是对这些资源的请求，也是对资源的索赔检查。 PV和PVC之间的相互作用遵循这个生命周期:</p>
 <p>Provisioning ——-&gt; Binding ——–&gt;Using——&gt;Releasing——&gt;Recycling</p>
-<h4 id="provisioning">Provisioning</h4>
+<h4 id="provisioning">Provisioning<a class="anchor ms-1" href="#provisioning"><i class="fas fa-link"></i></a></h4>
 <p>这里有两种PV的提供方式:静态或者动态</p>
 <pre><code>Static
 集群管理员创建多个PV。 它们携带可供集群用户使用的真实存储的详细信息。 它们存在于Kubernetes API中，可用于消费。
 Dynamic
 当管理员创建的静态PV都不匹配用户的PersistentVolumeClaim时，集群可能会尝试为PVC动态配置卷。 此配置基于StorageClasses：PVC必须请求一个类，并且管理员必须已创建并配置该类才能进行动态配置。 要求该类的声明有效地为自己禁用动态配置
-</code></pre><h4 id="binding">Binding</h4>
+</code></pre><h4 id="binding">Binding<a class="anchor ms-1" href="#binding"><i class="fas fa-link"></i></a></h4>
 <p>在动态配置的情况下，用户创建或已经创建了具有特定数量的存储请求和特定访问模式的PersistentVolumeClaim。 主机中的控制回路监视新的PVC，找到匹配的PV（如果可能），并将它们绑定在一起。 如果为新的PVC动态配置PV，则循环将始终将该PV绑定到PVC。 否则，用户总是至少得到他们要求的内容，但是卷可能超出了要求。 一旦绑定，PersistentVolumeClaim绑定是排他的，不管用于绑定它们的模式。</p>
 <p>如果匹配的卷不存在，PVC将保持无限期。 随着匹配卷变得可用，PVC将被绑定。 例如，提供许多50Gi PV的集群将不匹配要求100Gi的PVC。 当集群中添加100Gi PV时，可以绑定PVC。</p>
-<h4 id="using">Using</h4>
+<h4 id="using">Using<a class="anchor ms-1" href="#using"><i class="fas fa-link"></i></a></h4>
 <p>Pod使用PVC作为卷。 集群检查声明以找到绑定的卷并挂载该卷的卷。 对于支持多种访问模式的卷，用户在将其声明用作pod中的卷时指定所需的模式。</p>
 <p>一旦用户有声明并且该声明被绑定，绑定的PV属于用户，只要他们需要它。 用户通过在其Pod的卷块中包含persistentVolumeClaim来安排Pods并访问其声明的PV。</p>
-<h4 id="releasing">Releasing</h4>
+<h4 id="releasing">Releasing<a class="anchor ms-1" href="#releasing"><i class="fas fa-link"></i></a></h4>
 <p>当用户完成卷时，他们可以从允许资源回收的API中删除PVC对象。 当声明被删除时，卷被认为是“释放的”，但是它还不能用于另一个声明。 以前的索赔人的数据仍然保留在必须根据政策处理的卷上.</p>
 <p>Reclaiming
 PersistentVolume的回收策略告诉集群在释放其声明后，该卷应该如何处理。 目前，卷可以是保留，回收或删除。 保留可以手动回收资源。 对于那些支持它的卷插件，删除将从Kubernetes中删除PersistentVolume对象，以及删除外部基础架构（如AWS EBS，GCE PD，Azure Disk或Cinder卷）中关联的存储资产。 动态配置的卷始终被删除</p>
-<h4 id="recycling">Recycling</h4>
+<h4 id="recycling">Recycling<a class="anchor ms-1" href="#recycling"><i class="fas fa-link"></i></a></h4>
 <p>如果受适当的卷插件支持，回收将对卷执行基本的擦除（rm -rf / thevolume / *），并使其再次可用于新的声明。
 但是，管理员可以使用Kubernetes控制器管理器命令行参数来配置自定义的回收站pod模板，如这里所述。 定制回收站模板必须包含卷规范，如下例所示：</p>
 <pre><code>apiVersion: v1
@@ -408,7 +413,7 @@ spec:
     volumeMounts:
     - name: vol
       mountPath: /scrub
-</code></pre><h3 id="types-of-persistent-volumes">Types of Persistent Volumes</h3>
+</code></pre><h3 id="types-of-persistent-volumes">Types of Persistent Volumes<a class="anchor ms-1" href="#types-of-persistent-volumes"><i class="fas fa-link"></i></a></h3>
 <p>PV当前支持的类型</p>
 <pre><code>GCEPersistentDisk 
 AWSElasticBlockStore 
@@ -429,7 +434,7 @@ HostPath (single node testing only – local storage is not supported in any way
 VMware Photon 
 Portworx Volumes 
 ScaleIO Volumes 
-</code></pre><h3 id="persistent-volumes">Persistent Volumes</h3>
+</code></pre><h3 id="persistent-volumes">Persistent Volumes<a class="anchor ms-1" href="#persistent-volumes"><i class="fas fa-link"></i></a></h3>
 <p>每个PV包含了Spec和Staus, 在PV的定义中指定该内容</p>
 <pre><code>  apiVersion: v1
   kind: PersistentVolume
@@ -445,10 +450,10 @@ ScaleIO Volumes
     nfs:
       path: /tmp
       server: 172.17.0.2
-</code></pre><h4 id="capacity">Capacity</h4>
+</code></pre><h4 id="capacity">Capacity<a class="anchor ms-1" href="#capacity"><i class="fas fa-link"></i></a></h4>
 <p>通常，PV将具有特定的存储容量。 这是使用PV的容量属性设置的。 看到库伯纳斯资源模型，以了解容量预期的单位。</p>
 <p>目前，存储大小是唯一可以设置或请求的资源。 未来的属性可能包括IOPS，吞吐量等</p>
-<h4 id="access-modes">Access Modes</h4>
+<h4 id="access-modes">Access Modes<a class="anchor ms-1" href="#access-modes"><i class="fas fa-link"></i></a></h4>
 <p>PersistentVolume可以以资源提供者支持的任何方式安装在主机上。 如下表所示，提供商将具有不同的功能，每个PV的访问模式都被设置为该特定卷支持的特定模式。 例如，NFS可以支持多个读/写客户端，但是特定的NFS PV可能会以只读方式在服务器上导出。 每个PV都有自己的一组访问模式来描述具体的PV功能。
 访问模式:
 ReadWriteOnce – the volume can be mounted as read-write by a single node (单node的读写)
@@ -456,22 +461,22 @@ ReadOnlyMany – the volume can be mounted read-only by many nodes (多node的�
 ReadWriteMany – the volume can be mounted as read-write by many nodes (多node的读写)
 Notice:单个PV挂载的时候只支持一种访问模式
 PV提供插件支持的access mode参考kubernetes官方文档</p>
-<h4 id="class">Class</h4>
+<h4 id="class">Class<a class="anchor ms-1" href="#class"><i class="fas fa-link"></i></a></h4>
 <p>PV可以有一个类，通过将storageClassName属性设置为StorageClass的名称来指定。 特定类的PV只能绑定到请求该类的PVC。 没有storageClassName的PV没有类，只能绑定到不需要特定类的PVC。
 在过去，使用了注释volume.beta.kubernetes.io/storage-class而不是storageClassName属性。 该注释仍然可以工作，但将来Kubernetes版本将不再适用。</p>
-<h4 id="reclaim-policy">Reclaim Policy</h4>
+<h4 id="reclaim-policy">Reclaim Policy<a class="anchor ms-1" href="#reclaim-policy"><i class="fas fa-link"></i></a></h4>
 <p>目前的回收政策是：</p>
 <pre><code>Retain – manual reclamation 
 Recycle – basic scrub (“rm -rf /thevolume/*”) 
 Delete – associated storage asset such as AWS EBS, GCE PD, Azure Disk, or OpenStack Cinder volume is deleted 
 </code></pre><p>目前，只有NFS和HostPath支持回收。 AWS EBS，GCE PD，Azure Disk和Cinder卷支持删除</p>
-<h4 id="phase">Phase</h4>
+<h4 id="phase">Phase<a class="anchor ms-1" href="#phase"><i class="fas fa-link"></i></a></h4>
 <p>卷将处于以下阶段之一：</p>
 <pre><code>Available – a free resource that is not yet bound to a claim 
 Bound – the volume is bound to a claim 
 Released – the claim has been deleted, but the resource is not yet reclaimed by the cluster 
 Failed – the volume has failed its automatic reclamation 
-</code></pre><h4 id="mount-options">Mount Options</h4>
+</code></pre><h4 id="mount-options">Mount Options<a class="anchor ms-1" href="#mount-options"><i class="fas fa-link"></i></a></h4>
 <p>Kubernetes管理员可以指定在一个节点上挂载一个持久卷时的其他安装选项。
 您可以通过使用持久卷上的注释volume.beta.kubernetes.io/mount-options来指定安装选项。</p>
 <pre><code>apiVersion: &quot;v1&quot;
@@ -503,7 +508,7 @@ Glusterfs
 VsphereVolume 
 Quobyte Volumes 
 VMware Photon 
-</code></pre><h3 id="persistentvolumeclaims">PersistentVolumeClaims</h3>
+</code></pre><h3 id="persistentvolumeclaims">PersistentVolumeClaims<a class="anchor ms-1" href="#persistentvolumeclaims"><i class="fas fa-link"></i></a></h3>
 <p>每个PVC包含spec和status</p>
 <pre><code>kind: PersistentVolumeClaim
 apiVersion: v1
@@ -521,16 +526,16 @@ spec:
       release: &quot;stable&quot;
     matchExpressions:
       - {key: environment, operator: In, values: [dev]}
-</code></pre><h4 id="access-modes-1">Access Modes</h4>
+</code></pre><h4 id="access-modes-1">Access Modes<a class="anchor ms-1" href="#access-modes-1"><i class="fas fa-link"></i></a></h4>
 <p>当请求具有特定访问模式的存储时，声明使用与卷相同的约定</p>
-<h4 id="resources">Resources</h4>
+<h4 id="resources">Resources<a class="anchor ms-1" href="#resources"><i class="fas fa-link"></i></a></h4>
 <p>声明（如pod）可以请求特定数量的资源。 在这种情况下，请求用于存储。 相同的资源模型适用于卷和声明</p>
-<h4 id="selector">Selector</h4>
+<h4 id="selector">Selector<a class="anchor ms-1" href="#selector"><i class="fas fa-link"></i></a></h4>
 <p>声明可以指定标签选择器以进一步过滤该卷集。 只有标签与选择器匹配的卷才能绑定到声明。 选择器可以由两个字段组成：</p>
 <pre><code>matchLabels - 卷必须具有带此值的标签
 matchExpressions - 通过指定关键字和值的关键字，值列表和运算符所做的要求列表。 有效运算符包括In，NotIn，Exists和DoesNotExist。
 </code></pre><p>所有来自matchLabels和matchExpressions的要求都与AND一起使用，所有这些要求都必须满足才能匹配。</p>
-<h4 id="class-1">Class</h4>
+<h4 id="class-1">Class<a class="anchor ms-1" href="#class-1"><i class="fas fa-link"></i></a></h4>
 <p>声明可以通过使用属性storageClassName指定StorageClass的名称来请求特定的类。只有所请求的类的PV，与PVC相同的storageClassName的PV可以绑定到PVC。</p>
 <p>PVC不一定要求一个班级。它的storageClassName设置为等于“”的PVC总是被解释为请求没有类的PV，因此它只能绑定到没有类的PV（没有注释或一个等于“”）。没有storageClassName的PVC不完全相同，并且根据是否启用了DefaultStorageClass入门插件，集群的处理方式不同。</p>
 <p>如果接纳插件已打开，则管理员可以指定默认的StorageClass。没有storageClassName的所有PVC只能绑定到该默认的PV。通过将StorageClass对象中的annotation storageclass.kubernetes.io/is-default-class设置为“true”来指定默认的StorageClass。如果管理员没有指定默认值，则集群会对PVC创建做出响应，就像入门插件被关闭一样。如果指定了多个默认值，则验收插件禁止创建所有PVC。
@@ -538,7 +543,7 @@ matchExpressions - 通过指定关键字和值的关键字，值列表和运算�
 <p>根据安装方法，安装过程中可以通过addon manager在Kubernetes群集中部署默认的StorageClass。</p>
 <p>当PVC指定一个选择器，除了请求一个StorageClass之外，这些要求被AND组合在一起：只有所请求的类和所请求的标签的PV可能被绑定到PVC。请注意，当前，具有非空选择器的PVC不能为其动态配置PV。</p>
 <p>在过去，使用了注释volume.beta.kubernetes.io/storage-class，而不是storageClassName属性。该注释仍然可以工作，但在未来的Kubernetes版本中它将不被支持。</p>
-<h3 id="声明pvc作为volumes">声明PVC作为Volumes</h3>
+<h3 id="声明pvc作为volumes">声明PVC作为Volumes<a class="anchor ms-1" href="#声明pvc作为volumes"><i class="fas fa-link"></i></a></h3>
 <p>Pods通过将声明用作卷来访问存储。 声明必须存在于与使用声明的pod相同的命名空间中。 群集在pod的命名空间中查找声明，并使用它来获取支持声明的PersistentVolume。 然后将体积安装到主机并进入Pod。</p>
 <pre><code>kind: Pod
 apiVersion: v1
@@ -556,7 +561,7 @@ spec:
       persistentVolumeClaim:
         claimName: myclaim
 </code></pre><p>PersistentVolumes绑定是独占的，并且由于PersistentVolumeClaims是命名空间对象，所以只能在一个命名空间内安装“许多”模式（ROX，RWX）—PVC支持被多个pod挂载</p>
-<h3 id="storageclasses">StorageClasses</h3>
+<h3 id="storageclasses">StorageClasses<a class="anchor ms-1" href="#storageclasses"><i class="fas fa-link"></i></a></h3>
 <p>每个StorageClass包含字段provisioninger和参数，当属于类的PersistentVolume需要动态配置时使用。</p>
 <p>StorageClass对象的名称很重要，用户可以如何请求特定的类。 管理员在首次创建StorageClass对象时设置类的名称和其他参数，并且在创建对象后无法更新对象。</p>
 <p>管理员可以仅为不要求任何特定类绑定的PVC指定默认的StorageClass：有关详细信息，请参阅PersistentVolumeClaim部分。</p>
@@ -567,10 +572,10 @@ metadata:
 provisioner: kubernetes.io/aws-ebs
 parameters:
   type: gp2
-</code></pre><h4 id="provisioner">Provisioner</h4>
+</code></pre><h4 id="provisioner">Provisioner<a class="anchor ms-1" href="#provisioner"><i class="fas fa-link"></i></a></h4>
 <p>存储类有一个供应商，它确定用于配置PV的卷插件。 必须指定此字段。</p>
 <p>您不限于指定此处列出的“内部”供应商（其名称前缀为“kubernetes.io”并与Kubernetes一起运送）。 您还可以运行和指定外部提供程序，它们是遵循Kubernetes定义的规范的独立程序。 外部提供者的作者对代码的生命周期，供应商的运输状况，运行状况以及使用的卷插件（包括Flex）等都有充分的自主权。存储库kubernetes-incubator /外部存储库包含一个库 用于编写实施大部分规范的外部提供者以及各种社区维护的外部提供者。</p>
-<h4 id="parameters">Parameters</h4>
+<h4 id="parameters">Parameters<a class="anchor ms-1" href="#parameters"><i class="fas fa-link"></i></a></h4>
 <p>存储类具有描述属于存储类的卷的参数。 取决于供应商，可以接受不同的参数。 例如，参数类型的值io1和参数iopsPerGB特定于EBS。 当省略参数时，使用一些默认值。</p>
 <p>AWS/GCE/Glusterfs/</p>
 <p>OpenStack Cinder</p>
@@ -586,7 +591,7 @@ type: VolumeType created in Cinder. Default is empty.
 availability: Availability Zone. If not specified, volumes are generally round-robin-ed across all active zones where Kubernetes cluster has a node. 
 </code></pre><p>其它类型的storageClass配置参考</p>
 <pre><code>https://kubernetes.io/docs/concepts/storage/persistent-volumes/#types-of-persistent-volumes
-</code></pre><h4 id="配置">配置</h4>
+</code></pre><h4 id="配置">配置<a class="anchor ms-1" href="#配置"><i class="fas fa-link"></i></a></h4>
 <p>如果您正在编写在各种群集上运行并需要持久存储的配置模板或示例，我们建议您使用以下模式：</p>
 <p>在您的配置文件夹（包括部署，ConfigMaps等）中包含PersistentVolumeClaim对象。
 在配置中不要包含PersistentVolume对象，因为实例化配置的用户可能没有创建PersistentVolumes的权限。
@@ -630,7 +635,7 @@ availability: Availability Zone. If not specified, volumes are generally round-r
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/pvc%E4%B8%8D%E4%BC%9A%E4%B8%BB%E5%8A%A8%E5%9B%9E%E6%94%B6%E9%97%AE%E9%A2%98/">pvc不会主动回收问题
 </a>
@@ -671,7 +676,7 @@ availability: Availability Zone. If not specified, volumes are generally round-r
 </span>
         </li></ul>
     </div>
-  </section><div class="card component row post-comments">
+  </section><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -712,30 +717,20 @@ availability: Availability Zone. If not specified, volumes are generally round-r
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -882,7 +877,7 @@ availability: Availability Zone. If not specified, volumes are generally round-r
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -907,7 +902,8 @@ availability: Availability Zone. If not specified, volumes are generally round-r
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

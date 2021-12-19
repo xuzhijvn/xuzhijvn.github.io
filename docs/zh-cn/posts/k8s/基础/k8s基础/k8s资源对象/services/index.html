@@ -66,8 +66,7 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
 如上的情况下，我们可以定义一个服务没有选择器
 { &#34;“kind”&#34;: &#34;“Service”&#34;, &#34;“apiVersion”&#34;: &#34;“v1″&#34;, &#34;“metadata”&#34;: { &#34;“name”&#34;: &#34;“my-service”&#34; }, &#34;“spec”&#34;: { &#34;“ports”&#34;: [ { &#34;“protocol”&#34;: &#34;“TCP”&#34;, &#34;“port”&#34;: 80, &#34;“targetPort”&#34;: 9376 } ] } } 因为没有选择器，所以相应的Endpoints对象就不会被创建，但是我们手动把我们的服务和Endpoints对应起来"/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -78,12 +77,7 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -181,11 +175,16 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -310,17 +309,23 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -376,14 +381,14 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><h2 id="overview概述">Overview（概述）</h2>
+</div><div class="post-content mb-3"><h2 id="overview概述">Overview（概述）<a class="anchor ms-1" href="#overview概述"><i class="fas fa-link"></i></a></h2>
 <p>Kubernetes Pod是平凡的，它门会被创建，也会死掉（生老病死），并且他们是不可复活的。 ReplicationControllers动态的创建和销毁Pods(比如规模扩大或者缩小，或者执行动态更新)。每个pod都由自己的ip，这些IP也随着时间的变化也不能持续依赖。这样就引发了一个问题：如果一些Pods（让我们叫它作后台，后端）提供了一些功能供其它的Pod使用（让我们叫作前台），在kubernete集群中是如何实现让这些前台能够持续的追踪到这些后台的？</p>
 <p><strong>答案是：Service</strong></p>
 <p>Kubernete Service 是一个定义了一组<a href="https://www.kubernetes.org.cn/tags/pod" target="_blank" rel="noopener noreferrer"><strong>Pod</strong></a>
 的策略的抽象，我们也有时候叫做宏观服务。这些被服务标记的Pod都是（一般）通过label Selector决定的（下面我们会讲到我们为什么需要一个没有label selector的服务）</p>
 <p>举个例子，我们假设后台是一个图形处理的后台，并且由3个副本。这些副本是可以相互替代的，并且前台并需要关心使用的哪一个后台Pod，当这个承载前台请求的pod发生变化时，前台并不需要直到这些变化，或者追踪后台的这些副本，服务是这些去耦</p>
 <p>对于Kubernete原生的应用，Kubernete提供了一个简单的Endpoints API，这个Endpoints api的作用就是当一个服务中的pod发生变化时，Endpoints API随之变化，对于哪些不是原生的程序，Kubernetes提供了一个基于虚拟IP的网桥的服务，这个服务会将请求转发到对应的后台pod</p>
-<h2 id="defining-a-service定义一个服务"><strong>Defining a service(定义一个服务)</strong></h2>
+<h2 id="defining-a-service定义一个服务">Defining a service(定义一个服务)<a class="anchor ms-1" href="#defining-a-service定义一个服务"><i class="fas fa-link"></i></a></h2>
 <p>一个Kubernete服务是一个最小的对象，类似pod,和其它的终端对象一样，我们可以朝paiserver发送请求来创建一个新的实例，比如，假设你拥有一些Pod,每个pod都开放了9376端口，并且均带有一个标签app=MyApp</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{
   <span style="color:#f92672">&#34;“kind”&#34;: </span><span style="color:#e6db74">&#34;“Service”&#34;</span>,
@@ -454,7 +459,7 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
   ]
 }
 </code></pre></div><p>这样的话，这个服务虽然没有selector，但是却可以正常工作，所有的请求都会被转发到1.2.3.4:80</p>
-<h2 id="virtual-ips-and-service-proxies虚拟ip和服务代理">Virtual IPs and service proxies（虚拟IP和服务代理）</h2>
+<h2 id="virtual-ips-and-service-proxies虚拟ip和服务代理">Virtual IPs and service proxies（虚拟IP和服务代理）<a class="anchor ms-1" href="#virtual-ips-and-service-proxies虚拟ip和服务代理"><i class="fas fa-link"></i></a></h2>
 <p>每一个节点上都运行了一个kube-proxy，这个应用监控着Kubermaster增加和删除服务，对于每一个服务，kube-proxy会随机开启一个本机端口，任何发向这个端口的请求都会被转发到一个后台的Pod当中，而如何选择是哪一个后台的pod的是基于SessionAffinity进行的分配。kube-proxy会增加iptables rules来实现捕捉这个服务的Ip和端口来并重定向到前面提到的端口。</p>
 <p>最终的结果就是所有的对于这个服务的请求都会被转发到后台的Pod中，这一过程用户根本察觉不到</p>
 <p><img class="img-fluid" alt="20161014161523" src="https://img.kubernetes.org.cn/2016/10/20161014161523.jpg" loading="lazy"
@@ -463,7 +468,7 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
 
 </p>
 <p>默认的，后台的选择是随机的，基于用户session机制的策略可以通过修改service.spec.sessionAffinity 的值从NONE到ClientIP</p>
-<h3 id="multi-port-services多端口服务">Multi-Port Services（多端口服务）</h3>
+<h3 id="multi-port-services多端口服务">Multi-Port Services（多端口服务）<a class="anchor ms-1" href="#multi-port-services多端口服务"><i class="fas fa-link"></i></a></h3>
 <p>可能很多服务需要开发不止一个端口,为了满足这样的情况，Kubernetes允许在定义时候指定多个端口，当我们使用多个端口的时候，我们需要指定所有端口的名称，这样endpoints才能清楚，例如</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{
   <span style="color:#f92672">&#34;“kind”&#34;: </span><span style="color:#e6db74">&#34;“Service”&#34;</span>,
@@ -491,17 +496,17 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
     ]
   }
 }
-</code></pre></div><h2 id="选择自己的ip地址">选择自己的IP地址</h2>
+</code></pre></div><h2 id="选择自己的ip地址">选择自己的IP地址<a class="anchor ms-1" href="#选择自己的ip地址"><i class="fas fa-link"></i></a></h2>
 <p>我们可以在创建服务的时候指定IP地址，将spec.clusterIP的值设定为我们想要的IP地址即可。例如，我们已经有一个DNS域我们希望用来替换，或者遗留系统只能对指定IP提供服务，并且这些都非常难修改，用户选择的IP地址必须是一个有效的IP地址，并且要在API server分配的IP范围内，如果这个IP地址是不可用的，apiserver会返回422http错误代码来告知是IP地址不可用</p>
-<h3 id="为什么不使用循环的dns">为什么不使用循环的DNS</h3>
+<h3 id="为什么不使用循环的dns">为什么不使用循环的DNS<a class="anchor ms-1" href="#为什么不使用循环的dns"><i class="fas fa-link"></i></a></h3>
 <p>一个问题持续的被提出来，这个问题就是我们为什么不使用标准的循环DNS而使用虚拟IP，我们主要有如下几个原因</p>
 <p>1：DNS不遵循TTL查询和缓存name查询的问题由来已久（这个还真不知道，就是DNS更新的问题估计）</p>
 <p>2：许多的应用的DNS查询查询一次后就缓存起来</p>
 <p>3：即使如上亮点被解决了，但是不停的进行DNS进行查询，大量的请求也是很难被管理的</p>
 <p>我们希望阻止用户使用这些可能会“伤害”他们的事情，但是如果足够多的人要求这么作，那么我们将对此提供支持，来作为一个可选项.</p>
-<h2 id="discovering-services服务的发现"><strong>Discovering services（服务的发现）</strong></h2>
+<h2 id="discovering-services服务的发现">Discovering services（服务的发现）<a class="anchor ms-1" href="#discovering-services服务的发现"><i class="fas fa-link"></i></a></h2>
 <p>Kubernetes 支持两种方式的来发现服务 ，环境变量和 DNS</p>
-<h3 id="环境变量">环境变量</h3>
+<h3 id="环境变量">环境变量<a class="anchor ms-1" href="#环境变量"><i class="fas fa-link"></i></a></h3>
 <p>当一个Pod在一个node上运行时，kubelet 会针对运行的服务增加一系列的环境变量，它支持Docker links compatible 和普通环境变量</p>
 <p>举例子来说：</p>
 <p>redis-master服务暴露了 TCP 6379端口，并且被分配了10.0.0.11 IP地址</p>
@@ -516,16 +521,16 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
 <p>REDIS_MASTER_PORT_6379_TCP_ADDR=10.0.0.11</p>
 </blockquote>
 <p>这样的话，对系统有一个要求：所有的想要被POD访问的服务，必须在POD创建之前创建，否则这个环境变量不会被填充，使用DNS则没有这个问题</p>
-<h3 id="dns">DNS</h3>
+<h3 id="dns">DNS<a class="anchor ms-1" href="#dns"><i class="fas fa-link"></i></a></h3>
 <p>一个可选择的云平台插件就是DNS，DNS 服务器监控着API SERVER ，当有服务被创建的时候，DNS 服务器会为之创建相应的记录，如果DNS这个服务被添加了，那么Pod应该是可以自动解析服务的。</p>
 <p>举个例子来说：如果我们在my-ns命名空间下有一个服务叫做“my-service”，这个时候DNS就会创建一个my-service.my-ns的记录，所有my-ns命名空间下的Pod,都可以通过域名my-service查询找到对应的ip地址，不同命名空间下的Pod在查找是必须使用my-sesrvice.my-ns才可以。</p>
 <p>Kubernete 同样支持端口的解析，如果my-service有一个提供http的TCP主持的端口，那么我们可以通过查询“_http._tcp.my-service.my-ns”来查询这个端口</p>
-<h2 id="headless-services">Headless services</h2>
+<h2 id="headless-services">Headless services<a class="anchor ms-1" href="#headless-services"><i class="fas fa-link"></i></a></h2>
 <p>有时候我们可能不需要一个固定的IP和分发，这个时候我们只需要将spec.clusterIP的值设置为none就可以了</p>
 <p>对于这样的服务来说，集群IP没有分配，这个时候当你查询服务的名称的时候，DNS会返回多个A记录，这些记录都是指向后端Pod的。Kube 代理不会处理这个服务，在服务的前端也没有负载均衡器。但是endpoints controller还是会创建Endpoints</p>
 <p>（好吧，这个好处貌似我还理解好）</p>
 <p>This option allows developers to reduce coupling to the Kubernetes system, if they desire, but leaves them freedom to do discovery in their own way. Applications can still use a self-registration pattern and adapters for other discovery systems could easily be built upon this API.</p>
-<h2 id="external-services外部服务">External services（外部服务）</h2>
+<h2 id="external-services外部服务">External services（外部服务）<a class="anchor ms-1" href="#external-services外部服务"><i class="fas fa-link"></i></a></h2>
 <p>对于我们的应用程序来说，我们可能有一部分是放在Kubernete外部的（比如我们有单独的物理机来承担数据库的角色），Kubernetes支持两种方式：NodePorts，LoadBalancers</p>
 <p>每一个服务都会有一个字段定义了该服务如何被调用（发现），这个字段的值可以为：</p>
 <ul>
@@ -534,11 +539,11 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
 <li>LoadBalancer：使用集群固定IP，和NODEPord,额外还会申请申请一个负载均衡器来转发到服务（load balancer ）</li>
 </ul>
 <p>注意：NodePort 支持TCP和UDN，但是LoadBalancers在1.0版本只支持TCP</p>
-<h3 id="type-nodeport">Type NodePort</h3>
+<h3 id="type-nodeport">Type NodePort<a class="anchor ms-1" href="#type-nodeport"><i class="fas fa-link"></i></a></h3>
 <p>如果你选择了“NodePort”，那么 Kubernetes master 会分配一个区域范围内，（默认是30000-32767），并且，每一个node，都会代理（proxy）这个端口到你的服务中，我们可以在spec.ports[*].nodePort 找到具体的值</p>
 <p>如果我们向指定一个端口，我们可以直接写在nodePort上，系统就会给你指派指定端口，但是这个值必须是指定范围内的。</p>
 <p>这样的话就能够让开发者搭配自己的负载均衡器，去撘建一个kubernete不是完全支持的系统，又或者是直接暴露一个node的ip地址</p>
-<h3 id="type-loadbalancer">Type LoadBalancer</h3>
+<h3 id="type-loadbalancer">Type LoadBalancer<a class="anchor ms-1" href="#type-loadbalancer"><i class="fas fa-link"></i></a></h3>
 <p>在支持额外的负载均衡器的的平台上，将值设置为LoadBalancer会提供一个负载均衡器给你的服务，负载均衡器的创建其实是异步的。下面的例子</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{
   <span style="color:#f92672">&#34;“kind”&#34;: </span><span style="color:#e6db74">&#34;“Service”&#34;</span>,
@@ -577,7 +582,7 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
 <p>这个时候，使用kube-proxy来封装服务的请求，这使得这些变成可能</p>
 <p>LoadBalancers 只支持TCP，不支持UDP</p>
 <p>Type 的值是设定好的，不同的值代表不同的功能，并不是所有的平台都需要的，但是是所有API需要的</p>
-<h2 id="future-work">Future work</h2>
+<h2 id="future-work">Future work<a class="anchor ms-1" href="#future-work"><i class="fas fa-link"></i></a></h2>
 <p>在将来，我们预想proxy的策略能够更加细致，不再是单纯的转发，比如master-elected or sharded，我们预想将来服务会拥有真正的负载均衡器，到时候虚拟IP直接转发到负载均衡器</p>
 <p>将来有倾向与将所的工作均通过iptables来进行，从而小从用户命名空间代理，这样的话会有更好的性能和消除一些原地值IP的问题，尽管这样的会减少一些灵活性.</p>
 <p>参考链接</p>
@@ -610,7 +615,7 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/code/exception/spring-security%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%99%BB%E5%BD%95%E5%A4%B1%E8%B4%A5%E7%AC%AC%E4%BA%8C%E6%AC%A1%E7%99%BB%E5%BD%95%E6%88%90%E5%8A%9F/">Spring Security第一次登录失败，第二次登录成功
 </a>
@@ -651,7 +656,7 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
 </span>
         </li></ul>
     </div>
-  </section><div class="card component row post-comments">
+  </section><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -692,30 +697,20 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -862,7 +857,7 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -887,7 +882,8 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

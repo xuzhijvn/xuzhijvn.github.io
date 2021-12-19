@@ -45,8 +45,7 @@ kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=pr
 1. 设置ingress gateway的工作模式 安装istio的时候默认就是LB的
 2. 验证ingress gateway的网络模式 [root@k8s-master ~]# kubectl get svc -n Istio-system NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE grafana ClusterIP 10.101.122.19 &lt;none&gt; 3000/TCP 11h Istio-egressgateway ClusterIP 10.106.2.83 &lt;none&gt; 80/TCP,443/TCP,15443/TCP 11h Istio-ingressgateway LoadBalancer 10.110.238.41 &lt;pending&gt; 15020:31598/TCP,80:30299/TCP,443:31413/TCP,15029:30249/TCP,15030:32499/TCP,15031:31399/TCP,15032:32373/TCP,31400:30156/TCP,15443:30319/TCP 11h Istio-pilot ClusterIP 10.103.43.172 &lt;none&gt; 15010/TCP,15011/TCP,15012/TCP,8080/TCP,15014/TCP,443/TCP 11h istiod ClusterIP 10.105.251.21 &lt;none&gt; 15012/TCP,443/TCP 11h jaeger-agent ClusterIP None &lt;none&gt; 5775/UDP,6831/UDP,6832/UDP 11h jaeger-collector ClusterIP 10."/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -57,12 +56,7 @@ kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=pr
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -160,11 +154,16 @@ kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=pr
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -289,17 +288,23 @@ kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=pr
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -342,9 +347,9 @@ kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=pr
 也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl -n Istio-system port-forward <span style="color:#66d9ef">$(</span>kubectl -n Istio-system get pod -l app<span style="color:#f92672">=</span>prometheus -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.items[0].metadata.name}&#39;</span><span style="color:#66d9ef">)</span> 9090:9090 &amp;
 </code></pre></div><p>第二种方式需要将集群的默认网关服务ingressgateway的网络模式设置为LB/nodeport模式，作为代理实现对外服务。</p>
-<h2 id="1-设置ingress-gateway的工作模式">1. 设置ingress gateway的工作模式</h2>
+<h2 id="1-设置ingress-gateway的工作模式">1. 设置ingress gateway的工作模式<a class="anchor ms-1" href="#1-设置ingress-gateway的工作模式"><i class="fas fa-link"></i></a></h2>
 <p>安装istio的时候默认就是LB的</p>
-<h2 id="2-验证ingress-gateway的网络模式">2. 验证ingress gateway的网络模式</h2>
+<h2 id="2-验证ingress-gateway的网络模式">2. 验证ingress gateway的网络模式<a class="anchor ms-1" href="#2-验证ingress-gateway的网络模式"><i class="fas fa-link"></i></a></h2>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl get svc -n Istio-system</span>
 NAME                        TYPE           CLUSTER-IP       EXTERNAL-IP   PORT<span style="color:#f92672">(</span>S<span style="color:#f92672">)</span>                                                                                                                                      AGE
 grafana                     ClusterIP      10.101.122.19    &lt;none&gt;        3000/TCP                                                                                                                                     11h
@@ -360,7 +365,7 @@ kiali                       ClusterIP      10.100.252.210   &lt;none&gt;        
 prometheus                  ClusterIP      10.108.175.66    &lt;none&gt;        9090/TCP                                                                                                                                     11h
 tracing                     ClusterIP      10.102.204.150   &lt;none&gt;        80/TCP                                                                                                                                       11h
 zipkin                      ClusterIP      10.104.104.190   &lt;none&gt;        9411/TCP                                                                                                                                     11h
-</code></pre></div><h2 id="3-查看作为边界代理的ingress-gateway的端口映射情况">3. 查看作为边界代理的ingress-gateway的端口映射情况</h2>
+</code></pre></div><h2 id="3-查看作为边界代理的ingress-gateway的端口映射情况">3. 查看作为边界代理的ingress-gateway的端口映射情况<a class="anchor ms-1" href="#3-查看作为边界代理的ingress-gateway的端口映射情况"><i class="fas fa-link"></i></a></h2>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl describe svc Istio-ingressgateway -n Istio-system</span>
 Name:                     Istio-ingressgateway
 Namespace:                Istio-system
@@ -413,7 +418,7 @@ Session Affinity:         None
 External Traffic Policy:  Cluster
 Events:                   &lt;none&gt;
 </code></pre></div><p>上图所示，ingressgateway创建时，自动预设了一些端口映射，其中https-grafana的15301端口映射到node的31399端口,我们将15031端口关联到grafana上，集群外就用户通过访问网关所在机器的31399端口访问到grafana服务。</p>
-<h2 id="4-gateway方式暴露集群内服务">4. gateway方式暴露集群内服务</h2>
+<h2 id="4-gateway方式暴露集群内服务">4. gateway方式暴露集群内服务<a class="anchor ms-1" href="#4-gateway方式暴露集群内服务"><i class="fas fa-link"></i></a></h2>
 <p>需要创建服务的gateway和virtual service资源如下：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
 <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Gateway</span>
@@ -448,9 +453,9 @@ Events:                   &lt;none&gt;
 </code></pre></div><p>执行：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f grafana-gateway.yaml -n Istio-system
 </code></pre></div><p>特别需要注意：后面的<code>namespace</code>是<code>istio-system</code>，因为grafana等内部组件都是这个namespace的。</p>
-<h2 id="5-测试grafana的连通性">5. 测试grafana的连通性</h2>
+<h2 id="5-测试grafana的连通性">5. 测试grafana的连通性<a class="anchor ms-1" href="#5-测试grafana的连通性"><i class="fas fa-link"></i></a></h2>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">http://&lt;公网IP&gt;:31399
-</code></pre></div><h2 id="参考">参考</h2>
+</code></pre></div><h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://blog.csdn.net/scwang18/article/details/100833886" target="_blank" rel="noopener noreferrer">istio中的grafana等内部组件服务开放给集群外用户访问</a>
 </p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
@@ -478,7 +483,7 @@ Events:                   &lt;none&gt;
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E7%9A%84%E8%B0%83%E7%94%A8%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E7%94%A8-http-%E8%80%8C%E7%94%A8-rpc/">服务之间的调用为啥不直接用 HTTP 而用 RPC？
 </a>
@@ -519,7 +524,7 @@ Events:                   &lt;none&gt;
 </span>
         </li></ul>
     </div>
-  </section><div class="card component row post-comments">
+  </section><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -560,30 +565,20 @@ Events:                   &lt;none&gt;
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -730,7 +725,7 @@ Events:                   &lt;none&gt;
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -755,7 +750,8 @@ Events:                   &lt;none&gt;
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

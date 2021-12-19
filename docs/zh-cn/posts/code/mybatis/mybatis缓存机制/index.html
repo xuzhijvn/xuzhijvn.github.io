@@ -19,7 +19,7 @@
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-30T21:16:45+08:00" />
 <meta property="article:modified_time" content="2021-08-30T21:16:45+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E5%AE%9E%E9%AA%8C/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
@@ -27,8 +27,7 @@
 <meta name="twitter:title" content="MyBatis缓存机制"/>
 <meta name="twitter:description" content=""/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -39,12 +38,7 @@
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -142,11 +136,16 @@
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -271,17 +270,23 @@
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -328,8 +333,8 @@
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><h2 id="一级缓存">一级缓存</h2>
-<h3 id="一级缓存介绍">一级缓存介绍</h3>
+</div><div class="post-content mb-3"><h2 id="一级缓存">一级缓存<a class="anchor ms-1" href="#一级缓存"><i class="fas fa-link"></i></a></h2>
+<h3 id="一级缓存介绍">一级缓存介绍<a class="anchor ms-1" href="#一级缓存介绍"><i class="fas fa-link"></i></a></h3>
 <p>在应用运行过程中，我们有可能在一次数据库会话中，执行多次查询条件完全相同的SQL，MyBatis提供了一级缓存的方案优化这部分场景，如果是相同的SQL语句，会优先命中一级缓存，避免直接对数据库进行查询，提高性能。具体执行过程如下图所示。</p>
 <p><img src="https://picgo.6and.ltd/img/6e38df6a.jpg" alt="img" style="zoom: 40%;" /></p>
 <p>每个SqlSession中持有了Executor，每个Executor中有一个LocalCache。当用户发起查询时，MyBatis根据当前执行的语句生成<code>MappedStatement</code>，在Local Cache进行查询，如果缓存命中的话，直接返回结果给用户，如果缓存没有命中的话，查询数据库，结果写入<code>Local Cache</code>，最后返回结果给用户。具体实现类的类关系图如下图所示。</p>
@@ -338,7 +343,7 @@
    />
 
 </p>
-<h3 id="一级缓存配置">一级缓存配置</h3>
+<h3 id="一级缓存配置">一级缓存配置<a class="anchor ms-1" href="#一级缓存配置"><i class="fas fa-link"></i></a></h3>
 <p>我们来看看如何使用MyBatis一级缓存。开发者只需在MyBatis的配置文件中，添加如下语句，就可以使用一级缓存。共有两个选项，<code>SESSION</code>或者<code>STATEMENT</code>，默认是<code>SESSION</code>级别，即在一个MyBatis会话中执行的所有语句，都会共享这一个缓存。一种是<code>STATEMENT</code>级别，可以理解为缓存只对当前执行的这一个<code>Statement</code>有效。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;setting</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;localCacheScope&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;SESSION&#34;</span><span style="color:#f92672">/&gt;</span>
 </code></pre></div><blockquote>
@@ -347,7 +352,7 @@
 <blockquote>
 <p>当Mybatis整合Spring后，直接通过Spring注入Mapper的形式，如果不是在同一个事务中每个Mapper的每次查询操作都对应一个全新的SqlSession实例，这个时候就不会有一级缓存的命中，但是在同一个事务中时共用的是同一个SqlSession。</p>
 </blockquote>
-<h3 id="一级缓存实验">一级缓存实验</h3>
+<h3 id="一级缓存实验">一级缓存实验<a class="anchor ms-1" href="#一级缓存实验"><i class="fas fa-link"></i></a></h3>
 <p>接下来通过实验，了解MyBatis一级缓存的效果，每个单元测试后都请恢复被修改的数据。</p>
 <p>首先是创建示例表student，创建对应的POJO类和增改的方法，具体可以在entity包和mapper包中查看。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#f92672">`</span>student<span style="color:#f92672">`</span> (
@@ -357,7 +362,7 @@
   <span style="color:#66d9ef">PRIMARY</span> <span style="color:#66d9ef">KEY</span> (<span style="color:#f92672">`</span>id<span style="color:#f92672">`</span>)
 ) ENGINE<span style="color:#f92672">=</span>InnoDB AUTO_INCREMENT<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span> <span style="color:#66d9ef">DEFAULT</span> CHARSET<span style="color:#f92672">=</span>utf8 <span style="color:#66d9ef">COLLATE</span><span style="color:#f92672">=</span>utf8_bin;
 </code></pre></div><p>在以下实验中，id为1的学生名称是凯伦。</p>
-<h4 id="实验1">实验1</h4>
+<h4 id="实验1">实验1<a class="anchor ms-1" href="#实验1"><i class="fas fa-link"></i></a></h4>
 <p>开启一级缓存，范围为会话级别，调用三次<code>getStudentById</code>，代码如下所示：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
         SqlSession sqlSession <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">openSession</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> <span style="color:#75715e">// 自动提交事务
@@ -373,7 +378,7 @@
 
 </p>
 <p>我们可以看到，只有第一次真正查询了数据库，后续的查询使用了一级缓存。</p>
-<h4 id="实验2">实验2</h4>
+<h4 id="实验2">实验2<a class="anchor ms-1" href="#实验2"><i class="fas fa-link"></i></a></h4>
 <p>增加了对数据库的修改操作，验证在一次数据库会话中，如果对数据库发生了修改操作，一级缓存是否会失效。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Test</span>
 <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addStudent</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
@@ -391,7 +396,7 @@
 
 </p>
 <p>我们可以看到，在修改操作后执行的相同查询，查询了数据库，<strong>一级缓存失效</strong>。</p>
-<h4 id="实验3">实验3</h4>
+<h4 id="实验3">实验3<a class="anchor ms-1" href="#实验3"><i class="fas fa-link"></i></a></h4>
 <p>开启两个<code>SqlSession</code>，在<code>sqlSession1</code>中查询数据，使一级缓存生效，在<code>sqlSession2</code>中更新数据库，验证一级缓存只在数据库会话内部共享。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Test</span>
 <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testLocalCacheScope</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
@@ -413,19 +418,19 @@
 
 </p>
 <p><code>sqlSession2</code>更新了id为1的学生的姓名，从凯伦改为了小岑，但session1之后的查询中，id为1的学生的名字还是凯伦，出现了脏数据，也证明了之前的设想，一级缓存只在数据库会话内部共享。</p>
-<h3 id="总结">总结</h3>
+<h3 id="总结">总结<a class="anchor ms-1" href="#总结"><i class="fas fa-link"></i></a></h3>
 <ol>
 <li>MyBatis一级缓存的生命周期和SqlSession一致。</li>
 <li>MyBatis一级缓存内部设计简单，只是一个没有容量限定的HashMap，在缓存的功能性上有所欠缺。</li>
 <li>MyBatis的一级缓存最大范围是SqlSession内部，有多个SqlSession或者分布式的环境下，数据库写操作会引起脏数据，建议设定缓存级别为Statement。</li>
 </ol>
-<h2 id="二级缓存">二级缓存</h2>
-<h3 id="二级缓存介绍">二级缓存介绍</h3>
+<h2 id="二级缓存">二级缓存<a class="anchor ms-1" href="#二级缓存"><i class="fas fa-link"></i></a></h2>
+<h3 id="二级缓存介绍">二级缓存介绍<a class="anchor ms-1" href="#二级缓存介绍"><i class="fas fa-link"></i></a></h3>
 <p>在上文中提到的一级缓存中，其最大的共享范围就是一个SqlSession内部，如果多个SqlSession之间需要共享缓存，则需要使用到二级缓存。开启二级缓存后，会使用CachingExecutor装饰Executor，进入一级缓存的查询流程前，先在CachingExecutor进行二级缓存的查询，具体的工作流程如下所示。</p>
 <p><img src="https://picgo.6and.ltd/img/28399eba.png" alt="img" style="zoom: 67%;" /></p>
 <p>二级缓存开启后，同一个namespace下的所有操作语句，都影响着同一个Cache，即二级缓存被多个SqlSession共享，是一个全局的变量。</p>
 <p>当开启缓存后，数据的查询执行的流程就是 二级缓存 -&gt; 一级缓存 -&gt; 数据库。</p>
-<h3 id="二级缓存配置">二级缓存配置</h3>
+<h3 id="二级缓存配置">二级缓存配置<a class="anchor ms-1" href="#二级缓存配置"><i class="fas fa-link"></i></a></h3>
 <p>要正确的使用二级缓存，需完成如下配置的。</p>
 <ol>
 <li>在MyBatis的配置文件中开启二级缓存。</li>
@@ -446,10 +451,10 @@
 </ul>
 <p><code>cache-ref</code>代表引用别的命名空间的Cache配置，两个命名空间的操作使用的是同一个Cache。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;cache-ref</span> <span style="color:#a6e22e">namespace=</span><span style="color:#e6db74">&#34;mapper.StudentMapper&#34;</span><span style="color:#f92672">/&gt;</span>
-</code></pre></div><h3 id="二级缓存实验">二级缓存实验</h3>
+</code></pre></div><h3 id="二级缓存实验">二级缓存实验<a class="anchor ms-1" href="#二级缓存实验"><i class="fas fa-link"></i></a></h3>
 <p>接下来我们通过实验，了解MyBatis二级缓存在使用上的一些特点。</p>
 <p>在本实验中，id为1的学生名称初始化为点点。</p>
-<h4 id="实验1-1">实验1</h4>
+<h4 id="实验1-1">实验1<a class="anchor ms-1" href="#实验1-1"><i class="fas fa-link"></i></a></h4>
 <p>测试二级缓存效果，不提交事务，<code>sqlSession1</code>查询完数据后，<code>sqlSession2</code>相同的查询是否会从缓存中获取数据。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Test</span>
 <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testCacheWithoutCommitOrClose</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
@@ -469,7 +474,7 @@
 
 </p>
 <p>我们可以看到，当<code>sqlsession</code>没有调用<code>commit()</code>方法时，二级缓存并没有起到作用。</p>
-<h4 id="实验2-1">实验2</h4>
+<h4 id="实验2-1">实验2<a class="anchor ms-1" href="#实验2-1"><i class="fas fa-link"></i></a></h4>
 <p>测试二级缓存效果，当提交事务时，<code>sqlSession1</code>查询完数据后，<code>sqlSession2</code>相同的查询是否会从缓存中获取数据。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Test</span>
 <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testCacheWithCommitOrClose</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
@@ -489,7 +494,7 @@
 
 </p>
 <p>从图上可知，<code>sqlsession2</code>的查询，使用了缓存，缓存的命中率是0.5。</p>
-<h4 id="实验3-1">实验3</h4>
+<h4 id="实验3-1">实验3<a class="anchor ms-1" href="#实验3-1"><i class="fas fa-link"></i></a></h4>
 <p>测试<code>update</code>操作是否会刷新该<code>namespace</code>下的二级缓存。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Test</span>
 <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testCacheWithUpdate</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
@@ -515,7 +520,7 @@
 
 </p>
 <p>我们可以看到，在<code>sqlSession3</code>更新数据库，并提交事务后，<code>sqlsession2</code>的<code>StudentMapper namespace</code>下的查询走了数据库，没有走Cache。</p>
-<h4 id="实验4">实验4</h4>
+<h4 id="实验4">实验4<a class="anchor ms-1" href="#实验4"><i class="fas fa-link"></i></a></h4>
 <p>验证MyBatis的二级缓存不适应用于映射文件中存在多表查询的情况。</p>
 <p>通常我们会为每个单表创建单独的映射文件，由于MyBatis的二级缓存是基于<code>namespace</code>的，多表查询语句所在的<code>namspace</code>无法感应到其他<code>namespace</code>中的语句对多表查询中涉及的表进行的修改，引发脏数据问题。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Test</span>
@@ -544,7 +549,7 @@
 </p>
 <p>在这个实验中，我们引入了两张新的表，一张class，一张classroom。class中保存了班级的id和班级名，classroom中保存了班级id和学生id。我们在<code>StudentMapper</code>中增加了一个查询方法<code>getStudentByIdWithClassInfo</code>，用于查询学生所在的班级，涉及到多表查询。在<code>ClassMapper</code>中添加了<code>updateClassName</code>，根据班级id更新班级名的操作。</p>
 <p>当<code>sqlsession1</code>的<code>studentmapper</code>查询数据后，二级缓存生效。保存在StudentMapper的namespace下的cache中。当<code>sqlSession3</code>的<code>classMapper</code>的<code>updateClassName</code>方法对class表进行更新时，<code>updateClassName</code>不属于<code>StudentMapper</code>的<code>namespace</code>，所以<code>StudentMapper</code>下的cache没有感应到变化，没有刷新缓存。当<code>StudentMapper</code>中同样的查询再次发起时，从缓存中读取了脏数据。</p>
-<h4 id="实验5">实验5</h4>
+<h4 id="实验5">实验5<a class="anchor ms-1" href="#实验5"><i class="fas fa-link"></i></a></h4>
 <p>为了解决实验4的问题呢，可以使用Cache ref，让<code>ClassMapper</code>引用<code>StudenMapper</code>命名空间，这样两个映射文件对应的SQL操作都使用的是同一块缓存了。</p>
 <p>执行结果：</p>
 <p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/a2e4c2d8.jpg" loading="lazy"
@@ -553,13 +558,13 @@
 
 </p>
 <p>不过这样做的后果是，缓存的粒度变粗了，多个<code>Mapper namespace</code>下的所有操作都会对缓存使用造成影响。</p>
-<h3 id="总结-1">总结</h3>
+<h3 id="总结-1">总结<a class="anchor ms-1" href="#总结-1"><i class="fas fa-link"></i></a></h3>
 <ol>
 <li>MyBatis的二级缓存相对于一级缓存来说，实现了<code>SqlSession</code>之间缓存数据的共享，同时粒度更加的细，能够到<code>namespace</code>级别，通过Cache接口实现类不同的组合，对Cache的可控性也更强。</li>
 <li>MyBatis在多表查询时，极大可能会出现脏数据，有设计上的缺陷，安全使用二级缓存的条件比较苛刻。</li>
 <li>在分布式环境下，由于默认的MyBatis Cache实现都是基于本地的，分布式环境下必然会出现读取到脏数据，需要使用集中式缓存将MyBatis的Cache接口实现，有一定的开发成本。</li>
 </ol>
-<h2 id="参考">参考</h2>
+<h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://tech.meituan.com/2018/01/19/mybatis-cache.html" target="_blank" rel="noopener noreferrer">聊聊MyBatis缓存机制</a>
 </p></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -586,7 +591,7 @@
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/code/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/">基于keepalived实现nginx高可用
 </a>
@@ -595,7 +600,7 @@
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
-</article><div class="card component row post-comments">
+</article><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -636,30 +641,20 @@
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -806,7 +801,7 @@
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -831,7 +826,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

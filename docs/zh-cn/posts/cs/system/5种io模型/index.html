@@ -27,7 +27,7 @@
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/cs/system/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E5%AE%9E%E9%AA%8C/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
@@ -39,8 +39,7 @@
  等待数据准备 (Waiting for the data to be ready)（将数据从网卡读到内核） 将数据从内核拷贝到进程中(Copying the data from the kernel to the process)  记住这两点很重要，因为这些IO模型的区别就是在两个阶段上各有不同的情况。
 2. 概念说明 在进行解释之前，首先要说明几个概念："/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -51,12 +50,7 @@
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -154,11 +148,16 @@
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -283,17 +282,23 @@
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -344,7 +349,7 @@
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><h2 id="1-前言">1. 前言</h2>
+</div><div class="post-content mb-3"><h2 id="1-前言">1. 前言<a class="anchor ms-1" href="#1-前言"><i class="fas fa-link"></i></a></h2>
 <p>W. Richard Stevens在 《Unix Network Programming Volume 1 3rd Edition - The Sockets Networking API》文中的6.2 I/O Models小节中对如下5中IO模型进行了详细的阐述：</p>
 <ul>
 <li><code>blocking I/O</code></li>
@@ -360,7 +365,7 @@
 <li><code>将数据从内核拷贝到进程中</code>(Copying the data from the kernel to the process)</li>
 </ul>
 <p>记住这两点很重要，因为这些IO模型的区别就是在两个阶段上各有不同的情况。</p>
-<h2 id="2-概念说明">2. 概念说明</h2>
+<h2 id="2-概念说明">2. 概念说明<a class="anchor ms-1" href="#2-概念说明"><i class="fas fa-link"></i></a></h2>
 <p>在进行解释之前，首先要说明几个概念：</p>
 <ul>
 <li><code>用户空间和内核空间</code></li>
@@ -369,9 +374,9 @@
 <li><code>文件描述符</code></li>
 <li><code>缓存 I/O</code></li>
 </ul>
-<h3 id="21-用户空间与内核空间">2.1 用户空间与内核空间</h3>
+<h3 id="21-用户空间与内核空间">2.1 用户空间与内核空间<a class="anchor ms-1" href="#21-用户空间与内核空间"><i class="fas fa-link"></i></a></h3>
 <p>现在操作系统都是采用虚拟存储器，那么对32位操作系统而言，它的寻址空间（虚拟存储空间）为4G（2的32次方）。操作系统的核心是内核，独立于普通的应用程序，可以访问受保护的内存空间，也有访问底层硬件设备的所有权限。为了保证用户进程不能直接操作内核（kernel），保证内核的安全，操心系统将虚拟空间划分为两部分，一部分为内核空间，一部分为用户空间。针对linux操作系统而言，将最高的1G字节（从虚拟地址<code>0xC0000000</code>到<code>0xFFFFFFFF</code>），供内核使用，称为内核空间，而将较低的3G字节（从虚拟地址<code>0x00000000</code>到<code>0xBFFFFFFF</code>），供各个进程使用，称为用户空间。</p>
-<h3 id="22-进程切换">2.2 进程切换</h3>
+<h3 id="22-进程切换">2.2 进程切换<a class="anchor ms-1" href="#22-进程切换"><i class="fas fa-link"></i></a></h3>
 <p>为了控制进程的执行，内核必须有能力挂起正在CPU上运行的进程，并恢复以前挂起的某个进程的执行。这种行为被称为进程切换。因此可以说，任何进程都是在操作系统内核的支持下运行的，是与内核紧密相关的。
 从一个进程的运行转到另一个进程上运行，这个过程中经过下面这些变化：</p>
 <ol>
@@ -395,33 +400,33 @@
 <p>注：总而言之就是很耗资源</p>
 </li>
 </ol>
-<h3 id="23-进程的阻塞">2.3 进程的阻塞</h3>
+<h3 id="23-进程的阻塞">2.3 进程的阻塞<a class="anchor ms-1" href="#23-进程的阻塞"><i class="fas fa-link"></i></a></h3>
 <p>正在执行的进程，由于期待的某些事件未发生，如请求系统资源失败、等待某种操作的完成、新数据尚未到达或无新工作做等，则由系统自动执行阻塞原语(Block)，使自己由运行状态变为阻塞状态。可见，进程的阻塞是进程自身的一种主动行为，也因此只有处于运行态的进程（获得CPU），才可能将其转为阻塞状态。当进程进入阻塞状态，是不占用CPU资源的。</p>
-<h3 id="24-文件描述符fd">2.4 文件描述符fd</h3>
+<h3 id="24-文件描述符fd">2.4 文件描述符fd<a class="anchor ms-1" href="#24-文件描述符fd"><i class="fas fa-link"></i></a></h3>
 <p><code>文件描述符（File descriptor）</code>是计算机科学中的一个术语，是一个用于表述指向文件的引用的抽象化概念。
 文件描述符在形式上是一个非负整数。实际上，它是一个索引值，指向内核为每一个进程所维护的该进程打开文件的记录表。当程序打开一个现有文件或者创建一个新文件时，内核向进程返回一个文件描述符。在程序设计中，一些涉及底层的程序编写往往会围绕着文件描述符展开。但是文件描述符这一概念往往只适用于UNIX、Linux这样的操作系统。</p>
-<h3 id="25-缓存-io">2.5 缓存 I/O</h3>
+<h3 id="25-缓存-io">2.5 缓存 I/O<a class="anchor ms-1" href="#25-缓存-io"><i class="fas fa-link"></i></a></h3>
 <p><code>缓存 I/O</code> 又被称作<code>标准 I/O</code>，大多数文件系统的默认 I/O 操作都是缓存 I/O。在 Linux 的缓存 I/O 机制中，操作系统会将 I/O 的数据缓存在文件系统的页缓存（ page cache ）中，也就是说，数据会先被拷贝到操作系统内核的缓冲区中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。</p>
 <blockquote>
 <p>缓存 I/O 的缺点：
 数据在传输过程中需要在应用程序地址空间和内核进行多次数据拷贝操作，这些数据拷贝操作所带来的 CPU 以及内存开销是</p>
 </blockquote>
-<h2 id="3-io模型">3. IO模型</h2>
-<h3 id="31-blocking-io">3.1 blocking IO</h3>
+<h2 id="3-io模型">3. IO模型<a class="anchor ms-1" href="#3-io模型"><i class="fas fa-link"></i></a></h2>
+<h3 id="31-blocking-io">3.1 blocking IO<a class="anchor ms-1" href="#31-blocking-io"><i class="fas fa-link"></i></a></h3>
 <p>在linux中，默认情况下所有的socket都是blocking，一个典型的读操作流程大概是这样：</p>
 <p><img src="https://picgo.6and.ltd/img/img_5f3e145553aec-1024x559-20210621141130881.png" alt="img" style="zoom:50%;" /></p>
 <p>当用户进程调用了<code>recvfrom</code>这个系统调用，kernel就开始了IO的第一个阶段：准备数据（对于网络IO来说，很多时候数据在一开始还没有到达。比如，还没有收到一个完整的UDP包。这个时候kernel就要等待足够的数据到来）。这个过程需要等待，也就是说数据被拷贝到操作系统内核的缓冲区中是需要一个过程的。而在用户进程这边，整个进程会被阻塞（当然，是进程自己选择的阻塞)。当kernel一直等到数据准备好了，它就会将数据从kernel中拷贝到用户内存，然后kernel返回结果，用户进程才解除block的状态，重新运行起来。</p>
 <blockquote>
 <p>所以，blocking IO的特点就是在IO执行的两个阶段都被block了。</p>
 </blockquote>
-<h3 id="32-nonblocking-io">3.2 nonblocking IO</h3>
+<h3 id="32-nonblocking-io">3.2 nonblocking IO<a class="anchor ms-1" href="#32-nonblocking-io"><i class="fas fa-link"></i></a></h3>
 <p>linux下，可以通过设置socket使其变为non-blocking。当对一个non-blocking socket执行读操作时，流程是这个样子：</p>
 <p><img src="https://picgo.6and.ltd/img/img_5f3e143f07ef6-1024x559-20210621141137000.png" alt="img" style="zoom:50%;" /></p>
 <p>当用户进程发出read操作时，如果kernel中的数据还没有准备好，那么它并不会block用户进程，而是立刻返回一个<code>EWOULDBLOCK</code>的error。从用户进程角度讲 ，它发起一个read操作后，并不需要等待，而是马上就得到了一个结果。用户进程判断结果是一个error时，它就知道数据还没有准备好，于是它可以再次发送read操作。一旦kernel中的数据准备好了，并且又再次收到了用户进程的<code>system call</code>，那么它马上就将数据拷贝到了用户内存，然后返回。</p>
 <blockquote>
 <p>所以，nonblocking IO的特点是用户进程需要不断的主动询问kernel数据好了没有。</p>
 </blockquote>
-<h3 id="33-io-multiplexing">3.3 IO multiplexing</h3>
+<h3 id="33-io-multiplexing">3.3 IO multiplexing<a class="anchor ms-1" href="#33-io-multiplexing"><i class="fas fa-link"></i></a></h3>
 <p>IO multiplexing就是我们说的<code>select</code>，<code>poll</code>，<code>epoll</code>，有些地方也称这种IO方式为<code>event driven IO</code>。select/epoll的好处就在于单个process就可以同时处理多个网络连接的IO。它的基本原理就是select，poll，epoll这个function会不断的轮询所负责的所有socket，当某个socket有数据到达了，就通知用户进程。</p>
 <p><img src="https://picgo.6and.ltd/img/img_5f3e14163bf52-1024x534-20210621141144263.png" alt="img" style="zoom:50%;" /></p>
 <p>当用户进程调用了select，那么整个进程会被block，而同时，kernel会“监视”所有select负责的socket，当任何一个socket中的数据准备好了，select就会返回。这个时候用户进程再调用read操作，将数据从kernel拷贝到用户进程。</p>
@@ -431,10 +436,10 @@
 <blockquote>
 <p>所以，I/O 多路复用的特点是通过一种机制一个进程能同时等待多个文件描述符，而这些文件描述符（套接字描述符）其中的任意一个进入读就绪状态，select()函数就可以返回。</p>
 </blockquote>
-<h3 id="34-signal-driven-io">3.4 signal-driven IO</h3>
+<h3 id="34-signal-driven-io">3.4 signal-driven IO<a class="anchor ms-1" href="#34-signal-driven-io"><i class="fas fa-link"></i></a></h3>
 <p>信号驱动式I/O：首先我们允许Socket进行信号驱动IO,并安装一个信号处理函数，进程继续运行并不阻塞。当数据准备好时，进程会收到一个SIGIO信号，可以在信号处理函数中调用I/O操作函数处理数据。过程如下图所示：</p>
 <p><img src="https://picgo.6and.ltd/img/img_5f3def904eae9-1024x651.png" alt="img" style="zoom:50%;" /></p>
-<h3 id="35-asynchronous-io">3.5 asynchronous IO</h3>
+<h3 id="35-asynchronous-io">3.5 asynchronous IO<a class="anchor ms-1" href="#35-asynchronous-io"><i class="fas fa-link"></i></a></h3>
 <p>相对于同步IO，异步IO不是顺序执行。用户进程进行<code>aio_read</code>系统调用之后，无论内核数据是否准备好，都会直接返回给用户进程，然后用户态进程可以去做别的事情。等到socket数据准备好了，内核直接复制数据给进程，然后从内核向进程发送通知。IO两个阶段，进程都是非阻塞的。</p>
 <p>Linux提供了AIO库函数实现异步，但是用的很少。目前有很多开源的异步IO库，例如<code>libevent、libev、libuv</code>。异步过程如下图所示：</p>
 <p><img src="https://picgo.6and.ltd/img/img_5f3e14a73cc23-1024x644-20210621141152724.png" alt="img" style="zoom:50%;" /></p>
@@ -442,9 +447,9 @@
 <blockquote>
 <p>所以，aio的特点是两个阶段都不阻塞，特别是第二阶段，数据从内核空间拷贝到用户空间是是系统完成的，系统完成拷贝后再通知应用进程。</p>
 </blockquote>
-<h2 id="4-总结">4. 总结</h2>
+<h2 id="4-总结">4. 总结<a class="anchor ms-1" href="#4-总结"><i class="fas fa-link"></i></a></h2>
 <p><img src="https://picgo.6and.ltd/img/img_5f3df05eac237-1024x656-20210621141201925.png" alt="img" style="zoom:50%;" /></p>
-<h2 id="5-参考资料">5. 参考资料</h2>
+<h2 id="5-参考资料">5. 参考资料<a class="anchor ms-1" href="#5-参考资料"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://docs.google.com/viewer?a=v&amp;pid=sites&amp;srcid=ZGVmYXVsdGRvbWFpbnxyYWdodXNpdGNzZXxneDo2NzU3YWQ4NDNmZTU5M2Yz" target="_blank" rel="noopener noreferrer">W. Richard Stevens - Unix Network Programming Volume 1 3rd Edition - The Sockets Networking API.pdf</a>
 </p>
 <p><a href="https://www.jianshu.com/p/486b0965c296" target="_blank" rel="noopener noreferrer">聊聊Linux 五种IO模型 猿码架构</a>
@@ -476,7 +481,7 @@
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/sa/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/">API接口安全设计
 </a>
@@ -517,7 +522,7 @@
 </span>
         </li></ul>
     </div>
-  </section><div class="card component row post-comments">
+  </section><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -558,30 +563,20 @@
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -728,7 +723,7 @@
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -753,7 +748,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

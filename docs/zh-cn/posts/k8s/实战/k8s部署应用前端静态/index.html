@@ -33,8 +33,7 @@
 0. 准备条件  部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S      名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上     应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库：   理解k8s基础概念，可以参考Kubernetes: 基础概念介绍   1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
 1.2 生成拉取镜像的密钥 kubectl create secret docker-registry registry-secret-tencent --docker-server=ccr."/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -45,12 +44,7 @@
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -148,11 +142,16 @@
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -277,17 +276,23 @@
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -339,7 +344,7 @@
 </nav>
   </div>
 </div><div class="post-content mb-3"><p>k8s部署应用(前端静态)</p>
-<h2 id="0-准备条件">0. 准备条件</h2>
+<h2 id="0-准备条件">0. 准备条件<a class="anchor ms-1" href="#0-准备条件"><i class="fas fa-link"></i></a></h2>
 <ol>
 <li>部署好了k8s集群，部署可以参考<a href="http://106.55.152.92:30989/archives/834" target="_blank" rel="noopener noreferrer">Kubernetes: 从零搭建K8S</a>
 </li>
@@ -388,11 +393,11 @@
 </p>
 </li>
 </ol>
-<h2 id="1-控制器管理pod">1. 控制器管理Pod</h2>
-<h3 id="11-生成deployment配置文件">1.1 生成<code>deployment</code>配置文件</h3>
+<h2 id="1-控制器管理pod">1. 控制器管理Pod<a class="anchor ms-1" href="#1-控制器管理pod"><i class="fas fa-link"></i></a></h2>
+<h3 id="11-生成deployment配置文件">1.1 生成deployment配置文件<a class="anchor ms-1" href="#11-生成deployment配置文件"><i class="fas fa-link"></i></a></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl create deployment yshop-h5 --image<span style="color:#f92672">=</span>ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &gt; yshop-h5.yaml
 </code></pre></div><p>这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。</p>
-<h3 id="12-生成拉取镜像的密钥">1.2 生成拉取镜像的密钥</h3>
+<h3 id="12-生成拉取镜像的密钥">1.2 生成拉取镜像的密钥<a class="anchor ms-1" href="#12-生成拉取镜像的密钥"><i class="fas fa-link"></i></a></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl create secret docker-registry registry-secret-tencent --docker-server<span style="color:#f92672">=</span>ccr.ccs.tencentyun.com --docker-username<span style="color:#f92672">=</span>腾讯云账户ID --docker-password<span style="color:#f92672">=</span>腾讯云容器仓库密码
 </code></pre></div><p>&ndash;docker-server: 仓库地址
 &ndash;docker-username: 仓库登陆账号
@@ -400,14 +405,14 @@
 &ndash;docker-email: 邮件地址(选填)
 -n 命名空间(选填)</p>
 <p>可以运行：<code>kubectl get secret registry-secret-tencent --output=yaml</code> 查看生成的密钥</p>
-<h3 id="13-配置密钥">1.3 配置密钥</h3>
+<h3 id="13-配置密钥">1.3 配置密钥<a class="anchor ms-1" href="#13-配置密钥"><i class="fas fa-link"></i></a></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">vi yshop-h5.yaml
 </code></pre></div><p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5efcb55bacecd-20210621141721477.png" loading="lazy"
   
    />
 
 </p>
-<h3 id="14-运行deployment">1.4 运行<code>deployment</code></h3>
+<h3 id="14-运行deployment">1.4 运行deployment<a class="anchor ms-1" href="#14-运行deployment"><i class="fas fa-link"></i></a></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f yshop-h5.yaml
 </code></pre></div><p>查看启动的pods：<code>kubectl get pods</code></p>
 <p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5efcb676f200d-20210621141730179.png" loading="lazy"
@@ -416,14 +421,14 @@
 
 </p>
 <p>查看启动日志：<code>kubectl logs yshop-h5-cd4dc8c5b-562g5</code></p>
-<h2 id="2-暴露应用">2. 暴露应用</h2>
-<h3 id="21-生成service配置文件">2.1 生成<code>service</code>配置文件</h3>
+<h2 id="2-暴露应用">2. 暴露应用<a class="anchor ms-1" href="#2-暴露应用"><i class="fas fa-link"></i></a></h2>
+<h3 id="21-生成service配置文件">2.1 生成service配置文件<a class="anchor ms-1" href="#21-生成service配置文件"><i class="fas fa-link"></i></a></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl expose deployment yshop-h5 --port<span style="color:#f92672">=</span><span style="color:#ae81ff">80</span> --target-port<span style="color:#f92672">=</span><span style="color:#ae81ff">80</span> --type<span style="color:#f92672">=</span>NodePort -o yaml --dry-run &gt; yshop-h5-svc.yaml
 </code></pre></div><p>yshop-h5 指定名称</p>
 <p>&ndash;port 指定集群内部访问的端口</p>
 <p>&ndash;target-port 指定容器内跑服务的端口</p>
 <p>&ndash;type=NodePort 指定类型 集群外部访问</p>
-<h3 id="22-运行service">2.2 运行<code>service</code></h3>
+<h3 id="22-运行service">2.2 运行service<a class="anchor ms-1" href="#22-运行service"><i class="fas fa-link"></i></a></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f yshop-h5-svc.yaml
 </code></pre></div><p>查看pods和svc：<code>kubectl get pods,svc</code></p>
 <p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5efcb91e43add-20210621141742027.png" loading="lazy"
@@ -437,10 +442,10 @@
    />
 
 </p>
-<h2 id="3-访问应用">3. 访问应用</h2>
-<h3 id="31-外部访问">3.1 外部访问</h3>
+<h2 id="3-访问应用">3. 访问应用<a class="anchor ms-1" href="#3-访问应用"><i class="fas fa-link"></i></a></h2>
+<h3 id="31-外部访问">3.1 外部访问<a class="anchor ms-1" href="#31-外部访问"><i class="fas fa-link"></i></a></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">http://<span style="color:#f92672">{</span>master的公网ip/node1的公网ip/node2的公网ip<span style="color:#f92672">}</span>:32585
-</code></pre></div><h3 id="32-内部访问">3.2 内部访问</h3>
+</code></pre></div><h3 id="32-内部访问">3.2 内部访问<a class="anchor ms-1" href="#32-内部访问"><i class="fas fa-link"></i></a></h3>
 <p>通过service ip:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">curl http://10.108.253.217
 </code></pre></div><p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5efcbb070be4f.png" loading="lazy"
@@ -480,7 +485,7 @@
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/other/linux%E9%85%8D%E7%BD%AEgit%E8%B4%A6%E5%8F%B7%E5%AF%86%E7%A0%81/">Linux配置git账号密码
 </a>
@@ -521,7 +526,7 @@
 </span>
         </li></ul>
     </div>
-  </section><div class="card component row post-comments">
+  </section><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -562,30 +567,20 @@
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -732,7 +727,7 @@
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -757,7 +752,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

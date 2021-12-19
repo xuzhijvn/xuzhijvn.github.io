@@ -27,7 +27,7 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E7%B4%A2%E5%BC%95%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql%E5%AE%9E%E9%AA%8C/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/sa/rpc%E7%BB%BC%E8%BF%B0/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
@@ -39,8 +39,7 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
 示例表 为了方便说明，我们先创建一个示例表。建表语句如下
 CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR ( 64 ) COMMENT &#39;姓名&#39;, `age` INT ( 4 ) COMMENT &#39;年龄&#39;, PRIMARY KEY ( `id` ), INDEX ( NAME ) ) ENGINE = INNODB COMMENT &#39;用户表&#39;; INSERT INTO `user` ( `name`, `age` ) VALUES ( &#39;AA&#39;, 30 ),( &#39;BB&#39;, 33 ),( &#39;CC&#39;, 31 ),( &#39;DD&#39;, 30 ),( &#39;EE&#39;, 29 ) 在上面的 SQL 语句中，创建了一张 user 表，表中有三个字段，id 是主键，name 和 age 分别表示用户的姓名和年龄，同时还为字段 name 创建了一个普通索引。为了方便后面描述，因此还向表中插入了 5 条数据，由于主键 id 是自增的，所以这五行数据的 id 值分为是 1~5。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -51,12 +50,7 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -154,11 +148,16 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -283,17 +282,23 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -347,7 +352,7 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
 </ul>
 <p>今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。</p>
 <p>首先需要说明的是，本文的所有讨论均是基于 InnoDB 存储引擎为前提。</p>
-<h2 id="示例表">示例表</h2>
+<h2 id="示例表">示例表<a class="anchor ms-1" href="#示例表"><i class="fas fa-link"></i></a></h2>
 <p>为了方便说明，我们先创建一个示例表。建表语句如下</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#66d9ef">user</span> (
 <span style="color:#f92672">`</span>id<span style="color:#f92672">`</span> BIGINT ( <span style="color:#ae81ff">11</span> ) <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">NULL</span> AUTO_INCREMENT,
@@ -359,7 +364,7 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
 
 <span style="color:#66d9ef">INSERT</span> <span style="color:#66d9ef">INTO</span> <span style="color:#f92672">`</span><span style="color:#66d9ef">user</span><span style="color:#f92672">`</span> ( <span style="color:#f92672">`</span>name<span style="color:#f92672">`</span>, <span style="color:#f92672">`</span>age<span style="color:#f92672">`</span> ) <span style="color:#66d9ef">VALUES</span> ( <span style="color:#e6db74">&#39;AA&#39;</span>, <span style="color:#ae81ff">30</span> ),( <span style="color:#e6db74">&#39;BB&#39;</span>, <span style="color:#ae81ff">33</span> ),( <span style="color:#e6db74">&#39;CC&#39;</span>, <span style="color:#ae81ff">31</span> ),( <span style="color:#e6db74">&#39;DD&#39;</span>, <span style="color:#ae81ff">30</span> ),( <span style="color:#e6db74">&#39;EE&#39;</span>, <span style="color:#ae81ff">29</span> )
 </code></pre></div><p>在上面的 SQL 语句中，创建了一张 user 表，表中有三个字段，id 是主键，name 和 age 分别表示用户的姓名和年龄，同时还为字段 name 创建了一个普通索引。为了方便后面描述，因此还向表中插入了 5 条数据，由于主键 id 是自增的，所以这五行数据的 id 值分为是 1~5。</p>
-<h2 id="主键索引">主键索引</h2>
+<h2 id="主键索引">主键索引<a class="anchor ms-1" href="#主键索引"><i class="fas fa-link"></i></a></h2>
 <p>主键索引又称之为聚簇索引（cluster index），它的特点是叶子结点中会存放当前主键所对应行的数据。什么意思呢？拿上面的例子来说明，在表 user 中，id 为主键索引，所以会有一棵 id 的索引树，在该索引树的叶子结点中，不仅存放了主键 id 的值，还存放了 name 和 value 的值。例如：在 id=1 这一行的数据中，name 和 age 的值为 AA 和 30，那么在索引树中，在 id=1 的结点处，存放的是(1,&ldquo;AA&rdquo;,30)这三个值。id 索引树的示意图如下。</p>
 <p><img src="https://picgo.6and.ltd/img/1719c2d3191bcc77~tplv-t2oaga2asx-watermark.awebp" alt="图1" style="zoom: 33%;" /></p>
 <p>下面看看这一条 SQL 语句的执行流程：</p>
@@ -370,7 +375,7 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
 <li>找到 id 索引树的第一层结点（关键字 3、7 所在的结点），由于 where 条件中 id=1，1 小于 3，所以进入到关键字 3 的左子树中查找；</li>
 <li>进入到 id 索引树的第二层结点，第二层结点是叶子结点，叶子结点中存放了表的数据，并且存在 id=1 的关键字，所以将 R1 返回。（R1 表示的是 id=1 这一行的数据）。</li>
 </ol>
-<h2 id="回表">回表</h2>
+<h2 id="回表">回表<a class="anchor ms-1" href="#回表"><i class="fas fa-link"></i></a></h2>
 <p>普通索引又称之为非聚簇索引，也叫做二级索引，它的特点是叶子结点中也会存放数据，与主键索引不同的是，普通索引中存放的数据只有主键的值，而非整行记录的数据。例如上面的示例表中，name 就是一个普通索引，它的索引树中，在叶子结点中存放的数据是主键 id 的值，示意图如下：</p>
 <p><img src="https://picgo.6and.ltd/img/1719c2da5a2c5d0a~tplv-t2oaga2asx-watermark.awebp" alt="图2" style="zoom: 33%;" /></p>
 <p>下面看看这一条 SQL 语句的执行流程：</p>
@@ -383,11 +388,11 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
 <li>根据主键 id=2，再去主键 id 的索引树中查找，找到 id=2 所对应的数据 R2；</li>
 <li>在 name 索引树中继续向后查找，找到&rsquo;BB&rsquo;的下一个关键字&rsquo;CC'，发现&rsquo;CC&rsquo;不等于 where 条件中的&rsquo;BB'，所以结束查找。</li>
 </ol>
-<h2 id="覆盖索引">覆盖索引</h2>
+<h2 id="覆盖索引">覆盖索引<a class="anchor ms-1" href="#覆盖索引"><i class="fas fa-link"></i></a></h2>
 <p>对于上面的第二个例子，由于 name=&lsquo;BB&rsquo;的只有一条记录，因此只回了一次表，那如果有多条记录同时满足 name=&lsquo;BB&rsquo;这个条件，那就得进行多次回表操作了。显然，回表次数越多，SQL 执行的越慢，那有什么办法能避免回表呢？答案就是覆盖索引。</p>
 <p>覆盖索引究竟是个什么东西呢？在上面的第二个示例中，我们使用了 select * 来查询所有字段，那如果我们并不需要所有的字段呢，只需要 id 字段呢？例如 <code>select id from user where name = 'BB'</code>; 由于在 name 索引树的叶子结点中已经存有了主键 id 的值，所以 name 索引树能直接满足我们的查询要求，因此此时是不要回表操作，这种情况我们称之为覆盖索引。</p>
 <p>覆盖索引能够显著的提升查询性能，因为它能明显减少大量的回表操作。覆盖索引是非常常用的一种 SQL 优化手段，使用起来也十分简单。我们在开发过程中，通常建议不要使用 select * 来查询数据，一方面是因为在数据量大时，select * 可能会返回好多无用字段，浪费网络资源；另一方面也是出于尽量使用覆盖索引的考虑。</p>
-<h2 id="联合索引与最左匹配原则">联合索引与最左匹配原则</h2>
+<h2 id="联合索引与最左匹配原则">联合索引与最左匹配原则<a class="anchor ms-1" href="#联合索引与最左匹配原则"><i class="fas fa-link"></i></a></h2>
 <p>假如我们现在有个需求是要查询 user 表中，name=&lsquo;BB&rsquo;的人的 name 和 age，我们的 SQL 需要这样写：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> name,age <span style="color:#66d9ef">from</span> <span style="color:#66d9ef">user</span> <span style="color:#66d9ef">where</span> name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;BB&#39;</span>;
 </code></pre></div><p>显然，此时也会使用到 name 索引树，又因为 name 索引树中并没有存放 age 字段的信息，因此需要进行回表，回到主键 id 的索引树中取 age 字段的值。那么有什么方法能优化一下呢？让这次查询不需要进行回表。肯定有啊！使用覆盖索引啊。怎么用呢？</p>
@@ -404,9 +409,9 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
 <span style="color:#66d9ef">select</span> name,age <span style="color:#66d9ef">from</span> <span style="color:#66d9ef">user</span> <span style="color:#66d9ef">where</span> name <span style="color:#66d9ef">like</span> <span style="color:#e6db74">&#39;B%&#39;</span> <span style="color:#66d9ef">and</span> age <span style="color:#f92672">=</span> <span style="color:#ae81ff">33</span>; <span style="color:#f92672">#</span> <span style="color:#960050;background-color:#1e0010">在使用联合索引时，当匹配到</span>name这一列的时候<span style="color:#960050;background-color:#1e0010">，由于</span>name使用了like范围查找<span style="color:#960050;background-color:#1e0010">，因此后面不会再匹配</span>age这一列了<span style="color:#960050;background-color:#1e0010">。</span>
 <span style="color:#66d9ef">select</span> name,age <span style="color:#66d9ef">from</span> <span style="color:#66d9ef">user</span> <span style="color:#66d9ef">where</span> age <span style="color:#f92672">=</span> <span style="color:#ae81ff">33</span>; <span style="color:#f92672">#</span> <span style="color:#960050;background-color:#1e0010">在使用联合索引时，由于联合索引的最左列为</span>name列<span style="color:#960050;background-color:#1e0010">，而我们在</span>where条件中匹配的是age列<span style="color:#960050;background-color:#1e0010">，因此不满足最左匹配原则，所以该条</span>SQL会进行该联合索引的全表扫描<span style="color:#960050;background-color:#1e0010">。</span>
 </code></pre></div><p>为什么 MySQL 要遵循最左匹配原则呢？这是因为 B+Tree 中，所有节点上的数据是有序的，当我们创建联合索引时，首先保证的是所有数据的第一列是有序的，然后再保证第二列、第三列以及后面的列有序。以上面的 user 表中的联合索引为例，在该索引树中，name 这一列在所有数据上是有序的，但是 age 这一列，却不是有序的，只有对于 name 相同的情况的下，age 才有序。当我们在查找数据时，如果碰到范围查找的时候，由于后面的列没法保证是有序的，所以不能再继续进行等值匹配，只能对后面的列进行全表扫描。</p>
-<h2 id="总结">总结</h2>
+<h2 id="总结">总结<a class="anchor ms-1" href="#总结"><i class="fas fa-link"></i></a></h2>
 <p>本文主要讲了一条查询 SQL 语句是如何通过索引来查询数据的，以及什么是回表。在使用索引时，为了提升查询性能，可以通过创建合理的索引，使用覆盖索引来减少回表操作，从而达到提升查询性能的目的。最后，在联合索引的使用中，由于最左匹配原则，需要注意索引列的顺序，在创建联合索引时，需要考虑好如何安排索引内字段的顺序，以满足更多的查询场景，避免创建多个索引。</p>
-<h2 id="参考">参考</h2>
+<h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://juejin.cn/post/6844904134433308685" target="_blank" rel="noopener noreferrer">MySQL索引的工作原理</a>
 </p>
 <p><a href="https://mp.weixin.qq.com/s/z_TNLqqJVwYKgb2kBadTwg" target="_blank" rel="noopener noreferrer">索引数据结构之B-Tree与B+Tree（上篇）</a>
@@ -440,7 +445,7 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/other/navicat%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5mysql2003-can_t-connect-to-mysql-serve/">navicat远程连接mysql，2003 can&#39;t connect to mysql server on 10038
 </a>
@@ -481,7 +486,7 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
 </span>
         </li></ul>
     </div>
-  </section><div class="card component row post-comments">
+  </section><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -522,30 +527,20 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -692,7 +687,7 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -717,7 +712,8 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

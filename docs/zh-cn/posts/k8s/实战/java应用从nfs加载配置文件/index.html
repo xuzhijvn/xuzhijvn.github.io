@@ -36,8 +36,7 @@
 1. 准备nfs 1、准备好nfs服务器。参考：nfs安装 的nfs服务端配置。 2、k8s node节点可以不启用rpcbind服务，但是必须安装nfs-utils（yum install nfs-utils），否则nfs-client-provisioner pod无法启动，因为nfs-client.yaml里面有nfs的相关配置，而这些nfs配置要生效需依赖nfs-utils。参考：nfs安装 的nfs客户端配置。
 2. 创建StorageClass对象 理论部分参考：StorageClass 2.1 nfs-client.yaml kind: Deployment apiVersion: apps/v1 metadata: name: nfs-client-provisioner spec: replicas: 1 strategy: type: Recreate selector: matchLabels: app: nfs-client-provisioner template: metadata: labels: app: nfs-client-provisioner spec: serviceAccountName: nfs-client-provisioner containers: - name: nfs-client-provisioner image: quay.io/external_storage/nfs-client-provisioner:latest volumeMounts: - name: nfs-client-root mountPath: /persistentvolumes env: - name: PROVISIONER_NAME value: fuseim.pri/ifs - name: NFS_SERVER value: nfs - name: NFS_PATH value: /mnt/nfs/k8s volumes: - name: nfs-client-root nfs: server: nfs path: /mnt/nfs/k8s  k8s node节点可以不启用rpcbind服务，但必须安装nfs-utils。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous">
-<noscript><link rel="stylesheet" href="https://xuzhijvn.github.io/css/bundle.min.053985506210a660aa2e81f3c7ae5240a3b38a1b6f8b879d3cb8e92c4cef1e9b.css" integrity="sha256-BTmFUGIQpmCqLoHzx65SQKOzihtvi4edPLjpLEzvHps=" crossorigin="anonymous"></noscript></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -48,12 +47,7 @@
    />
 👴🏻💪
     </a>
-    <button class="navbar-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
-  aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
-  <i class="fas fa-share-alt"></i>
-</button>
-
-<div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
   <div class="offcanvas-header">
     <h3 class="offcanvas-title">Share</h3>
     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -151,11 +145,16 @@
         class="btn btn-sm palette" data-palette="yellow">
       </button></div>
 </section>
-<section class="setting actions d-flex justify-content-center mt-auto">
-  <a role="button" class="d-flex flex-column align-items-center" id="pageReloader">
-    <i class="fas fa-2x fa-redo-alt"></i> 刷新
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
-</section>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
 
 </div>
 </div>
@@ -280,17 +279,23 @@
 </nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
-    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
   <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
 </a>
-  
+
     
 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
     
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
@@ -333,17 +338,17 @@
 </nav>
   </div>
 </div><div class="post-content mb-3"><p>Java应用从nfs加载配置文件</p>
-<h2 id="背景">背景</h2>
+<h2 id="背景">背景<a class="anchor ms-1" href="#背景"><i class="fas fa-link"></i></a></h2>
 <p>配置文件变化，无需重新构建镜像部署。</p>
-<h2 id="1-准备nfs">1. 准备nfs</h2>
+<h2 id="1-准备nfs">1. 准备nfs<a class="anchor ms-1" href="#1-准备nfs"><i class="fas fa-link"></i></a></h2>
 <p>1、准备好nfs服务器。参考：<a href="http://106.55.152.92:30989/archives/1004" target="_blank" rel="noopener noreferrer">nfs安装</a>
  的nfs服务端配置。
 2、k8s node节点可以不启用<code>rpcbind</code>服务，但是必须安装<code>nfs-utils</code>（yum install nfs-utils），否则<code>nfs-client-provisioner</code> pod无法启动，因为<code>nfs-client.yaml</code>里面有nfs的相关配置，而这些nfs配置要生效需依赖<code>nfs-utils</code>。参考：<a href="http://106.55.152.92:30989/archives/1004" target="_blank" rel="noopener noreferrer">nfs安装</a>
  的nfs客户端配置。</p>
-<h2 id="2-创建storageclass对象">2. 创建StorageClass对象</h2>
+<h2 id="2-创建storageclass对象">2. 创建StorageClass对象<a class="anchor ms-1" href="#2-创建storageclass对象"><i class="fas fa-link"></i></a></h2>
 <p>理论部分参考：<a href="https://www.qikqiak.com/k8s-book/docs/35.StorageClass.html" target="_blank" rel="noopener noreferrer">StorageClass</a>
 </p>
-<h3 id="21-nfs-clientyaml">2.1 nfs-client.yaml</h3>
+<h3 id="21-nfs-clientyaml">2.1 nfs-client.yaml<a class="anchor ms-1" href="#21-nfs-clientyaml"><i class="fas fa-link"></i></a></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Deployment</span>
 <span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apps/v1</span>
 <span style="color:#f92672">metadata</span>:
@@ -382,7 +387,7 @@
 </code></pre></div><blockquote>
 <p>k8s node节点可以不启用<code>rpcbind</code>服务，但必须安装<code>nfs-utils</code>。</p>
 </blockquote>
-<h3 id="22-nfs-client-sayaml">2.2 nfs-client-sa.yaml</h3>
+<h3 id="22-nfs-client-sayaml">2.2 nfs-client-sa.yaml<a class="anchor ms-1" href="#22-nfs-client-sayaml"><i class="fas fa-link"></i></a></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
 <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ServiceAccount</span>
 <span style="color:#f92672">metadata</span>:
@@ -423,7 +428,7 @@
   <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ClusterRole</span>
   <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nfs-client-provisioner-runner</span>
   <span style="color:#f92672">apiGroup</span>: <span style="color:#ae81ff">rbac.authorization.k8s.io</span>
-</code></pre></div><h3 id="23-nfs-client-classyaml">2.3 nfs-client-class.yaml</h3>
+</code></pre></div><h3 id="23-nfs-client-classyaml">2.3 nfs-client-class.yaml<a class="anchor ms-1" href="#23-nfs-client-classyaml"><i class="fas fa-link"></i></a></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">storage.k8s.io/v1</span>
 <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">StorageClass</span>
 <span style="color:#f92672">metadata</span>:
@@ -442,7 +447,7 @@ nfs-client-provisioner-7648b664bc-7f9pk          1/1       Running            <s
 $ kubectl get storageclass
 NAME                 PROVISIONER      AGE
 course-nfs-storage   fuseim.pri/ifs   11s
-</code></pre></div><h2 id="3-创建pvc对象">3. 创建PVC对象</h2>
+</code></pre></div><h2 id="3-创建pvc对象">3. 创建PVC对象<a class="anchor ms-1" href="#3-创建pvc对象"><i class="fas fa-link"></i></a></h2>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">PersistentVolumeClaim</span>
 <span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
 <span style="color:#f92672">metadata</span>:
@@ -465,7 +470,7 @@ ceres-app-server-nfs-pvc     Bound    pvc-6367fbb5-bc9c-4a75-a5a4-0a555172a6fd  
 NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                STORAGECLASS   REASON   AGE
 pvc-6367fbb5-bc9c-4a75-a5a4-0a555172a6fd   32Mi       RWX            Delete           Bound    default/ceres-app-server-nfs-pvc     nfs-storage             55m
 pvc-fec62c86-451e-4125-9e00-be60394f40d9   32Mi       RWX            Delete           Bound    default/ceres-admin-server-nfs-pvc   nfs-storage             3h14m
-</code></pre></div><h2 id="4-拷贝配置文件到nfs共享目录">4. 拷贝配置文件到nfs共享目录</h2>
+</code></pre></div><h2 id="4-拷贝配置文件到nfs共享目录">4. 拷贝配置文件到nfs共享目录<a class="anchor ms-1" href="#4-拷贝配置文件到nfs共享目录"><i class="fas fa-link"></i></a></h2>
 <p>创建pvc之后就能在nfs看到已经生成相应的共享目录。</p>
 <p>共享目录命名规则如下：</p>
 <ul>
@@ -478,7 +483,7 @@ pvc-fec62c86-451e-4125-9e00-be60394f40d9   32Mi       RWX            Delete     
    />
 
 </p>
-<h2 id="5-使用pvc">5. 使用PVC</h2>
+<h2 id="5-使用pvc">5. 使用PVC<a class="anchor ms-1" href="#5-使用pvc"><i class="fas fa-link"></i></a></h2>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apps/v1</span>
 <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Deployment</span>
 <span style="color:#f92672">metadata</span>:
@@ -542,7 +547,7 @@ pvc-fec62c86-451e-4125-9e00-be60394f40d9   32Mi       RWX            Delete     
       </div>
     </div>
   </div>
-</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/cicd/jenkins&#43;docker&#43;%E8%85%BE%E8%AE%AF%E4%BA%91%E5%AE%B9%E5%99%A8%E4%BB%93%E5%BA%93&#43;github%E6%90%AD%E5%BB%BAcicd%E7%8E%AF%E5%A2%83/">Jenkins&#43;Docker&#43;腾讯云容器仓库&#43;Github搭建CI/CD环境.md
 </a>
@@ -583,7 +588,7 @@ pvc-fec62c86-451e-4125-9e00-be60394f40d9   32Mi       RWX            Delete     
 </span>
         </li></ul>
     </div>
-  </section><div class="card component row post-comments">
+  </section><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -624,30 +629,20 @@ pvc-fec62c86-451e-4125-9e00-be60394f40d9   32Mi       RWX            Delete     
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/">JVM OOM
 </a>
-        <span class="float-end post-date">2021-12-05
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/inheritablethreadlocal%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/">InheritableThreadLocal使用简介
 </a>
-        <span class="float-end post-date">2021-11-18
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/javaio/">JavaIO
 </a>
-        <span class="float-end post-date">2021-11-12
-</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/%E9%95%BF%E8%BF%9E%E6%8E%A5%E7%9F%AD%E8%BF%9E%E6%8E%A5/">长连接短连接
 </a>
-        <span class="float-end post-date">2021-11-03
-</span>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-03.-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 03. 数组中重复的数字
-</a>
-        <span class="float-end post-date">2021-10-11
-</span>
       </li></ul>
   </div>
 </section><section class="taxonomies row card component">
@@ -794,7 +789,7 @@ pvc-fec62c86-451e-4125-9e00-be60394f40d9   32Mi       RWX            Delete     
   </div>
 </aside>
 </div>
-    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
       <i class="fas fa-fw fa-2x fa-envelope"></i>
     </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-github"></i>
@@ -819,7 +814,8 @@ pvc-fec62c86-451e-4125-9e00-be60394f40d9   32Mi       RWX            Delete     
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/bundle.min.9147e3e6a99a14c8a6359fe504d59d9a198570644d91b0b122f2bffef60ff8a2.js" integrity="sha256-kUfj5qmaFMimNZ/lBNWdmhmFcGRNkbCxIvK//vYP&#43;KI=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
