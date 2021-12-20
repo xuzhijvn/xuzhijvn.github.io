@@ -535,7 +535,7 @@
 
     <span style="color:#66d9ef">return</span> <span style="color:#f92672">(</span>clas <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">?</span> <span style="color:#f92672">(</span>ObjectFactory<span style="color:#f92672">)</span> clas<span style="color:#f92672">.</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">()</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
 <span style="color:#f92672">}</span>
-</code></pre></div><p>可以看到，如果class在执行程序的classpath的话，会加载本地的class而不是加载远程的class</p>
+</code></pre></div><p>可以看到，如果class在执行程序的classpath的话，会优先加载本地的class而不是加载远程的class，并且最后会实例化（Exploit需要ObjectFactory接口）</p>
 <p>远程加载的代码如下：</p>
 <p><code>com.sun.naming.internal.VersionHelper12</code></p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">/**
@@ -607,7 +607,7 @@ javax.naming.NameNotFoundException: <span style="color:#f92672">[</span>LDAP: er
 	at JNDIDynamic.main<span style="color:#f92672">(</span>JNDIDynamic.java:18<span style="color:#f92672">)</span>
 </code></pre></div><p>这就是所谓的：动态协议切换</p>
 <h3 id="堆栈分析">堆栈分析<a class="anchor ms-1" href="#堆栈分析"><i class="fas fa-link"></i></a></h3>
-<p>最后，我们用Jndi lookup看一下是不是ldap/rmi的堆栈，是不是都用了jndi的方式去加载class</p>
+<p>最后，我们用Jndi lookup看一下ldap/rmi的堆栈，是不是都用了jndi的方式去加载class</p>
 <p>测试程序：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JNDILookup</span> <span style="color:#f92672">{</span>
     <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>

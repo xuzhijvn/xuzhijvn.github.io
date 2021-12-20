@@ -275,7 +275,7 @@ static ObjectFactory getObjectFactoryFromReference(
 }
 ```
 
-可以看到，如果class在执行程序的classpath的话，会加载本地的class而不是加载远程的class
+可以看到，如果class在执行程序的classpath的话，会优先加载本地的class而不是加载远程的class，并且最后会实例化（Exploit需要ObjectFactory接口）
 
 远程加载的代码如下：
 
@@ -374,7 +374,7 @@ javax.naming.NameNotFoundException: [LDAP: error code 32 - No Such Object]; rema
 
 ### 堆栈分析
 
-最后，我们用Jndi lookup看一下是不是ldap/rmi的堆栈，是不是都用了jndi的方式去加载class
+最后，我们用Jndi lookup看一下ldap/rmi的堆栈，是不是都用了jndi的方式去加载class
 
 测试程序：
 
