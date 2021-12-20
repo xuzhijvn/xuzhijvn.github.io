@@ -275,7 +275,7 @@ static ObjectFactory getObjectFactoryFromReference(
 }
 ```
 
-可以看到，如果class在执行程序的classpath的话，会优先加载本地的class而不是加载远程的class，并且最后会实例化（Exploit需要ObjectFactory接口）
+可以看到，如果class在执行程序的classpath的话，会优先加载本地的class而不是加载远程的class，并且最后会实例化（Exploit需要实现ObjectFactory接口）
 
 远程加载的代码如下：
 
