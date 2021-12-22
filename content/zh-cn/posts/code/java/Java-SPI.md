@@ -219,7 +219,7 @@ public class Driver extends NonRegisteringDriver implements java.sql.Driver {
 
 如果同时存在多个驱动（多个SPI实现），那DriverManager又该选择用哪个驱动呢？
 
-源码面前无密码，让我们看下存在多个驱动的情况下，DriverManager选择哪个驱动获得连接呢？
+源码面前无秘密㊙️，让我们看下存在多个驱动的情况下，DriverManager选择哪个驱动获得连接呢？
 
 ```java
 //  Worker method called by the public getConnection() methods.
@@ -255,7 +255,7 @@ private static Connection getConnection(
 }
 ```
 
-遍历驱动注册链表 `registeredDrivers` ，用一个驱动获得连接成功就返回。
+遍历驱动注册链表 `registeredDrivers` ，有一个驱动获得连接成功就返回。
 
 
 
