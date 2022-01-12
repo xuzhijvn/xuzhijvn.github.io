@@ -13,7 +13,7 @@
 <meta itemprop="description" content="从操作系统层面划分，多采用史蒂夫-理查德在《The Sockets Networking API》：阻塞io、非阻塞io、io多路复用、信号驱动io、异步io
 从Java层面去划分：bio, nio, aio, 分别对应操作系统的阻塞io、io多路复用、异步io"><meta itemprop="datePublished" content="2021-11-12T17:40:13+08:00" />
 <meta itemprop="dateModified" content="2021-11-12T17:40:13+08:00" />
-<meta itemprop="wordCount" content="52">
+<meta itemprop="wordCount" content="59">
 <meta itemprop="keywords" content="," /><meta property="og:title" content="JavaIO" />
 <meta property="og:description" content="从操作系统层面划分，多采用史蒂夫-理查德在《The Sockets Networking API》：阻塞io、非阻塞io、io多路复用、信号驱动io、异步io
 从Java层面去划分：bio, nio, aio, 分别对应操作系统的阻塞io、io多路复用、异步io" />
@@ -325,7 +325,7 @@
 <h2 id="bio">bio<a class="anchor ms-1" href="#bio"><i class="fas fa-link"></i></a></h2>
 <p><code>特点</code>：数据从 网卡-&gt;内核，内核-&gt;用户空间 两阶段都是阻塞的；每一个客户端请求都需要一个线程去处理网络IO。</p>
 <p><code>优点</code>：io模型简单，不容易出错</p>
-<p><code>场景</code>：并发量不大的web应用，例如：tomcat，bio+线程池</p>
+<p><code>场景</code>：并发量不大的web应用，例如：tomcat，bio+线程池（伪异步I/O编程）</p>
 <p><code>缺点</code>：难以应对高并发的场景</p>
 <blockquote>
 <p>read/recvfrom</p>
@@ -356,6 +356,10 @@
 </blockquote>
 <h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://zhuanlan.zhihu.com/p/372624299" target="_blank" rel="noopener noreferrer">Java AIO 网络编程真相</a>
+</p>
+<p><a href="https://juejin.cn/post/6844903839439519758" target="_blank" rel="noopener noreferrer">深入理解Java I/O模型</a>
+</p>
+<p><a href="https://xie.infoq.cn/article/fb524c4992beea6bb4487af87" target="_blank" rel="noopener noreferrer">什么是 NIO ？6000 字详解 NIO</a>
 </p></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -401,22 +405,22 @@
           <span class="float-end post-date">2021-11-03
 </span>
         </li><li>
-          <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-39.-%E6%95%B0%E7%BB%84%E4%B8%AD%E5%87%BA%E7%8E%B0%E6%AC%A1%E6%95%B0%E8%B6%85%E8%BF%87%E4%B8%80%E5%8D%8A%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 39. 数组中出现次数超过一半的数字
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-22.-%E9%93%BE%E8%A1%A8%E4%B8%AD%E5%80%92%E6%95%B0%E7%AC%ACk%E4%B8%AA%E8%8A%82%E7%82%B9/">剑指 Offer 22. 链表中倒数第k个节点
 </a>
           <span class="float-end post-date">2021-10-11
 </span>
         </li><li>
-          <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-50.-%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%8F%AA%E5%87%BA%E7%8E%B0%E4%B8%80%E6%AC%A1%E7%9A%84%E5%AD%97%E7%AC%A6/">剑指 Offer 50. 第一个只出现一次的字符
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-68-ii.-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/">剑指 Offer 68 - II. 二叉树的最近公共祖先
 </a>
           <span class="float-end post-date">2021-10-11
 </span>
         </li><li>
-          <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-10-i.-%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%E6%95%B0%E5%88%97/">斐波那契数列
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-24.-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/">剑指 Offer 24. 反转链表
 </a>
           <span class="float-end post-date">2021-10-11
 </span>
         </li><li>
-          <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-21.-%E8%B0%83%E6%95%B4%E6%95%B0%E7%BB%84%E9%A1%BA%E5%BA%8F%E4%BD%BF%E5%A5%87%E6%95%B0%E4%BD%8D%E4%BA%8E%E5%81%B6%E6%95%B0%E5%89%8D%E9%9D%A2/">剑指 Offer 21. 调整数组顺序使奇数位于偶数前面
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-68-i.-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/">剑指 Offer 68 - I. 二叉搜索树的最近公共祖先
 </a>
           <span class="float-end post-date">2021-10-11
 </span>

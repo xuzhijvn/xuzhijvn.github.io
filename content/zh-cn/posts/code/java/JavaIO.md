@@ -30,7 +30,7 @@ images = []
 
 `优点`：io模型简单，不容易出错
 
-`场景`：并发量不大的web应用，例如：tomcat，bio+线程池
+`场景`：并发量不大的web应用，例如：tomcat，bio+线程池（伪异步I/O编程）
 
 `缺点`：难以应对高并发的场景
 
@@ -80,4 +80,8 @@ images = []
 ## 参考
 
 [Java AIO 网络编程真相](https://zhuanlan.zhihu.com/p/372624299)
+
+[深入理解Java I/O模型](https://juejin.cn/post/6844903839439519758)
+
+[什么是 NIO ？6000 字详解 NIO](https://xie.infoq.cn/article/fb524c4992beea6bb4487af87)
 
