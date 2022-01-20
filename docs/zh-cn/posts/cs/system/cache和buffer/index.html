@@ -16,7 +16,7 @@
  从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因 ），所以同样使用 free -m 看到的是：
 [root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0  使用 hostnamectl 或者 cat /proc/version 可以查看内核版本："><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="193"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="wordCount" content="193">
 <meta itemprop="keywords" content="CS,System," /><meta property="og:title" content="cache和buffer" />
 <meta property="og:description" content="首先我们使用 free -m 查看系统内存的使用情况：
 可以看出，系统内存为 16G，Swap 内存 16G，mem free 虽然显示为 1118，因缓存的存在，不能认为系统目前内剩下这么多内存。而应该把 buffers、cached 的也算上，即 free&#43;cached&#43;buffers=1118&#43;7110&#43;430＝8658，总内存再减去 8658＝7314，与 buffers/cache 行中对应 free 列的 7312 和 8659 基本一致。
@@ -24,14 +24,12 @@
  从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因 ），所以同样使用 free -m 看到的是：
 [root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0  使用 hostnamectl 或者 cat /proc/version 可以查看内核版本：" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/cs/system/cache%E5%92%8Cbuffer/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/cs/system/cache%E5%92%8Cbuffer/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" />
 
-<meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
-
+<meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="cache和buffer"/>
 <meta name="twitter:description" content="首先我们使用 free -m 查看系统内存的使用情况：
 可以看出，系统内存为 16G，Swap 内存 16G，mem free 虽然显示为 1118，因缓存的存在，不能认为系统目前内剩下这么多内存。而应该把 buffers、cached 的也算上，即 free&#43;cached&#43;buffers=1118&#43;7110&#43;430＝8658，总内存再减去 8658＝7314，与 buffers/cache 行中对应 free 列的 7312 和 8659 基本一致。
@@ -501,6 +499,9 @@ Linux version 3.10.0-1127.19.1.el7.x86_64 <span style="color:#f92672">(</span>mo
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/">MQ实现延时消息
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">RabbitMQ清空队列的几种方式
 </a>
       </li><li>
@@ -511,9 +512,6 @@ Linux version 3.10.0-1127.19.1.el7.x86_64 <span style="color:#f92672">(</span>mo
 </a>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/">Java SPI
-</a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
 </a>
       </li></ul>
   </div>
@@ -600,10 +598,10 @@ Linux version 3.10.0-1127.19.1.el7.x86_64 <span style="color:#f92672">(</span>mo
             nginx
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
             ZK
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
-            Jenkins
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
             MQ
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
             AI
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">

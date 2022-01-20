@@ -11,7 +11,7 @@ tags : [
 "docker-compose"
 ]
 images : [
-"images/center.png"
+
 ]
 ---
 

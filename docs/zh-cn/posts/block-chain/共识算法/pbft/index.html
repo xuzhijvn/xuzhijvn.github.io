@@ -19,7 +19,7 @@
  拜占庭容错算法  拜占庭容错算法（Byzantine Fault Tolerant）是面向拜占庭问题的容错算法，解决的是在网络通信可靠，但节点可能故障和作恶情况下如何达成共识。
 拜占庭容错算法最早的讨论可以追溯到Leslie Lamport等人1982年发表的论文《The Byzantine Generals Problem》，之后出现了大量的改进工作，代表性成果包括《Optimal Asynchronous Byzantine Agreement》（1992年）、《Fully Polynomial Byzantine Agreement for n&gt;3t Processors in t&#43;1 Rounds》（1998年）等。长期以来，拜占庭问题的解决方案都存在运行过慢，或复杂度过高的问题，直到“实用拜占庭容错算法”（Practical Byzantine Fault Tolerance，PBFT）算法的提出。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="350"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="wordCount" content="350">
 <meta itemprop="keywords" content="BlockChain," /><meta property="og:title" content="pbft" />
 <meta property="og:description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance 。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery 发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
 0. 背景 拜占庭问题（Byzantine Problem） 又叫拜占庭将军（Byzantine Generals Problem） 问题，讨论的是允许存在少数节点作恶（消息可能被伪造） 场景下的如何达成共识问题。拜占庭容错（Byzantine Fault Tolerant，BFT）讨论的是容忍拜占庭错误的共识算法。
@@ -30,14 +30,12 @@
  拜占庭容错算法  拜占庭容错算法（Byzantine Fault Tolerant）是面向拜占庭问题的容错算法，解决的是在网络通信可靠，但节点可能故障和作恶情况下如何达成共识。
 拜占庭容错算法最早的讨论可以追溯到Leslie Lamport等人1982年发表的论文《The Byzantine Generals Problem》，之后出现了大量的改进工作，代表性成果包括《Optimal Asynchronous Byzantine Agreement》（1992年）、《Fully Polynomial Byzantine Agreement for n&gt;3t Processors in t&#43;1 Rounds》（1998年）等。长期以来，拜占庭问题的解决方案都存在运行过慢，或复杂度过高的问题，直到“实用拜占庭容错算法”（Practical Byzantine Fault Tolerance，PBFT）算法的提出。" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/block-chain/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/pbft/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/block-chain/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/pbft/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" />
 
-<meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
-
+<meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="pbft"/>
 <meta name="twitter:description" content="1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance 。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery 发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
 0. 背景 拜占庭问题（Byzantine Problem） 又叫拜占庭将军（Byzantine Generals Problem） 问题，讨论的是允许存在少数节点作恶（消息可能被伪造） 场景下的如何达成共识问题。拜占庭容错（Byzantine Fault Tolerant，BFT）讨论的是容忍拜占庭错误的共识算法。
@@ -647,6 +645,9 @@
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/">MQ实现延时消息
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">RabbitMQ清空队列的几种方式
 </a>
       </li><li>
@@ -657,9 +658,6 @@
 </a>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/">Java SPI
-</a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
 </a>
       </li></ul>
   </div>
@@ -746,10 +744,10 @@
             nginx
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
             ZK
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
-            Jenkins
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
             MQ
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
             AI
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">

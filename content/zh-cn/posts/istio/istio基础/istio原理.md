@@ -11,7 +11,7 @@ tags : [
 "istio"
 ]
 images : [
-"images/center.png"
+
 ]
 ---
 

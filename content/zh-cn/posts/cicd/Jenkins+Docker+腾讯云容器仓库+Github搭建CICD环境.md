@@ -11,7 +11,7 @@ tags : [
 "docker"
 ]
 images : [
-"images/center.png"
+
 ]
 ---
 

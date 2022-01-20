@@ -10,7 +10,7 @@ tags : [
 "Jenkins"
 ]
 images : [
-"images/center.png"
+
 ]
 ---
 

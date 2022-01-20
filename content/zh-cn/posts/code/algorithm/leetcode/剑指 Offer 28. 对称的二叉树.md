@@ -13,7 +13,7 @@ series : [
 "算法"
 ]
 images : [
-"images/center.png"
+
 ]
 ---
 

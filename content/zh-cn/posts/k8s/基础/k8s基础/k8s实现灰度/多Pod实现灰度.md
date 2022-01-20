@@ -14,7 +14,7 @@ series : [
 "k8s"
 ]
 images : [
-"images/center.png"
+
 ]
 ---
 

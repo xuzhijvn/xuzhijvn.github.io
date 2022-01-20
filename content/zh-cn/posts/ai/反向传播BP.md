@@ -15,7 +15,7 @@ series : [
 "Manual"
 ]
 images : [
-"images/center.png"
+
 ]
 ---
 

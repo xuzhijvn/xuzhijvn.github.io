@@ -13,7 +13,7 @@ series : [
 "Manual"
 ]
 images : [
-"images/center.png"
+
 ]
 ---
 # 使用Xshell登录AWS的EC2云服务器和开启EC2上允许root+密码方式登录

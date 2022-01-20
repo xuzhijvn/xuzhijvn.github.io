@@ -14,20 +14,18 @@
 不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法 也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
  默认安装istio之后disablePolicyChecks=true  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | grep disablePolicyChecks disablePolicyChecks: true 编辑 istio configmap 以启用策略检查  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | sed -e &#34;s/disablePolicyChecks: true/disablePolicyChecks: false/&#34; &gt; /tmp/mesh.yaml [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system create cm Istio -o yaml --dry-run --from-file=mesh=/tmp/mesh.yaml | kubectl replace -f - W0902 17:00:37.208604 16538 helpers.go:535] --dry-run is deprecated and can be replaced with --dry-run=client."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="100"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="wordCount" content="100">
 <meta itemprop="keywords" content="云原生,istio," /><meta property="og:title" content="istio启用策略检查功能" />
 <meta property="og:description" content="istio启用策略检查功能
 不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法 也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
  默认安装istio之后disablePolicyChecks=true  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | grep disablePolicyChecks disablePolicyChecks: true 编辑 istio configmap 以启用策略检查  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&#34;{@.data.mesh}&#34; | sed -e &#34;s/disablePolicyChecks: true/disablePolicyChecks: false/&#34; &gt; /tmp/mesh.yaml [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system create cm Istio -o yaml --dry-run --from-file=mesh=/tmp/mesh.yaml | kubectl replace -f - W0902 17:00:37.208604 16538 helpers.go:535] --dry-run is deprecated and can be replaced with --dry-run=client." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%90%AF%E7%94%A8%E7%AD%96%E7%95%A5%E6%A3%80%E6%9F%A5%E5%8A%9F%E8%83%BD/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%90%AF%E7%94%A8%E7%AD%96%E7%95%A5%E6%A3%80%E6%9F%A5%E5%8A%9F%E8%83%BD/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
 
 
-<meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
-
+<meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="istio启用策略检查功能"/>
 <meta name="twitter:description" content="istio启用策略检查功能
 不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法 也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
@@ -444,6 +442,9 @@ disablePolicyChecks: false
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/">MQ实现延时消息
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">RabbitMQ清空队列的几种方式
 </a>
       </li><li>
@@ -454,9 +455,6 @@ disablePolicyChecks: false
 </a>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/">Java SPI
-</a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
 </a>
       </li></ul>
   </div>
@@ -543,10 +541,10 @@ disablePolicyChecks: false
             nginx
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
             ZK
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
-            Jenkins
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
             MQ
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
             AI
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">

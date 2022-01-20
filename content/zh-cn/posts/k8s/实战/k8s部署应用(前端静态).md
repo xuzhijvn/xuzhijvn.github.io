@@ -14,7 +14,7 @@ series : [
 "k8s实战"
 ]
 images : [
-"images/center.png"
+
 ]
 ---
 
@@ -137,4 +137,3 @@ curl http://10.108.253.217
 
 ![img](https://picgo.6and.ltd/img/img_5efcbb9ab0aef.png)
 
- 

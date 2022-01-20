@@ -32,7 +32,7 @@ Merkle树具有下列特性:
  每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。  Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
 首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="404"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="wordCount" content="404">
 <meta itemprop="keywords" content="BlockChain," /><meta property="og:title" content="Merkle Patricia Tree" />
 <meta property="og:description" content="区块链一个重要的亮点就是防篡改，那么它是怎么做到防篡改的呢？其中一个重要的知识点就是Merkle Patricia Tree(MPT)，本篇就来解析下何为MPT。
 MPT是一种加密认证的数据结构，它融合了Merkle树和Patricia Trie树(基数树/压缩前缀树)两种数据类型的优点。
@@ -56,14 +56,12 @@ Merkle树具有下列特性:
  每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。  Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
 首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/block-chain/merkle-patricia-treempt/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/block-chain/merkle-patricia-treempt/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" />
 
-<meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
-
+<meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Merkle Patricia Tree"/>
 <meta name="twitter:description" content="区块链一个重要的亮点就是防篡改，那么它是怎么做到防篡改的呢？其中一个重要的知识点就是Merkle Patricia Tree(MPT)，本篇就来解析下何为MPT。
 MPT是一种加密认证的数据结构，它融合了Merkle树和Patricia Trie树(基数树/压缩前缀树)两种数据类型的优点。
@@ -683,6 +681,9 @@ hashG:    [ &lt;35&gt;, 'coin' ]
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/">MQ实现延时消息
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">RabbitMQ清空队列的几种方式
 </a>
       </li><li>
@@ -693,9 +694,6 @@ hashG:    [ &lt;35&gt;, 'coin' ]
 </a>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/">Java SPI
-</a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
 </a>
       </li></ul>
   </div>
@@ -782,10 +780,10 @@ hashG:    [ &lt;35&gt;, 'coin' ]
             nginx
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
             ZK
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
-            Jenkins
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
             MQ
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
             AI
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">

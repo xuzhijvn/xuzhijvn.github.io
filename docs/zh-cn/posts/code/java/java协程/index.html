@@ -29,7 +29,7 @@ openjdk也有正在孵化的官方协程项目loom ，其能否release还需拭�
 可见Java对于引入协程机制并不那么紧迫；并且Java不像Golang等新语言，没有历史包袱，它们可以不提供线程只提供协程编程，但是Java如果没有thread，也没有ThreadLocal，@Transactional不起作用了，又没有等价的工具，是不是很郁闷？
 参考 为什么 Java 坚持多线程不选择协程？ Kotlin 协程真的比 Java 线程更高效吗？ 硬核系列 | 深入剖析 Java 协程 Golang 的 协程调度机制 与 GOMAXPROCS 性能调优 "><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="71"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
+<meta itemprop="wordCount" content="71">
 <meta itemprop="keywords" content="Java," /><meta property="og:title" content="Java协程" />
 <meta property="og:description" content="1. 现状 时至今日，JDK17已经正式发布，Java也没有在语言层面对协程提供原生支持。
 一定要在Java中使用协程的话，可以使用诸如quasar , kilim , coroutines 第三方库感受一下，它们的原理基本都是字节码增强 &#43; Java Agent机制，这种做法一是对性能影响很大，对JIT编译器的影响也非常大，另外这些库都几年前就不在更新了，远达不到生产使用的标准。
@@ -50,14 +50,12 @@ openjdk也有正在孵化的官方协程项目loom ，其能否release还需拭�
 可见Java对于引入协程机制并不那么紧迫；并且Java不像Golang等新语言，没有历史包袱，它们可以不提供线程只提供协程编程，但是Java如果没有thread，也没有ThreadLocal，@Transactional不起作用了，又没有等价的工具，是不是很郁闷？
 参考 为什么 Java 坚持多线程不选择协程？ Kotlin 协程真的比 Java 线程更高效吗？ 硬核系列 | 深入剖析 Java 协程 Golang 的 协程调度机制 与 GOMAXPROCS 性能调优 " />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%8D%8F%E7%A8%8B/" /><meta property="og:image" content="https://xuzhijvn.github.io/images/center.png" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%8D%8F%E7%A8%8B/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm-oom/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" />
 
-<meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:image" content="https://xuzhijvn.github.io/images/center.png"/>
-
+<meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Java协程"/>
 <meta name="twitter:description" content="1. 现状 时至今日，JDK17已经正式发布，Java也没有在语言层面对协程提供原生支持。
 一定要在Java中使用协程的话，可以使用诸如quasar , kilim , coroutines 第三方库感受一下，它们的原理基本都是字节码增强 &#43; Java Agent机制，这种做法一是对性能影响很大，对JIT编译器的影响也非常大，另外这些库都几年前就不在更新了，远达不到生产使用的标准。
@@ -529,6 +527,9 @@ openjdk也有正在孵化的官方协程项目loom ，其能否release还需拭�
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/">MQ实现延时消息
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">RabbitMQ清空队列的几种方式
 </a>
       </li><li>
@@ -539,9 +540,6 @@ openjdk也有正在孵化的官方协程项目loom ，其能否release还需拭�
 </a>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/">Java SPI
-</a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/">Log4j2 JNDI远程注入漏洞引发的思考
 </a>
       </li></ul>
   </div>
@@ -628,10 +626,10 @@ openjdk也有正在孵化的官方协程项目loom ，其能否release还需拭�
             nginx
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
             ZK
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
-            Jenkins
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
             MQ
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
             AI
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">

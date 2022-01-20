@@ -14,7 +14,7 @@ series : [
 "istio实战"
 ]
 images : [
-"images/center.png"
+
 ]
 ---
 

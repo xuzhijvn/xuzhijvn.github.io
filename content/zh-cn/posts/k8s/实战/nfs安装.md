@@ -14,7 +14,7 @@ series : [
 "k8s实战"
 ]
 images : [
-"images/center.png"
+
 ]
 ---
 
