@@ -12,9 +12,7 @@ tags : [
 series : [
 "Manual"
 ]
-images : [
-
-]
+images : []
 ---
 
 
