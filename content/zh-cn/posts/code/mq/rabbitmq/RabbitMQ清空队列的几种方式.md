@@ -11,7 +11,7 @@ categories = [
   "编程思想"
 ]
 tags = [
-  "RabbitMQ, MQ"
+  "RabbitMQ", "MQ"
 ]
 series = [
   "Manual"
