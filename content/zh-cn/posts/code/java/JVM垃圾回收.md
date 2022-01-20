@@ -10,7 +10,7 @@ categories = [
 "编程思想"
 ]
 tags =  [
-"Java"
+"Java","JVM"
 ]
 series =  [
 "Manual"

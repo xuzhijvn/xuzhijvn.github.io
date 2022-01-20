@@ -11,7 +11,6 @@ categories = [
 ]
 tags = [
 "CS", "http"
-
 ]
 series = [
 "Manual"

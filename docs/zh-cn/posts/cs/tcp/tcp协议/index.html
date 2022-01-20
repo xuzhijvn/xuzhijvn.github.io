@@ -21,7 +21,7 @@ TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20�
 如果服务器端接到了客户端发的SYN后回了SYN-ACK后客户端掉线了，服务器端没有收到客户端回来的ACK，那么，这个连接处于一个中间状态，即没成功，也没失败。于是，服务器端如果在一定时间内没有收到的TCP会重发SYN-ACK。在Linux下，默认重试次数为5次，重试的间隔时间从1s开始每次都翻倍，5次的重试时间间隔为1s, 2s, 4s, 8s, 16s，总共31s，第5次发出后还要等32s才知道第5次也超时了，所以，总共需要 1s &#43; 2s &#43; 4s&#43; 8s&#43; 16s &#43; 32s = 63s，TCP才会断开这个连接。使用三个TCP参数来调整行为：tcp_synack_retries 减少重试次数；tcp_max_syn_backlog，增大SYN连接数；tcp_abort_on_overflow决定超出能力时的行为。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="144"><meta itemprop="image" content="https://xuzhijvn.github.io/images/center.png">
-<meta itemprop="keywords" content="CS," /><meta property="og:title" content="TCP协议" />
+<meta itemprop="keywords" content="CS,TCP," /><meta property="og:title" content="TCP协议" />
 <meta property="og:description" content="简介 数据在TCP层称为流（Stream），数据分组称为分段（Segment）。作为比较，数据在IP层称为Datagram，数据分组称为分片（Fragment）。 UDP 中分组称为Message。
 TCP 数据包的大小 以太网数据包（packet）的大小是固定的，最初是1518字节，后来增加到1522字节。其中， 1500 字节是负载（payload），22字节是头信息（head）。 IP 数据包在以太网数据包的负载里面，它也有自己的头信息，最少需要20字节，所以 IP 数据包的负载最多为1480字节。
 （图片说明：IP 数据包在以太网数据包里面，TCP 数据包在 IP 数据包里面。)
@@ -325,7 +325,7 @@ TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20�
     2021-08-27
   </span><span class="post-reading-time">
     1 分钟阅读
-  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded-pill post-taxonomy">计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded-pill post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded-pill post-taxonomy">CS</a></span>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded-pill post-taxonomy">计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded-pill post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded-pill post-taxonomy">CS</a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded-pill post-taxonomy">TCP</a></span>
 </div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
   <div class="offcanvas-header">
@@ -454,6 +454,11 @@ TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20�
     </div>
     <div class="card-body">
       <ul class="post-list"><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/tcp%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9/">TCP常见知识点
+</a>
+          <span class="float-end post-date">2021-08-27
+</span>
+        </li><li>
           <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/system/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/">5种IO模型
 </a>
           <span class="float-end post-date">2021-08-27
@@ -470,11 +475,6 @@ TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20�
 </span>
         </li><li>
           <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/other/lru%E5%92%8Clfu/">LRU和LFU
-</a>
-          <span class="float-end post-date">2021-08-27
-</span>
-        </li><li>
-          <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/other/oauth2/">OAuth2
 </a>
           <span class="float-end post-date">2021-08-27
 </span>
@@ -608,6 +608,8 @@ TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20�
             redis
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
             SA
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
             剑指offer
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
@@ -632,6 +634,8 @@ TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20�
             http
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
             System
+          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
             分布式
           </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
