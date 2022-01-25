@@ -8,22 +8,21 @@ toc = true
 reward = true
 pinned = false
 categories = [
-"编程思想"
+  "编程思想"
 ]
 tags = [
-"MQ"
+  "MQ"
 ]
 series = [
-"Manual"
+  "Manual"
 ]
-images = [
-]
+images = []
 
 +++
 
-<!--more-->
-
 本文分析一下目前比较主流的几款开源消息中间件对延时消息的支持情况以及实现方式。
+
+<!--more-->
 
 ### Kafka
 
