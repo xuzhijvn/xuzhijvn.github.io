@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-cn"
+<!doctype html><html lang="zh-cn" data-palette="indigo"
   >
   <head>
     <meta charset="utf-8">
@@ -9,7 +9,28 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
 <link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="几种注册中心对比">
+<meta name="description" content="前言 服务注册中心本质上是为了解耦服务提供者和服务消费者。对于任何一个微服务，原则上都应存在或者支持多个提供者，这是由微服务的分布式属性决定的。更进一步，为了支持弹性扩缩容特性，一个微服务的提供者的数量和分布往往是动态变化的，也是无法预先确定的。因此，原本在单体应用阶段常用的静态LB机制就不再适用了，需要引入额外的组件来管理微服务提供者的注册与发现，而这个组件就是服务注册中心。
+CAP理论 CAP理论是分布式架构中重要理论
+ 一致性(Consistency) (所有节点在同一时间具有相同的数据) 可用性(Availability) (保证每个请求不管成功或者失败都有响应) 分隔容忍(Partition tolerance) (系统中任意信息的丢失或失败不会影响系统的继续运作)  关于
+P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕机了，并不影响整个系统的运作或者说使用，而可用性是，某个系统的某个节点挂了，但是并不影响系统的接受或者发出请求，CAP 不可能都取，只能取其中2个
+原因是
+如果C是第一需求的话，那么会影响A的性能，因为要数据同步，不然请求结果会有差异，但是数据同步会消耗时间，期间可用性就会降低。
+如果A是第一需求，那么只要有一个服务在，就能正常接受请求，但是对与返回结果变不能保证，原因是，在分布式部署的时候，数据一致的过程不可能想切线路那么快。
+再如果，同事满足一致性和可用性，那么分区容错就很难保证了，也就是单点，也是分布式的基本核心，好了，明白这些理论，就可以在相应的场景选取服务注册与发现了
+服务注册中心解决方案 设计或者选型一个服务注册中心，首先要考虑的就是服务注册与发现机制。纵观当下各种主流的服务注册中心解决方案，大致可归为三类：
+  应用内：直接集成到应用中，依赖于应用自身完成服务的注册与发现，最典型的是Netflix提供的Eureka
+  应用外：把应用当成黑盒，通过应用外的某种机制将服务注册到注册中心，最小化对应用的侵入性，比如Airbnb的SmartStack，HashiCorp的Consul
+  DNS：将服务注册为DNS的SRV记录，严格来说，是一种特殊的应用外注册方式，SkyDNS是其中的代表
+   注1：对于第一类注册方式，除了Eureka这种一站式解决方案，还可以基于ZooKeeper或者Etcd自行实现一套服务注册机制，这在大公司比较常见，但对于小公司而言显然性价比太低。
+注2：由于DNS固有的缓存缺陷，本文不对第三类注册方式作深入探讨。
+ 除了基本的服务注册与发现机制，从开发和运维角度，至少还要考虑如下五个方面：
+  测活：服务注册之后，如何对服务进行测活以保证服务的可用性？
+  负载均衡：当存在多个服务提供者时，如何均衡各个提供者的负载？
+  集成：在服务提供端或者调用端，如何集成注册中心？
+  运行时依赖：引入注册中心之后，对应用的运行时环境有何影响？
+  可用性：如何保证注册中心本身的可用性，特别是消除单点故障？
+  主流注册中心产品  软件产品特性并非一成不变，如果发现功能特性有变更，欢迎评论指正
+     Nacos Eureka Consul CoreDNS Zookeeper     一致性协议 CP&#43;AP AP CP — CP   健康检查 TCP/HTTP/MYSQL/Client Beat Client Beat TCP/HTTP/gRPC/Cmd — Keep Alive   负载均衡策略 权重/ metadata/Selector Ribbon Fabio RoundRobin —   雪崩保护 有 有 无 无 无   自动注销实例 支持 支持 支持 不支持 支持   访问协议 HTTP/DNS HTTP HTTP/DNS DNS TCP   监听支持 支持 支持 支持 不支持 支持   多数据中心 支持 支持 支持 不支持 不支持   跨注册中心同步 支持 不支持 支持 不支持 不支持   SpringCloud集成 支持 支持 支持 不支持 支持   Dubbo集成 支持 不支持 支持 不支持 支持   K8S集成 支持 不支持 支持 支持 不支持      Consul是支持自动注销服务实例， 请见文档： https://www." /><meta itemprop="name" content="几种注册中心对比">
 <meta itemprop="description" content="前言 服务注册中心本质上是为了解耦服务提供者和服务消费者。对于任何一个微服务，原则上都应存在或者支持多个提供者，这是由微服务的分布式属性决定的。更进一步，为了支持弹性扩缩容特性，一个微服务的提供者的数量和分布往往是动态变化的，也是无法预先确定的。因此，原本在单体应用阶段常用的静态LB机制就不再适用了，需要引入额外的组件来管理微服务提供者的注册与发现，而这个组件就是服务注册中心。
 CAP理论 CAP理论是分布式架构中重要理论
  一致性(Consistency) (所有节点在同一时间具有相同的数据) 可用性(Availability) (保证每个请求不管成功或者失败都有响应) 分隔容忍(Partition tolerance) (系统中任意信息的丢失或失败不会影响系统的继续运作)  关于
@@ -88,13 +109,13 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
   主流注册中心产品  软件产品特性并非一成不变，如果发现功能特性有变更，欢迎评论指正
      Nacos Eureka Consul CoreDNS Zookeeper     一致性协议 CP&#43;AP AP CP — CP   健康检查 TCP/HTTP/MYSQL/Client Beat Client Beat TCP/HTTP/gRPC/Cmd — Keep Alive   负载均衡策略 权重/ metadata/Selector Ribbon Fabio RoundRobin —   雪崩保护 有 有 无 无 无   自动注销实例 支持 支持 支持 不支持 支持   访问协议 HTTP/DNS HTTP HTTP/DNS DNS TCP   监听支持 支持 支持 支持 不支持 支持   多数据中心 支持 支持 支持 不支持 不支持   跨注册中心同步 支持 不支持 支持 不支持 不支持   SpringCloud集成 支持 支持 支持 不支持 支持   Dubbo集成 支持 不支持 支持 不支持 支持   K8S集成 支持 不支持 支持 支持 不支持      Consul是支持自动注销服务实例， 请见文档： https://www."/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.f36f1df320942b1c5814085ba3267c2ee2c33f9ae057fa1005c03689dab0737d.css" integrity="sha256-828d8yCUKxxYFAhboyZ8LuLDP5rgV/oQBcA2idqwc30=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <i class="fas fa-bars"></i>
-    </button><a class="navbar-brand me-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
    width="400" height="400"
    />
 👴🏻💪
@@ -171,33 +192,36 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
       </a>
     </div>
   </form>
-  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
-        class="btn btn-sm palette" data-palette="blue">
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm w-100 palette" data-palette="blue">
       </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
-        class="btn btn-sm palette" data-palette="blue-gray">
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
       </button><button type="button" id="palette-brown" aria-label="棕色"
-        class="btn btn-sm palette" data-palette="brown">
+        class="btn btn-sm w-100 palette" data-palette="brown">
       </button><button type="button" id="palette-cyan" aria-label="青色"
-        class="btn btn-sm palette" data-palette="cyan">
+        class="btn btn-sm w-100 palette" data-palette="cyan">
       </button><button type="button" id="palette-green" aria-label="绿色"
-        class="btn btn-sm palette" data-palette="green">
+        class="btn btn-sm w-100 palette" data-palette="green">
       </button><button type="button" id="palette-indigo" aria-label="靛青色"
-        class="btn btn-sm palette" data-palette="indigo">
+        class="btn btn-sm w-100 palette" data-palette="indigo">
       </button><button type="button" id="palette-orange" aria-label="橙色"
-        class="btn btn-sm palette" data-palette="orange">
+        class="btn btn-sm w-100 palette" data-palette="orange">
       </button><button type="button" id="palette-pink" aria-label="粉色"
-        class="btn btn-sm palette" data-palette="pink">
+        class="btn btn-sm w-100 palette" data-palette="pink">
       </button><button type="button" id="palette-purple" aria-label="紫色"
-        class="btn btn-sm palette" data-palette="purple">
+        class="btn btn-sm w-100 palette" data-palette="purple">
       </button><button type="button" id="palette-red" aria-label="红色"
-        class="btn btn-sm palette" data-palette="red">
+        class="btn btn-sm w-100 palette" data-palette="red">
       </button><button type="button" id="palette-teal" aria-label="蓝绿色"
-        class="btn btn-sm palette" data-palette="teal">
+        class="btn btn-sm w-100 palette" data-palette="teal">
       </button><button type="button" id="palette-yellow" aria-label="黄色"
-        class="btn btn-sm palette" data-palette="yellow">
+        class="btn btn-sm w-100 palette" data-palette="yellow">
       </button></div>
 </section>
 <section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> 返回
+  </a>
   <a role="button" class="action action-reload-page">
     <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
@@ -328,7 +352,7 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
   <div class="card-body">
     <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">几种注册中心对比</li></ol>
   </div>
-</nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
+</nav><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
     <a class="action action-panel-toggler" role="button" title="Panel toggler">
@@ -343,17 +367,20 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
-    
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
     <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
   <i class="fas fa-fw fa-comments"></i>
 </a>
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
+    <a class="action" href="#postTOC" aria-controls="Table of contents" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
   </div>
 </div>
-<div class="card-header ">
+<article class="row card component mb-4 post">
+  <div class="card-header ">
     <h1 class="card-title post-title">几种注册中心对比
 </h1>
   </div>
@@ -362,35 +389,9 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
     2021-08-27
   </span><span class="post-reading-time">
     2 分钟阅读
-  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded-pill post-taxonomy">架构演进</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded-pill post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded-pill post-taxonomy">SA</a></span>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge post-taxonomy">架构演进</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge post-taxonomy">SA</a></span>
 </div>
-<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#前言">前言</a></li>
-    <li><a href="#cap理论">CAP理论</a></li>
-    <li><a href="#服务注册中心解决方案">服务注册中心解决方案</a></li>
-    <li><a href="#主流注册中心产品">主流注册中心产品</a></li>
-    <li><a href="#apache-zookeeper---cp">Apache Zookeeper -&gt; CP</a></li>
-    <li><a href="#spring-cloud-eureka----ap">Spring Cloud Eureka  -&gt; AP</a></li>
-    <li><a href="#consul">Consul</a>
-      <ul>
-        <li><a href="#consul-template">Consul Template</a></li>
-      </ul>
-    </li>
-    <li><a href="#nacos">Nacos</a></li>
-    <li><a href="#参考">参考</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><h2 id="前言">前言<a class="anchor ms-1" href="#前言"><i class="fas fa-link"></i></a></h2>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><h2 id="前言">前言<a class="anchor ms-1" href="#前言"><i class="fas fa-link"></i></a></h2>
 <p>服务注册中心本质上是为了解耦服务提供者和服务消费者。对于任何一个微服务，原则上都应存在或者支持多个提供者，这是由微服务的分布式属性决定的。更进一步，为了支持弹性扩缩容特性，一个微服务的提供者的数量和分布往往是动态变化的，也是无法预先确定的。因此，原本在单体应用阶段常用的静态LB机制就不再适用了，需要引入额外的组件来管理微服务提供者的注册与发现，而这个组件就是服务注册中心。</p>
 <h2 id="cap理论">CAP理论<a class="anchor ms-1" href="#cap理论"><i class="fas fa-link"></i></a></h2>
 <p>CAP理论是分布式架构中重要理论</p>
@@ -650,7 +651,8 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
       </div>
     </div>
   </div>
-</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E5%88%86%E5%B8%83%E5%BC%8Fid%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/">分布式ID生成方式
 </a>
@@ -659,7 +661,14 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
-</article><section class="related-posts row card component">
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">版权</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><section class="related-posts row card component">
     <div class="card-header">
       <h2 class="card-title">相关文章</h2>
     </div>
@@ -695,7 +704,7 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
 </script></div>
 </div></div>
 </div><aside class="col-lg-4 sidebar d-flex">
-  <div class="container">
+  <div class="container d-flex flex-column">
     <section class="ad row surface justify-content-center">
   <ins class="adsbygoogle sidebar-ad"
     data-ad-client="ca-pub-7827859788508375"
@@ -716,7 +725,30 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
     <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
   </div>
 </section>
-  <section class="recent-posts row card component">
+  <div class="post-toc row mb-4 card component" id="postTOC">
+  <div class="card-header">
+    <h2 class="card-title">目录</h2>
+  </div>
+  <div class="card-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#前言">前言</a></li>
+    <li><a href="#cap理论">CAP理论</a></li>
+    <li><a href="#服务注册中心解决方案">服务注册中心解决方案</a></li>
+    <li><a href="#主流注册中心产品">主流注册中心产品</a></li>
+    <li><a href="#apache-zookeeper---cp">Apache Zookeeper -&gt; CP</a></li>
+    <li><a href="#spring-cloud-eureka----ap">Spring Cloud Eureka  -&gt; AP</a></li>
+    <li><a href="#consul">Consul</a>
+      <ul>
+        <li><a href="#consul-template">Consul Template</a></li>
+      </ul>
+    </li>
+    <li><a href="#nacos">Nacos</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div><section class="recent-posts row card component">
   <div class="card-header">
     <h2 class="card-title">最近文章</h2>
   </div>
@@ -738,34 +770,7 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
 </a>
       </li></ul>
   </div>
-</section><section class="taxonomies row card component">
-      <div class="card-header">
-        <h2 class="card-title">
-          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
-        </h2>
-      </div>
-      <div class="card-body">
-        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
-            编程思想
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
-            云原生
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
-            其他
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
-            计算机科学
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
-            架构演进
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
-            持续集成部署
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
-            人工智能
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
-            设计模式
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
-            区块链
-          </a></div>
-      </div>
-    </section><section class="taxonomies row card component">
+</section><section class="series-taxonomies row card component">
       <div class="card-header">
         <h2 class="card-title">
           <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
@@ -773,18 +778,31 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
-            Manual
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
-            k8s实战
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
-            算法
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
-            istio实战
-          </a></div>
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a></div>
       </div>
-    </section><section class="taxonomies row card component">
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
       <div class="card-header">
         <h2 class="card-title">
           <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
@@ -792,90 +810,48 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="badge rounded post-taxonomy" title="Java">
-            Java
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
-            云原生
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded post-taxonomy" title="CS">
-            CS
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge rounded post-taxonomy" title="Other">
-            Other
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge rounded post-taxonomy" title="spring">
-            spring
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
-            MySQL
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge rounded post-taxonomy" title="redis">
-            redis
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
-            SA
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
-            JVM
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
-            剑指offer
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
-            WordPress
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge rounded post-taxonomy" title="istio">
-            istio
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
-            nginx
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
-            ZK
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
-            MQ
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
-            Jenkins
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
-            AI
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
-            CNN
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/gof/" class="badge rounded post-taxonomy" title="gof">
-            gof
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge rounded post-taxonomy" title="http">
-            http
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
-            System
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
-            TCP
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
-            分布式
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
-            算法
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
-            BlockChain
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge rounded post-taxonomy" title="docker">
-            docker
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded post-taxonomy" title="GO">
-            GO
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
-            Maven
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
-            ClickHouse
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
-            docker-compose
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded post-taxonomy" title="ES">
-            ES
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge rounded post-taxonomy" title="github">
-            github
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge rounded post-taxonomy" title="IO">
-            IO
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
-            Kafka
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
-            LeetCode
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
-            MongoDB
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
-            MyBatis
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
-            openresty
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
-            RabbitMQ
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
-            SpringBoot
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
-            牛客
-          </a></div>
+            Java</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
       </div>
     </section>
     <section class="ad ad-sticky row surface justify-content-center">
@@ -917,7 +893,7 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/main.da4026fda2fca654d7a2237484e7eb47b11158791407fb55217cbe95b4353a94.js" integrity="sha256-2kAm/aL8plTXoiN0hOfrR7ERWHkUB/tVIXy&#43;lbQ1OpQ=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
 <script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];

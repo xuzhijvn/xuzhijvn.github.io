@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-cn"
+<!doctype html><html lang="zh-cn" data-palette="indigo"
   >
   <head>
     <meta charset="utf-8">
@@ -9,7 +9,39 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
 <link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="Golang的协程调度器原理及GMP设计思想">
+<meta name="description" content="多线程为我们的程序提供了强大的并发能力，但是随着现代应用对并发能力越来越高的要求，仍然通过增加线程数量提升并发能力的做法显然无法维系，因为创建线程要消耗内存，更致命的是众多的线程创建、销毁、切换将大大降低CPU的执行效率。
+如何通过有限的线程数量进一步提升应用的并发能力呢？协程、线程池都是解决之道。
+协程可以看作是用户态的线程，因此协程间的切换并不会有CPU的损耗，并且可以将每个协程设计成几kb大小，以至于可以创建大量的协程。CPU最终调度运行仍然是线程，因此协程与线程之间需要一个 调度器，Golang中有GMP调度器，用于把大量的协程分配到少量线程上去执行。
+ 本节为重点章节 本章节含视频版:
+   一、Golang“调度器”的由来？ (1) 单进程时代不需要调度器 我们知道，一切的软件都是跑在操作系统上，真正用来干活(计算)的是CPU。早期的操作系统每个程序就是一个进程，直到一个程序运行完，才能进行下一个进程，就是“单进程时代”
+一切的程序只能串行发生。
+早期的单进程操作系统，面临2个问题：
+1.单一的执行流程，计算机只能一个任务一个任务处理。
+2.进程阻塞所带来的CPU时间浪费。
+那么能不能有多个进程来宏观一起来执行多个任务呢？
+后来操作系统就具有了最早的并发能力：多进程并发，当一个进程阻塞的时候，切换到另外等待执行的进程，这样就能尽量把CPU利用起来，CPU就不浪费了。
+(2)多进程/线程时代有了调度器需求 在多进程/多线程的操作系统中，就解决了阻塞的问题，因为一个进程阻塞cpu可以立刻切换到其他进程中去执行，而且调度cpu的算法可以保证在运行的进程都可以被分配到cpu的运行时间片。这样从宏观来看，似乎多个进程是在同时被运行。
+但新的问题就又出现了，进程拥有太多的资源，进程的创建、切换、销毁，都会占用很长的时间，CPU虽然利用起来了，但如果进程过多，CPU有很大的一部分都被用来进行进程调度了。
+怎么才能提高CPU的利用率呢？
+但是对于Linux操作系统来讲，cpu对进程的态度和线程的态度是一样的。
+很明显，CPU调度切换的是进程和线程。尽管线程看起来很美好，但实际上多线程开发设计会变得更加复杂，要考虑很多同步竞争等问题，如锁、竞争冲突等。
+(3)协程来提高CPU利用率 多进程、多线程已经提高了系统的并发能力，但是在当今互联网高并发场景下，为每个任务都创建一个线程是不现实的，因为会消耗大量的内存(进程虚拟内存会占用4GB[32位操作系统], 而线程也要大约4MB)。
+大量的进程/线程出现了新的问题
+ 高内存占用 调度的高消耗CPU  好了，然后工程师们就发现，其实一个线程分为“内核态“线程和”用户态“线程。
+一个“用户态线程”必须要绑定一个“内核态线程”，但是CPU并不知道有“用户态线程”的存在，它只知道它运行的是一个“内核态线程”(Linux的PCB进程控制块)。
+这样，我们再去细化去分类一下，内核线程依然叫“线程(thread)”，用户线程叫“协程(co-routine)&quot;.
+看到这里，我们就要开脑洞了，既然一个协程(co-routine)可以绑定一个线程(thread)，那么能不能多个协程(co-routine)绑定一个或者多个线程(thread)上呢。
+之后，我们就看到了有3中协程和线程的映射关系：
+ N:1关系  N个协程绑定1个线程，优点就是协程在用户态线程即完成切换，不会陷入到内核态，这种切换非常的轻量快速。但也有很大的缺点，1个进程的所有协程都绑定在1个线程上
+缺点：
+ 某个程序用不了硬件的多核加速能力 一旦某协程阻塞，造成线程阻塞，本进程的其他协程都无法执行了，根本就没有并发的能力了。   1:1 关系  1个协程绑定1个线程，这种最容易实现。协程的调度都由CPU完成了，不存在N:1缺点，
+缺点：
+ 协程的创建、删除和切换的代价都由CPU完成，有点略显昂贵了。   M:N关系  M个协程绑定1个线程，是N:1和1:1类型的结合，克服了以上2种模型的缺点，但实现起来最为复杂。
+协程跟线程是有区别的，线程由CPU调度是抢占式的，协程由用户态调度是协作式的，一个协程让出CPU后，才执行下一个协程。
+(4)Go语言的协程goroutine Go为了提供更容易使用的并发方法，使用了goroutine和channel。goroutine来自协程的概念，让一组可复用的函数运行在一组线程之上，即使有协程阻塞，该线程的其他协程也可以被runtime调度，转移到其他可运行的线程上。最关键的是，程序员看不到这些底层的细节，这就降低了编程的难度，提供了更容易的并发。
+Go中，协程被称为goroutine，它非常轻量，一个goroutine只占几KB，并且这几KB就足够goroutine运行完，这就能在有限的内存空间内支持大量goroutine，支持了更多的并发。虽然一个goroutine的栈只占几KB，但实际是可伸缩的，如果需要更多内容，runtime会自动为goroutine分配。
+Goroutine特点：
+ 占用内存更小（几kb） 调度更灵活(runtime调度)  (5)被废弃的goroutine调度器 好了，既然我们知道了协程和线程的关系，那么最关键的一点就是调度协程的调度器的实现了。" /><meta itemprop="name" content="Golang的协程调度器原理及GMP设计思想">
 <meta itemprop="description" content="多线程为我们的程序提供了强大的并发能力，但是随着现代应用对并发能力越来越高的要求，仍然通过增加线程数量提升并发能力的做法显然无法维系，因为创建线程要消耗内存，更致命的是众多的线程创建、销毁、切换将大大降低CPU的执行效率。
 如何通过有限的线程数量进一步提升应用的并发能力呢？协程、线程池都是解决之道。
 协程可以看作是用户态的线程，因此协程间的切换并不会有CPU的损耗，并且可以将每个协程设计成几kb大小，以至于可以创建大量的协程。CPU最终调度运行仍然是线程，因此协程与线程之间需要一个 调度器，Golang中有GMP调度器，用于把大量的协程分配到少量线程上去执行。
@@ -121,13 +153,13 @@ Go中，协程被称为goroutine，它非常轻量，一个goroutine只占几KB�
 Goroutine特点：
  占用内存更小（几kb） 调度更灵活(runtime调度)  (5)被废弃的goroutine调度器 好了，既然我们知道了协程和线程的关系，那么最关键的一点就是调度协程的调度器的实现了。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.f36f1df320942b1c5814085ba3267c2ee2c33f9ae057fa1005c03689dab0737d.css" integrity="sha256-828d8yCUKxxYFAhboyZ8LuLDP5rgV/oQBcA2idqwc30=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <i class="fas fa-bars"></i>
-    </button><a class="navbar-brand me-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
    width="400" height="400"
    />
 👴🏻💪
@@ -204,33 +236,36 @@ Goroutine特点：
       </a>
     </div>
   </form>
-  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
-        class="btn btn-sm palette" data-palette="blue">
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm w-100 palette" data-palette="blue">
       </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
-        class="btn btn-sm palette" data-palette="blue-gray">
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
       </button><button type="button" id="palette-brown" aria-label="棕色"
-        class="btn btn-sm palette" data-palette="brown">
+        class="btn btn-sm w-100 palette" data-palette="brown">
       </button><button type="button" id="palette-cyan" aria-label="青色"
-        class="btn btn-sm palette" data-palette="cyan">
+        class="btn btn-sm w-100 palette" data-palette="cyan">
       </button><button type="button" id="palette-green" aria-label="绿色"
-        class="btn btn-sm palette" data-palette="green">
+        class="btn btn-sm w-100 palette" data-palette="green">
       </button><button type="button" id="palette-indigo" aria-label="靛青色"
-        class="btn btn-sm palette" data-palette="indigo">
+        class="btn btn-sm w-100 palette" data-palette="indigo">
       </button><button type="button" id="palette-orange" aria-label="橙色"
-        class="btn btn-sm palette" data-palette="orange">
+        class="btn btn-sm w-100 palette" data-palette="orange">
       </button><button type="button" id="palette-pink" aria-label="粉色"
-        class="btn btn-sm palette" data-palette="pink">
+        class="btn btn-sm w-100 palette" data-palette="pink">
       </button><button type="button" id="palette-purple" aria-label="紫色"
-        class="btn btn-sm palette" data-palette="purple">
+        class="btn btn-sm w-100 palette" data-palette="purple">
       </button><button type="button" id="palette-red" aria-label="红色"
-        class="btn btn-sm palette" data-palette="red">
+        class="btn btn-sm w-100 palette" data-palette="red">
       </button><button type="button" id="palette-teal" aria-label="蓝绿色"
-        class="btn btn-sm palette" data-palette="teal">
+        class="btn btn-sm w-100 palette" data-palette="teal">
       </button><button type="button" id="palette-yellow" aria-label="黄色"
-        class="btn btn-sm palette" data-palette="yellow">
+        class="btn btn-sm w-100 palette" data-palette="yellow">
       </button></div>
 </section>
 <section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> 返回
+  </a>
   <a role="button" class="action action-reload-page">
     <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
@@ -361,7 +396,7 @@ Goroutine特点：
   <div class="card-body">
     <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">Golang的协程调度器原理及GMP设计思想</li></ol>
   </div>
-</nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
+</nav><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
     <a class="action action-panel-toggler" role="button" title="Panel toggler">
@@ -376,17 +411,20 @@ Goroutine特点：
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
-    
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
     <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
   <i class="fas fa-fw fa-comments"></i>
 </a>
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
+    <a class="action" href="#postTOC" aria-controls="Table of contents" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
   </div>
 </div>
-<div class="card-header ">
+<article class="row card component mb-4 post">
+  <div class="card-header ">
     <h1 class="card-title post-title">Golang的协程调度器原理及GMP设计思想
 </h1>
   </div>
@@ -395,57 +433,9 @@ Goroutine特点：
     2021-08-27
   </span><span class="post-reading-time">
     2 分钟阅读
-  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded-pill post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded-pill post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded-pill post-taxonomy">GO</a></span>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge post-taxonomy">GO</a></span>
 </div>
-<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#一golang调度器的由来">一、Golang“调度器”的由来？</a>
-      <ul>
-        <li><a href="#1-单进程时代不需要调度器">(1) 单进程时代不需要调度器</a></li>
-        <li><a href="#2多进程线程时代有了调度器需求">(2)多进程/线程时代有了调度器需求</a></li>
-        <li><a href="#3协程来提高cpu利用率">(3)协程来提高CPU利用率</a></li>
-        <li><a href="#4go语言的协程goroutine">(4)Go语言的协程goroutine</a></li>
-        <li><a href="#5被废弃的goroutine调度器">(5)被废弃的goroutine调度器</a></li>
-      </ul>
-    </li>
-    <li><a href="#二goroutine调度器的gmp模型的设计思想">二、Goroutine调度器的GMP模型的设计思想</a>
-      <ul>
-        <li><a href="#1gmp模型">(1)GMP模型</a></li>
-        <li><a href="#2调度器的设计策略">(2)调度器的设计策略</a></li>
-        <li><a href="#3-go-func-调度流程">(3) go func() 调度流程</a></li>
-        <li><a href="#4调度器的生命周期">(4)调度器的生命周期</a></li>
-        <li><a href="#5可视化gmp编程">(5)可视化GMP编程</a></li>
-      </ul>
-    </li>
-    <li><a href="#三go调度器调度场景过程全解析">三、Go调度器调度场景过程全解析</a>
-      <ul>
-        <li><a href="#1场景1">(1)场景1</a></li>
-        <li><a href="#2场景2">(2)场景2</a></li>
-        <li><a href="#3场景3">(3)场景3</a></li>
-        <li><a href="#4场景4">(4)场景4</a></li>
-        <li><a href="#5场景5">(5)场景5</a></li>
-        <li><a href="#6场景6">(6)场景6</a></li>
-        <li><a href="#7场景7">(7)场景7</a></li>
-        <li><a href="#8场景8">(8)场景8</a></li>
-        <li><a href="#9场景9">(9)场景9</a></li>
-        <li><a href="#10场景10">(10)场景10</a></li>
-        <li><a href="#11场景11">(11)场景11</a></li>
-      </ul>
-    </li>
-    <li><a href="#四小结">四、小结</a></li>
-    <li><a href="#参考链接">参考链接</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>多线程为我们的程序提供了强大的并发能力，但是随着现代应用对并发能力越来越高的要求，仍然通过增加线程数量提升并发能力的做法显然无法维系，因为创建线程要消耗内存，更致命的是众多的线程创建、销毁、切换将大大降低CPU的执行效率。</p>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>多线程为我们的程序提供了强大的并发能力，但是随着现代应用对并发能力越来越高的要求，仍然通过增加线程数量提升并发能力的做法显然无法维系，因为创建线程要消耗内存，更致命的是众多的线程创建、销毁、切换将大大降低CPU的执行效率。</p>
 <p>如何通过有限的线程数量进一步提升应用的并发能力呢？协程、线程池都是解决之道。</p>
 <p>协程可以看作是用户态的线程，因此协程间的切换并不会有CPU的损耗，并且可以将每个协程设计成几kb大小，以至于可以创建大量的协程。CPU最终调度运行仍然是线程，因此协程与线程之间需要一个 <code>调度器</code>，Golang中有GMP调度器，用于把大量的协程分配到少量线程上去执行。</p>
 <blockquote>
@@ -814,7 +804,8 @@ Goroutine特点：
       </div>
     </div>
   </div>
-</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/code/go/go%E5%A4%9A%E7%89%88%E6%9C%AC%E5%88%87%E6%8D%A2/">go多版本切换
 </a>
@@ -823,7 +814,14 @@ Goroutine特点：
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
-</article><section class="related-posts row card component">
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">版权</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><section class="related-posts row card component">
     <div class="card-header">
       <h2 class="card-title">相关文章</h2>
     </div>
@@ -849,7 +847,7 @@ Goroutine特点：
 </script></div>
 </div></div>
 </div><aside class="col-lg-4 sidebar d-flex">
-  <div class="container">
+  <div class="container d-flex flex-column">
     <section class="ad row surface justify-content-center">
   <ins class="adsbygoogle sidebar-ad"
     data-ad-client="ca-pub-7827859788508375"
@@ -870,7 +868,52 @@ Goroutine特点：
     <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
   </div>
 </section>
-  <section class="recent-posts row card component">
+  <div class="post-toc row mb-4 card component" id="postTOC">
+  <div class="card-header">
+    <h2 class="card-title">目录</h2>
+  </div>
+  <div class="card-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#一golang调度器的由来">一、Golang“调度器”的由来？</a>
+      <ul>
+        <li><a href="#1-单进程时代不需要调度器">(1) 单进程时代不需要调度器</a></li>
+        <li><a href="#2多进程线程时代有了调度器需求">(2)多进程/线程时代有了调度器需求</a></li>
+        <li><a href="#3协程来提高cpu利用率">(3)协程来提高CPU利用率</a></li>
+        <li><a href="#4go语言的协程goroutine">(4)Go语言的协程goroutine</a></li>
+        <li><a href="#5被废弃的goroutine调度器">(5)被废弃的goroutine调度器</a></li>
+      </ul>
+    </li>
+    <li><a href="#二goroutine调度器的gmp模型的设计思想">二、Goroutine调度器的GMP模型的设计思想</a>
+      <ul>
+        <li><a href="#1gmp模型">(1)GMP模型</a></li>
+        <li><a href="#2调度器的设计策略">(2)调度器的设计策略</a></li>
+        <li><a href="#3-go-func-调度流程">(3) go func() 调度流程</a></li>
+        <li><a href="#4调度器的生命周期">(4)调度器的生命周期</a></li>
+        <li><a href="#5可视化gmp编程">(5)可视化GMP编程</a></li>
+      </ul>
+    </li>
+    <li><a href="#三go调度器调度场景过程全解析">三、Go调度器调度场景过程全解析</a>
+      <ul>
+        <li><a href="#1场景1">(1)场景1</a></li>
+        <li><a href="#2场景2">(2)场景2</a></li>
+        <li><a href="#3场景3">(3)场景3</a></li>
+        <li><a href="#4场景4">(4)场景4</a></li>
+        <li><a href="#5场景5">(5)场景5</a></li>
+        <li><a href="#6场景6">(6)场景6</a></li>
+        <li><a href="#7场景7">(7)场景7</a></li>
+        <li><a href="#8场景8">(8)场景8</a></li>
+        <li><a href="#9场景9">(9)场景9</a></li>
+        <li><a href="#10场景10">(10)场景10</a></li>
+        <li><a href="#11场景11">(11)场景11</a></li>
+      </ul>
+    </li>
+    <li><a href="#四小结">四、小结</a></li>
+    <li><a href="#参考链接">参考链接</a></li>
+  </ul>
+</nav>
+  </div>
+</div><section class="recent-posts row card component">
   <div class="card-header">
     <h2 class="card-title">最近文章</h2>
   </div>
@@ -892,34 +935,7 @@ Goroutine特点：
 </a>
       </li></ul>
   </div>
-</section><section class="taxonomies row card component">
-      <div class="card-header">
-        <h2 class="card-title">
-          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
-        </h2>
-      </div>
-      <div class="card-body">
-        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
-            编程思想
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
-            云原生
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
-            其他
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
-            计算机科学
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
-            架构演进
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
-            持续集成部署
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
-            人工智能
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
-            设计模式
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
-            区块链
-          </a></div>
-      </div>
-    </section><section class="taxonomies row card component">
+</section><section class="series-taxonomies row card component">
       <div class="card-header">
         <h2 class="card-title">
           <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
@@ -927,18 +943,31 @@ Goroutine特点：
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
-            Manual
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
-            k8s实战
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
-            算法
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
-            istio实战
-          </a></div>
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a></div>
       </div>
-    </section><section class="taxonomies row card component">
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
       <div class="card-header">
         <h2 class="card-title">
           <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
@@ -946,90 +975,48 @@ Goroutine特点：
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="badge rounded post-taxonomy" title="Java">
-            Java
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
-            云原生
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded post-taxonomy" title="CS">
-            CS
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge rounded post-taxonomy" title="Other">
-            Other
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge rounded post-taxonomy" title="spring">
-            spring
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
-            MySQL
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge rounded post-taxonomy" title="redis">
-            redis
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
-            SA
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
-            JVM
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
-            剑指offer
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
-            WordPress
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge rounded post-taxonomy" title="istio">
-            istio
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
-            nginx
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
-            ZK
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
-            MQ
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
-            Jenkins
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
-            AI
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
-            CNN
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/gof/" class="badge rounded post-taxonomy" title="gof">
-            gof
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge rounded post-taxonomy" title="http">
-            http
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
-            System
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
-            TCP
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
-            分布式
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
-            算法
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
-            BlockChain
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge rounded post-taxonomy" title="docker">
-            docker
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded post-taxonomy" title="GO">
-            GO
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
-            Maven
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
-            ClickHouse
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
-            docker-compose
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded post-taxonomy" title="ES">
-            ES
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge rounded post-taxonomy" title="github">
-            github
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge rounded post-taxonomy" title="IO">
-            IO
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
-            Kafka
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
-            LeetCode
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
-            MongoDB
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
-            MyBatis
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
-            openresty
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
-            RabbitMQ
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
-            SpringBoot
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
-            牛客
-          </a></div>
+            Java</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
       </div>
     </section>
     <section class="ad ad-sticky row surface justify-content-center">
@@ -1071,7 +1058,7 @@ Goroutine特点：
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/main.da4026fda2fca654d7a2237484e7eb47b11158791407fb55217cbe95b4353a94.js" integrity="sha256-2kAm/aL8plTXoiN0hOfrR7ERWHkUB/tVIXy&#43;lbQ1OpQ=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
 <script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];

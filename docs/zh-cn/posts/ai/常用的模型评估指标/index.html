@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-cn"
+<!doctype html><html lang="zh-cn" data-palette="indigo"
   >
   <head>
     <meta charset="utf-8">
@@ -9,7 +9,28 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
 <link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="常用的模型评估指标">
+<meta name="description" content="“没有测量，就没有科学。”这是科学家门捷列夫的名言。在计算机科学中，特别是在机器学习的领域，对模型的测量和评估同样至关重要。只有选择与问题相匹配的评估方法，我们才能够快速的发现在模型选择和训练过程中可能出现的问题，迭代地对模型进行优化。本文将总结机器学习最常见的模型评估指标，其中包括：
+ precision recall F1-score PRC ROC和AUC IOU  从混淆矩阵谈起 看一看下面这个例子：假定瓜农拉来一车西瓜，我们用训练好的模型对这些西瓜进行判别，显然我们可以使用错误率来衡量有多少比例的瓜被判别错误。但如果我们关心的是“挑出的西瓜中有多少比例是好瓜”，或者“所有好瓜中有多少比例被挑出来了”，那么错误率显然就不够用了，这时我们需要引入新的评估指标，比如“查准率”和查全率更适合此类需求的性能度量。
+在引入查全率和查准率之前我们必须先理解到什么是混淆矩阵（Confusion matrix）。这个名字起得是真的好，初学者很容易被这个矩阵搞得晕头转向。下图a就是有名的混淆矩阵，而下图b则是由混淆矩阵推出的一些有名的评估指标。
+我们首先好好解读一下混淆矩阵里的一些名词和其意思。根据混淆矩阵我们可以得到TP,FN,FP,TN四个值，显然TP&#43;FP&#43;TN&#43;FN=样本总数。这四个值中都带两个字母，单纯记忆这四种情况很难记得牢，我们可以这样理解：第一个字母表示本次预测的正确性，T就是正确，F就是错误；第二个字母则表示由分类器预测的类别，P代表预测为正例，N代表预测为反例。比如TP我们就可以理解为分类器预测为正例（P），而且这次预测是对的（T），FN可以理解为分类器的预测是反例（N），而且这次预测是错误的（F），正确结果是正例，即一个正样本被错误预测为负样本。我们使用以上的理解方式来记住TP、FP、TN、FN的意思应该就不再困难了。，下面对混淆矩阵的四个值进行总结性讲解：
+ True Positive （真正，TP）被模型预测为正的正样本 True Negative（真负 , TN）被模型预测为负的负样本 False Positive （假正, FP）被模型预测为正的负样本 False Negative（假负 , FN）被模型预测为负的正样本  Precision、Recall、PRC、F1-score Precision指标在中文里可以称为查准率或者是精确率，Recall指标在中卫里常被称为查全率或者是召回率，查准率 P和查全率 R分别定义为：
+查准率P和查全率R的具体含义如下：
+  查准率(Precision）是指在所有系统判定的“真”的样本中，确实是真的的占比
+  查全率（Recall）是指在所有确实为真的样本中，被判为的“真”的占比
+  这里想强调一点，precision和accuracy（正确率）不一样的，accuracy针对所有样本，precision针对部分样本，即正确的预测/总的正反例：
+查准率和查全率是一对矛盾的度量，一般而言，查准率高时，查全率往往偏低；而查全率高时，查准率往往偏低。我们从直观理解确实如此：我们如果希望好瓜尽可能多地选出来，则可以通过增加选瓜的数量来实现，如果将所有瓜都选上了，那么所有好瓜也必然被选上，但是这样查准率就会越低；若希望选出的瓜中好瓜的比例尽可能高，则只选最有把握的瓜，但这样难免会漏掉不少好瓜，导致查全率较低。通常只有在一些简单任务中，才可能使查全率和查准率都很高。
+再说PRC， 其全称就是Precision Recall Curve，它以查准率为Y轴，、查全率为X轴做的图。它是综合评价整体结果的评估指标。所以，哪种类型（正或者负）样本多，权重就大。也就是通常说的『对样本不均衡敏感』，『容易被多的样品带走』。
+上图就是一幅P-R图，它能直观地显示出学习器在样本总体上的查全率和查准率，显然它是一条总体趋势是递减的曲线。在进行比较时，若一个学习器的PR曲线被另一个学习器的曲线完全包住，则可断言后者的性能优于前者，比如上图中A优于C。但是B和A谁更好呢？因为AB两条曲线交叉了，所以很难比较，这时比较合理的判据就是比较PR曲线下的面积，该指标在一定程度上表征了学习器在查准率和查全率上取得相对“双高”的比例。因为这个值不容易估算，所以人们引入“平衡点”(BEP)来度量，他表示“查准率=查全率”时的取值，值越大表明分类器性能越好，以此比较我们一下子就能判断A较B好。
+BEP还是有点简化了，更常用的是F1度量：
+F1-score 就是一个综合考虑precision和recall的指标，比BEP更为常用。
+ROC & AUC ROC全称是“受试者工作特征”（Receiver Operating Characteristic）曲线，ROC曲线以“真正例率”（TPR）为Y轴，以“假正例率”（FPR）为X轴，对角线对应于“随机猜测”模型，而（0,1）则对应“理想模型”。ROC形式如下图所示。
+TPR和FPR的定义如下：
+从形式上看TPR就是我们上面提到的查全率Recall，而FPR的含义就是：所有确实为“假”的样本中，被误判真的样本。
+进行学习器比较时，与PR图相似，若一个学习器的ROC曲线被另一个学习器的曲线包住，那么我们可以断言后者性能优于前者；若两个学习器的ROC曲线发生交叉，则难以一般性断言两者孰优孰劣。此时若要进行比较，那么可以比较ROC曲线下的面积，即AUC，面积大的曲线对应的分类器性能更好。
+AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性能极好，则AUC为1。但现实生活中尤其是工业界不会有如此完美的模型，一般AUC均在0.5到1之间，AUC越高，模型的区分能力越好，上图AUC为0.81。若AUC=0.5，即与上图中红线重合，表示模型的区分能力与随机猜测没有差别。若AUC真的小于0.5，请检查一下是不是好坏标签标反了，或者是模型真的很差。
+怎么选择评估指标？ 这种问题的答案当然是具体问题具体分析啦，单纯地回答谁好谁坏是没有意义的，我们需要结合实际场景给出合适的回答。
+考虑下面是两个场景，由此看出不同场景下我们关注的点是不一样的：
+ 对于地震的预测，我们希望的是Recall非常高，也就是说每次地震我们都希望预测出来。这个时候我们可以牺牲Precision。情愿发出1000次警报，把10次地震都预测正确了；也不要预测100次对了8次漏了两次。所以我们可以设定在合理的precision下，最高的recall作为最优点，找到这个对应的threshold点。 嫌疑人定罪基于不错怪一个好人的原则，对于嫌疑人的定罪我们希望是非常准确的。即使有时候放过了一些罪犯（Recall低），但也是值得的。  ROC和PRC在模型性能评估上效果都差不多，但需要注意的是，在正负样本分布得极不均匀(highly skewed datasets)的情况下，PRC比ROC能更有效地反应分类器的好坏。在数据极度不平衡的情况下，譬如说1万封邮件中只有1封垃圾邮件，那么如果我挑出10封，50封，100&hellip;封垃圾邮件（假设我们每次挑出的N封邮件中都包含真正的那封垃圾邮件），Recall都是100%，但是FPR分别是9/9999, 49/9999, 99/9999（数据都比较好看：FPR越低越好），而Precision却只有1/10，1/50， 1/100 （数据很差：Precision越高越好）。所以在数据非常不均衡的情况下，看ROC的AUC可能是看不出太多好坏的，而PR curve就要敏感的多。" /><meta itemprop="name" content="常用的模型评估指标">
 <meta itemprop="description" content="“没有测量，就没有科学。”这是科学家门捷列夫的名言。在计算机科学中，特别是在机器学习的领域，对模型的测量和评估同样至关重要。只有选择与问题相匹配的评估方法，我们才能够快速的发现在模型选择和训练过程中可能出现的问题，迭代地对模型进行优化。本文将总结机器学习最常见的模型评估指标，其中包括：
  precision recall F1-score PRC ROC和AUC IOU  从混淆矩阵谈起 看一看下面这个例子：假定瓜农拉来一车西瓜，我们用训练好的模型对这些西瓜进行判别，显然我们可以使用错误率来衡量有多少比例的瓜被判别错误。但如果我们关心的是“挑出的西瓜中有多少比例是好瓜”，或者“所有好瓜中有多少比例被挑出来了”，那么错误率显然就不够用了，这时我们需要引入新的评估指标，比如“查准率”和查全率更适合此类需求的性能度量。
 在引入查全率和查准率之前我们必须先理解到什么是混淆矩阵（Confusion matrix）。这个名字起得是真的好，初学者很容易被这个矩阵搞得晕头转向。下图a就是有名的混淆矩阵，而下图b则是由混淆矩阵推出的一些有名的评估指标。
@@ -88,13 +109,13 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
 考虑下面是两个场景，由此看出不同场景下我们关注的点是不一样的：
  对于地震的预测，我们希望的是Recall非常高，也就是说每次地震我们都希望预测出来。这个时候我们可以牺牲Precision。情愿发出1000次警报，把10次地震都预测正确了；也不要预测100次对了8次漏了两次。所以我们可以设定在合理的precision下，最高的recall作为最优点，找到这个对应的threshold点。 嫌疑人定罪基于不错怪一个好人的原则，对于嫌疑人的定罪我们希望是非常准确的。即使有时候放过了一些罪犯（Recall低），但也是值得的。  ROC和PRC在模型性能评估上效果都差不多，但需要注意的是，在正负样本分布得极不均匀(highly skewed datasets)的情况下，PRC比ROC能更有效地反应分类器的好坏。在数据极度不平衡的情况下，譬如说1万封邮件中只有1封垃圾邮件，那么如果我挑出10封，50封，100&hellip;封垃圾邮件（假设我们每次挑出的N封邮件中都包含真正的那封垃圾邮件），Recall都是100%，但是FPR分别是9/9999, 49/9999, 99/9999（数据都比较好看：FPR越低越好），而Precision却只有1/10，1/50， 1/100 （数据很差：Precision越高越好）。所以在数据非常不均衡的情况下，看ROC的AUC可能是看不出太多好坏的，而PR curve就要敏感的多。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.f36f1df320942b1c5814085ba3267c2ee2c33f9ae057fa1005c03689dab0737d.css" integrity="sha256-828d8yCUKxxYFAhboyZ8LuLDP5rgV/oQBcA2idqwc30=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <i class="fas fa-bars"></i>
-    </button><a class="navbar-brand me-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
    width="400" height="400"
    />
 👴🏻💪
@@ -171,33 +192,36 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
       </a>
     </div>
   </form>
-  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
-        class="btn btn-sm palette" data-palette="blue">
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm w-100 palette" data-palette="blue">
       </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
-        class="btn btn-sm palette" data-palette="blue-gray">
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
       </button><button type="button" id="palette-brown" aria-label="棕色"
-        class="btn btn-sm palette" data-palette="brown">
+        class="btn btn-sm w-100 palette" data-palette="brown">
       </button><button type="button" id="palette-cyan" aria-label="青色"
-        class="btn btn-sm palette" data-palette="cyan">
+        class="btn btn-sm w-100 palette" data-palette="cyan">
       </button><button type="button" id="palette-green" aria-label="绿色"
-        class="btn btn-sm palette" data-palette="green">
+        class="btn btn-sm w-100 palette" data-palette="green">
       </button><button type="button" id="palette-indigo" aria-label="靛青色"
-        class="btn btn-sm palette" data-palette="indigo">
+        class="btn btn-sm w-100 palette" data-palette="indigo">
       </button><button type="button" id="palette-orange" aria-label="橙色"
-        class="btn btn-sm palette" data-palette="orange">
+        class="btn btn-sm w-100 palette" data-palette="orange">
       </button><button type="button" id="palette-pink" aria-label="粉色"
-        class="btn btn-sm palette" data-palette="pink">
+        class="btn btn-sm w-100 palette" data-palette="pink">
       </button><button type="button" id="palette-purple" aria-label="紫色"
-        class="btn btn-sm palette" data-palette="purple">
+        class="btn btn-sm w-100 palette" data-palette="purple">
       </button><button type="button" id="palette-red" aria-label="红色"
-        class="btn btn-sm palette" data-palette="red">
+        class="btn btn-sm w-100 palette" data-palette="red">
       </button><button type="button" id="palette-teal" aria-label="蓝绿色"
-        class="btn btn-sm palette" data-palette="teal">
+        class="btn btn-sm w-100 palette" data-palette="teal">
       </button><button type="button" id="palette-yellow" aria-label="黄色"
-        class="btn btn-sm palette" data-palette="yellow">
+        class="btn btn-sm w-100 palette" data-palette="yellow">
       </button></div>
 </section>
 <section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> 返回
+  </a>
   <a role="button" class="action action-reload-page">
     <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
@@ -328,7 +352,7 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
   <div class="card-body">
     <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">常用的模型评估指标</li></ol>
   </div>
-</nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
+</nav><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
     <a class="action action-panel-toggler" role="button" title="Panel toggler">
@@ -343,17 +367,20 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
-    
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
     <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
   <i class="fas fa-fw fa-comments"></i>
 </a>
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
+    <a class="action" href="#postTOC" aria-controls="Table of contents" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
   </div>
 </div>
-<div class="card-header ">
+<article class="row card component mb-4 post">
+  <div class="card-header ">
     <h1 class="card-title post-title">常用的模型评估指标
 </h1>
   </div>
@@ -362,28 +389,9 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
     2021-08-27
   </span><span class="post-reading-time">
     1 分钟阅读
-  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded-pill post-taxonomy">人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded-pill post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded-pill post-taxonomy">CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded-pill post-taxonomy">AI</a></span>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge post-taxonomy">人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge post-taxonomy">CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge post-taxonomy">AI</a></span>
 </div>
-<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#从混淆矩阵谈起">从混淆矩阵谈起</a></li>
-    <li><a href="#precisionrecallprcf1-score">Precision、Recall、PRC、F1-score</a></li>
-    <li><a href="#roc--auc">ROC &amp; AUC</a></li>
-    <li><a href="#怎么选择评估指标">怎么选择评估指标？</a></li>
-    <li><a href="#iou">IOU</a></li>
-    <li><a href="#参考">参考</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>“没有测量，就没有科学。”这是科学家门捷列夫的名言。在计算机科学中，特别是在机器学习的领域，对模型的测量和评估同样至关重要。只有选择与问题相匹配的评估方法，我们才能够快速的发现在模型选择和训练过程中可能出现的问题，迭代地对模型进行优化。本文将总结机器学习最常见的模型评估指标，其中包括：</p>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>“没有测量，就没有科学。”这是科学家门捷列夫的名言。在计算机科学中，特别是在机器学习的领域，对模型的测量和评估同样至关重要。只有选择与问题相匹配的评估方法，我们才能够快速的发现在模型选择和训练过程中可能出现的问题，迭代地对模型进行优化。本文将总结机器学习最常见的模型评估指标，其中包括：</p>
 <ul>
 <li>precision</li>
 <li>recall</li>
@@ -516,7 +524,8 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
       </div>
     </div>
   </div>
-</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E5%B8%B8%E7%94%A8%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AE%97%E6%B3%95/">常用缓存淘汰算法
 </a>
@@ -525,7 +534,14 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
-</article><section class="related-posts row card component">
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">版权</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><section class="related-posts row card component">
     <div class="card-header">
       <h2 class="card-title">相关文章</h2>
     </div>
@@ -556,7 +572,7 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
 </script></div>
 </div></div>
 </div><aside class="col-lg-4 sidebar d-flex">
-  <div class="container">
+  <div class="container d-flex flex-column">
     <section class="ad row surface justify-content-center">
   <ins class="adsbygoogle sidebar-ad"
     data-ad-client="ca-pub-7827859788508375"
@@ -577,7 +593,23 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
     <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
   </div>
 </section>
-  <section class="recent-posts row card component">
+  <div class="post-toc row mb-4 card component" id="postTOC">
+  <div class="card-header">
+    <h2 class="card-title">目录</h2>
+  </div>
+  <div class="card-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#从混淆矩阵谈起">从混淆矩阵谈起</a></li>
+    <li><a href="#precisionrecallprcf1-score">Precision、Recall、PRC、F1-score</a></li>
+    <li><a href="#roc--auc">ROC &amp; AUC</a></li>
+    <li><a href="#怎么选择评估指标">怎么选择评估指标？</a></li>
+    <li><a href="#iou">IOU</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div><section class="recent-posts row card component">
   <div class="card-header">
     <h2 class="card-title">最近文章</h2>
   </div>
@@ -599,34 +631,7 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
 </a>
       </li></ul>
   </div>
-</section><section class="taxonomies row card component">
-      <div class="card-header">
-        <h2 class="card-title">
-          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
-        </h2>
-      </div>
-      <div class="card-body">
-        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
-            编程思想
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
-            云原生
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
-            其他
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
-            计算机科学
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
-            架构演进
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
-            持续集成部署
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
-            人工智能
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
-            设计模式
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
-            区块链
-          </a></div>
-      </div>
-    </section><section class="taxonomies row card component">
+</section><section class="series-taxonomies row card component">
       <div class="card-header">
         <h2 class="card-title">
           <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
@@ -634,18 +639,31 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
-            Manual
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
-            k8s实战
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
-            算法
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
-            istio实战
-          </a></div>
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a></div>
       </div>
-    </section><section class="taxonomies row card component">
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
       <div class="card-header">
         <h2 class="card-title">
           <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
@@ -653,90 +671,48 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="badge rounded post-taxonomy" title="Java">
-            Java
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
-            云原生
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded post-taxonomy" title="CS">
-            CS
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge rounded post-taxonomy" title="Other">
-            Other
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge rounded post-taxonomy" title="spring">
-            spring
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
-            MySQL
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge rounded post-taxonomy" title="redis">
-            redis
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
-            SA
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
-            JVM
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
-            剑指offer
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
-            WordPress
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge rounded post-taxonomy" title="istio">
-            istio
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
-            nginx
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
-            ZK
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
-            MQ
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
-            Jenkins
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
-            AI
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
-            CNN
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/gof/" class="badge rounded post-taxonomy" title="gof">
-            gof
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge rounded post-taxonomy" title="http">
-            http
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
-            System
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
-            TCP
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
-            分布式
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
-            算法
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
-            BlockChain
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge rounded post-taxonomy" title="docker">
-            docker
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded post-taxonomy" title="GO">
-            GO
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
-            Maven
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
-            ClickHouse
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
-            docker-compose
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded post-taxonomy" title="ES">
-            ES
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge rounded post-taxonomy" title="github">
-            github
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge rounded post-taxonomy" title="IO">
-            IO
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
-            Kafka
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
-            LeetCode
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
-            MongoDB
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
-            MyBatis
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
-            openresty
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
-            RabbitMQ
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
-            SpringBoot
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
-            牛客
-          </a></div>
+            Java</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
       </div>
     </section>
     <section class="ad ad-sticky row surface justify-content-center">
@@ -778,7 +754,7 @@ AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性�
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/main.da4026fda2fca654d7a2237484e7eb47b11158791407fb55217cbe95b4353a94.js" integrity="sha256-2kAm/aL8plTXoiN0hOfrR7ERWHkUB/tVIXy&#43;lbQ1OpQ=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
 <script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];

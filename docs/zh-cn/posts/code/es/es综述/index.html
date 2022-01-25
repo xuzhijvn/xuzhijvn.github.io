@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-cn"
+<!doctype html><html lang="zh-cn" data-palette="indigo"
   >
   <head>
     <meta charset="utf-8">
@@ -9,7 +9,13 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
 <link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="ES综述">
+<meta name="description" content="1. ES 的分布式架构原理 ElasticSearch 设计的理念就是分布式搜索引擎，底层其实还是基于 lucene 的。核心思想就是在多台机器上启动多个 ES 进程实例，组成了一个 ES 集群。
+默认节点会去加入一个名称为 elasticsearch 的集群。如果直接启动一堆节点，那么它们会自动组成一个 elasticsearch 集群，当然一个节点也可以组成 elasticsearch 集群。
+1.1 ES数据结构 ES 中存储数据的基本单位是索引，比如说你现在要在 ES 中存储一些订单数据，你就应该在 ES 中创建一个索引 order_idx ，所有的订单数据就都写到这个索引里面去，一个索引差不多就是相当于是 mysql 里的一张表。
+index -&gt; type -&gt; mapping -&gt; document -&gt; field。 1.2 ES高可用 类似kafka将一个topic分成多个partition，es将一个index分成多个shard。
+ 每个 shard 存储部分数据。拆分多个 shard 是有好处的，一是支持横向扩展，比如你数据量是 3T，3 个 shard，每个 shard 就 1T 的数据，若现在数据量增加到 4T，怎么扩展，很简单，重新建一个有 4 个 shard 的索引，将数据导进去；二是提高性能，数据分布在多个 shard，即多台服务器上，所有的操作，都会在多台机器上并行分布式执行，提高了吞吐量和性能。
+ kafka的每个partition有多个replica副本，所有副本选出一个leader（依赖zookeeper完成选举）负责所有的读写请求。
+ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 primary shard ，负责写入数据，但是还有几个 replica shard 。 primary shard 写入数据之后，会将数据同步到其他几个 replica shard 上去。" /><meta itemprop="name" content="ES综述">
 <meta itemprop="description" content="1. ES 的分布式架构原理 ElasticSearch 设计的理念就是分布式搜索引擎，底层其实还是基于 lucene 的。核心思想就是在多台机器上启动多个 ES 进程实例，组成了一个 ES 集群。
 默认节点会去加入一个名称为 elasticsearch 的集群。如果直接启动一堆节点，那么它们会自动组成一个 elasticsearch 集群，当然一个节点也可以组成 elasticsearch 集群。
 1.1 ES数据结构 ES 中存储数据的基本单位是索引，比如说你现在要在 ES 中存储一些订单数据，你就应该在 ES 中创建一个索引 order_idx ，所有的订单数据就都写到这个索引里面去，一个索引差不多就是相当于是 mysql 里的一张表。
@@ -43,13 +49,13 @@ index -&gt; type -&gt; mapping -&gt; document -&gt; field。 1.2 ES高可用 类
  kafka的每个partition有多个replica副本，所有副本选出一个leader（依赖zookeeper完成选举）负责所有的读写请求。
 ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 primary shard ，负责写入数据，但是还有几个 replica shard 。 primary shard 写入数据之后，会将数据同步到其他几个 replica shard 上去。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.f36f1df320942b1c5814085ba3267c2ee2c33f9ae057fa1005c03689dab0737d.css" integrity="sha256-828d8yCUKxxYFAhboyZ8LuLDP5rgV/oQBcA2idqwc30=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <i class="fas fa-bars"></i>
-    </button><a class="navbar-brand me-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
    width="400" height="400"
    />
 👴🏻💪
@@ -126,33 +132,36 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
       </a>
     </div>
   </form>
-  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
-        class="btn btn-sm palette" data-palette="blue">
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm w-100 palette" data-palette="blue">
       </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
-        class="btn btn-sm palette" data-palette="blue-gray">
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
       </button><button type="button" id="palette-brown" aria-label="棕色"
-        class="btn btn-sm palette" data-palette="brown">
+        class="btn btn-sm w-100 palette" data-palette="brown">
       </button><button type="button" id="palette-cyan" aria-label="青色"
-        class="btn btn-sm palette" data-palette="cyan">
+        class="btn btn-sm w-100 palette" data-palette="cyan">
       </button><button type="button" id="palette-green" aria-label="绿色"
-        class="btn btn-sm palette" data-palette="green">
+        class="btn btn-sm w-100 palette" data-palette="green">
       </button><button type="button" id="palette-indigo" aria-label="靛青色"
-        class="btn btn-sm palette" data-palette="indigo">
+        class="btn btn-sm w-100 palette" data-palette="indigo">
       </button><button type="button" id="palette-orange" aria-label="橙色"
-        class="btn btn-sm palette" data-palette="orange">
+        class="btn btn-sm w-100 palette" data-palette="orange">
       </button><button type="button" id="palette-pink" aria-label="粉色"
-        class="btn btn-sm palette" data-palette="pink">
+        class="btn btn-sm w-100 palette" data-palette="pink">
       </button><button type="button" id="palette-purple" aria-label="紫色"
-        class="btn btn-sm palette" data-palette="purple">
+        class="btn btn-sm w-100 palette" data-palette="purple">
       </button><button type="button" id="palette-red" aria-label="红色"
-        class="btn btn-sm palette" data-palette="red">
+        class="btn btn-sm w-100 palette" data-palette="red">
       </button><button type="button" id="palette-teal" aria-label="蓝绿色"
-        class="btn btn-sm palette" data-palette="teal">
+        class="btn btn-sm w-100 palette" data-palette="teal">
       </button><button type="button" id="palette-yellow" aria-label="黄色"
-        class="btn btn-sm palette" data-palette="yellow">
+        class="btn btn-sm w-100 palette" data-palette="yellow">
       </button></div>
 </section>
 <section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> 返回
+  </a>
   <a role="button" class="action action-reload-page">
     <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
@@ -283,7 +292,7 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
   <div class="card-body">
     <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">ES综述</li></ol>
   </div>
-</nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
+</nav><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
     <a class="action action-panel-toggler" role="button" title="Panel toggler">
@@ -298,17 +307,20 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
-    
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
     <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
   <i class="fas fa-fw fa-comments"></i>
 </a>
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
+    <a class="action" href="#postTOC" aria-controls="Table of contents" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
   </div>
 </div>
-<div class="card-header ">
+<article class="row card component mb-4 post">
+  <div class="card-header ">
     <h1 class="card-title post-title">ES综述
 </h1>
   </div>
@@ -317,51 +329,9 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
     2021-08-27
   </span><span class="post-reading-time">
     3 分钟阅读
-  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded-pill post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded-pill post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded-pill post-taxonomy">ES</a></span>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge post-taxonomy">ES</a></span>
 </div>
-<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#1-es-的分布式架构原理">1. ES 的分布式架构原理</a>
-      <ul>
-        <li><a href="#11-es数据结构">1.1 ES数据结构</a></li>
-        <li><a href="#12-es高可用">1.2 ES高可用</a></li>
-      </ul>
-    </li>
-    <li><a href="#2-es-的工作原理">2. ES 的工作原理</a>
-      <ul>
-        <li><a href="#21-底层-lucene">2.1 底层 lucene</a></li>
-        <li><a href="#22-倒排索引">2.2 倒排索引</a></li>
-      </ul>
-    </li>
-    <li><a href="#3es-读写检索数据的过程">3.ES 读写检索数据的过程</a>
-      <ul>
-        <li><a href="#31-es-写数据过程">3.1 ES 写数据过程</a></li>
-        <li><a href="#32-es-读数据过程">3.2 ES 读数据过程</a></li>
-        <li><a href="#33-es-检索数据过程">3.3 ES 检索数据过程</a></li>
-      </ul>
-    </li>
-    <li><a href="#4-优化es提升检索效率">4. 优化ES提升检索效率</a>
-      <ul>
-        <li><a href="#41-filesystem-cache">4.1 filesystem cache</a></li>
-        <li><a href="#42-数据预热">4.2 数据预热</a></li>
-        <li><a href="#43-冷热分离">4.3 冷热分离</a></li>
-        <li><a href="#44-document-模型设计">4.4 document 模型设计</a></li>
-        <li><a href="#45-分页性能优化">4.5 分页性能优化</a></li>
-      </ul>
-    </li>
-    <li><a href="#参考">参考</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><h2 id="1-es-的分布式架构原理">1. ES 的分布式架构原理<a class="anchor ms-1" href="#1-es-的分布式架构原理"><i class="fas fa-link"></i></a></h2>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><h2 id="1-es-的分布式架构原理">1. ES 的分布式架构原理<a class="anchor ms-1" href="#1-es-的分布式架构原理"><i class="fas fa-link"></i></a></h2>
 <p>ElasticSearch 设计的理念就是分布式搜索引擎，底层其实还是基于 lucene 的。核心思想就是在多台机器上启动多个 ES 进程实例，组成了一个 ES 集群。</p>
 <p>默认节点会去加入一个名称为 <code>elasticsearch</code> 的集群。如果直接启动一堆节点，那么它们会自动组成一个 elasticsearch 集群，当然一个节点也可以组成 elasticsearch 集群。</p>
 <h3 id="11-es数据结构">1.1 ES数据结构<a class="anchor ms-1" href="#11-es数据结构"><i class="fas fa-link"></i></a></h3>
@@ -634,7 +604,8 @@ j2ee特别牛
       </div>
     </div>
   </div>
-</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/other/gitbook%E5%AE%89%E8%A3%85/">gitbook安装
 </a>
@@ -643,7 +614,14 @@ j2ee特别牛
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
-</article><div class="card component row post-comments" id="post-comments">
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">版权</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><div class="card component row post-comments" id="post-comments">
   <div class="card-header">
     <h2 class="card-title">评论</h2>
   </div>
@@ -657,7 +635,7 @@ j2ee特别牛
 </script></div>
 </div></div>
 </div><aside class="col-lg-4 sidebar d-flex">
-  <div class="container">
+  <div class="container d-flex flex-column">
     <section class="ad row surface justify-content-center">
   <ins class="adsbygoogle sidebar-ad"
     data-ad-client="ca-pub-7827859788508375"
@@ -678,7 +656,46 @@ j2ee特别牛
     <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
   </div>
 </section>
-  <section class="recent-posts row card component">
+  <div class="post-toc row mb-4 card component" id="postTOC">
+  <div class="card-header">
+    <h2 class="card-title">目录</h2>
+  </div>
+  <div class="card-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-es-的分布式架构原理">1. ES 的分布式架构原理</a>
+      <ul>
+        <li><a href="#11-es数据结构">1.1 ES数据结构</a></li>
+        <li><a href="#12-es高可用">1.2 ES高可用</a></li>
+      </ul>
+    </li>
+    <li><a href="#2-es-的工作原理">2. ES 的工作原理</a>
+      <ul>
+        <li><a href="#21-底层-lucene">2.1 底层 lucene</a></li>
+        <li><a href="#22-倒排索引">2.2 倒排索引</a></li>
+      </ul>
+    </li>
+    <li><a href="#3es-读写检索数据的过程">3.ES 读写检索数据的过程</a>
+      <ul>
+        <li><a href="#31-es-写数据过程">3.1 ES 写数据过程</a></li>
+        <li><a href="#32-es-读数据过程">3.2 ES 读数据过程</a></li>
+        <li><a href="#33-es-检索数据过程">3.3 ES 检索数据过程</a></li>
+      </ul>
+    </li>
+    <li><a href="#4-优化es提升检索效率">4. 优化ES提升检索效率</a>
+      <ul>
+        <li><a href="#41-filesystem-cache">4.1 filesystem cache</a></li>
+        <li><a href="#42-数据预热">4.2 数据预热</a></li>
+        <li><a href="#43-冷热分离">4.3 冷热分离</a></li>
+        <li><a href="#44-document-模型设计">4.4 document 模型设计</a></li>
+        <li><a href="#45-分页性能优化">4.5 分页性能优化</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div><section class="recent-posts row card component">
   <div class="card-header">
     <h2 class="card-title">最近文章</h2>
   </div>
@@ -700,34 +717,7 @@ j2ee特别牛
 </a>
       </li></ul>
   </div>
-</section><section class="taxonomies row card component">
-      <div class="card-header">
-        <h2 class="card-title">
-          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
-        </h2>
-      </div>
-      <div class="card-body">
-        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
-            编程思想
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
-            云原生
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
-            其他
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
-            计算机科学
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
-            架构演进
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
-            持续集成部署
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
-            人工智能
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
-            设计模式
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
-            区块链
-          </a></div>
-      </div>
-    </section><section class="taxonomies row card component">
+</section><section class="series-taxonomies row card component">
       <div class="card-header">
         <h2 class="card-title">
           <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
@@ -735,18 +725,31 @@ j2ee特别牛
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
-            Manual
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
-            k8s实战
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
-            算法
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
-            istio实战
-          </a></div>
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a></div>
       </div>
-    </section><section class="taxonomies row card component">
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
       <div class="card-header">
         <h2 class="card-title">
           <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
@@ -754,90 +757,48 @@ j2ee特别牛
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="badge rounded post-taxonomy" title="Java">
-            Java
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
-            云原生
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded post-taxonomy" title="CS">
-            CS
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge rounded post-taxonomy" title="Other">
-            Other
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge rounded post-taxonomy" title="spring">
-            spring
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
-            MySQL
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge rounded post-taxonomy" title="redis">
-            redis
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
-            SA
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
-            JVM
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
-            剑指offer
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
-            WordPress
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge rounded post-taxonomy" title="istio">
-            istio
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
-            nginx
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
-            ZK
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
-            MQ
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
-            Jenkins
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
-            AI
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
-            CNN
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/gof/" class="badge rounded post-taxonomy" title="gof">
-            gof
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge rounded post-taxonomy" title="http">
-            http
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
-            System
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
-            TCP
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
-            分布式
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
-            算法
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
-            BlockChain
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge rounded post-taxonomy" title="docker">
-            docker
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded post-taxonomy" title="GO">
-            GO
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
-            Maven
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
-            ClickHouse
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
-            docker-compose
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded post-taxonomy" title="ES">
-            ES
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge rounded post-taxonomy" title="github">
-            github
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge rounded post-taxonomy" title="IO">
-            IO
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
-            Kafka
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
-            LeetCode
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
-            MongoDB
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
-            MyBatis
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
-            openresty
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
-            RabbitMQ
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
-            SpringBoot
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
-            牛客
-          </a></div>
+            Java</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
       </div>
     </section>
     <section class="ad ad-sticky row surface justify-content-center">
@@ -879,7 +840,7 @@ j2ee特别牛
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/main.da4026fda2fca654d7a2237484e7eb47b11158791407fb55217cbe95b4353a94.js" integrity="sha256-2kAm/aL8plTXoiN0hOfrR7ERWHkUB/tVIXy&#43;lbQ1OpQ=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
 <script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];

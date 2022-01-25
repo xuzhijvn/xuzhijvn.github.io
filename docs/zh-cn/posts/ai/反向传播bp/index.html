@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-cn"
+<!doctype html><html lang="zh-cn" data-palette="indigo"
   >
   <head>
     <meta charset="utf-8">
@@ -9,7 +9,21 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
 <link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="反向传播">
+<meta name="description" content="说到神经网络，大家看到这个图应该不陌生：
+这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。
+本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础 ）
+假设，你有这样一个网络层：
+第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。
+现在对他们赋上初值，如下图：
+其中，输入数据 i1=0.05，i2=0.10;
+　输出数据 o1=0.01,o2=0.99;
+　初始权重 w1=0.15,w2=0.20,w3=0.25,w4=0.30;
+　w5=0.40,w6=0.45,w7=0.50,w8=0.55
+目标：给出输入数据i1,i2(0.05和0.10)，使输出尽可能与原始输出o1,o2(0.01和0.99)接近。
+Step 1 前向传播
+1.输入层&mdash;-&gt;隐含层：
+计算神经元h1的输入加权和： $$ \begin{array}{l} n e t_{h 1}=w_{1} * i_{1}&#43;w_{2} * i_{2}&#43;b_{1} * 1 \
+{ net }_{h 1}=0.15 * 0.05&#43;0.2 * 0.1&#43;0.35 * 1=0.3775 \end{array} $$ 神经元h1的输出o1:(此处用到激活函数为sigmoid函数)： $$ { out }_{h 1}=\frac{1}{1&#43;e^{-n e t_{h 1}}}=\frac{1}{1&#43;e^{-0.3775}}=0.593269992 $$ 同理，可计算出神经元h2的输出o2： $$ { out }_{h 2}=0." /><meta itemprop="name" content="反向传播">
 <meta itemprop="description" content="说到神经网络，大家看到这个图应该不陌生：
 这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。
 本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础 ）
@@ -67,14 +81,14 @@ Step 1 前向传播
 计算神经元h1的输入加权和： $$ \begin{array}{l} n e t_{h 1}=w_{1} * i_{1}&#43;w_{2} * i_{2}&#43;b_{1} * 1 \
 { net }_{h 1}=0.15 * 0.05&#43;0.2 * 0.1&#43;0.35 * 1=0.3775 \end{array} $$ 神经元h1的输出o1:(此处用到激活函数为sigmoid函数)： $$ { out }_{h 1}=\frac{1}{1&#43;e^{-n e t_{h 1}}}=\frac{1}{1&#43;e^{-0.3775}}=0.593269992 $$ 同理，可计算出神经元h2的输出o2： $$ { out }_{h 2}=0."/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.3e0def0b87b7abdc7596b3b89e697e223ec81ed714dad41943309cf011bae57a.css" integrity="sha256-Pg3vC4e3q9x1lrO4nml&#43;Ij7IHtcU2tQZQzCc8BG65Xo=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/katex.min.d080a89e03e1eb850f547d835c186b4273f69879aa497eb8b0e88c1578bf1f0b.css" integrity="sha256-0ICongPh64UPVH2DXBhrQnP2mHmqSX64sOiMFXi/Hws=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.f36f1df320942b1c5814085ba3267c2ee2c33f9ae057fa1005c03689dab0737d.css" integrity="sha256-828d8yCUKxxYFAhboyZ8LuLDP5rgV/oQBcA2idqwc30=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/katex.min.d080a89e03e1eb850f547d835c186b4273f69879aa497eb8b0e88c1578bf1f0b.css" integrity="sha256-0ICongPh64UPVH2DXBhrQnP2mHmqSX64sOiMFXi/Hws=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <i class="fas fa-bars"></i>
-    </button><a class="navbar-brand me-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
    width="400" height="400"
    />
 👴🏻💪
@@ -151,33 +165,36 @@ Step 1 前向传播
       </a>
     </div>
   </form>
-  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
-        class="btn btn-sm palette" data-palette="blue">
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm w-100 palette" data-palette="blue">
       </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
-        class="btn btn-sm palette" data-palette="blue-gray">
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
       </button><button type="button" id="palette-brown" aria-label="棕色"
-        class="btn btn-sm palette" data-palette="brown">
+        class="btn btn-sm w-100 palette" data-palette="brown">
       </button><button type="button" id="palette-cyan" aria-label="青色"
-        class="btn btn-sm palette" data-palette="cyan">
+        class="btn btn-sm w-100 palette" data-palette="cyan">
       </button><button type="button" id="palette-green" aria-label="绿色"
-        class="btn btn-sm palette" data-palette="green">
+        class="btn btn-sm w-100 palette" data-palette="green">
       </button><button type="button" id="palette-indigo" aria-label="靛青色"
-        class="btn btn-sm palette" data-palette="indigo">
+        class="btn btn-sm w-100 palette" data-palette="indigo">
       </button><button type="button" id="palette-orange" aria-label="橙色"
-        class="btn btn-sm palette" data-palette="orange">
+        class="btn btn-sm w-100 palette" data-palette="orange">
       </button><button type="button" id="palette-pink" aria-label="粉色"
-        class="btn btn-sm palette" data-palette="pink">
+        class="btn btn-sm w-100 palette" data-palette="pink">
       </button><button type="button" id="palette-purple" aria-label="紫色"
-        class="btn btn-sm palette" data-palette="purple">
+        class="btn btn-sm w-100 palette" data-palette="purple">
       </button><button type="button" id="palette-red" aria-label="红色"
-        class="btn btn-sm palette" data-palette="red">
+        class="btn btn-sm w-100 palette" data-palette="red">
       </button><button type="button" id="palette-teal" aria-label="蓝绿色"
-        class="btn btn-sm palette" data-palette="teal">
+        class="btn btn-sm w-100 palette" data-palette="teal">
       </button><button type="button" id="palette-yellow" aria-label="黄色"
-        class="btn btn-sm palette" data-palette="yellow">
+        class="btn btn-sm w-100 palette" data-palette="yellow">
       </button></div>
 </section>
 <section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> 返回
+  </a>
   <a role="button" class="action action-reload-page">
     <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
   </a>
@@ -308,7 +325,7 @@ Step 1 前向传播
   <div class="card-body">
     <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">反向传播</li></ol>
   </div>
-</nav><article class="row card component mb-4 post"><div class="post-panel-wrapper">
+</nav><div class="post-panel-wrapper">
   <div class="d-flex flex-column component rounded post-panel">
     
     <a class="action action-panel-toggler" role="button" title="Panel toggler">
@@ -323,17 +340,20 @@ Step 1 前向传播
     <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
   <i class="fas fa-fw fa-coffee"></i>
 </a>
-    
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
     <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
   <i class="fas fa-fw fa-comments"></i>
 </a>
-    <a class="action" data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button" title="Table of contents">
+    <a class="action" href="#postTOC" aria-controls="Table of contents" role="button" title="Table of contents">
   <i class="fas fa-fw fa-list-alt"></i>
 </a>
     
   </div>
 </div>
-<div class="card-header ">
+<article class="row card component mb-4 post">
+  <div class="card-header ">
     <h1 class="card-title post-title">反向传播
 </h1>
   </div>
@@ -342,23 +362,9 @@ Step 1 前向传播
     2021-08-27
   </span><span class="post-reading-time">
     7 分钟阅读
-  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded-pill post-taxonomy">人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded-pill post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded-pill post-taxonomy">CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded-pill post-taxonomy">AI</a></span>
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge post-taxonomy">人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge post-taxonomy">CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge post-taxonomy">AI</a></span>
 </div>
-<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#参考">参考</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>说到神经网络，大家看到这个图应该不陌生：</p>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>说到神经网络，大家看到这个图应该不陌生：</p>
 <p><img src="https://picgo.6and.ltd/img/853467-20160630140644406-409859737.png" alt="典型的三层神经网络的基本构成" style="zoom: 33%;" /></p>
 <p>这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。</p>
 <p>本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[<a href="http://www.cnblogs.com/maybe2030/p/5597716.html" target="_blank" rel="noopener noreferrer">Mechine Learning &amp; Algorithm] 神经网络基础</a>
@@ -806,7 +812,8 @@ nn <span style="color:#f92672">=</span> NeuralNetwork(<span style="color:#ae81ff
       </div>
     </div>
   </div>
-</div><hr /><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E5%90%8C%E6%AD%A5%E9%95%9C%E5%83%8F%E5%88%B0%E8%87%AA%E5%B7%B1%E7%9A%84%E4%BB%93%E5%BA%93/">同步镜像到自己的仓库
 </a>
@@ -815,7 +822,14 @@ nn <span style="color:#f92672">=</span> NeuralNetwork(<span style="color:#ae81ff
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
-</article><section class="related-posts row card component">
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">版权</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><section class="related-posts row card component">
     <div class="card-header">
       <h2 class="card-title">相关文章</h2>
     </div>
@@ -846,7 +860,7 @@ nn <span style="color:#f92672">=</span> NeuralNetwork(<span style="color:#ae81ff
 </script></div>
 </div></div>
 </div><aside class="col-lg-4 sidebar d-flex">
-  <div class="container">
+  <div class="container d-flex flex-column">
     <section class="ad row surface justify-content-center">
   <ins class="adsbygoogle sidebar-ad"
     data-ad-client="ca-pub-7827859788508375"
@@ -867,7 +881,18 @@ nn <span style="color:#f92672">=</span> NeuralNetwork(<span style="color:#ae81ff
     <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
   </div>
 </section>
-  <section class="recent-posts row card component">
+  <div class="post-toc row mb-4 card component" id="postTOC">
+  <div class="card-header">
+    <h2 class="card-title">目录</h2>
+  </div>
+  <div class="card-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div><section class="recent-posts row card component">
   <div class="card-header">
     <h2 class="card-title">最近文章</h2>
   </div>
@@ -889,34 +914,7 @@ nn <span style="color:#f92672">=</span> NeuralNetwork(<span style="color:#ae81ff
 </a>
       </li></ul>
   </div>
-</section><section class="taxonomies row card component">
-      <div class="card-header">
-        <h2 class="card-title">
-          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
-        </h2>
-      </div>
-      <div class="card-body">
-        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
-            编程思想
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
-            云原生
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
-            其他
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
-            计算机科学
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
-            架构演进
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
-            持续集成部署
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
-            人工智能
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
-            设计模式
-          </a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
-            区块链
-          </a></div>
-      </div>
-    </section><section class="taxonomies row card component">
+</section><section class="series-taxonomies row card component">
       <div class="card-header">
         <h2 class="card-title">
           <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
@@ -924,18 +922,31 @@ nn <span style="color:#f92672">=</span> NeuralNetwork(<span style="color:#ae81ff
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
-            Manual
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
-            k8s实战
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
-            算法
-          </a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
-            istio实战
-          </a></div>
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a></div>
       </div>
-    </section><section class="taxonomies row card component">
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
       <div class="card-header">
         <h2 class="card-title">
           <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
@@ -943,90 +954,48 @@ nn <span style="color:#f92672">=</span> NeuralNetwork(<span style="color:#ae81ff
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="badge rounded post-taxonomy" title="Java">
-            Java
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
-            云原生
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded post-taxonomy" title="CS">
-            CS
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge rounded post-taxonomy" title="Other">
-            Other
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge rounded post-taxonomy" title="spring">
-            spring
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
-            MySQL
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge rounded post-taxonomy" title="redis">
-            redis
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
-            SA
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
-            JVM
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
-            剑指offer
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
-            WordPress
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge rounded post-taxonomy" title="istio">
-            istio
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
-            nginx
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
-            ZK
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
-            MQ
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
-            Jenkins
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
-            AI
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
-            CNN
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/gof/" class="badge rounded post-taxonomy" title="gof">
-            gof
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge rounded post-taxonomy" title="http">
-            http
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
-            System
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
-            TCP
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
-            分布式
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
-            算法
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
-            BlockChain
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge rounded post-taxonomy" title="docker">
-            docker
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded post-taxonomy" title="GO">
-            GO
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
-            Maven
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
-            ClickHouse
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
-            docker-compose
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded post-taxonomy" title="ES">
-            ES
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge rounded post-taxonomy" title="github">
-            github
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge rounded post-taxonomy" title="IO">
-            IO
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
-            Kafka
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
-            LeetCode
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
-            MongoDB
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
-            MyBatis
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
-            openresty
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
-            RabbitMQ
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
-            SpringBoot
-          </a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
-            牛客
-          </a></div>
+            Java</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
       </div>
     </section>
     <section class="ad ad-sticky row surface justify-content-center">
@@ -1068,7 +1037,7 @@ nn <span style="color:#f92672">=</span> NeuralNetwork(<span style="color:#ae81ff
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.min.ef6b22af5118c28e34c00ffff293ecab518250fe12e4a37b44b5df02641bfe55.js" integrity="sha256-72sir1EYwo40wA//8pPsq1GCUP4S5KN7RLXfAmQb/lU=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/main.da4026fda2fca654d7a2237484e7eb47b11158791407fb55217cbe95b4353a94.js" integrity="sha256-2kAm/aL8plTXoiN0hOfrR7ERWHkUB/tVIXy&#43;lbQ1OpQ=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
 <script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script defer src="https://xuzhijvn.github.io/js/katex.min.a575e93a07f02f7e58ee9002aea3b4e75163d4fa8ea3a627e90e7fafd5c718fa.js" integrity="sha256-pXXpOgfwL35Y7pACrqO051Fj1PqOo6Yn6Q5/r9XHGPo=" crossorigin="anonymous"></script>
 <script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
