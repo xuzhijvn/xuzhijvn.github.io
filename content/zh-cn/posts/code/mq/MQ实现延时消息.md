@@ -16,7 +16,9 @@ tags = [
 series = [
 "Manual"
 ]
-images = []
+images = [
+]
+
 +++
 
 <!--more-->
