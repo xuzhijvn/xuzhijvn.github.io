@@ -1,59 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>架构设计 on Razon Yang</title>
-    <link>https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/</link>
-    <description>Recent content in 架构设计 on Razon Yang</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
-    <lastBuildDate>Fri, 27 Aug 2021 11:15:10 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>API接口安全设计</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/</guid>
-      <description> 验签：防接口被肆意调用  client对request签名，server对请求进行验签。
-鉴权：防调用没有权限的接口  token鉴权，实际上验签、鉴权通常是一同处理的，例如：OAuth2
-验证请求的timestamp：防盗链  当前时间 - timestamp &amp;gt; 阈值，则说明该请求已经失效。
-nonce随机数：防重复提交  上述验证timestamp的过程中存在一个问题，例如：阈值 = 60s，那么60s内发生重复提交怎么办？
-解决办法是：server端保存带随机数的请求（随机数+原请求 = 新请求，通常是redis保存）。
-接口幂等性保证（唯一主键、乐观锁）  幂等性：以相同的请求调用这个接口一次和调用这个接口多次，对系统产生的影响是相同的。
-恶意的重复提交：请求的timestamp、nonce较上一次没变，这种情况通过redis保存带随机数的请求可以杜绝。
-用户误操作导致的重复提交：前端控制+幂等设计。
-幂等与重复提交的区别在于：幂等是在重复提交已经发生了的情况下，如何保证多次调用接口的结果一致，重复提交在前，幂等保证在后。
-参考链接： 如何保证接口的幂等性说说API的防重放机制Java生鲜电商平台-API接口设计之token、timestamp、sign 具体架构与实现（APP/小程序，传输安全）阿里一面：如何保证API接口数据安全？实现接口幂等性的几种方案</description>
-    </item>
-    
-    <item>
-      <title>如何设计一个高并发系统</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E9%AB%98%E5%B9%B6%E5%8F%91%E7%B3%BB%E7%BB%9F/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E9%AB%98%E5%B9%B6%E5%8F%91%E7%B3%BB%E7%BB%9F/</guid>
-      <description>其实所谓的高并发，如果你要理解这个问题呢，其实就得从高并发的根源出发，为啥会有高并发？为啥高并发就很牛逼？
-我说的浅显一点，很简单，就是因为刚开始系统都是连接数据库的，但是要知道数据库支撑到每秒并发两三千的时候，基本就快完了。所以才有说，很多公司，刚开始干的时候，技术比较 low，结果业务发展太快，有的时候系统扛不住压力就挂了。
-当然会挂了，凭什么不挂？你数据库如果瞬间承载每秒 5000/8000，甚至上万的并发，一定会宕机，因为比如 mysql 就压根儿扛不住这么高的并发量。
-所以为啥高并发牛逼？就是因为现在用互联网的人越来越多，很多 app、网站、系统承载的都是高并发请求，可能高峰期每秒并发量几千，很正常的。如果是什么双十一之类的，每秒并发几万几十万都有可能。
-那么如此之高的并发量，加上原本就如此之复杂的业务，咋玩儿？真正厉害的，一定是在复杂业务系统里玩儿过高并发架构的人，但是你没有，那么我给你说一下你该怎么回答这个问题：
-可以分为以下 6 点：
- 系统拆分 缓存 MQ 分库分表 读写分离 ElasticSearch  系统拆分 将一个系统拆分为多个子系统，用 dubbo 来搞。然后每个系统连一个数据库，这样本来就一个库，现在多个数据库，不也可以扛高并发么。
-缓存 缓存，必须得用缓存。大部分的高并发场景，都是读多写少，那你完全可以在数据库和缓存里都写一份，然后读的时候大量走缓存不就得了。毕竟人家 redis 轻轻松松单机几万的并发。所以你可以考虑考虑你的项目里，那些承载主要请求的读场景，怎么用缓存来抗高并发。
-MQ MQ，必须得用 MQ。可能你还是会出现高并发写的场景，比如说一个业务操作里要频繁搞数据库几十次，增删改增删改，疯了。那高并发绝对搞挂你的系统，你要是用 redis 来承载写那肯定不行，人家是缓存，数据随时就被 LRU 了，数据格式还无比简单，没有事务支持。所以该用 mysql 还得用 mysql 啊。那你咋办？用 MQ 吧，大量的写请求灌入 MQ 里，排队慢慢玩儿，后边系统消费后慢慢写，控制在 mysql 承载范围之内。所以你得考虑考虑你的项目里，那些承载复杂写业务逻辑的场景里，如何用 MQ 来异步写，提升并发性。MQ 单机抗几万并发也是 ok 的，这个之前还特意说过。
-分库分表 分库分表，可能到了最后数据库层面还是免不了抗高并发的要求，好吧，那么就将一个数据库拆分为多个库，多个库来扛更高的并发；然后将一个表拆分为多个表，每个表的数据量保持少一点，提高 sql 跑的性能。
-读写分离 读写分离，这个就是说大部分时候数据库可能也是读多写少，没必要所有请求都集中在一个库上吧，可以搞个主从架构，主库写入，从库读取，搞一个读写分离。读流量太多的时候，还可以加更多的从库。
-ElasticSearch Elasticsearch，简称 es。es 是分布式的，可以随便扩容，分布式天然就可以支撑高并发，因为动不动就可以扩容加机器来扛更高的并发。那么一些比较简单的查询、统计类的操作，可以考虑用 es 来承载，还有一些全文搜索类的操作，也可以考虑用 es 来承载。
-参考 如何设计一个高并发系统？</description>
-    </item>
-    
-    <item>
-      <title>系统性能优化</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/</guid>
-      <description>系统性能优化之并发编程提升系统的QPS和吞吐量</description>
-    </item>
-    
-  </channel>
-</rss>
