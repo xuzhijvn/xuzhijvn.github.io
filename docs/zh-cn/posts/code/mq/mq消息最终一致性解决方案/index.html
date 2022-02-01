@@ -1,0 +1,706 @@
+<!doctype html><html lang="zh-cn" data-palette="indigo"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MQ消息最终一致性解决方案 - 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/icons/icon-180x180.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-16x16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
+<link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
+<meta name="keywords" content="" />
+<meta name="description" content="只有RocketMQ支持事务消息，如果我们的MQ不是RocketMQ，可以采用本地消息&#43;MQ达到同样的效果，并且本地消息表还可以做出独立的服务。
+随着分布式服务架构的流行与普及，原来在单体应用中执行的多个逻辑操作，现在被拆分成了多个服务之间的远程调用。虽然服务化为我们的系统带来了水平伸缩的能力，然而随之而来挑战就是分布式事务问题，多个服务之间使用自己单独维护的数据库，它们彼此之间不在同一个事务中，假如A执行成功了，B执行却失败了，而A的事务此时已经提交，无法回滚，那么最终就会导致两边数据不一致性的问题；尽管很早之前就有基于两阶段提交的XA分布式事务，但是这类方案因为需要资源的全局锁定，导致性能极差；因此后面就逐渐衍生出了消息最终一致性、TCC等柔性事务的分布式事务方案，本文主要分析的是基于消息的最终一致性方案。
+0\. 简单RPC处理存在的一致性问题 在正式开始讲述正题之前，我们先看一下，不依赖任何分布式事务手段，单纯将本地业务逻辑和远程调用逻辑放在同一个本地事务中会有什么问题。
+我们以订单创建为例，订单系统先创建订单(本地事务)，然后RPC调用库存扣减服务。
+@Transactionnal public void processOrder() { try{ // 订单处理(业务操作)  orderService.process(); // 库存扣减（RPC远程调用）  storageService.deduction(); }catch(Exception e){ 事务回滚; } } 如果库存服务由于DB数据量比较大，导致处理超时，订单服务在出现超时异常后，直接回滚本地事务，从而导致订单服务这边没数据，而库存服务那边数据却已经写入了，最终导致两边业务数据的不一致。
+即使不存在 “DB数据量比较大” 这种特殊情况，也一定会存在因为网络抖动，订单服务调用库存服务超时而本地回滚，但是库存服务实际操作成功的情况。
+其根本的原因就在于：远程调用，结果最终可能为成功、失败、超时；而对于超时的情况，处理方最终的结果可能是成功，也可能是失败，调用方是无法知晓的。
+1\. 普通消息的处理流程  消息生成者发送消息 MQ收到消息，将消息进行持久化，在存储中新增一条记录 返回ACK给生产者 MQ push 消息给对应的消费者，然后等待消费者返回ACK 如果消息消费者在指定时间内成功返回ack，那么MQ认为消息消费成功，在存储中删除消息，即执行第6步；如果MQ在指定时间内没有收到ACK，则认为消息消费失败，会尝试重新push消息,重复执行4、5、6步骤 MQ删除消息  1.2 普通消息处理存在的一致性问题 我们还是以订单创建为例，订单系统先创建订单(本地事务)，再发送消息给下游处理；如果订单创建成功，然而消息没有发送出去，那么下游所有系统都无法感知到这个事件，会出现脏数据；
+public void processOrder() { // 订单处理(业务操作)  orderService.process(); // 发送订单处理成功消息(发送消息)  sendBizMsg (); } 如果先发送订单消息，再创建订单；那么就有可能消息发送成功，但是在订单创建的时候却失败了，此时下游系统却认为这个订单已经创建，也会出现脏数据。
+public void processOrder() { // 发送订单处理成功消息(发送消息)  sendBizMsg (); // 订单处理(业务操作)  orderService." /><meta itemprop="name" content="MQ消息最终一致性解决方案">
+<meta itemprop="description" content="只有RocketMQ支持事务消息，如果我们的MQ不是RocketMQ，可以采用本地消息&#43;MQ达到同样的效果，并且本地消息表还可以做出独立的服务。
+随着分布式服务架构的流行与普及，原来在单体应用中执行的多个逻辑操作，现在被拆分成了多个服务之间的远程调用。虽然服务化为我们的系统带来了水平伸缩的能力，然而随之而来挑战就是分布式事务问题，多个服务之间使用自己单独维护的数据库，它们彼此之间不在同一个事务中，假如A执行成功了，B执行却失败了，而A的事务此时已经提交，无法回滚，那么最终就会导致两边数据不一致性的问题；尽管很早之前就有基于两阶段提交的XA分布式事务，但是这类方案因为需要资源的全局锁定，导致性能极差；因此后面就逐渐衍生出了消息最终一致性、TCC等柔性事务的分布式事务方案，本文主要分析的是基于消息的最终一致性方案。
+0\. 简单RPC处理存在的一致性问题 在正式开始讲述正题之前，我们先看一下，不依赖任何分布式事务手段，单纯将本地业务逻辑和远程调用逻辑放在同一个本地事务中会有什么问题。
+我们以订单创建为例，订单系统先创建订单(本地事务)，然后RPC调用库存扣减服务。
+@Transactionnal public void processOrder() { try{ // 订单处理(业务操作)  orderService.process(); // 库存扣减（RPC远程调用）  storageService.deduction(); }catch(Exception e){ 事务回滚; } } 如果库存服务由于DB数据量比较大，导致处理超时，订单服务在出现超时异常后，直接回滚本地事务，从而导致订单服务这边没数据，而库存服务那边数据却已经写入了，最终导致两边业务数据的不一致。
+即使不存在 “DB数据量比较大” 这种特殊情况，也一定会存在因为网络抖动，订单服务调用库存服务超时而本地回滚，但是库存服务实际操作成功的情况。
+其根本的原因就在于：远程调用，结果最终可能为成功、失败、超时；而对于超时的情况，处理方最终的结果可能是成功，也可能是失败，调用方是无法知晓的。
+1\. 普通消息的处理流程  消息生成者发送消息 MQ收到消息，将消息进行持久化，在存储中新增一条记录 返回ACK给生产者 MQ push 消息给对应的消费者，然后等待消费者返回ACK 如果消息消费者在指定时间内成功返回ack，那么MQ认为消息消费成功，在存储中删除消息，即执行第6步；如果MQ在指定时间内没有收到ACK，则认为消息消费失败，会尝试重新push消息,重复执行4、5、6步骤 MQ删除消息  1.2 普通消息处理存在的一致性问题 我们还是以订单创建为例，订单系统先创建订单(本地事务)，再发送消息给下游处理；如果订单创建成功，然而消息没有发送出去，那么下游所有系统都无法感知到这个事件，会出现脏数据；
+public void processOrder() { // 订单处理(业务操作)  orderService.process(); // 发送订单处理成功消息(发送消息)  sendBizMsg (); } 如果先发送订单消息，再创建订单；那么就有可能消息发送成功，但是在订单创建的时候却失败了，此时下游系统却认为这个订单已经创建，也会出现脏数据。
+public void processOrder() { // 发送订单处理成功消息(发送消息)  sendBizMsg (); // 订单处理(业务操作)  orderService."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="114">
+<meta itemprop="keywords" content="MQ," /><meta property="og:title" content="MQ消息最终一致性解决方案" />
+<meta property="og:description" content="只有RocketMQ支持事务消息，如果我们的MQ不是RocketMQ，可以采用本地消息&#43;MQ达到同样的效果，并且本地消息表还可以做出独立的服务。
+随着分布式服务架构的流行与普及，原来在单体应用中执行的多个逻辑操作，现在被拆分成了多个服务之间的远程调用。虽然服务化为我们的系统带来了水平伸缩的能力，然而随之而来挑战就是分布式事务问题，多个服务之间使用自己单独维护的数据库，它们彼此之间不在同一个事务中，假如A执行成功了，B执行却失败了，而A的事务此时已经提交，无法回滚，那么最终就会导致两边数据不一致性的问题；尽管很早之前就有基于两阶段提交的XA分布式事务，但是这类方案因为需要资源的全局锁定，导致性能极差；因此后面就逐渐衍生出了消息最终一致性、TCC等柔性事务的分布式事务方案，本文主要分析的是基于消息的最终一致性方案。
+0\. 简单RPC处理存在的一致性问题 在正式开始讲述正题之前，我们先看一下，不依赖任何分布式事务手段，单纯将本地业务逻辑和远程调用逻辑放在同一个本地事务中会有什么问题。
+我们以订单创建为例，订单系统先创建订单(本地事务)，然后RPC调用库存扣减服务。
+@Transactionnal public void processOrder() { try{ // 订单处理(业务操作)  orderService.process(); // 库存扣减（RPC远程调用）  storageService.deduction(); }catch(Exception e){ 事务回滚; } } 如果库存服务由于DB数据量比较大，导致处理超时，订单服务在出现超时异常后，直接回滚本地事务，从而导致订单服务这边没数据，而库存服务那边数据却已经写入了，最终导致两边业务数据的不一致。
+即使不存在 “DB数据量比较大” 这种特殊情况，也一定会存在因为网络抖动，订单服务调用库存服务超时而本地回滚，但是库存服务实际操作成功的情况。
+其根本的原因就在于：远程调用，结果最终可能为成功、失败、超时；而对于超时的情况，处理方最终的结果可能是成功，也可能是失败，调用方是无法知晓的。
+1\. 普通消息的处理流程  消息生成者发送消息 MQ收到消息，将消息进行持久化，在存储中新增一条记录 返回ACK给生产者 MQ push 消息给对应的消费者，然后等待消费者返回ACK 如果消息消费者在指定时间内成功返回ack，那么MQ认为消息消费成功，在存储中删除消息，即执行第6步；如果MQ在指定时间内没有收到ACK，则认为消息消费失败，会尝试重新push消息,重复执行4、5、6步骤 MQ删除消息  1.2 普通消息处理存在的一致性问题 我们还是以订单创建为例，订单系统先创建订单(本地事务)，再发送消息给下游处理；如果订单创建成功，然而消息没有发送出去，那么下游所有系统都无法感知到这个事件，会出现脏数据；
+public void processOrder() { // 订单处理(业务操作)  orderService.process(); // 发送订单处理成功消息(发送消息)  sendBizMsg (); } 如果先发送订单消息，再创建订单；那么就有可能消息发送成功，但是在订单创建的时候却失败了，此时下游系统却认为这个订单已经创建，也会出现脏数据。
+public void processOrder() { // 发送订单处理成功消息(发送消息)  sendBizMsg (); // 订单处理(业务操作)  orderService." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E6%B6%88%E6%81%AF%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="MQ消息最终一致性解决方案"/>
+<meta name="twitter:description" content="只有RocketMQ支持事务消息，如果我们的MQ不是RocketMQ，可以采用本地消息&#43;MQ达到同样的效果，并且本地消息表还可以做出独立的服务。
+随着分布式服务架构的流行与普及，原来在单体应用中执行的多个逻辑操作，现在被拆分成了多个服务之间的远程调用。虽然服务化为我们的系统带来了水平伸缩的能力，然而随之而来挑战就是分布式事务问题，多个服务之间使用自己单独维护的数据库，它们彼此之间不在同一个事务中，假如A执行成功了，B执行却失败了，而A的事务此时已经提交，无法回滚，那么最终就会导致两边数据不一致性的问题；尽管很早之前就有基于两阶段提交的XA分布式事务，但是这类方案因为需要资源的全局锁定，导致性能极差；因此后面就逐渐衍生出了消息最终一致性、TCC等柔性事务的分布式事务方案，本文主要分析的是基于消息的最终一致性方案。
+0\. 简单RPC处理存在的一致性问题 在正式开始讲述正题之前，我们先看一下，不依赖任何分布式事务手段，单纯将本地业务逻辑和远程调用逻辑放在同一个本地事务中会有什么问题。
+我们以订单创建为例，订单系统先创建订单(本地事务)，然后RPC调用库存扣减服务。
+@Transactionnal public void processOrder() { try{ // 订单处理(业务操作)  orderService.process(); // 库存扣减（RPC远程调用）  storageService.deduction(); }catch(Exception e){ 事务回滚; } } 如果库存服务由于DB数据量比较大，导致处理超时，订单服务在出现超时异常后，直接回滚本地事务，从而导致订单服务这边没数据，而库存服务那边数据却已经写入了，最终导致两边业务数据的不一致。
+即使不存在 “DB数据量比较大” 这种特殊情况，也一定会存在因为网络抖动，订单服务调用库存服务超时而本地回滚，但是库存服务实际操作成功的情况。
+其根本的原因就在于：远程调用，结果最终可能为成功、失败、超时；而对于超时的情况，处理方最终的结果可能是成功，也可能是失败，调用方是无法知晓的。
+1\. 普通消息的处理流程  消息生成者发送消息 MQ收到消息，将消息进行持久化，在存储中新增一条记录 返回ACK给生产者 MQ push 消息给对应的消费者，然后等待消费者返回ACK 如果消息消费者在指定时间内成功返回ack，那么MQ认为消息消费成功，在存储中删除消息，即执行第6步；如果MQ在指定时间内没有收到ACK，则认为消息消费失败，会尝试重新push消息,重复执行4、5、6步骤 MQ删除消息  1.2 普通消息处理存在的一致性问题 我们还是以订单创建为例，订单系统先创建订单(本地事务)，再发送消息给下游处理；如果订单创建成功，然而消息没有发送出去，那么下游所有系统都无法感知到这个事件，会出现脏数据；
+public void processOrder() { // 订单处理(业务操作)  orderService.process(); // 发送订单处理成功消息(发送消息)  sendBizMsg (); } 如果先发送订单消息，再创建订单；那么就有可能消息发送成功，但是在订单创建的时候却失败了，此时下游系统却认为这个订单已经创建，也会出现脏数据。
+public void processOrder() { // 发送订单处理成功消息(发送消息)  sendBizMsg (); // 订单处理(业务操作)  orderService."/>
+<meta name="twitter:site" content="@razonyang"/>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.f36f1df320942b1c5814085ba3267c2ee2c33f9ae057fa1005c03689dab0737d.css" integrity="sha256-828d8yCUKxxYFAhboyZ8LuLDP5rgV/oQBcA2idqwc30=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+   width="400" height="400"
+   />
+👴🏻💪
+    </a>
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Share</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=MQ%e6%b6%88%e6%81%af%e6%9c%80%e7%bb%88%e4%b8%80%e8%87%b4%e6%80%a7%e8%a7%a3%e5%86%b3%e6%96%b9%e6%a1%88&url=https%3a%2f%2fxuzhijvn.github.io%2fzh-cn%2fposts%2fcode%2fmq%2fmq%25E6%25B6%2588%25E6%2581%25AF%25E6%259C%2580%25E7%25BB%2588%25E4%25B8%2580%25E8%2587%25B4%25E6%2580%25A7%25E8%25A7%25A3%25E5%2586%25B3%25E6%2596%25B9%25E6%25A1%2588%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fxuzhijvn.github.io%2fzh-cn%2fposts%2fcode%2fmq%2fmq%25E6%25B6%2588%25E6%2581%25AF%25E6%259C%2580%25E7%25BB%2588%25E4%25B8%2580%25E8%2587%25B4%25E6%2580%25A7%25E8%25A7%25A3%25E5%2586%25B3%25E6%2596%25B9%25E6%25A1%2588%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</div>
+    <button class="navbar-settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-ellipsis-v"></i>
+</button>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-language"></i> 语言</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="dropdown">
+        <a class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          简体中文
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/en/"></a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm w-100 palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm w-100 palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm w-100 palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm w-100 palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm w-100 palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm w-100 palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm w-100 palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm w-100 palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm w-100 palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm w-100 palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm w-100 palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> 返回
+  </a>
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
+  </a>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
+
+</div>
+</div>
+
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://xuzhijvn.github.io/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownCategories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownCategories"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3">
+                <i class="fas fa-fw fa-code"></i>编程思想
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD">
+                <i class="fas fa-fw fa-robot"></i>人工智能
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE">
+                <i class="fas fa-fw fa-cubes"></i>区块链
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6">
+                <i class="fas fa-fw fa-server"></i>计算机科学
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B">
+                <i class="fas fa-fw fa-sitemap"></i>架构演进
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F">
+                <i class="fas fa-fw fa-cloud"></i>云原生
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownTags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownTags"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/java">
+                <i class="fab fa-fw fa-java"></i>Java
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownProjects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownProjects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">MQ消息最终一致性解决方案</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper">
+  <div class="d-flex flex-column component rounded post-panel">
+    
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" href="#postTOC" aria-controls="Table of contents" role="button" title="Table of contents">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    
+  </div>
+</div>
+<article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title">MQ消息最终一致性解决方案
+</h1>
+  </div>
+  <div class="card-body"><div class="post-meta">
+  <span class="post-date" title="创建于 2021-08-27 11:15:10 &#43;0800 CST。">
+    2021-08-27
+  </span><span class="post-reading-time">
+    1 分钟阅读
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge post-taxonomy">MQ</a></span>
+</div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>只有RocketMQ支持事务消息，如果我们的MQ不是RocketMQ，可以采用本地消息+MQ达到同样的效果，并且本地消息表还可以做出独立的服务。</p>
+<p>随着分布式服务架构的流行与普及，原来在单体应用中执行的多个逻辑操作，现在被拆分成了多个服务之间的远程调用。虽然服务化为我们的系统带来了水平伸缩的能力，然而随之而来挑战就是分布式事务问题，多个服务之间使用自己单独维护的数据库，它们彼此之间不在同一个事务中，假如A执行成功了，B执行却失败了，而A的事务此时已经提交，无法回滚，那么最终就会导致两边数据不一致性的问题；尽管很早之前就有基于两阶段提交的XA分布式事务，但是这类方案因为需要资源的全局锁定，导致性能极差；因此后面就逐渐衍生出了消息最终一致性、TCC等<code>柔性事务</code>的分布式事务方案，本文主要分析的是<strong>基于消息的最终一致性方案</strong>。</p>
+<h2 id="0-简单rpc处理存在的一致性问题">0\. 简单RPC处理存在的一致性问题<a class="anchor ms-1" href="#0-简单rpc处理存在的一致性问题"><i class="fas fa-link"></i></a></h2>
+<p>在正式开始讲述正题之前，我们先看一下，不依赖任何分布式事务手段，单纯将<code>本地业务逻辑</code>和<code>远程调用逻辑</code>放在同一个本地事务中会有什么问题。</p>
+<p>我们以订单创建为例，订单系统先创建订单(本地事务)，然后RPC调用库存扣减服务。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Transactionnal</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">processOrder</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">try</span><span style="color:#f92672">{</span>
+        <span style="color:#75715e">// 订单处理(业务操作) 
+</span><span style="color:#75715e"></span>        orderService<span style="color:#f92672">.</span><span style="color:#a6e22e">process</span><span style="color:#f92672">();</span> 
+        <span style="color:#75715e">// 库存扣减（RPC远程调用） 
+</span><span style="color:#75715e"></span>        storageService<span style="color:#f92672">.</span><span style="color:#a6e22e">deduction</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span><span style="color:#66d9ef">catch</span><span style="color:#f92672">(</span>Exception e<span style="color:#f92672">){</span>
+         事务回滚<span style="color:#f92672">;</span>   
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>如果<code>库存服务</code>由于DB数据量比较大，导致处理超时，<code>订单服务</code>在出现超时异常后，直接回滚本地事务，从而导致<code>订单服务</code>这边没数据，而<code>库存服务</code>那边数据却已经写入了，最终导致两边业务数据的不一致。</p>
+<p>即使不存在 “DB数据量比较大” 这种特殊情况，也一定会存在因为网络抖动，<code>订单服务</code>调用<code>库存服务</code>超时而本地回滚，但是<code>库存服务</code>实际操作成功的情况。</p>
+<p>其根本的原因就在于：<strong>远程调用，结果最终可能为成功、失败、超时；而对于超时的情况，处理方最终的结果可能是成功，也可能是失败，调用方是无法知晓的。</strong></p>
+<h2 id="1-普通消息的处理流程">1\. 普通消息的处理流程<a class="anchor ms-1" href="#1-普通消息的处理流程"><i class="fas fa-link"></i></a></h2>
+<p><img src="https://picgo.6and.ltd/img/16d613189a0a4191~tplv-t2oaga2asx-watermark.awebp" alt="普通消息的处理流程" style="zoom: 67%;" /></p>
+<ol>
+<li>消息生成者发送消息</li>
+<li>MQ收到消息，将消息进行持久化，在存储中新增一条记录</li>
+<li>返回ACK给生产者</li>
+<li>MQ push 消息给对应的消费者，然后等待消费者返回ACK</li>
+<li>如果消息消费者在指定时间内成功返回ack，那么MQ认为消息消费成功，在存储中删除消息，即执行第6步；如果MQ在指定时间内没有收到ACK，则认为消息消费失败，会尝试重新push消息,重复执行4、5、6步骤</li>
+<li>MQ删除消息</li>
+</ol>
+<h3 id="12-普通消息处理存在的一致性问题">1.2 普通消息处理存在的一致性问题<a class="anchor ms-1" href="#12-普通消息处理存在的一致性问题"><i class="fas fa-link"></i></a></h3>
+<p>我们还是以订单创建为例，订单系统先创建订单(本地事务)，再发送消息给下游处理；如果订单创建成功，然而消息没有发送出去，那么下游所有系统都无法感知到这个事件，会出现脏数据；</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">processOrder</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// 订单处理(业务操作) 
+</span><span style="color:#75715e"></span>    orderService<span style="color:#f92672">.</span><span style="color:#a6e22e">process</span><span style="color:#f92672">();</span>
+    <span style="color:#75715e">// 发送订单处理成功消息(发送消息) 
+</span><span style="color:#75715e"></span>    sendBizMsg <span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>如果先发送订单消息，再创建订单；那么就有可能消息发送成功，但是在订单创建的时候却失败了，此时下游系统却认为这个订单已经创建，也会出现脏数据。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">processOrder</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+   <span style="color:#75715e">// 发送订单处理成功消息(发送消息) 
+</span><span style="color:#75715e"></span>    sendBizMsg <span style="color:#f92672">();</span>
+    <span style="color:#75715e">// 订单处理(业务操作) 
+</span><span style="color:#75715e"></span>    orderService<span style="color:#f92672">.</span><span style="color:#a6e22e">process</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="13-一个错误的想法">1.3 一个错误的想法<a class="anchor ms-1" href="#13-一个错误的想法"><i class="fas fa-link"></i></a></h3>
+<p>此时可能有同学会想，我们可否将消息发送和业务处理放在同一个本地事务中来进行处理，如果业务消息发送失败，那么本地事务就回滚，这样是不是就能解决消息发送的一致性问题呢?</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Transactionnal</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">processOrder</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">try</span><span style="color:#f92672">{</span>
+        <span style="color:#75715e">// 订单处理(业务操作) 
+</span><span style="color:#75715e"></span>        orderService<span style="color:#f92672">.</span><span style="color:#a6e22e">process</span><span style="color:#f92672">();</span> 
+        <span style="color:#75715e">// 发送订单处理成功消息(发送消息) 
+</span><span style="color:#75715e"></span>        sendBizMsg <span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span><span style="color:#66d9ef">catch</span><span style="color:#f92672">(</span>Exception e<span style="color:#f92672">){</span>
+         事务回滚<span style="color:#f92672">;</span>   
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>这种做法的错误在于，<strong>如果订单处理成功，消息成功存储到MQ，但是MQ处理超时，从而ACK确认失败，导致发送方本地事务回滚。</strong> 势必造成消息生产者与消费者数据状态不一致。</p>
+<h2 id="2-事务消息">2\. 事务消息<a class="anchor ms-1" href="#2-事务消息"><i class="fas fa-link"></i></a></h2>
+<p>由于传统的处理方式无法解决<code>消息生成者本地事务处理成功</code>与<code>消息发送成功</code>两者的一致性问题，因此事务消息就诞生了，<strong>它实现了消息生成者本地事务与消息发送的原子性，保证了消息生成者本地事务处理成功与消息发送成功的<code>最终一致性</code>问题。</strong></p>
+<h3 id="21-事务消息处理的流程">2.1 事务消息处理的流程<a class="anchor ms-1" href="#21-事务消息处理的流程"><i class="fas fa-link"></i></a></h3>
+<p><img src="https://picgo.6and.ltd/img/16d613189a615e47~tplv-t2oaga2asx-watermark.awebp" alt="image" style="zoom: 67%;" /></p>
+<ol>
+<li>事务消息与普通消息的区别就在于消息生产环节，生产者首先预发送一条消息到MQ(这也被称为发送half消息)</li>
+<li>MQ接受到消息后，先进行持久化，则存储中会新增一条状态为<code>待发送</code>的消息</li>
+<li>然后返回ACK给消息生产者，此时MQ不会触发消息推送事件</li>
+<li>生产者预发送消息成功后，执行本地事务</li>
+<li>执行本地事务，执行完成后，发送执行结果给MQ</li>
+<li>MQ会根据结果删除或者更新消息状态为<code>可发送</code></li>
+<li>如果消息状态更新为<code>可发送</code>，则MQ会push消息给消费者，后面消息的消费和普通消息是一样的</li>
+</ol>
+<p><strong>注意点</strong>：由于MQ通常都会保证消息能够投递成功，因此，如果业务没有及时返回ACK结果，那么就有可能造成MQ的重复消息投递问题。<strong>因此，对于消息最终一致性的方案，消息的消费者必须要对消息的消费支持幂等，不能造成同一条消息的重复消费的情况。</strong></p>
+<h3 id="22-支持事务消息的mq">2.2 支持事务消息的MQ<a class="anchor ms-1" href="#22-支持事务消息的mq"><i class="fas fa-link"></i></a></h3>
+<p>现在目前较为主流的MQ，比如ActiveMQ、RabbitMQ、Kafka、RocketMQ等，只有RocketMQ支持事务消息。据笔者了解，早年阿里对MQ增加事务消息也是因为支付宝那边因为业务上的需求而产生的。因此，如果我们希望强依赖一个MQ的事务消息来做到消息最终一致性的话，在目前的情况下，技术选型上只能去选择RocketMQ来解决。上面我们也分析了事务消息所存在的异常情况，即MQ存储了<code>待发送</code>的消息，但是MQ无法感知到上游处理的最终结果。对于RocketMQ而言，它的解决方案非常的简单，就是其内部实现会有一个定时任务，去轮训状态为<code>待发送</code>的消息，然后给producer发送check请求，而producer必须实现一个check监听器，监听器的内容通常就是去检查与之对应的本地事务是否成功(一般就是查询DB)，如果成功了，则MQ会将消息设置为<code>可发送</code>，否则就删除消息。</p>
+<p>由于并非所有的MQ都支持事务消息，假如我们不选择RocketMQ来作为系统的MQ，是否能够做到消息的最终一致性呢？答案是可以的。</p>
+<h2 id="3-基于本地消息表的最终一致性">3\. 基于本地消息表的最终一致性<a class="anchor ms-1" href="#3-基于本地消息表的最终一致性"><i class="fas fa-link"></i></a></h2>
+<p><img src="https://picgo.6and.ltd/img/16d613189aa8923f~tplv-t2oaga2asx-watermark.awebp" alt="image" style="zoom:67%;" /></p>
+<p><code>基于本地消息的最终一致性</code>方案的<strong>最核心做法就是在执行业务操作的时候，记录一条消息数据到DB，并且消息数据的记录与业务数据的记录必须在同一个事务内完成，这是该方案的前提核心保障</strong>。在记录完成后消息数据后，后面我们就可以通过一个定时任务到DB中去轮训状态为<code>待发送</code>的消息，然后将消息投递给MQ。这个过程中可能存在消息投递失败的可能，此时就依靠<code>重试机制</code>来保证，直到成功收到MQ的ACK确认之后，再将消息状态更新或者消息清除；而后面消息的消费失败的话，则依赖MQ本身的重试来完成，其最后做到两边系统数据的最终一致性。<code>基于本地消息服务</code>的方案虽然可以做到消息的最终一致性，但是它有一个比较严重的弊端，每个业务系统在使用该方案时，都需要在对应的业务库创建一张消息表来存储消息。针对这个问题，我们可以将该功能单独提取出来，做成一个消息服务来统一处理，因而就衍生出了我们下面将要讨论的方案。</p>
+<h2 id="4-独立消息服务的最终一致性">4\. 独立消息服务的最终一致性<a class="anchor ms-1" href="#4-独立消息服务的最终一致性"><i class="fas fa-link"></i></a></h2>
+<p><img src="https://picgo.6and.ltd/img/16d613189a77b85e~tplv-t2oaga2asx-watermark.awebp" alt="image" style="zoom:67%;" /></p>
+<p><code>独立消息服务最终一致性</code>与<code>本地消息服务最终一致性</code>最大的差异就在于将消息的存储单独地做成了一个RPC的服务，这个过程其实就是模拟了事务消息的消息预发送过程，如果预发送消息失败，那么生产者业务就不会去执行，因此对于生产者的业务而言，它是强依赖于该消息服务的。不过好在独立消息服务支持水平扩容，因此只要部署多台，做成HA的集群模式，就能够保证其可靠性。在消息服务中，还有一个单独地定时任务，它会定期轮训长时间处于<code>待发送</code>状态的消息，通过一个<strong>check补偿机制</strong>来确认该消息对应的业务是否成功，如果对应的业务处理成功，则将消息修改为<code>可发送</code>，然后将其投递给MQ；如果业务处理失败，则将对应的消息更新或者删除即可。因此在使用该方案时，消息生产者必须同时实现一个check服务，来供消息服务做消息的确认。对于消息的消费，该方案与上面的处理是一样，都是通过MQ自身的重发机制来保证消息被消费。</p>
+<h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
+<p><a href="https://juejin.cn/post/6844903951448408071" target="_blank" rel="noopener noreferrer">MQ消息最终一致性解决方案</a>
+</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E7%BB%BC%E8%BF%B0/">MQ综述
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mongodb/mongodb%E7%BB%BC%E8%BF%B0/">MongoDB综述
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div></div>
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">版权</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><section class="related-posts row card component">
+    <div class="card-header">
+      <h2 class="card-title">相关文章</h2>
+    </div>
+    <div class="card-body">
+      <ul class="post-list"><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E7%BB%BC%E8%BF%B0/">MQ综述
+</a>
+          <span class="float-end post-date">2021-08-27
+</span>
+        </li><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/kafka/%E5%B8%B8%E5%A4%87%E7%9F%A5%E8%AF%86%E7%82%B9/">常备知识点
+</a>
+          <span class="float-end post-date">2021-08-27
+</span>
+        </li></ul>
+    </div>
+  </section><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title">评论</h2>
+  </div>
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    <section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony" src="https://xuzhijvn.github.io/images/profile.webp" loading="lazy"
+   width="400" height="400"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+  </div>
+</section>
+  <div class="post-toc row mb-4 card component" id="postTOC">
+  <div class="card-header">
+    <h2 class="card-title">目录</h2>
+  </div>
+  <div class="card-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#0-简单rpc处理存在的一致性问题">0. 简单RPC处理存在的一致性问题</a></li>
+    <li><a href="#1-普通消息的处理流程">1. 普通消息的处理流程</a>
+      <ul>
+        <li><a href="#12-普通消息处理存在的一致性问题">1.2 普通消息处理存在的一致性问题</a></li>
+        <li><a href="#13-一个错误的想法">1.3 一个错误的想法</a></li>
+      </ul>
+    </li>
+    <li><a href="#2-事务消息">2. 事务消息</a>
+      <ul>
+        <li><a href="#21-事务消息处理的流程">2.1 事务消息处理的流程</a></li>
+        <li><a href="#22-支持事务消息的mq">2.2 支持事务消息的MQ</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-基于本地消息表的最终一致性">3. 基于本地消息表的最终一致性</a></li>
+    <li><a href="#4-独立消息服务的最终一致性">4. 独立消息服务的最终一致性</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div><section class="recent-posts row card component">
+  <div class="card-header">
+    <h2 class="card-title">最近文章</h2>
+  </div>
+  <div class="card-body">
+    <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/">MQ实现延时消息
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">RabbitMQ清空队列的几种方式
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/">代理
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/">装饰器
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/">Java SPI
+</a>
+      </li></ul>
+  </div>
+</section><section class="series-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a></div>
+      </div>
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="badge rounded post-taxonomy" title="Java">
+            Java</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
+      </div>
+    </section>
+    <section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=783175223&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<script src="https://xuzhijvn.github.io/js/main.da4026fda2fca654d7a2237484e7eb47b11158791407fb55217cbe95b4353a94.js" integrity="sha256-2kAm/aL8plTXoiN0hOfrR7ERWHkUB/tVIXy&#43;lbQ1OpQ=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></body>
+</html>

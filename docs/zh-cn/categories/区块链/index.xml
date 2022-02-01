@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>区块链 on 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title>
+    <link>https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/</link>
+    <description>Recent content in 区块链 on 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
+    <lastBuildDate>Fri, 27 Aug 2021 11:15:10 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Merkle Patricia Tree</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/block-chain/merkle-patricia-treempt/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/block-chain/merkle-patricia-treempt/</guid>
+      <description>区块链一个重要的亮点就是防篡改，那么它是怎么做到防篡改的呢？其中一个重要的知识点就是Merkle Patricia Tree(MPT)，本篇就来解析下何为MPT。
+MPT是一种加密认证的数据结构，它融合了Merkle树和Patricia Trie树(基数树/压缩前缀树)两种数据类型的优点。
+则在介绍MPT树之前先介绍下Merkle树(默克尔树)、Trie树(前缀树)和Patricia Trie(基数树/压缩前缀树)，介绍Trie树是因为Patricia Trie是基于Trie树衍化来的。
+Trie树 Trie树又称前缀树或字典树，是一种检索树，使用一个有序的树结构存储一个动态数据集或者关联数组，其中的键通常是字符串。与二叉查找树不同，键不是直接保存在节点中，而是由节点在树中的位置决定。一个节点的所有子孙相对于当前节点都有相同的前缀，而根节点为空字符串。一般情况下，不是所有的节点都有对应的值，只有叶子节点和部分内部节点所对应的键才有相关的值。
+Trie树中，key是从树根到对应value得真实的路径。即从根节点开始，key中的每个字符会标识走那个子节点从而到达相应value。Value被存储在叶子节点，是每条路径的终止。假如key来自一个包含N个字符的字母表，那么树中的每个节点都可能会有多达N个孩子，树的最大深度是key的最大长度。看个例子画个图就了然了。 例子：关键字集合{“a”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为
+Trie树
+不理想情况下，数据集中存在一个很长的key，而这个key与其它key又没有太多的公共前缀，这就造成整个树的深度会加大，需要存储多个节点，存储比较稀疏而且极不平衡。 例子：关键字集合{“algori”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为
+稀疏Trie树
+Patricia Trie树 既然Trie树在某些情况下存储空间利用率不高，那就给压缩下，然后就出现了Patricia Trie树。
+Patricia Trie树是一种空间使用率经过优化的Trie树。与Trie树不同的是，Patricia Trie 里如果存在一个父节点只有一个子节点，那么这个父节点将与其子节点合并。这样压缩存储可以减少Trie树中不必要的深度，大大加快搜索节点速度。 如下图所示
+Patricia Trie树
+Merkle树 Merkle树是由计算机科学家Ralph Merkle在很多年前提出的，并以他本人的名字来命名，是一种树形数据结构，可以是二叉树，也可以是多叉树。 它由若干叶节点、中间节点和一个根节点构成。最下面的叶节点包含基础数据，每个中间节点是它子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部。
+由于Merkle树是自底向上构建的，而且除叶子结点之外的其它节点都是其子节点的散列，这样每个节点的值发生变化都会一层一层的向上反映，最终在根节点上表现出来。也就是说只要对比两个Merkle树的根节点是否相等就能得到两份数据集是否一样，而且还可以验证Merkle树的某个分支。
+比特币使用Merkle树存储一个区块中的所有交易信息，一是为了防篡改，因为散列是向上的，伪造任何一个节点都会引起上层节点的改动，最终导致根节点的变化。二是为了允许区块的数据可以零散的传送，即节点可以从一个节点下载区块头，从另外的源下载与其相关的树的其他部分，而依然能够确认所有的数据都是正确的。
+看下图的例子，首先将L1-L4四个单元数据散列化，然后将散列值存储至相应的叶子节点。这些节点是Hash0-0, Hash0-1, Hash1-0, Hash1-1，然后将相邻两个节点的散列值合并成一个字符串，然后计算这个字符串的散列，得到的就是这两个节点的父节点的散列值。
+Merkle树
+在比特币网络中，merkle树被用来归纳一个区块中的所有交易，同时生成整个交易集合的数字指纹。此外，由于merkle树的存在，使得在比特币这种公链的场景下，扩展一种“轻节点”实现简单支付验证变成可能。
+知道了Merkle树在比特币中的应用，那么他是怎么构成呢？现在就简单看下其构成。它由一组叶节点、一组中间节点和一个根节点构成。最下面的叶节点包含基础数据，每个中间节点是它的子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部 。
+Merkle树具有下列特性:
+ 每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。  Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
+首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。</description>
+    </item>
+    
+    <item>
+      <title>pbft</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/block-chain/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/pbft/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/block-chain/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/pbft/</guid>
+      <description>1999年Castro和Liskov在《操作系统设计与实现》上发表论文Practical Byzantine Fault Tolerance 。之后Castro和Liskov修改了之前论文的部分细节，2001年将修改后的论文Practical Byzantine Fault Tolerance and Proactive Recovery 发表于《ACM Transactions on Computer Systems (TOCS)》。之后发表的这篇论文对之前的论文进行了部分优化，pre-prepare消息不再包含请求消息（只包含消息摘要），client不只把请求发给主节点（也发给从节点）等。fabric中的pbft实现也是基于2001年的论文，因此建议大家直接看2001年发表的论文。但是因为，网上对1999年的论文讲解比较多，本文也以1999年的论文形成总结。
+0. 背景 拜占庭问题（Byzantine Problem） 又叫拜占庭将军（Byzantine Generals Problem） 问题，讨论的是允许存在少数节点作恶（消息可能被伪造） 场景下的如何达成共识问题。拜占庭容错（Byzantine Fault Tolerant，BFT）讨论的是容忍拜占庭错误的共识算法。
+ 两将军问题  拜占庭问题之前，学术界就已经存在两将军问题的讨论（《Some constraints and tradeofis in the design of network communications》 ，1975年）：两个将军要通过信使来达成进攻还是撤退的约定，但信使可能迷路或被敌军阻拦（消息丢失或伪造），如何达成一致？根据FLP不可能原理，这个问题无通用解。
+ 拜占庭问题  拜占庭问题最早由 Leslie Lamport 等学者于 1982 年在论文《The Byzantine Generals Problem》中正式提出，是用来解释异步系统中共识问题的一个虚构模型。它是分布式领域中最复杂、最严格的容错模型。在该模型下，系统不会对集群中的节点做任何的限制，它们可以向其他节点发送随机数据、错误数据，也可以选择不响应其他节点的请求，这些无法预测的行为使得容错这一问题变得更加复杂。
+拜占庭是古代东罗马帝国的首都，由于地域宽广，假设其守卫边境的多个将军（系统中的多个节点） 需要通过信使来传递消息，达成某些一致决定。但由于将军中可能存在叛徒（系统中节点出错），这些叛徒将向不同的将军发送不同的消息，试图干扰共识的达成。拜占庭问题即讨论在此情况下，如何让忠诚的将军们能达成行动的一致。
+在大多数的分布式系统中，拜占庭的场景并不多见。然而在特定场景下存在意义，例如允许匿名参与的系统（如比特币） ，或是出现欺诈可能造成巨大损失的情况。
+ 拜占庭容错算法  拜占庭容错算法（Byzantine Fault Tolerant）是面向拜占庭问题的容错算法，解决的是在网络通信可靠，但节点可能故障和作恶情况下如何达成共识。
+拜占庭容错算法最早的讨论可以追溯到Leslie Lamport等人1982年发表的论文《The Byzantine Generals Problem》，之后出现了大量的改进工作，代表性成果包括《Optimal Asynchronous Byzantine Agreement》（1992年）、《Fully Polynomial Byzantine Agreement for n&amp;gt;3t Processors in t+1 Rounds》（1998年）等。长期以来，拜占庭问题的解决方案都存在运行过慢，或复杂度过高的问题，直到“实用拜占庭容错算法”（Practical Byzantine Fault Tolerance，PBFT）算法的提出。</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,588 @@
+<!doctype html><html lang="zh-cn" data-palette="indigo"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>剑指 Offer 45. 把数组排成最小的数 - 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/icons/icon-180x180.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-16x16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
+<link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
+<meta name="keywords" content="" />
+<meta name="description" content="public static String minNumber(int[] nums) { //to IntStream  return Arrays.stream(nums) //to Stream&lt;Integer&gt;  .boxed() //Stream&lt;String&gt;  .map(String::valueOf) //排序  .sorted((o1, o2) -&gt; (o1 &#43; o2).compareTo(o2 &#43; o1)) //to String  .collect(Collectors.joining(&#34;&#34;)); } 剑指 Offer 45. 把数组排成最小的数 " /><meta itemprop="name" content="剑指 Offer 45. 把数组排成最小的数">
+<meta itemprop="description" content="public static String minNumber(int[] nums) { //to IntStream  return Arrays.stream(nums) //to Stream&lt;Integer&gt;  .boxed() //Stream&lt;String&gt;  .map(String::valueOf) //排序  .sorted((o1, o2) -&gt; (o1 &#43; o2).compareTo(o2 &#43; o1)) //to String  .collect(Collectors.joining(&#34;&#34;)); } 剑指 Offer 45. 把数组排成最小的数 "><meta itemprop="datePublished" content="2021-10-11T18:04:59+08:00" />
+<meta itemprop="dateModified" content="2021-10-11T18:04:59+08:00" />
+<meta itemprop="wordCount" content="32">
+<meta itemprop="keywords" content="," /><meta property="og:title" content="剑指 Offer 45. 把数组排成最小的数" />
+<meta property="og:description" content="public static String minNumber(int[] nums) { //to IntStream  return Arrays.stream(nums) //to Stream&lt;Integer&gt;  .boxed() //Stream&lt;String&gt;  .map(String::valueOf) //排序  .sorted((o1, o2) -&gt; (o1 &#43; o2).compareTo(o2 &#43; o1)) //to String  .collect(Collectors.joining(&#34;&#34;)); } 剑指 Offer 45. 把数组排成最小的数 " />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-45.-%E6%8A%8A%E6%95%B0%E7%BB%84%E6%8E%92%E6%88%90%E6%9C%80%E5%B0%8F%E7%9A%84%E6%95%B0/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-10-11T18:04:59+08:00" />
+<meta property="article:modified_time" content="2021-10-11T18:04:59+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="剑指 Offer 45. 把数组排成最小的数"/>
+<meta name="twitter:description" content="public static String minNumber(int[] nums) { //to IntStream  return Arrays.stream(nums) //to Stream&lt;Integer&gt;  .boxed() //Stream&lt;String&gt;  .map(String::valueOf) //排序  .sorted((o1, o2) -&gt; (o1 &#43; o2).compareTo(o2 &#43; o1)) //to String  .collect(Collectors.joining(&#34;&#34;)); } 剑指 Offer 45. 把数组排成最小的数 "/>
+<meta name="twitter:site" content="@razonyang"/>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.f36f1df320942b1c5814085ba3267c2ee2c33f9ae057fa1005c03689dab0737d.css" integrity="sha256-828d8yCUKxxYFAhboyZ8LuLDP5rgV/oQBcA2idqwc30=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+   width="400" height="400"
+   />
+👴🏻💪
+    </a>
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Share</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e5%89%91%e6%8c%87%20Offer%2045.%20%e6%8a%8a%e6%95%b0%e7%bb%84%e6%8e%92%e6%88%90%e6%9c%80%e5%b0%8f%e7%9a%84%e6%95%b0&url=https%3a%2f%2fxuzhijvn.github.io%2fzh-cn%2fposts%2fcode%2falgorithm%2fleetcode%2f%25E5%2589%2591%25E6%258C%2587-offer-45.-%25E6%258A%258A%25E6%2595%25B0%25E7%25BB%2584%25E6%258E%2592%25E6%2588%2590%25E6%259C%2580%25E5%25B0%258F%25E7%259A%2584%25E6%2595%25B0%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fxuzhijvn.github.io%2fzh-cn%2fposts%2fcode%2falgorithm%2fleetcode%2f%25E5%2589%2591%25E6%258C%2587-offer-45.-%25E6%258A%258A%25E6%2595%25B0%25E7%25BB%2584%25E6%258E%2592%25E6%2588%2590%25E6%259C%2580%25E5%25B0%258F%25E7%259A%2584%25E6%2595%25B0%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</div>
+    <button class="navbar-settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-ellipsis-v"></i>
+</button>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-language"></i> 语言</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="dropdown">
+        <a class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          简体中文
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/en/"></a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm w-100 palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm w-100 palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm w-100 palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm w-100 palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm w-100 palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm w-100 palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm w-100 palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm w-100 palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm w-100 palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm w-100 palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm w-100 palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> 返回
+  </a>
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
+  </a>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
+
+</div>
+</div>
+
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://xuzhijvn.github.io/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownCategories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownCategories"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3">
+                <i class="fas fa-fw fa-code"></i>编程思想
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD">
+                <i class="fas fa-fw fa-robot"></i>人工智能
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE">
+                <i class="fas fa-fw fa-cubes"></i>区块链
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6">
+                <i class="fas fa-fw fa-server"></i>计算机科学
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B">
+                <i class="fas fa-fw fa-sitemap"></i>架构演进
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F">
+                <i class="fas fa-fw fa-cloud"></i>云原生
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownTags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownTags"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/java">
+                <i class="fab fa-fw fa-java"></i>Java
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownProjects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownProjects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">剑指 Offer 45. 把数组排成最小的数</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper">
+  <div class="d-flex flex-column component rounded post-panel">
+    
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    
+    
+  </div>
+</div>
+<article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title">剑指 Offer 45. 把数组排成最小的数
+</h1>
+  </div>
+  <div class="card-body"><div class="post-meta">
+  <span class="post-date" title="创建于 2021-10-11 18:04:59 &#43;0800 CST。">
+    2021-10-11
+  </span><span class="post-reading-time">
+    1 分钟阅读
+  </span><span class="post-taxonomies"></span>
+</div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> String <span style="color:#a6e22e">minNumber</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+
+            <span style="color:#75715e">//to IntStream
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> Arrays<span style="color:#f92672">.</span><span style="color:#a6e22e">stream</span><span style="color:#f92672">(</span>nums<span style="color:#f92672">)</span>
+            <span style="color:#75715e">//to Stream&lt;Integer&gt;
+</span><span style="color:#75715e"></span>            <span style="color:#f92672">.</span><span style="color:#a6e22e">boxed</span><span style="color:#f92672">()</span>
+            <span style="color:#75715e">//Stream&lt;String&gt;
+</span><span style="color:#75715e"></span>            <span style="color:#f92672">.</span><span style="color:#a6e22e">map</span><span style="color:#f92672">(</span>String<span style="color:#f92672">::</span>valueOf<span style="color:#f92672">)</span>
+            <span style="color:#75715e">//排序
+</span><span style="color:#75715e"></span>            <span style="color:#f92672">.</span><span style="color:#a6e22e">sorted</span><span style="color:#f92672">((</span>o1<span style="color:#f92672">,</span> o2<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">(</span>o1 <span style="color:#f92672">+</span> o2<span style="color:#f92672">).</span><span style="color:#a6e22e">compareTo</span><span style="color:#f92672">(</span>o2 <span style="color:#f92672">+</span> o1<span style="color:#f92672">))</span>
+            <span style="color:#75715e">//to String
+</span><span style="color:#75715e"></span>            <span style="color:#f92672">.</span><span style="color:#a6e22e">collect</span><span style="color:#f92672">(</span>Collectors<span style="color:#f92672">.</span><span style="color:#a6e22e">joining</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">));</span>
+
+<span style="color:#f92672">}</span>
+</code></pre></div><p><a href="https://leetcode-cn.com/problems/ba-shu-zu-pai-cheng-zui-xiao-de-shu-lcof/" target="_blank" rel="noopener noreferrer">剑指 Offer 45. 把数组排成最小的数</a>
+</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-50.-%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%8F%AA%E5%87%BA%E7%8E%B0%E4%B8%80%E6%AC%A1%E7%9A%84%E5%AD%97%E7%AC%A6/">剑指 Offer 50. 第一个只出现一次的字符
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-39.-%E6%95%B0%E7%BB%84%E4%B8%AD%E5%87%BA%E7%8E%B0%E6%AC%A1%E6%95%B0%E8%B6%85%E8%BF%87%E4%B8%80%E5%8D%8A%E7%9A%84%E6%95%B0%E5%AD%97/">剑指 Offer 39. 数组中出现次数超过一半的数字
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div></div>
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">版权</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><section class="related-posts row card component">
+    <div class="card-header">
+      <h2 class="card-title">相关文章</h2>
+    </div>
+    <div class="card-body">
+      <ul class="post-list"><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-05.-%E6%9B%BF%E6%8D%A2%E7%A9%BA%E6%A0%BC/">剑指 Offer 05. 替换空格
+</a>
+          <span class="float-end post-date">2021-10-11
+</span>
+        </li><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-50.-%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%8F%AA%E5%87%BA%E7%8E%B0%E4%B8%80%E6%AC%A1%E7%9A%84%E5%AD%97%E7%AC%A6/">剑指 Offer 50. 第一个只出现一次的字符
+</a>
+          <span class="float-end post-date">2021-10-11
+</span>
+        </li><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-68-i.-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/">剑指 Offer 68 - I. 二叉搜索树的最近公共祖先
+</a>
+          <span class="float-end post-date">2021-10-11
+</span>
+        </li><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-10-ii.-%E9%9D%92%E8%9B%99%E8%B7%B3%E5%8F%B0%E9%98%B6%E9%97%AE%E9%A2%98/">剑指 Offer 10- II. 青蛙跳台阶问题
+</a>
+          <span class="float-end post-date">2021-10-11
+</span>
+        </li><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-57.-%E5%92%8C%E4%B8%BAs%E7%9A%84%E4%B8%A4%E4%B8%AA%E6%95%B0%E5%AD%97/">剑指 Offer 57. 和为s的两个数字
+</a>
+          <span class="float-end post-date">2021-10-11
+</span>
+        </li></ul>
+    </div>
+  </section><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title">评论</h2>
+  </div>
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    <section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony" src="https://xuzhijvn.github.io/images/profile.webp" loading="lazy"
+   width="400" height="400"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+  </div>
+</section>
+  <section class="recent-posts row card component">
+  <div class="card-header">
+    <h2 class="card-title">最近文章</h2>
+  </div>
+  <div class="card-body">
+    <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/">MQ实现延时消息
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">RabbitMQ清空队列的几种方式
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/">代理
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/">装饰器
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/">Java SPI
+</a>
+      </li></ul>
+  </div>
+</section><section class="series-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a></div>
+      </div>
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="badge rounded post-taxonomy" title="Java">
+            Java</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
+      </div>
+    </section>
+    <section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=783175223&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<script src="https://xuzhijvn.github.io/js/main.da4026fda2fca654d7a2237484e7eb47b11158791407fb55217cbe95b4353a94.js" integrity="sha256-2kAm/aL8plTXoiN0hOfrR7ERWHkUB/tVIXy&#43;lbQ1OpQ=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></body>
+</html>

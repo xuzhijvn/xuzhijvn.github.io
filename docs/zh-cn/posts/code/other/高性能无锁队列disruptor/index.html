@@ -1,0 +1,939 @@
+<!doctype html><html lang="zh-cn" data-palette="indigo"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>高性能无锁队列Disruptor - 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/icons/icon-180x180.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-16x16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
+<link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
+<meta name="keywords" content="" />
+<meta name="description" content="1. JDK中的队列 在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:
+   队列名字 是否加锁 数据结构 关键技术点 是否有锁 是否有界     ArrayBlockingQueue 是 数组array ReentrantLock 有锁 有界   LinkedBlockingQueue 是 链表 ReentrantLock 有锁 有界   LinkedTransferQueue 否 链表 CAS 无锁 无界   ConcurrentLinkedQueue 否 链表 CAS 无锁 无界    我们可以看见，我们无锁的队列是无界的，有锁的队列是有界的，这里就会涉及到一个问题，我们在真正的线上环境中，无界的队列，对我们系统的影响比较大，有可能会导致我们内存直接溢出，所以我们首先得排除无界队列，当然并不是无界队列就没用了，只是在某些场景下得排除。其次还剩下ArrayBlockingQueue，LinkedBlockingQueue两个队列，他们两个都是用ReentrantLock控制的线程安全，他们两个的区别一个是数组，一个是链表，在队列中，一般获取这个队列元素之后紧接着会获取下一个元素，或者一次获取多个队列元素都有可能，而数组在内存中地址是连续的，在操作系统中会有缓存的优化(下面也会介绍缓存行)，所以访问的速度会略胜一筹，我们也会尽量去选择ArrayBlockingQueue。而事实证明在很多第三方的框架中，比如早期的log4j异步，都是选择的ArrayBlockingQueue。
+当然ArrayBlockingQueue，也有自己的弊端，就是性能比较低，为什么jdk会增加一些无锁的队列，其实就是为了增加性能，很苦恼，又需要无锁，又需要有界，这个时候恐怕会忍不住说一句你咋不上天呢？但是还真有人上天了。
+2.Disruptor Disruptor就是上面说的那个天，Disruptor是英国外汇交易公司LMAX开发的一个高性能队列，并且是一个开源的并发框架，并获得2011Duke’s程序框架创新奖。能够在无锁的情况下实现网络的Queue并发操作，基于Disruptor开发的系统单线程能支撑每秒600万订单。目前，包括Apache Storm、Camel、Log4j2等等知名的框架都在内部集成了Disruptor用来替代jdk的队列，以此来获得高性能。
+3.1为什么这么牛逼？ 上面已经把Disruptor吹出了花了，你肯定会产生疑问，他真的能有这么牛逼吗，我的回答是当然的，在Disruptor中有三大杀器:
+  CAS
+  消除伪共享
+  RingBuffer
+  有了这三大杀器，Disruptor才变得如此牛逼。
+3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。" /><meta itemprop="name" content="高性能无锁队列Disruptor">
+<meta itemprop="description" content="1. JDK中的队列 在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:
+   队列名字 是否加锁 数据结构 关键技术点 是否有锁 是否有界     ArrayBlockingQueue 是 数组array ReentrantLock 有锁 有界   LinkedBlockingQueue 是 链表 ReentrantLock 有锁 有界   LinkedTransferQueue 否 链表 CAS 无锁 无界   ConcurrentLinkedQueue 否 链表 CAS 无锁 无界    我们可以看见，我们无锁的队列是无界的，有锁的队列是有界的，这里就会涉及到一个问题，我们在真正的线上环境中，无界的队列，对我们系统的影响比较大，有可能会导致我们内存直接溢出，所以我们首先得排除无界队列，当然并不是无界队列就没用了，只是在某些场景下得排除。其次还剩下ArrayBlockingQueue，LinkedBlockingQueue两个队列，他们两个都是用ReentrantLock控制的线程安全，他们两个的区别一个是数组，一个是链表，在队列中，一般获取这个队列元素之后紧接着会获取下一个元素，或者一次获取多个队列元素都有可能，而数组在内存中地址是连续的，在操作系统中会有缓存的优化(下面也会介绍缓存行)，所以访问的速度会略胜一筹，我们也会尽量去选择ArrayBlockingQueue。而事实证明在很多第三方的框架中，比如早期的log4j异步，都是选择的ArrayBlockingQueue。
+当然ArrayBlockingQueue，也有自己的弊端，就是性能比较低，为什么jdk会增加一些无锁的队列，其实就是为了增加性能，很苦恼，又需要无锁，又需要有界，这个时候恐怕会忍不住说一句你咋不上天呢？但是还真有人上天了。
+2.Disruptor Disruptor就是上面说的那个天，Disruptor是英国外汇交易公司LMAX开发的一个高性能队列，并且是一个开源的并发框架，并获得2011Duke’s程序框架创新奖。能够在无锁的情况下实现网络的Queue并发操作，基于Disruptor开发的系统单线程能支撑每秒600万订单。目前，包括Apache Storm、Camel、Log4j2等等知名的框架都在内部集成了Disruptor用来替代jdk的队列，以此来获得高性能。
+3.1为什么这么牛逼？ 上面已经把Disruptor吹出了花了，你肯定会产生疑问，他真的能有这么牛逼吗，我的回答是当然的，在Disruptor中有三大杀器:
+  CAS
+  消除伪共享
+  RingBuffer
+  有了这三大杀器，Disruptor才变得如此牛逼。
+3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="423">
+<meta itemprop="keywords" content="Other," /><meta property="og:title" content="高性能无锁队列Disruptor" />
+<meta property="og:description" content="1. JDK中的队列 在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:
+   队列名字 是否加锁 数据结构 关键技术点 是否有锁 是否有界     ArrayBlockingQueue 是 数组array ReentrantLock 有锁 有界   LinkedBlockingQueue 是 链表 ReentrantLock 有锁 有界   LinkedTransferQueue 否 链表 CAS 无锁 无界   ConcurrentLinkedQueue 否 链表 CAS 无锁 无界    我们可以看见，我们无锁的队列是无界的，有锁的队列是有界的，这里就会涉及到一个问题，我们在真正的线上环境中，无界的队列，对我们系统的影响比较大，有可能会导致我们内存直接溢出，所以我们首先得排除无界队列，当然并不是无界队列就没用了，只是在某些场景下得排除。其次还剩下ArrayBlockingQueue，LinkedBlockingQueue两个队列，他们两个都是用ReentrantLock控制的线程安全，他们两个的区别一个是数组，一个是链表，在队列中，一般获取这个队列元素之后紧接着会获取下一个元素，或者一次获取多个队列元素都有可能，而数组在内存中地址是连续的，在操作系统中会有缓存的优化(下面也会介绍缓存行)，所以访问的速度会略胜一筹，我们也会尽量去选择ArrayBlockingQueue。而事实证明在很多第三方的框架中，比如早期的log4j异步，都是选择的ArrayBlockingQueue。
+当然ArrayBlockingQueue，也有自己的弊端，就是性能比较低，为什么jdk会增加一些无锁的队列，其实就是为了增加性能，很苦恼，又需要无锁，又需要有界，这个时候恐怕会忍不住说一句你咋不上天呢？但是还真有人上天了。
+2.Disruptor Disruptor就是上面说的那个天，Disruptor是英国外汇交易公司LMAX开发的一个高性能队列，并且是一个开源的并发框架，并获得2011Duke’s程序框架创新奖。能够在无锁的情况下实现网络的Queue并发操作，基于Disruptor开发的系统单线程能支撑每秒600万订单。目前，包括Apache Storm、Camel、Log4j2等等知名的框架都在内部集成了Disruptor用来替代jdk的队列，以此来获得高性能。
+3.1为什么这么牛逼？ 上面已经把Disruptor吹出了花了，你肯定会产生疑问，他真的能有这么牛逼吗，我的回答是当然的，在Disruptor中有三大杀器:
+  CAS
+  消除伪共享
+  RingBuffer
+  有了这三大杀器，Disruptor才变得如此牛逼。
+3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/other/%E9%AB%98%E6%80%A7%E8%83%BD%E6%97%A0%E9%94%81%E9%98%9F%E5%88%97disruptor/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="高性能无锁队列Disruptor"/>
+<meta name="twitter:description" content="1. JDK中的队列 在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:
+   队列名字 是否加锁 数据结构 关键技术点 是否有锁 是否有界     ArrayBlockingQueue 是 数组array ReentrantLock 有锁 有界   LinkedBlockingQueue 是 链表 ReentrantLock 有锁 有界   LinkedTransferQueue 否 链表 CAS 无锁 无界   ConcurrentLinkedQueue 否 链表 CAS 无锁 无界    我们可以看见，我们无锁的队列是无界的，有锁的队列是有界的，这里就会涉及到一个问题，我们在真正的线上环境中，无界的队列，对我们系统的影响比较大，有可能会导致我们内存直接溢出，所以我们首先得排除无界队列，当然并不是无界队列就没用了，只是在某些场景下得排除。其次还剩下ArrayBlockingQueue，LinkedBlockingQueue两个队列，他们两个都是用ReentrantLock控制的线程安全，他们两个的区别一个是数组，一个是链表，在队列中，一般获取这个队列元素之后紧接着会获取下一个元素，或者一次获取多个队列元素都有可能，而数组在内存中地址是连续的，在操作系统中会有缓存的优化(下面也会介绍缓存行)，所以访问的速度会略胜一筹，我们也会尽量去选择ArrayBlockingQueue。而事实证明在很多第三方的框架中，比如早期的log4j异步，都是选择的ArrayBlockingQueue。
+当然ArrayBlockingQueue，也有自己的弊端，就是性能比较低，为什么jdk会增加一些无锁的队列，其实就是为了增加性能，很苦恼，又需要无锁，又需要有界，这个时候恐怕会忍不住说一句你咋不上天呢？但是还真有人上天了。
+2.Disruptor Disruptor就是上面说的那个天，Disruptor是英国外汇交易公司LMAX开发的一个高性能队列，并且是一个开源的并发框架，并获得2011Duke’s程序框架创新奖。能够在无锁的情况下实现网络的Queue并发操作，基于Disruptor开发的系统单线程能支撑每秒600万订单。目前，包括Apache Storm、Camel、Log4j2等等知名的框架都在内部集成了Disruptor用来替代jdk的队列，以此来获得高性能。
+3.1为什么这么牛逼？ 上面已经把Disruptor吹出了花了，你肯定会产生疑问，他真的能有这么牛逼吗，我的回答是当然的，在Disruptor中有三大杀器:
+  CAS
+  消除伪共享
+  RingBuffer
+  有了这三大杀器，Disruptor才变得如此牛逼。
+3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。"/>
+<meta name="twitter:site" content="@razonyang"/>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.f36f1df320942b1c5814085ba3267c2ee2c33f9ae057fa1005c03689dab0737d.css" integrity="sha256-828d8yCUKxxYFAhboyZ8LuLDP5rgV/oQBcA2idqwc30=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+   width="400" height="400"
+   />
+👴🏻💪
+    </a>
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Share</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e9%ab%98%e6%80%a7%e8%83%bd%e6%97%a0%e9%94%81%e9%98%9f%e5%88%97Disruptor&url=https%3a%2f%2fxuzhijvn.github.io%2fzh-cn%2fposts%2fcode%2fother%2f%25E9%25AB%2598%25E6%2580%25A7%25E8%2583%25BD%25E6%2597%25A0%25E9%2594%2581%25E9%2598%259F%25E5%2588%2597disruptor%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fxuzhijvn.github.io%2fzh-cn%2fposts%2fcode%2fother%2f%25E9%25AB%2598%25E6%2580%25A7%25E8%2583%25BD%25E6%2597%25A0%25E9%2594%2581%25E9%2598%259F%25E5%2588%2597disruptor%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</div>
+    <button class="navbar-settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-ellipsis-v"></i>
+</button>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-language"></i> 语言</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="dropdown">
+        <a class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          简体中文
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/en/"></a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm w-100 palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm w-100 palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm w-100 palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm w-100 palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm w-100 palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm w-100 palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm w-100 palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm w-100 palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm w-100 palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm w-100 palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm w-100 palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> 返回
+  </a>
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
+  </a>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
+
+</div>
+</div>
+
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://xuzhijvn.github.io/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownCategories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownCategories"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3">
+                <i class="fas fa-fw fa-code"></i>编程思想
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD">
+                <i class="fas fa-fw fa-robot"></i>人工智能
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE">
+                <i class="fas fa-fw fa-cubes"></i>区块链
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6">
+                <i class="fas fa-fw fa-server"></i>计算机科学
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B">
+                <i class="fas fa-fw fa-sitemap"></i>架构演进
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F">
+                <i class="fas fa-fw fa-cloud"></i>云原生
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownTags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownTags"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/java">
+                <i class="fab fa-fw fa-java"></i>Java
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownProjects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownProjects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">高性能无锁队列Disruptor</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper">
+  <div class="d-flex flex-column component rounded post-panel">
+    
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" href="#postTOC" aria-controls="Table of contents" role="button" title="Table of contents">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    
+  </div>
+</div>
+<article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title">高性能无锁队列Disruptor
+</h1>
+  </div>
+  <div class="card-body"><div class="post-meta">
+  <span class="post-date" title="创建于 2021-08-27 11:15:10 &#43;0800 CST。">
+    2021-08-27
+  </span><span class="post-reading-time">
+    2 分钟阅读
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge post-taxonomy">Other</a></span>
+</div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><h2 id="1-jdk中的队列">1. JDK中的队列<a class="anchor ms-1" href="#1-jdk中的队列"><i class="fas fa-link"></i></a></h2>
+<p>在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:</p>
+<table>
+<thead>
+<tr>
+<th>队列名字</th>
+<th>是否加锁</th>
+<th>数据结构</th>
+<th>关键技术点</th>
+<th>是否有锁</th>
+<th>是否有界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ArrayBlockingQueue</td>
+<td>是</td>
+<td>数组array</td>
+<td>ReentrantLock</td>
+<td>有锁</td>
+<td>有界</td>
+</tr>
+<tr>
+<td>LinkedBlockingQueue</td>
+<td>是</td>
+<td>链表</td>
+<td>ReentrantLock</td>
+<td>有锁</td>
+<td>有界</td>
+</tr>
+<tr>
+<td>LinkedTransferQueue</td>
+<td>否</td>
+<td>链表</td>
+<td>CAS</td>
+<td>无锁</td>
+<td>无界</td>
+</tr>
+<tr>
+<td>ConcurrentLinkedQueue</td>
+<td>否</td>
+<td>链表</td>
+<td>CAS</td>
+<td>无锁</td>
+<td>无界</td>
+</tr>
+</tbody>
+</table>
+<p>我们可以看见，我们无锁的队列是无界的，有锁的队列是有界的，这里就会涉及到一个问题，我们在真正的线上环境中，无界的队列，对我们系统的影响比较大，有可能会导致我们内存直接溢出，所以我们首先得排除无界队列，当然并不是无界队列就没用了，只是在某些场景下得排除。其次还剩下ArrayBlockingQueue，LinkedBlockingQueue两个队列，他们两个都是用ReentrantLock控制的线程安全，他们两个的区别一个是数组，一个是链表，在队列中，一般获取这个队列元素之后紧接着会获取下一个元素，或者一次获取多个队列元素都有可能，而数组在内存中地址是连续的，在操作系统中会有缓存的优化(下面也会介绍缓存行)，所以访问的速度会略胜一筹，我们也会尽量去选择ArrayBlockingQueue。而事实证明在很多第三方的框架中，比如早期的log4j异步，都是选择的ArrayBlockingQueue。</p>
+<p>当然ArrayBlockingQueue，也有自己的弊端，就是性能比较低，为什么jdk会增加一些无锁的队列，其实就是为了增加性能，很苦恼，又需要无锁，又需要有界，这个时候恐怕会忍不住说一句你咋不上天呢？但是还真有人上天了。</p>
+<h2 id="2disruptor">2.Disruptor<a class="anchor ms-1" href="#2disruptor"><i class="fas fa-link"></i></a></h2>
+<p>Disruptor就是上面说的那个天，Disruptor是英国外汇交易公司LMAX开发的一个高性能队列，并且是一个开源的并发框架，并获得2011Duke’s程序框架创新奖。能够在无锁的情况下实现网络的Queue并发操作，基于Disruptor开发的系统单线程能支撑每秒600万订单。目前，包括Apache Storm、Camel、Log4j2等等知名的框架都在内部集成了Disruptor用来替代jdk的队列，以此来获得高性能。</p>
+<h3 id="31为什么这么牛逼">3.1为什么这么牛逼？<a class="anchor ms-1" href="#31为什么这么牛逼"><i class="fas fa-link"></i></a></h3>
+<p>上面已经把Disruptor吹出了花了，你肯定会产生疑问，他真的能有这么牛逼吗，我的回答是当然的，在Disruptor中有三大杀器:</p>
+<ul>
+<li>
+<p>CAS</p>
+</li>
+<li>
+<p>消除伪共享</p>
+</li>
+<li>
+<p>RingBuffer</p>
+</li>
+</ul>
+<p>有了这三大杀器，Disruptor才变得如此牛逼。</p>
+<h4 id="311-锁和cas">3.1.1 锁和CAS<a class="anchor ms-1" href="#311-锁和cas"><i class="fas fa-link"></i></a></h4>
+<p>CAS实现无锁队列可以参考👉<a href="https://coolshell.cn/articles/8239.html" target="_blank" rel="noopener noreferrer">无锁队列的实现</a>
+</p>
+<p>我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。</p>
+<p>CAS（compare and swap），顾名思义先比较在交换，一般是比较是否是老的值，如果是的进行交换设置，大家熟悉乐观锁的人都知道CAS可以用来实现乐观锁，CAS中没有线程的上下文切换，减少了不必要的开销。 这里使用JMH，用两个线程，每次1一次调用，在我本机上进行测试，代码如下:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@BenchmarkMode</span><span style="color:#f92672">({</span>Mode<span style="color:#f92672">.</span><span style="color:#a6e22e">SampleTime</span><span style="color:#f92672">})</span>
+<span style="color:#a6e22e">@OutputTimeUnit</span><span style="color:#f92672">(</span>TimeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">MILLISECONDS</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Warmup</span><span style="color:#f92672">(</span>iterations<span style="color:#f92672">=</span>3<span style="color:#f92672">,</span> time <span style="color:#f92672">=</span> 5<span style="color:#f92672">,</span> timeUnit <span style="color:#f92672">=</span> TimeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">MILLISECONDS</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Measurement</span><span style="color:#f92672">(</span>iterations<span style="color:#f92672">=</span>1<span style="color:#f92672">,</span>batchSize <span style="color:#f92672">=</span> 100000000<span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Threads</span><span style="color:#f92672">(</span>2<span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Fork</span><span style="color:#f92672">(</span>1<span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@State</span><span style="color:#f92672">(</span>Scope<span style="color:#f92672">.</span><span style="color:#a6e22e">Benchmark</span><span style="color:#f92672">)</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Myclass</span> <span style="color:#f92672">{</span>
+    Lock lock <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ReentrantLock<span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">long</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+    AtomicLong atomicLong <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> AtomicLong<span style="color:#f92672">(</span>0<span style="color:#f92672">);</span>
+    <span style="color:#a6e22e">@Benchmark</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">measureLock</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        lock<span style="color:#f92672">.</span><span style="color:#a6e22e">lock</span><span style="color:#f92672">();</span>
+        i<span style="color:#f92672">++;</span>
+        lock<span style="color:#f92672">.</span><span style="color:#a6e22e">unlock</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#a6e22e">@Benchmark</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">measureCAS</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        atomicLong<span style="color:#f92672">.</span><span style="color:#a6e22e">incrementAndGet</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#a6e22e">@Benchmark</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">measureNoLock</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        i<span style="color:#f92672">++;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>测试出来结果如下:</p>
+<table>
+<thead>
+<tr>
+<th>测试项目</th>
+<th>测试结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lock</td>
+<td>26000ms</td>
+</tr>
+<tr>
+<td>CAS</td>
+<td>4840ms</td>
+</tr>
+<tr>
+<td>无锁</td>
+<td>197ms</td>
+</tr>
+</tbody>
+</table>
+<p>可以看见Lock是五位数，CAS是四位数，无锁更小是三位数。 由此我们可以知道Lock&gt;CAS&gt;无锁。</p>
+<p>而我们的Disruptor中使用的就是CAS，他利用CAS进行队列中的一些下标设置，减少了锁的冲突，提高了性能。</p>
+<p>另外对于jdk中其他的无锁队列也是使用CAS，原子类也是使用CAS。</p>
+<h4 id="312-伪共享">3.1.2 伪共享<a class="anchor ms-1" href="#312-伪共享"><i class="fas fa-link"></i></a></h4>
+<p>谈到了伪共享就不得不说计算机CPU缓存,缓存大小是CPU的重要指标之一，而且缓存的结构和大小对CPU速度的影响非常大，CPU内缓存的运行频率极高，一般是和处理器同频运作，工作效率远远大于系统内存和硬盘。实际工作时，CPU往往需要重复读取同样的数据块，而缓存容量的增大，可以大幅度提升CPU内部读取数据的命中率，而不用再到内存或者硬盘上寻找，以此提高系统性能。但是从CPU芯片面积和成本的因素来考虑，缓存都很小。</p>
+<p><img class="img-fluid" alt="cpu" src="https://picgo.6and.ltd/img/cpu.png" loading="lazy"
+  
+   />
+
+</p>
+<p>CPU缓存可以分为一级缓存，二级缓存，如今主流CPU还有三级缓存，甚至有些CPU还有四级缓存。每一级缓存中所储存的全部数据都是下一级缓存的一部分，这三种缓存的技术难度和制造成本是相对递减的，所以其容量也是相对递增的。</p>
+<p>为什么CPU会有L1、L2、L3这样的缓存设计？主要是因为现在的处理器太快了，而从内存中读取数据实在太慢（一个是因为内存本身速度不够，另一个是因为它离CPU太远了，总的来说需要让CPU等待几十甚至几百个时钟周期），这个时候为了保证CPU的速度，就需要延迟更小速度更快的内存提供帮助，而这就是缓存。对这个感兴趣可以把电脑CPU拆下来，自己把玩一下。</p>
+<p>每一次你听见intel发布新的cpu什么,比如i7-7700k,8700k，都会对cpu缓存大小进行优化，感兴趣可以自行下来搜索，这些的发布会或者发布文章。</p>
+<p>Martin和Mike的 QCon presentation演讲中给出了一些每个缓存时间：</p>
+<table>
+<thead>
+<tr>
+<th>从CPU到</th>
+<th>大约需要的CPU周期</th>
+<th>大约需要的时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主存</td>
+<td></td>
+<td>约60-80纳秒</td>
+</tr>
+<tr>
+<td>QPI 总线传输(between sockets, not drawn)</td>
+<td></td>
+<td>约20ns</td>
+</tr>
+<tr>
+<td>L3 cache</td>
+<td>约40-45 cycles</td>
+<td>约15ns</td>
+</tr>
+<tr>
+<td>L2 cache</td>
+<td>约10 cycles</td>
+<td>约3ns</td>
+</tr>
+<tr>
+<td>L1 cache</td>
+<td>约3-4 cycles</td>
+<td>约1ns</td>
+</tr>
+<tr>
+<td>寄存器</td>
+<td></td>
+<td>1 cycle</td>
+</tr>
+</tbody>
+</table>
+<h5 id="缓存行">缓存行<a class="anchor ms-1" href="#缓存行"><i class="fas fa-link"></i></a></h5>
+<p>关于cache-line更细致的介绍请移步 👉👉 <a href="https://www.cnkirito.moe/cache-line/" target="_blank" rel="noopener noreferrer">JAVA 拾遗 — CPU Cache 与缓存行</a>
+</p>
+<p>在cpu的多级缓存中，并不是以独立的项来保存的，而是类似一种pageCahe的一种策略，以缓存行来保存，而缓存行的大小通常是64字节，在Java中Long是8个字节，所以可以存储8个Long,举个例子，你访问一个long的变量的时候，他会把帮助再加载7个，我们上面说为什么选择数组不选择链表，也就是这个原因，在数组中可以依靠缓冲行得到很快的访问。</p>
+<p><img class="img-fluid" alt="cache-line-1" src="https://picgo.6and.ltd/img/cache-line-1.png" loading="lazy"
+  
+   />
+
+</p>
+<p>缓存行是万能的吗？NO，因为他依然带来了一个缺点，我在这里举个例子说明这个缺点，可以想象有个数组队列，ArrayQueue，他的数据结构如下:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ArrayQueue</span><span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">long</span> maxSize<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">long</span> currentIndex<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>对于maxSize是我们一开始就定义好的，数组的大小，对于currentIndex，是标志我们当前队列的位置，这个变化比较快，假设你访问maxSize的时候，把currentIndex也加载进来了，这个时候，其他线程更新currentIndex,就会把cpu中的缓存行置位无效，请注意这是CPU规定的，他并不是只吧currentIndex置位无效，如果此时又继续访问maxSize他依然得继续从内存中读取，但是MaxSize却是我们一开始定义好的，我们应该访问缓存即可，但是却被我们经常改变的currentIndex所影响。</p>
+<p><img class="img-fluid" alt="cache-line-2" src="https://picgo.6and.ltd/img/cache-line-2.png" loading="lazy"
+  
+   />
+
+</p>
+<h5 id="padding的魔法">Padding的魔法<a class="anchor ms-1" href="#padding的魔法"><i class="fas fa-link"></i></a></h5>
+<p>为了解决上面缓存行出现的问题，在Disruptor中采用了Padding的方式，</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LhsPadding</span>
+<span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">long</span> p1<span style="color:#f92672">,</span> p2<span style="color:#f92672">,</span> p3<span style="color:#f92672">,</span> p4<span style="color:#f92672">,</span> p5<span style="color:#f92672">,</span> p6<span style="color:#f92672">,</span> p7<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Value</span> <span style="color:#66d9ef">extends</span> LhsPadding
+<span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">volatile</span> <span style="color:#66d9ef">long</span> value<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RhsPadding</span> <span style="color:#66d9ef">extends</span> Value
+<span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">long</span> p9<span style="color:#f92672">,</span> p10<span style="color:#f92672">,</span> p11<span style="color:#f92672">,</span> p12<span style="color:#f92672">,</span> p13<span style="color:#f92672">,</span> p14<span style="color:#f92672">,</span> p15<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>其中的Value就被其他一些无用的long变量给填充了。这样你修改Value的时候，就不会影响到其他变量的缓存行。</p>
+<p>最后顺便一提，在jdk8中提供了@Contended的注解，当然一般来说只允许Jdk中内部，如果你自己使用那就得配置Jvm参数 -RestricContentended = fase，将限制这个注解置位取消。很多文章分析了ConcurrentHashMap，但是都把这个注解给忽略掉了，在ConcurrentHashMap中就使用了这个注解，在ConcurrentHashMap每个桶都是单独的用计数器去做计算，而这个计数器由于时刻都在变化，所以被用这个注解进行填充缓存行优化，以此来增加性能。</p>
+<p><img src="https://picgo.6and.ltd/img/Padding.png" alt="Padding" style="zoom:50%;" /></p>
+<h4 id="313-ringbuffer">3.1.3 RingBuffer<a class="anchor ms-1" href="#313-ringbuffer"><i class="fas fa-link"></i></a></h4>
+<p>在Disruptor中采用了数组的方式保存了我们的数据，上面我们也介绍了采用数组保存我们访问时很好的利用缓存，但是在Disruptor中进一步选择采用了环形数组进行保存数据，也就是RingBuffer。在这里先说明一下环形数组并不是真正的环形数组，在RingBuffer中是采用取余的方式进行访问的，比如数组大小为 10，0访问的是数组下标为0这个位置，其实10，20等访问的也是数组的下标为0的这个位置。</p>
+<p>当然其不仅解决了数组快速访问的问题，也解决了不需要再次分配内存的问题，减少了垃圾回收，因为我们0，10，20等都是执行的同一片内存区域，这样就不需要再次分配内存，频繁的被JVM垃圾回收器回收。</p>
+<p><img class="img-fluid" alt="RingBuffer" src="https://picgo.6and.ltd/img/RingBuffer.png" loading="lazy"
+  
+   />
+
+</p>
+<p>自此三大杀器已经说完了，有了这三大杀器为Disruptor如此高性能垫定了基础。接下来还会在讲解如何使用Disruptor和Disruptor的具体的工作原理。</p>
+<h3 id="32-disruptor怎么使用">3.2 Disruptor怎么使用<a class="anchor ms-1" href="#32-disruptor怎么使用"><i class="fas fa-link"></i></a></h3>
+<p>下面举了一个简单的例子:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// 队列中的元素
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Element</span> <span style="color:#f92672">{</span>
+        <span style="color:#a6e22e">@Contended</span>
+        <span style="color:#66d9ef">private</span> String value<span style="color:#f92672">;</span>
+
+
+        <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getValue</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> value<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setValue</span><span style="color:#f92672">(</span>String value<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> value<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">// 生产者的线程工厂
+</span><span style="color:#75715e"></span>    ThreadFactory threadFactory <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ThreadFactory<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+
+        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> Thread <span style="color:#a6e22e">newThread</span><span style="color:#f92672">(</span>Runnable r<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Thread<span style="color:#f92672">(</span>r<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;simpleThread&#34;</span> <span style="color:#f92672">+</span> String<span style="color:#f92672">.</span><span style="color:#a6e22e">valueOf</span><span style="color:#f92672">(</span>i<span style="color:#f92672">++));</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">};</span>
+
+    <span style="color:#75715e">// RingBuffer生产工厂,初始化RingBuffer的时候使用
+</span><span style="color:#75715e"></span>    EventFactory<span style="color:#f92672">&lt;</span>Element<span style="color:#f92672">&gt;</span> factory <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EventFactory<span style="color:#f92672">&lt;</span>Element<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
+        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> Element <span style="color:#a6e22e">newInstance</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Element<span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">};</span>
+
+    <span style="color:#75715e">// 处理Event的handler
+</span><span style="color:#75715e"></span>    EventHandler<span style="color:#f92672">&lt;</span>Element<span style="color:#f92672">&gt;</span> handler <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EventHandler<span style="color:#f92672">&lt;</span>Element<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
+        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onEvent</span><span style="color:#f92672">(</span>Element element<span style="color:#f92672">,</span> <span style="color:#66d9ef">long</span> sequence<span style="color:#f92672">,</span> <span style="color:#66d9ef">boolean</span> endOfBatch<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> InterruptedException <span style="color:#f92672">{</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Element: &#34;</span> <span style="color:#f92672">+</span> Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">currentThread</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;: &#34;</span> <span style="color:#f92672">+</span> element<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;: &#34;</span> <span style="color:#f92672">+</span> sequence<span style="color:#f92672">);</span>
+<span style="color:#75715e">//                Thread.sleep(10000000);
+</span><span style="color:#75715e"></span>        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">};</span>
+
+
+    <span style="color:#75715e">// 阻塞策略
+</span><span style="color:#75715e"></span>    BlockingWaitStrategy strategy <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> BlockingWaitStrategy<span style="color:#f92672">();</span>
+
+    <span style="color:#75715e">// 指定RingBuffer的大小
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">int</span> bufferSize <span style="color:#f92672">=</span> 8<span style="color:#f92672">;</span>
+
+    <span style="color:#75715e">// 创建disruptor，采用单生产者模式
+</span><span style="color:#75715e"></span>    Disruptor<span style="color:#f92672">&lt;</span>Element<span style="color:#f92672">&gt;</span> disruptor <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Disruptor<span style="color:#f92672">(</span>factory<span style="color:#f92672">,</span> bufferSize<span style="color:#f92672">,</span> threadFactory<span style="color:#f92672">,</span> ProducerType<span style="color:#f92672">.</span><span style="color:#a6e22e">SINGLE</span><span style="color:#f92672">,</span> strategy<span style="color:#f92672">);</span>
+
+    <span style="color:#75715e">// 设置EventHandler
+</span><span style="color:#75715e"></span>    disruptor<span style="color:#f92672">.</span><span style="color:#a6e22e">handleEventsWith</span><span style="color:#f92672">(</span>handler<span style="color:#f92672">);</span>
+
+    <span style="color:#75715e">// 启动disruptor的线程
+</span><span style="color:#75715e"></span>    disruptor<span style="color:#f92672">.</span><span style="color:#a6e22e">start</span><span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> 10<span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+        disruptor<span style="color:#f92672">.</span><span style="color:#a6e22e">publishEvent</span><span style="color:#f92672">((</span>element<span style="color:#f92672">,</span> sequence<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;之前的数据&#34;</span> <span style="color:#f92672">+</span> element<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;当前的sequence&#34;</span> <span style="color:#f92672">+</span> sequence<span style="color:#f92672">);</span>
+            element<span style="color:#f92672">.</span><span style="color:#a6e22e">setValue</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;我是第&#34;</span> <span style="color:#f92672">+</span> sequence <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;个&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">});</span>
+
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>在Disruptor中有几个比较关键的:</p>
+<p>ThreadFactory：这是一个线程工厂，用于我们Disruptor中生产者消费的时候需要的线程。</p>
+<p>EventFactory：事件工厂，用于产生我们队列元素的工厂，在Disruptor中，他会在初始化的时候直接填充满RingBuffer，一次到位。</p>
+<p>EventHandler：用于处理Event的handler，这里一个EventHandler可以看做是一个消费者，但是多个EventHandler他们都是独立消费的队列。</p>
+<p>WorkHandler：也是用于处理Event的handler，和上面区别在于，多个消费者都是共享同一个队列。</p>
+<p>WaitStrategy：等待策略，在Disruptor中有多种策略，来决定消费者获消费时，如果没有数据采取的策略是什么？下面简单列举一下Disruptor中的部分策略</p>
+<ul>
+<li>BlockingWaitStrategy：通过线程阻塞的方式，等待生产者唤醒，被唤醒后，再循环检查依赖的sequence是否已经消费。</li>
+<li>BusySpinWaitStrategy：线程一直自旋等待，可能比较耗cpu</li>
+<li>LiteBlockingWaitStrategy：线程阻塞等待生产者唤醒，与BlockingWaitStrategy相比，区别在signalNeeded.getAndSet,如果两个线程同时访问一个访问waitfor,一个访问signalAll时，可以减少lock加锁次数.</li>
+<li>LiteTimeoutBlockingWaitStrategy：与LiteBlockingWaitStrategy相比，设置了阻塞时间，超过时间后抛异常。</li>
+<li>YieldingWaitStrategy：尝试100次，然后Thread.yield()让出cpu</li>
+</ul>
+<p>EventTranslator：实现这个接口可以将我们的其他数据结构转换为在Disruptor中流通的Event。</p>
+<h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
+<p><a href="https://coolshell.cn/articles/8239.html" target="_blank" rel="noopener noreferrer">无锁队列的实现</a>
+</p>
+<p><a href="https://juejin.cn/post/6844903648875528206" target="_blank" rel="noopener noreferrer">你应该知道的高性能无锁队列Disruptor</a>
+</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://xuzhijvn.github.io/zh-cn/about/">关于
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E9%9B%B6%E6%8B%B7%E8%B4%9D/">零拷贝
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div></div>
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">版权</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><section class="related-posts row card component">
+    <div class="card-header">
+      <h2 class="card-title">相关文章</h2>
+    </div>
+    <div class="card-body">
+      <ul class="post-list"><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/other/css%E4%B8%AD%E5%86%85%E8%81%94svg/">CSS中内联SVG
+</a>
+          <span class="float-end post-date">2021-08-27
+</span>
+        </li><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/other/centos-linux%E6%B8%85%E7%90%86%E7%A3%81%E7%9B%98%E7%A9%BA%E9%97%B4/">Centos Linux清理磁盘空间
+</a>
+          <span class="float-end post-date">2021-08-27
+</span>
+        </li><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/other/linux%E9%85%8D%E7%BD%AEgit%E8%B4%A6%E5%8F%B7%E5%AF%86%E7%A0%81/">Linux配置git账号密码
+</a>
+          <span class="float-end post-date">2021-08-27
+</span>
+        </li><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/other/ubuntu%E4%BF%AE%E6%94%B9ip/">Ubuntu修改ip
+</a>
+          <span class="float-end post-date">2021-08-27
+</span>
+        </li><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/other/ubuntu%E4%BF%AE%E6%94%B9%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/">Ubuntu修改域名解析
+</a>
+          <span class="float-end post-date">2021-08-27
+</span>
+        </li></ul>
+    </div>
+  </section><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title">评论</h2>
+  </div>
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    <section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony" src="https://xuzhijvn.github.io/images/profile.webp" loading="lazy"
+   width="400" height="400"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+  </div>
+</section>
+  <div class="post-toc row mb-4 card component" id="postTOC">
+  <div class="card-header">
+    <h2 class="card-title">目录</h2>
+  </div>
+  <div class="card-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-jdk中的队列">1. JDK中的队列</a></li>
+    <li><a href="#2disruptor">2.Disruptor</a>
+      <ul>
+        <li><a href="#31为什么这么牛逼">3.1为什么这么牛逼？</a></li>
+        <li><a href="#32-disruptor怎么使用">3.2 Disruptor怎么使用</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div><section class="recent-posts row card component">
+  <div class="card-header">
+    <h2 class="card-title">最近文章</h2>
+  </div>
+  <div class="card-body">
+    <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/">MQ实现延时消息
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">RabbitMQ清空队列的几种方式
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/">代理
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/">装饰器
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/">Java SPI
+</a>
+      </li></ul>
+  </div>
+</section><section class="series-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a></div>
+      </div>
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="badge rounded post-taxonomy" title="Java">
+            Java</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
+      </div>
+    </section>
+    <section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=783175223&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<script src="https://xuzhijvn.github.io/js/main.da4026fda2fca654d7a2237484e7eb47b11158791407fb55217cbe95b4353a94.js" integrity="sha256-2kAm/aL8plTXoiN0hOfrR7ERWHkUB/tVIXy&#43;lbQ1OpQ=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></body>
+</html>

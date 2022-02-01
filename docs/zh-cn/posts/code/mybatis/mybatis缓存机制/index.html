@@ -1,0 +1,803 @@
+<!doctype html><html lang="zh-cn" data-palette="indigo"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MyBatis缓存机制 - 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/icons/icon-180x180.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-16x16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
+<link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="MyBatis缓存机制">
+<meta itemprop="description" content=""><meta itemprop="datePublished" content="2021-08-30T21:16:45+08:00" />
+<meta itemprop="dateModified" content="2021-08-30T21:16:45+08:00" />
+<meta itemprop="wordCount" content="380">
+<meta itemprop="keywords" content="MyBatis," /><meta property="og:title" content="MyBatis缓存机制" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/mybatis/mybatis%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-30T21:16:45+08:00" />
+<meta property="article:modified_time" content="2021-08-30T21:16:45+08:00" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/log4j2-jndi%E8%BF%9C%E7%A8%8B%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="MyBatis缓存机制"/>
+<meta name="twitter:description" content=""/>
+<meta name="twitter:site" content="@razonyang"/>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.f36f1df320942b1c5814085ba3267c2ee2c33f9ae057fa1005c03689dab0737d.css" integrity="sha256-828d8yCUKxxYFAhboyZ8LuLDP5rgV/oQBcA2idqwc30=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+   width="400" height="400"
+   />
+👴🏻💪
+    </a>
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Share</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=MyBatis%e7%bc%93%e5%ad%98%e6%9c%ba%e5%88%b6&url=https%3a%2f%2fxuzhijvn.github.io%2fzh-cn%2fposts%2fcode%2fmybatis%2fmybatis%25E7%25BC%2593%25E5%25AD%2598%25E6%259C%25BA%25E5%2588%25B6%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fxuzhijvn.github.io%2fzh-cn%2fposts%2fcode%2fmybatis%2fmybatis%25E7%25BC%2593%25E5%25AD%2598%25E6%259C%25BA%25E5%2588%25B6%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</div>
+    <button class="navbar-settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-ellipsis-v"></i>
+</button>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-language"></i> 语言</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="dropdown">
+        <a class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          简体中文
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/en/"></a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm w-100 palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm w-100 palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm w-100 palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm w-100 palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm w-100 palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm w-100 palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm w-100 palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm w-100 palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm w-100 palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm w-100 palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm w-100 palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> 返回
+  </a>
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
+  </a>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
+
+</div>
+</div>
+
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://xuzhijvn.github.io/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownCategories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownCategories"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3">
+                <i class="fas fa-fw fa-code"></i>编程思想
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD">
+                <i class="fas fa-fw fa-robot"></i>人工智能
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE">
+                <i class="fas fa-fw fa-cubes"></i>区块链
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6">
+                <i class="fas fa-fw fa-server"></i>计算机科学
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B">
+                <i class="fas fa-fw fa-sitemap"></i>架构演进
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F">
+                <i class="fas fa-fw fa-cloud"></i>云原生
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownTags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownTags"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/java">
+                <i class="fab fa-fw fa-java"></i>Java
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownProjects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownProjects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">MyBatis缓存机制</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper">
+  <div class="d-flex flex-column component rounded post-panel">
+    
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" href="#postTOC" aria-controls="Table of contents" role="button" title="Table of contents">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    
+  </div>
+</div>
+<article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title">MyBatis缓存机制
+</h1>
+  </div>
+  <div class="card-body"><div class="post-meta">
+  <span class="post-date" title="创建于 2021-08-30 21:16:45 &#43;0800 CST。">
+    2021-08-30
+  </span><span class="post-reading-time">
+    2 分钟阅读
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge post-taxonomy">MyBatis</a></span>
+</div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><h2 id="一级缓存">一级缓存<a class="anchor ms-1" href="#一级缓存"><i class="fas fa-link"></i></a></h2>
+<h3 id="一级缓存介绍">一级缓存介绍<a class="anchor ms-1" href="#一级缓存介绍"><i class="fas fa-link"></i></a></h3>
+<p>在应用运行过程中，我们有可能在一次数据库会话中，执行多次查询条件完全相同的SQL，MyBatis提供了一级缓存的方案优化这部分场景，如果是相同的SQL语句，会优先命中一级缓存，避免直接对数据库进行查询，提高性能。具体执行过程如下图所示。</p>
+<p><img src="https://picgo.6and.ltd/img/6e38df6a.jpg" alt="img" style="zoom: 40%;" /></p>
+<p>每个SqlSession中持有了Executor，每个Executor中有一个LocalCache。当用户发起查询时，MyBatis根据当前执行的语句生成<code>MappedStatement</code>，在Local Cache进行查询，如果缓存命中的话，直接返回结果给用户，如果缓存没有命中的话，查询数据库，结果写入<code>Local Cache</code>，最后返回结果给用户。具体实现类的类关系图如下图所示。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/d76ec5fe.jpg" loading="lazy"
+  
+   />
+
+</p>
+<h3 id="一级缓存配置">一级缓存配置<a class="anchor ms-1" href="#一级缓存配置"><i class="fas fa-link"></i></a></h3>
+<p>我们来看看如何使用MyBatis一级缓存。开发者只需在MyBatis的配置文件中，添加如下语句，就可以使用一级缓存。共有两个选项，<code>SESSION</code>或者<code>STATEMENT</code>，默认是<code>SESSION</code>级别，即在一个MyBatis会话中执行的所有语句，都会共享这一个缓存。一种是<code>STATEMENT</code>级别，可以理解为缓存只对当前执行的这一个<code>Statement</code>有效。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;setting</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;localCacheScope&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;SESSION&#34;</span><span style="color:#f92672">/&gt;</span>
+</code></pre></div><blockquote>
+<p>一级缓存的范围有SESSION和STATEMENT两种，默认是SESSION，如果不想使用一级缓存，可以把一级缓存的范围指定为STATEMENT，这样每次执行完一个Mapper中的语句后都会将一级缓存清除。</p>
+</blockquote>
+<blockquote>
+<p>当Mybatis整合Spring后，直接通过Spring注入Mapper的形式，如果不是在同一个事务中每个Mapper的每次查询操作都对应一个全新的SqlSession实例，这个时候就不会有一级缓存的命中，但是在同一个事务中时共用的是同一个SqlSession。</p>
+</blockquote>
+<h3 id="一级缓存实验">一级缓存实验<a class="anchor ms-1" href="#一级缓存实验"><i class="fas fa-link"></i></a></h3>
+<p>接下来通过实验，了解MyBatis一级缓存的效果，每个单元测试后都请恢复被修改的数据。</p>
+<p>首先是创建示例表student，创建对应的POJO类和增改的方法，具体可以在entity包和mapper包中查看。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#f92672">`</span>student<span style="color:#f92672">`</span> (
+  <span style="color:#f92672">`</span>id<span style="color:#f92672">`</span> int(<span style="color:#ae81ff">11</span>) unsigned <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">NULL</span> AUTO_INCREMENT,
+  <span style="color:#f92672">`</span>name<span style="color:#f92672">`</span> varchar(<span style="color:#ae81ff">200</span>) <span style="color:#66d9ef">COLLATE</span> utf8_bin <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">NULL</span>,
+  <span style="color:#f92672">`</span>age<span style="color:#f92672">`</span> tinyint(<span style="color:#ae81ff">3</span>) unsigned <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">NULL</span>,
+  <span style="color:#66d9ef">PRIMARY</span> <span style="color:#66d9ef">KEY</span> (<span style="color:#f92672">`</span>id<span style="color:#f92672">`</span>)
+) ENGINE<span style="color:#f92672">=</span>InnoDB AUTO_INCREMENT<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span> <span style="color:#66d9ef">DEFAULT</span> CHARSET<span style="color:#f92672">=</span>utf8 <span style="color:#66d9ef">COLLATE</span><span style="color:#f92672">=</span>utf8_bin;
+</code></pre></div><p>在以下实验中，id为1的学生名称是凯伦。</p>
+<h4 id="实验1">实验1<a class="anchor ms-1" href="#实验1"><i class="fas fa-link"></i></a></h4>
+<p>开启一级缓存，范围为会话级别，调用三次<code>getStudentById</code>，代码如下所示：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+        SqlSession sqlSession <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">openSession</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> <span style="color:#75715e">// 自动提交事务
+</span><span style="color:#75715e"></span>        StudentMapper studentMapper <span style="color:#f92672">=</span> sqlSession<span style="color:#f92672">.</span><span style="color:#a6e22e">getMapper</span><span style="color:#f92672">(</span>StudentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>studentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>studentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>studentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><p>执行结果：</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/9e996384.jpg" loading="lazy"
+  
+   />
+
+</p>
+<p>我们可以看到，只有第一次真正查询了数据库，后续的查询使用了一级缓存。</p>
+<h4 id="实验2">实验2<a class="anchor ms-1" href="#实验2"><i class="fas fa-link"></i></a></h4>
+<p>增加了对数据库的修改操作，验证在一次数据库会话中，如果对数据库发生了修改操作，一级缓存是否会失效。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Test</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addStudent</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+        SqlSession sqlSession <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">openSession</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> <span style="color:#75715e">// 自动提交事务
+</span><span style="color:#75715e"></span>        StudentMapper studentMapper <span style="color:#f92672">=</span> sqlSession<span style="color:#f92672">.</span><span style="color:#a6e22e">getMapper</span><span style="color:#f92672">(</span>StudentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>studentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;增加了&#34;</span> <span style="color:#f92672">+</span> studentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">addStudent</span><span style="color:#f92672">(</span>buildStudent<span style="color:#f92672">())</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;个学生&#34;</span><span style="color:#f92672">);</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>studentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+        sqlSession<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>执行结果：</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/fb6a78e0.jpg" loading="lazy"
+  
+   />
+
+</p>
+<p>我们可以看到，在修改操作后执行的相同查询，查询了数据库，<strong>一级缓存失效</strong>。</p>
+<h4 id="实验3">实验3<a class="anchor ms-1" href="#实验3"><i class="fas fa-link"></i></a></h4>
+<p>开启两个<code>SqlSession</code>，在<code>sqlSession1</code>中查询数据，使一级缓存生效，在<code>sqlSession2</code>中更新数据库，验证一级缓存只在数据库会话内部共享。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Test</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testLocalCacheScope</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+        SqlSession sqlSession1 <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">openSession</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> 
+        SqlSession sqlSession2 <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">openSession</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> 
+
+        StudentMapper studentMapper <span style="color:#f92672">=</span> sqlSession1<span style="color:#f92672">.</span><span style="color:#a6e22e">getMapper</span><span style="color:#f92672">(</span>StudentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        StudentMapper studentMapper2 <span style="color:#f92672">=</span> sqlSession2<span style="color:#f92672">.</span><span style="color:#a6e22e">getMapper</span><span style="color:#f92672">(</span>StudentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper2更新了&#34;</span> <span style="color:#f92672">+</span> studentMapper2<span style="color:#f92672">.</span><span style="color:#a6e22e">updateStudentName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;小岑&#34;</span><span style="color:#f92672">,</span>1<span style="color:#f92672">)</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;个学生的数据&#34;</span><span style="color:#f92672">);</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper2读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper2<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/f480ac76.jpg" loading="lazy"
+  
+   />
+
+</p>
+<p><code>sqlSession2</code>更新了id为1的学生的姓名，从凯伦改为了小岑，但session1之后的查询中，id为1的学生的名字还是凯伦，出现了脏数据，也证明了之前的设想，一级缓存只在数据库会话内部共享。</p>
+<h3 id="总结">总结<a class="anchor ms-1" href="#总结"><i class="fas fa-link"></i></a></h3>
+<ol>
+<li>MyBatis一级缓存的生命周期和SqlSession一致。</li>
+<li>MyBatis一级缓存内部设计简单，只是一个没有容量限定的HashMap，在缓存的功能性上有所欠缺。</li>
+<li>MyBatis的一级缓存最大范围是SqlSession内部，有多个SqlSession或者分布式的环境下，数据库写操作会引起脏数据，建议设定缓存级别为Statement。</li>
+</ol>
+<h2 id="二级缓存">二级缓存<a class="anchor ms-1" href="#二级缓存"><i class="fas fa-link"></i></a></h2>
+<h3 id="二级缓存介绍">二级缓存介绍<a class="anchor ms-1" href="#二级缓存介绍"><i class="fas fa-link"></i></a></h3>
+<p>在上文中提到的一级缓存中，其最大的共享范围就是一个SqlSession内部，如果多个SqlSession之间需要共享缓存，则需要使用到二级缓存。开启二级缓存后，会使用CachingExecutor装饰Executor，进入一级缓存的查询流程前，先在CachingExecutor进行二级缓存的查询，具体的工作流程如下所示。</p>
+<p><img src="https://picgo.6and.ltd/img/28399eba.png" alt="img" style="zoom: 67%;" /></p>
+<p>二级缓存开启后，同一个namespace下的所有操作语句，都影响着同一个Cache，即二级缓存被多个SqlSession共享，是一个全局的变量。</p>
+<p>当开启缓存后，数据的查询执行的流程就是 二级缓存 -&gt; 一级缓存 -&gt; 数据库。</p>
+<h3 id="二级缓存配置">二级缓存配置<a class="anchor ms-1" href="#二级缓存配置"><i class="fas fa-link"></i></a></h3>
+<p>要正确的使用二级缓存，需完成如下配置的。</p>
+<ol>
+<li>在MyBatis的配置文件中开启二级缓存。</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;setting</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;cacheEnabled&#34;</span> <span style="color:#a6e22e">value=</span><span style="color:#e6db74">&#34;true&#34;</span><span style="color:#f92672">/&gt;</span>
+</code></pre></div><ol>
+<li>在MyBatis的映射XML中配置cache或者 cache-ref 。</li>
+</ol>
+<p>cache标签用于声明这个namespace使用二级缓存，并且可以自定义配置。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;cache/&gt;</span>   
+</code></pre></div><ul>
+<li><code>type</code>：cache使用的类型，默认是<code>PerpetualCache</code>，这在一级缓存中提到过。</li>
+<li><code>eviction</code>： 定义回收的策略，常见的有FIFO，LRU。</li>
+<li><code>flushInterval</code>： 配置一定时间自动刷新缓存，单位是毫秒。</li>
+<li><code>size</code>： 最多缓存对象的个数。</li>
+<li><code>readOnly</code>： 是否只读，若配置可读写，则需要对应的实体类能够序列化。</li>
+<li><code>blocking</code>： 若缓存中找不到对应的key，是否会一直blocking，直到有对应的数据进入缓存。</li>
+</ul>
+<p><code>cache-ref</code>代表引用别的命名空间的Cache配置，两个命名空间的操作使用的是同一个Cache。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;cache-ref</span> <span style="color:#a6e22e">namespace=</span><span style="color:#e6db74">&#34;mapper.StudentMapper&#34;</span><span style="color:#f92672">/&gt;</span>
+</code></pre></div><h3 id="二级缓存实验">二级缓存实验<a class="anchor ms-1" href="#二级缓存实验"><i class="fas fa-link"></i></a></h3>
+<p>接下来我们通过实验，了解MyBatis二级缓存在使用上的一些特点。</p>
+<p>在本实验中，id为1的学生名称初始化为点点。</p>
+<h4 id="实验1-1">实验1<a class="anchor ms-1" href="#实验1-1"><i class="fas fa-link"></i></a></h4>
+<p>测试二级缓存效果，不提交事务，<code>sqlSession1</code>查询完数据后，<code>sqlSession2</code>相同的查询是否会从缓存中获取数据。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Test</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testCacheWithoutCommitOrClose</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+        SqlSession sqlSession1 <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">openSession</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> 
+        SqlSession sqlSession2 <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">openSession</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> 
+        
+        StudentMapper studentMapper <span style="color:#f92672">=</span> sqlSession1<span style="color:#f92672">.</span><span style="color:#a6e22e">getMapper</span><span style="color:#f92672">(</span>StudentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        StudentMapper studentMapper2 <span style="color:#f92672">=</span> sqlSession2<span style="color:#f92672">.</span><span style="color:#a6e22e">getMapper</span><span style="color:#f92672">(</span>StudentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper2读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper2<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>执行结果：</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/71e2bfdc.jpg" loading="lazy"
+  
+   />
+
+</p>
+<p>我们可以看到，当<code>sqlsession</code>没有调用<code>commit()</code>方法时，二级缓存并没有起到作用。</p>
+<h4 id="实验2-1">实验2<a class="anchor ms-1" href="#实验2-1"><i class="fas fa-link"></i></a></h4>
+<p>测试二级缓存效果，当提交事务时，<code>sqlSession1</code>查询完数据后，<code>sqlSession2</code>相同的查询是否会从缓存中获取数据。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Test</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testCacheWithCommitOrClose</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+        SqlSession sqlSession1 <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">openSession</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> 
+        SqlSession sqlSession2 <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">openSession</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> 
+        
+        StudentMapper studentMapper <span style="color:#f92672">=</span> sqlSession1<span style="color:#f92672">.</span><span style="color:#a6e22e">getMapper</span><span style="color:#f92672">(</span>StudentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        StudentMapper studentMapper2 <span style="color:#f92672">=</span> sqlSession2<span style="color:#f92672">.</span><span style="color:#a6e22e">getMapper</span><span style="color:#f92672">(</span>StudentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+        sqlSession1<span style="color:#f92672">.</span><span style="color:#a6e22e">commit</span><span style="color:#f92672">();</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper2读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper2<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/f366f34e.jpg" loading="lazy"
+  
+   />
+
+</p>
+<p>从图上可知，<code>sqlsession2</code>的查询，使用了缓存，缓存的命中率是0.5。</p>
+<h4 id="实验3-1">实验3<a class="anchor ms-1" href="#实验3-1"><i class="fas fa-link"></i></a></h4>
+<p>测试<code>update</code>操作是否会刷新该<code>namespace</code>下的二级缓存。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Test</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testCacheWithUpdate</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+        SqlSession sqlSession1 <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">openSession</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> 
+        SqlSession sqlSession2 <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">openSession</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> 
+        SqlSession sqlSession3 <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">openSession</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> 
+        
+        StudentMapper studentMapper <span style="color:#f92672">=</span> sqlSession1<span style="color:#f92672">.</span><span style="color:#a6e22e">getMapper</span><span style="color:#f92672">(</span>StudentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        StudentMapper studentMapper2 <span style="color:#f92672">=</span> sqlSession2<span style="color:#f92672">.</span><span style="color:#a6e22e">getMapper</span><span style="color:#f92672">(</span>StudentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        StudentMapper studentMapper3 <span style="color:#f92672">=</span> sqlSession3<span style="color:#f92672">.</span><span style="color:#a6e22e">getMapper</span><span style="color:#f92672">(</span>StudentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+        sqlSession1<span style="color:#f92672">.</span><span style="color:#a6e22e">commit</span><span style="color:#f92672">();</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper2读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper2<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+        
+        studentMapper3<span style="color:#f92672">.</span><span style="color:#a6e22e">updateStudentName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;方方&#34;</span><span style="color:#f92672">,</span>1<span style="color:#f92672">);</span>
+        sqlSession3<span style="color:#f92672">.</span><span style="color:#a6e22e">commit</span><span style="color:#f92672">();</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper2读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper2<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/3ad93c3a.jpg" loading="lazy"
+  
+   />
+
+</p>
+<p>我们可以看到，在<code>sqlSession3</code>更新数据库，并提交事务后，<code>sqlsession2</code>的<code>StudentMapper namespace</code>下的查询走了数据库，没有走Cache。</p>
+<h4 id="实验4">实验4<a class="anchor ms-1" href="#实验4"><i class="fas fa-link"></i></a></h4>
+<p>验证MyBatis的二级缓存不适应用于映射文件中存在多表查询的情况。</p>
+<p>通常我们会为每个单表创建单独的映射文件，由于MyBatis的二级缓存是基于<code>namespace</code>的，多表查询语句所在的<code>namspace</code>无法感应到其他<code>namespace</code>中的语句对多表查询中涉及的表进行的修改，引发脏数据问题。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Test</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testCacheWithDiffererntNamespace</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+        SqlSession sqlSession1 <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">openSession</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> 
+        SqlSession sqlSession2 <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">openSession</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> 
+        SqlSession sqlSession3 <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">openSession</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> 
+    
+        StudentMapper studentMapper <span style="color:#f92672">=</span> sqlSession1<span style="color:#f92672">.</span><span style="color:#a6e22e">getMapper</span><span style="color:#f92672">(</span>StudentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        StudentMapper studentMapper2 <span style="color:#f92672">=</span> sqlSession2<span style="color:#f92672">.</span><span style="color:#a6e22e">getMapper</span><span style="color:#f92672">(</span>StudentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        ClassMapper classMapper <span style="color:#f92672">=</span> sqlSession3<span style="color:#f92672">.</span><span style="color:#a6e22e">getMapper</span><span style="color:#f92672">(</span>ClassMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentByIdWithClassInfo</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+        sqlSession1<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper2读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper2<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentByIdWithClassInfo</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+
+        classMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">updateClassName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;特色一班&#34;</span><span style="color:#f92672">,</span>1<span style="color:#f92672">);</span>
+        sqlSession3<span style="color:#f92672">.</span><span style="color:#a6e22e">commit</span><span style="color:#f92672">();</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper2读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper2<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentByIdWithClassInfo</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>执行结果：</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/5265ed97.jpg" loading="lazy"
+  
+   />
+
+</p>
+<p>在这个实验中，我们引入了两张新的表，一张class，一张classroom。class中保存了班级的id和班级名，classroom中保存了班级id和学生id。我们在<code>StudentMapper</code>中增加了一个查询方法<code>getStudentByIdWithClassInfo</code>，用于查询学生所在的班级，涉及到多表查询。在<code>ClassMapper</code>中添加了<code>updateClassName</code>，根据班级id更新班级名的操作。</p>
+<p>当<code>sqlsession1</code>的<code>studentmapper</code>查询数据后，二级缓存生效。保存在StudentMapper的namespace下的cache中。当<code>sqlSession3</code>的<code>classMapper</code>的<code>updateClassName</code>方法对class表进行更新时，<code>updateClassName</code>不属于<code>StudentMapper</code>的<code>namespace</code>，所以<code>StudentMapper</code>下的cache没有感应到变化，没有刷新缓存。当<code>StudentMapper</code>中同样的查询再次发起时，从缓存中读取了脏数据。</p>
+<h4 id="实验5">实验5<a class="anchor ms-1" href="#实验5"><i class="fas fa-link"></i></a></h4>
+<p>为了解决实验4的问题呢，可以使用Cache ref，让<code>ClassMapper</code>引用<code>StudenMapper</code>命名空间，这样两个映射文件对应的SQL操作都使用的是同一块缓存了。</p>
+<p>执行结果：</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/a2e4c2d8.jpg" loading="lazy"
+  
+   />
+
+</p>
+<p>不过这样做的后果是，缓存的粒度变粗了，多个<code>Mapper namespace</code>下的所有操作都会对缓存使用造成影响。</p>
+<h3 id="总结-1">总结<a class="anchor ms-1" href="#总结-1"><i class="fas fa-link"></i></a></h3>
+<ol>
+<li>MyBatis的二级缓存相对于一级缓存来说，实现了<code>SqlSession</code>之间缓存数据的共享，同时粒度更加的细，能够到<code>namespace</code>级别，通过Cache接口实现类不同的组合，对Cache的可控性也更强。</li>
+<li>MyBatis在多表查询时，极大可能会出现脏数据，有设计上的缺陷，安全使用二级缓存的条件比较苛刻。</li>
+<li>在分布式环境下，由于默认的MyBatis Cache实现都是基于本地的，分布式环境下必然会出现读取到脏数据，需要使用集中式缓存将MyBatis的Cache接口实现，有一定的开发成本。</li>
+</ol>
+<h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
+<p><a href="https://tech.meituan.com/2018/01/19/mybatis-cache.html" target="_blank" rel="noopener noreferrer">聊聊MyBatis缓存机制</a>
+</p></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/">基于keepalived实现nginx高可用
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/spring/springaop%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/">SpringAOP执行顺序
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div></div>
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">版权</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title">评论</h2>
+  </div>
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    <section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony" src="https://xuzhijvn.github.io/images/profile.webp" loading="lazy"
+   width="400" height="400"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+  </div>
+</section>
+  <div class="post-toc row mb-4 card component" id="postTOC">
+  <div class="card-header">
+    <h2 class="card-title">目录</h2>
+  </div>
+  <div class="card-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#一级缓存">一级缓存</a>
+      <ul>
+        <li><a href="#一级缓存介绍">一级缓存介绍</a></li>
+        <li><a href="#一级缓存配置">一级缓存配置</a></li>
+        <li><a href="#一级缓存实验">一级缓存实验</a></li>
+        <li><a href="#总结">总结</a></li>
+      </ul>
+    </li>
+    <li><a href="#二级缓存">二级缓存</a>
+      <ul>
+        <li><a href="#二级缓存介绍">二级缓存介绍</a></li>
+        <li><a href="#二级缓存配置">二级缓存配置</a></li>
+        <li><a href="#二级缓存实验">二级缓存实验</a></li>
+        <li><a href="#总结-1">总结</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div><section class="recent-posts row card component">
+  <div class="card-header">
+    <h2 class="card-title">最近文章</h2>
+  </div>
+  <div class="card-body">
+    <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/">MQ实现延时消息
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">RabbitMQ清空队列的几种方式
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/">代理
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/">装饰器
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/">Java SPI
+</a>
+      </li></ul>
+  </div>
+</section><section class="series-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a></div>
+      </div>
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="badge rounded post-taxonomy" title="Java">
+            Java</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
+      </div>
+    </section>
+    <section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=783175223&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<script src="https://xuzhijvn.github.io/js/main.da4026fda2fca654d7a2237484e7eb47b11158791407fb55217cbe95b4353a94.js" integrity="sha256-2kAm/aL8plTXoiN0hOfrR7ERWHkUB/tVIXy&#43;lbQ1OpQ=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></body>
+</html>

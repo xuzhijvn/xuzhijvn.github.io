@@ -1,0 +1,751 @@
+<!doctype html><html lang="zh-cn" data-palette="indigo"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>k8s组件 - 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/icons/icon-180x180.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-16x16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
+<link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
+<meta name="keywords" content="" />
+<meta name="description" content="Master（控制平面）组件 1⃣️ 1⃣️ kube-apiserver  提供集群管理的 REST API 接口，包括认证授权、数据校验以及集群状态变更等 提供其他模块之间的数据交互和通信的枢纽（其他模块通过 API Server 查询或修改数据，只有 API Server 才直接操作 etcd）  2⃣️ 2⃣️ etcd etcd 是 CoreOS 基于 Raft 开发的分布式 key-value 存储，可用于服务发现、共享配置以及一致性保障（如数据库选主、分布式锁等）。
+主要功能🔧包括：
+ 基本的 key-value 存储 监听机制 key 的过期及续约机制，用于监控和服务发现 原子 CAS 和 CAD，用于分布式锁和 leader 选举  Etcd，Zookeeper，Consul 比较 🆚：
+ Etcd 和 Zookeeper 提供的能力非常相似，都是通用的一致性元信息存储，都提供 watch 机制用于变更通知和分发，也都被分布式系统用来作为共享信息存储，在软件生态中所处的位置也几乎是一样的，可以互相替代的。二者除了实现细节，语言，一致性协议上的区别，最大的区别在周边生态圈。Zookeeper 是 apache 下的，用 java 写的，提供 rpc 接口，最早从 hadoop 项目中孵化出来，在分布式系统中得到广泛使用（hadoop, solr, kafka, mesos 等）。Etcd 是 coreos 公司旗下的开源产品，比较新，以其简单好用的 rest 接口以及活跃的社区俘获了一批用户，在新的一些集群中得到使用（比如 kubernetes）。虽然 v3 为了性能也改成二进制 rpc 接口了，但其易用性上比 Zookeeper 还是好一些。 而 Consul 的目标则更为具体一些，Etcd 和 Zookeeper 提供的是分布式一致性存储能力，具体的业务场景需要用户自己实现，比如服务发现，比如配置变更。而 Consul 则以服务发现和配置变更为主要目标，同时附带了 kv 存储。  3⃣️ 3⃣️ kube-scheduler kube-scheduler 负责分配调度 Pod 到集群内的节点上，它监听 kube-apiserver，查询还未分配 Node 的 Pod，然后根据调度策略为这些 Pod 分配节点（更新 Pod 的 NodeName 字段）。" /><meta itemprop="name" content="k8s组件">
+<meta itemprop="description" content="Master（控制平面）组件 1⃣️ 1⃣️ kube-apiserver  提供集群管理的 REST API 接口，包括认证授权、数据校验以及集群状态变更等 提供其他模块之间的数据交互和通信的枢纽（其他模块通过 API Server 查询或修改数据，只有 API Server 才直接操作 etcd）  2⃣️ 2⃣️ etcd etcd 是 CoreOS 基于 Raft 开发的分布式 key-value 存储，可用于服务发现、共享配置以及一致性保障（如数据库选主、分布式锁等）。
+主要功能🔧包括：
+ 基本的 key-value 存储 监听机制 key 的过期及续约机制，用于监控和服务发现 原子 CAS 和 CAD，用于分布式锁和 leader 选举  Etcd，Zookeeper，Consul 比较 🆚：
+ Etcd 和 Zookeeper 提供的能力非常相似，都是通用的一致性元信息存储，都提供 watch 机制用于变更通知和分发，也都被分布式系统用来作为共享信息存储，在软件生态中所处的位置也几乎是一样的，可以互相替代的。二者除了实现细节，语言，一致性协议上的区别，最大的区别在周边生态圈。Zookeeper 是 apache 下的，用 java 写的，提供 rpc 接口，最早从 hadoop 项目中孵化出来，在分布式系统中得到广泛使用（hadoop, solr, kafka, mesos 等）。Etcd 是 coreos 公司旗下的开源产品，比较新，以其简单好用的 rest 接口以及活跃的社区俘获了一批用户，在新的一些集群中得到使用（比如 kubernetes）。虽然 v3 为了性能也改成二进制 rpc 接口了，但其易用性上比 Zookeeper 还是好一些。 而 Consul 的目标则更为具体一些，Etcd 和 Zookeeper 提供的是分布式一致性存储能力，具体的业务场景需要用户自己实现，比如服务发现，比如配置变更。而 Consul 则以服务发现和配置变更为主要目标，同时附带了 kv 存储。  3⃣️ 3⃣️ kube-scheduler kube-scheduler 负责分配调度 Pod 到集群内的节点上，它监听 kube-apiserver，查询还未分配 Node 的 Pod，然后根据调度策略为这些 Pod 分配节点（更新 Pod 的 NodeName 字段）。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="331">
+<meta itemprop="keywords" content="云原生,k8s," /><meta property="og:title" content="k8s组件" />
+<meta property="og:description" content="Master（控制平面）组件 1⃣️ 1⃣️ kube-apiserver  提供集群管理的 REST API 接口，包括认证授权、数据校验以及集群状态变更等 提供其他模块之间的数据交互和通信的枢纽（其他模块通过 API Server 查询或修改数据，只有 API Server 才直接操作 etcd）  2⃣️ 2⃣️ etcd etcd 是 CoreOS 基于 Raft 开发的分布式 key-value 存储，可用于服务发现、共享配置以及一致性保障（如数据库选主、分布式锁等）。
+主要功能🔧包括：
+ 基本的 key-value 存储 监听机制 key 的过期及续约机制，用于监控和服务发现 原子 CAS 和 CAD，用于分布式锁和 leader 选举  Etcd，Zookeeper，Consul 比较 🆚：
+ Etcd 和 Zookeeper 提供的能力非常相似，都是通用的一致性元信息存储，都提供 watch 机制用于变更通知和分发，也都被分布式系统用来作为共享信息存储，在软件生态中所处的位置也几乎是一样的，可以互相替代的。二者除了实现细节，语言，一致性协议上的区别，最大的区别在周边生态圈。Zookeeper 是 apache 下的，用 java 写的，提供 rpc 接口，最早从 hadoop 项目中孵化出来，在分布式系统中得到广泛使用（hadoop, solr, kafka, mesos 等）。Etcd 是 coreos 公司旗下的开源产品，比较新，以其简单好用的 rest 接口以及活跃的社区俘获了一批用户，在新的一些集群中得到使用（比如 kubernetes）。虽然 v3 为了性能也改成二进制 rpc 接口了，但其易用性上比 Zookeeper 还是好一些。 而 Consul 的目标则更为具体一些，Etcd 和 Zookeeper 提供的是分布式一致性存储能力，具体的业务场景需要用户自己实现，比如服务发现，比如配置变更。而 Consul 则以服务发现和配置变更为主要目标，同时附带了 kv 存储。  3⃣️ 3⃣️ kube-scheduler kube-scheduler 负责分配调度 Pod 到集群内的节点上，它监听 kube-apiserver，查询还未分配 Node 的 Pod，然后根据调度策略为这些 Pod 分配节点（更新 Pod 的 NodeName 字段）。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E7%BB%84%E4%BB%B6/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/ingress%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%8A%9F%E8%83%BD/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/k8s%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%8E%A5%E5%8F%A3/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%9E%B6%E6%9E%84/" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="k8s组件"/>
+<meta name="twitter:description" content="Master（控制平面）组件 1⃣️ 1⃣️ kube-apiserver  提供集群管理的 REST API 接口，包括认证授权、数据校验以及集群状态变更等 提供其他模块之间的数据交互和通信的枢纽（其他模块通过 API Server 查询或修改数据，只有 API Server 才直接操作 etcd）  2⃣️ 2⃣️ etcd etcd 是 CoreOS 基于 Raft 开发的分布式 key-value 存储，可用于服务发现、共享配置以及一致性保障（如数据库选主、分布式锁等）。
+主要功能🔧包括：
+ 基本的 key-value 存储 监听机制 key 的过期及续约机制，用于监控和服务发现 原子 CAS 和 CAD，用于分布式锁和 leader 选举  Etcd，Zookeeper，Consul 比较 🆚：
+ Etcd 和 Zookeeper 提供的能力非常相似，都是通用的一致性元信息存储，都提供 watch 机制用于变更通知和分发，也都被分布式系统用来作为共享信息存储，在软件生态中所处的位置也几乎是一样的，可以互相替代的。二者除了实现细节，语言，一致性协议上的区别，最大的区别在周边生态圈。Zookeeper 是 apache 下的，用 java 写的，提供 rpc 接口，最早从 hadoop 项目中孵化出来，在分布式系统中得到广泛使用（hadoop, solr, kafka, mesos 等）。Etcd 是 coreos 公司旗下的开源产品，比较新，以其简单好用的 rest 接口以及活跃的社区俘获了一批用户，在新的一些集群中得到使用（比如 kubernetes）。虽然 v3 为了性能也改成二进制 rpc 接口了，但其易用性上比 Zookeeper 还是好一些。 而 Consul 的目标则更为具体一些，Etcd 和 Zookeeper 提供的是分布式一致性存储能力，具体的业务场景需要用户自己实现，比如服务发现，比如配置变更。而 Consul 则以服务发现和配置变更为主要目标，同时附带了 kv 存储。  3⃣️ 3⃣️ kube-scheduler kube-scheduler 负责分配调度 Pod 到集群内的节点上，它监听 kube-apiserver，查询还未分配 Node 的 Pod，然后根据调度策略为这些 Pod 分配节点（更新 Pod 的 NodeName 字段）。"/>
+<meta name="twitter:site" content="@razonyang"/>
+<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.f36f1df320942b1c5814085ba3267c2ee2c33f9ae057fa1005c03689dab0737d.css" integrity="sha256-828d8yCUKxxYFAhboyZ8LuLDP5rgV/oQBcA2idqwc30=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/zh-cn/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+   width="400" height="400"
+   />
+👴🏻💪
+    </a>
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Share</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=k8s%e7%bb%84%e4%bb%b6&url=https%3a%2f%2fxuzhijvn.github.io%2fzh-cn%2fposts%2fk8s%2f%25E5%259F%25BA%25E7%25A1%2580%2fk8s%25E5%259F%25BA%25E7%25A1%2580%2fk8s%25E7%25BB%2584%25E4%25BB%25B6%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fxuzhijvn.github.io%2fzh-cn%2fposts%2fk8s%2f%25E5%259F%25BA%25E7%25A1%2580%2fk8s%25E5%259F%25BA%25E7%25A1%2580%2fk8s%25E7%25BB%2584%25E4%25BB%25B6%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</div>
+    <button class="navbar-settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-ellipsis-v"></i>
+</button>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-language"></i> 语言</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="dropdown">
+        <a class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          简体中文
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/en/"></a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm w-100 palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm w-100 palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm w-100 palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm w-100 palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm w-100 palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm w-100 palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm w-100 palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm w-100 palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm w-100 palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm w-100 palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm w-100 palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> 返回
+  </a>
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> 刷新
+  </a>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> 复制链接
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> 分享
+  </a></section>
+
+</div>
+</div>
+
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://xuzhijvn.github.io/zh-cn/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownCategories" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownCategories"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3">
+                <i class="fas fa-fw fa-code"></i>编程思想
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD">
+                <i class="fas fa-fw fa-robot"></i>人工智能
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE">
+                <i class="fas fa-fw fa-cubes"></i>区块链
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6">
+                <i class="fas fa-fw fa-server"></i>计算机科学
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B">
+                <i class="fas fa-fw fa-sitemap"></i>架构演进
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F">
+                <i class="fas fa-fw fa-cloud"></i>云原生
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/categories">
+                <i class="fas fa-fw fa-folder"></i>所有分类
+              </a>
+            </li></ul>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownTags" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownTags"><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/java">
+                <i class="fab fa-fw fa-java"></i>Java
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/go">
+                <i class="fab fa-fw fa-google"></i>Go
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags/mysql">
+                <i class="fas fa-fw fa-database"></i>MySQL
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://xuzhijvn.github.io/zh-cn/tags">
+                <i class="fas fa-fw fa-tags"></i>所有标签
+              </a>
+            </li></ul>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/zh-cn/series">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownProjects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            项目
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownProjects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap 主题
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 管理后台
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/">主页</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">k8s组件</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper">
+  <div class="d-flex flex-column component rounded post-panel">
+    
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" href="#postTOC" aria-controls="Table of contents" role="button" title="Table of contents">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    
+  </div>
+</div>
+<article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title">k8s组件
+</h1>
+  </div>
+  <div class="card-body"><div class="post-meta">
+  <span class="post-date" title="创建于 2021-08-27 11:15:10 &#43;0800 CST。">
+    2021-08-27
+  </span><span class="post-reading-time">
+    2 分钟阅读
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge post-taxonomy">k8s</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge post-taxonomy">k8s</a></span>
+</div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p><img src="http://picgo.6and.ltd/img/components-of-kubernetes.svg" alt="Kubernetes 组件" style="zoom: 60%;" /></p>
+<h2 id="master控制平面组件">Master（控制平面）组件<a class="anchor ms-1" href="#master控制平面组件"><i class="fas fa-link"></i></a></h2>
+1⃣️ <h3 id="1-kube-apiserverhttpsfeiskygitbooksiokubernetescontentcomponentsapiserverhtml">1⃣️ kube-apiserver<a class="anchor ms-1" href="#1-kube-apiserverhttpsfeiskygitbooksiokubernetescontentcomponentsapiserverhtml"><i class="fas fa-link"></i></a></h3>
+<ul>
+<li>提供集群管理的 <a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/" target="_blank" rel="noopener noreferrer">REST API</a>
+ 接口，包括认证授权、数据校验以及集群状态变更等</li>
+<li>提供其他模块之间的数据交互和通信的枢纽（其他模块通过 API Server 查询或修改数据，只有 API Server 才直接操作 etcd）</li>
+</ul>
+2⃣️ <h3 id="2-etcdhttpsfeiskygitbooksiokubernetescontentcomponentsetcdhtml">2⃣️ etcd<a class="anchor ms-1" href="#2-etcdhttpsfeiskygitbooksiokubernetescontentcomponentsetcdhtml"><i class="fas fa-link"></i></a></h3>
+<p>etcd 是 CoreOS 基于 Raft 开发的分布式 key-value 存储，可用于服务发现、共享配置以及一致性保障（如数据库选主、分布式锁等）。</p>
+<p>主要功能🔧包括：</p>
+<ul>
+<li>基本的 key-value 存储</li>
+<li>监听机制</li>
+<li>key 的过期及续约机制，用于监控和服务发现</li>
+<li>原子 CAS 和 CAD，用于分布式锁和 leader 选举</li>
+</ul>
+<p>Etcd，Zookeeper，Consul 比较 🆚：</p>
+<ul>
+<li>Etcd 和 Zookeeper 提供的能力非常相似，都是通用的一致性元信息存储，都提供 watch 机制用于变更通知和分发，也都被分布式系统用来作为共享信息存储，在软件生态中所处的位置也几乎是一样的，可以互相替代的。二者除了实现细节，语言，一致性协议上的区别，<strong>最大的区别在周边生态圈</strong>。Zookeeper 是 apache 下的，用 java 写的，提供 rpc 接口，最早从 hadoop 项目中孵化出来，在分布式系统中得到广泛使用（hadoop, solr, kafka, mesos 等）。Etcd 是 coreos 公司旗下的开源产品，比较新，以其简单好用的 rest 接口以及活跃的社区俘获了一批用户，在新的一些集群中得到使用（比如 kubernetes）。虽然 v3 为了性能也改成二进制 rpc 接口了，但其易用性上比 Zookeeper 还是好一些。</li>
+<li>而 Consul 的目标则更为具体一些，Etcd 和 Zookeeper 提供的是分布式一致性存储能力，具体的业务场景需要用户自己实现，比如服务发现，比如配置变更。而 Consul 则以服务发现和配置变更为主要目标，同时附带了 kv 存储。</li>
+</ul>
+3⃣️ <h3 id="3-kube-schedulerhttpskubernetesiozhdocsconceptsoverviewcomponents">3⃣️ kube-scheduler<a class="anchor ms-1" href="#3-kube-schedulerhttpskubernetesiozhdocsconceptsoverviewcomponents"><i class="fas fa-link"></i></a></h3>
+<p>kube-scheduler 负责分配调度 Pod 到集群内的节点上，它监听 kube-apiserver，查询还未分配 Node 的 Pod，然后根据调度策略为这些 Pod 分配节点（更新 Pod 的 <code>NodeName</code> 字段）。</p>
+<p>调度器需要充分考虑🤔诸多的因素：</p>
+<ul>
+<li>公平调度</li>
+<li>资源高效利用</li>
+<li>QoS</li>
+<li>affinity 和 anti-affinity</li>
+<li>数据本地化（data locality）</li>
+<li>内部负载干扰（inter-workload interference）</li>
+<li>deadlines</li>
+</ul>
+4⃣️ <h3 id="4-kube-controller-managerhttpsfeiskygitbooksiokubernetescontentcomponentscontroller-managerhtmlkube-controller-manager">4⃣️ kube-controller-manager<a class="anchor ms-1" href="#4-kube-controller-managerhttpsfeiskygitbooksiokubernetescontentcomponentscontroller-managerhtmlkube-controller-manager"><i class="fas fa-link"></i></a></h3>
+<p>kube-controller-manager 由一系列的控制器组成，这些控制器可以划分为三组</p>
+<ol>
+<li>
+<p>必须启动的控制器</p>
+<ul>
+<li>EndpointController: 填充端点(Endpoints)对象(即加入 Service 与 Pod)</li>
+<li>ReplicationController</li>
+<li>PodGCController</li>
+<li>ResourceQuotaController</li>
+<li>NamespaceController</li>
+<li>ServiceAccountController: 为新的命名空间创建默认帐户和 API 访问令牌</li>
+<li>GarbageCollectorController</li>
+<li>DaemonSetController</li>
+<li>JobController：监测代表一次性任务的 Job 对象，然后创建 Pods 来运行这些任务直至完成</li>
+<li>DeploymentController</li>
+<li>ReplicaSetController</li>
+<li>HPAController</li>
+<li>DisruptionController</li>
+<li>StatefulSetController</li>
+<li>CronJobController</li>
+<li>CSRSigningController</li>
+<li>CSRApprovingController</li>
+<li>TTLController</li>
+</ul>
+</li>
+<li>
+<p>默认启动的可选控制器，可通过选项设置是否开启</p>
+<ul>
+<li>TokenController: 为新的命名空间创建 API 访问令牌</li>
+<li>NodeController: 负责在节点出现故障时进行通知和响应</li>
+<li>ServiceController</li>
+<li>RouteController</li>
+<li>PVBinderController</li>
+<li>AttachDetachController</li>
+</ul>
+</li>
+<li>
+<p>默认禁止的可选控制器，可通过选项设置是否开启</p>
+<ul>
+<li>BootstrapSignerController</li>
+<li>TokenCleanerController</li>
+</ul>
+</li>
+</ol>
+5⃣️ <h3 id="5-cloud-controller-managerhttpsfeiskygitbooksiokubernetescontentcomponentscontroller-managerhtmlkube-controller-manager">5⃣️ cloud-controller-manager<a class="anchor ms-1" href="#5-cloud-controller-managerhttpsfeiskygitbooksiokubernetescontentcomponentscontroller-managerhtmlkube-controller-manager"><i class="fas fa-link"></i></a></h3>
+<p>cloud-controller-manager 在 Kubernetes 启用 Cloud Provider 的时候才需要，用来配合云服务提供商的控制，也包括一系列的控制器</p>
+<ul>
+<li>CloudNodeController: 用于在节点终止响应后检查云提供商以确定节点是否已被删除</li>
+<li>RouteController: 用于在底层云基础架构中设置路由</li>
+<li>ServiceController: 用于创建、更新和删除云提供商负载均衡器</li>
+</ul>
+<h2 id="node-组件">Node 组件<a class="anchor ms-1" href="#node-组件"><i class="fas fa-link"></i></a></h2>
+1⃣️ <h3 id="1-kubelethttpsfeiskygitbooksiokubernetescontentcomponentskubelethtml">1⃣️ Kubelet<a class="anchor ms-1" href="#1-kubelethttpsfeiskygitbooksiokubernetescontentcomponentskubelethtml"><i class="fas fa-link"></i></a></h3>
+<p>每个Node节点上都运行一个 Kubelet 服务进程，默认监听 10250 端口，接收并执行 Master 发来的指令，管理 Pod 及 Pod 中的容器。每个 Kubelet 进程会在 API Server 上注册所在Node节点的信息，定期向 Master 节点汇报该节点的资源使用情况，并通过 cAdvisor 监控节点和容器的资源。<code>管理节点</code>  <code>管理POD</code>  <code>管理容器</code>  <code>监控节点和容器</code></p>
+2⃣️ <h3 id="2-kube-proxyhttpsfeiskygitbooksiokubernetescontentcomponentskube-proxyhtml">2⃣️ kube-proxy<a class="anchor ms-1" href="#2-kube-proxyhttpsfeiskygitbooksiokubernetescontentcomponentskube-proxyhtml"><i class="fas fa-link"></i></a></h3>
+<p>每台机器上都运行一个 kube-proxy 服务，它监听 API server 中 service 和 endpoint 的变化情况，并通过 userspace、iptables、ipvs 或 winuserspace 等 proxier 来为服务配置负载均衡（仅支持 TCP 和 UDP）。</p>
+<p>kube-proxy 可以直接运行在物理机上，也可以以 static pod 或者 daemonset 的方式运行。</p>
+<blockquote>
+<h4 id="静态-pod">静态 Pod<a class="anchor ms-1" href="#静态-pod"><i class="fas fa-link"></i></a></h4>
+<p>除了 DaemonSet，还可以使用静态 Pod 来在每台机器上运行指定的 Pod，这需要 kubelet 在启动的时候指定 manifest 目录：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">kubelet --pod-manifest-path<span style="color:#f92672">=</span>/etc/kubernetes/manifests
+</code></pre></div><p>然后将所需要的 Pod 定义文件放到指定的 manifest 目录中。</p>
+<p>注意：静态 Pod 不能通过 API Server 来删除，但可以通过删除 manifest 文件来自动删除对应的 Pod。</p>
+</blockquote>
+3⃣️ <h3 id="3-容器运行时container-runtimehttpskubernetesiozhdocsconceptsoverviewcomponents">3⃣️ 容器运行时（Container Runtime）<a class="anchor ms-1" href="#3-容器运行时container-runtimehttpskubernetesiozhdocsconceptsoverviewcomponents"><i class="fas fa-link"></i></a></h3>
+<p>容器运行环境是负责运行容器的软件。</p>
+<p>Kubernetes 支持多个容器运行环境: <a href="https://kubernetes.io/zh/docs/reference/kubectl/docker-cli-to-kubectl/" target="_blank" rel="noopener noreferrer">Docker</a>
+、 <a href="https://containerd.io/docs/" target="_blank" rel="noopener noreferrer">containerd</a>
+、<a href="https://cri-o.io/#what-is-cri-o" target="_blank" rel="noopener noreferrer">CRI-O</a>
+ 以及任何实现 <a href="https://github.com/kubernetes/community/blob/master/contributors/devel/sig-node/container-runtime-interface.md" target="_blank" rel="noopener noreferrer">Kubernetes CRI (容器运行环境接口)</a>
+。</p>
+<h2 id="插件addons">插件（Addons）<a class="anchor ms-1" href="#插件addons"><i class="fas fa-link"></i></a></h2>
+1⃣️ <h3 id="1-dnshttpsfeiskygitbooksiokubernetescontentcomponentskube-dnshtml">1⃣️ DNS<a class="anchor ms-1" href="#1-dnshttpsfeiskygitbooksiokubernetescontentcomponentskube-dnshtml"><i class="fas fa-link"></i></a></h3>
+<p>DNS 是 Kubernetes 的核心功能之一，通过 kube-dns 或 CoreDNS 作为集群的必备扩展来提供命名服务。</p>
+<p>从 v1.11 开始可以使用 <a href="https://coredns.io/" target="_blank" rel="noopener noreferrer">CoreDNS</a>
+ 来提供命名服务，并从 v1.13 开始成为默认 DNS 服务。CoreDNS 的特点是效率更高，资源占用率更小，推荐使用 CoreDNS 替代 kube-dns 为集群提供 DNS 服务。</p>
+2⃣️ <h3 id="2-dashboardhttpskubernetesiozhdocstasksaccess-application-clusterweb-ui-dashboard">2⃣️ Dashboard<a class="anchor ms-1" href="#2-dashboardhttpskubernetesiozhdocstasksaccess-application-clusterweb-ui-dashboard"><i class="fas fa-link"></i></a></h3>
+<p><img src="http://picgo.6and.ltd/img/ui-dashboard.png" alt="Kubernetes Dashboard UI" style="zoom: 33%;" /></p>
+3⃣️ <h3 id="3-容器资源监控httpskubernetesiozhdocstasksdebug-application-clusterresource-usage-monitoring">3⃣️ 容器资源监控<a class="anchor ms-1" href="#3-容器资源监控httpskubernetesiozhdocstasksdebug-application-clusterresource-usage-monitoring"><i class="fas fa-link"></i></a></h3>
+<p>监控系统用于采集node和pod的监控数据</p>
+<ul>
+<li>metric-server 核心指标监控</li>
+<li>prometheus 自定义指标监控，提供丰富功能</li>
+<li>heapster+influxdb+grafana 旧核心指标监控方案，现已废弃</li>
+</ul>
+4⃣️ <h3 id="4-集群层面日志httpskubernetesiozhdocsconceptscluster-administrationlogging">4⃣️ 集群层面日志<a class="anchor ms-1" href="#4-集群层面日志httpskubernetesiozhdocsconceptscluster-administrationlogging"><i class="fas fa-link"></i></a></h3>
+<p>日志采集系统，用于收集容器的业务数据,实现日志的采集，存储和展示，由EFK实现</p>
+<ul>
+<li>Fluentd 日志采集</li>
+<li>ElasticSearch 日志存储+检索</li>
+<li>Kiabana 数据展示</li>
+</ul>
+<p>参考链接</p>
+<p><a href="https://feisky.gitbooks.io/kubernetes/content/components/components.html" target="_blank" rel="noopener noreferrer">https://feisky.gitbooks.io/kubernetes/content/components/components.html</a>
+</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E7%BB%84%E4%BB%B6%E9%97%B4%E9%80%9A%E4%BF%A1/">k8s组件间通信
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%9E%B6%E6%9E%84/">k8s架构
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div></div>
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">版权</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><section class="related-posts row card component">
+    <div class="card-header">
+      <h2 class="card-title">相关文章</h2>
+    </div>
+    <div class="card-body">
+      <ul class="post-list"><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/java%E5%BA%94%E7%94%A8%E4%BB%8Enfs%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/">Java应用从nfs加载配置文件
+</a>
+          <span class="float-end post-date">2021-08-27
+</span>
+        </li><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E8%B5%84%E6%BA%90%E5%AF%B9%E8%B1%A1/pv-pvc-storageclass/">PV/PVC/StorageClass
+</a>
+          <span class="float-end post-date">2021-08-27
+</span>
+        </li><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E8%B5%84%E6%BA%90%E5%AF%B9%E8%B1%A1/services/">Services
+</a>
+          <span class="float-end post-date">2021-08-27
+</span>
+        </li><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/ingress/">ingress
+</a>
+          <span class="float-end post-date">2021-08-27
+</span>
+        </li><li>
+          <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/ingress%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/">ingress实现灰度
+</a>
+          <span class="float-end post-date">2021-08-27
+</span>
+        </li></ul>
+    </div>
+  </section><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title">评论</h2>
+  </div>
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    <section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony" src="https://xuzhijvn.github.io/images/profile.webp" loading="lazy"
+   width="400" height="400"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a href="https://xuzhijvn.github.io/zh-cn/about/">关于</a></div></div>
+  </div>
+</section>
+  <div class="post-toc row mb-4 card component" id="postTOC">
+  <div class="card-header">
+    <h2 class="card-title">目录</h2>
+  </div>
+  <div class="card-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#master控制平面组件">Master（控制平面）组件</a>
+      <ul>
+        <li><a href="#1-kube-apiserverhttpsfeiskygitbooksiokubernetescontentcomponentsapiserverhtml">1⃣️ <a href="https://feisky.gitbooks.io/kubernetes/content/components/apiserver.html">kube-apiserver</a></a></li>
+        <li><a href="#2-etcdhttpsfeiskygitbooksiokubernetescontentcomponentsetcdhtml">2⃣️ <a href="https://feisky.gitbooks.io/kubernetes/content/components/etcd.html">etcd</a></a></li>
+        <li><a href="#3-kube-schedulerhttpskubernetesiozhdocsconceptsoverviewcomponents">3⃣️ <a href="https://kubernetes.io/zh/docs/concepts/overview/components/">kube-scheduler</a></a></li>
+        <li><a href="#4-kube-controller-managerhttpsfeiskygitbooksiokubernetescontentcomponentscontroller-managerhtmlkube-controller-manager">4⃣️ <a href="https://feisky.gitbooks.io/kubernetes/content/components/controller-manager.html#kube-controller-manager">kube-controller-manager</a></a></li>
+        <li><a href="#5-cloud-controller-managerhttpsfeiskygitbooksiokubernetescontentcomponentscontroller-managerhtmlkube-controller-manager">5⃣️ <a href="https://feisky.gitbooks.io/kubernetes/content/components/controller-manager.html#kube-controller-manager">cloud-controller-manager</a></a></li>
+      </ul>
+    </li>
+    <li><a href="#node-组件">Node 组件</a>
+      <ul>
+        <li><a href="#1-kubelethttpsfeiskygitbooksiokubernetescontentcomponentskubelethtml">1⃣️ <a href="https://feisky.gitbooks.io/kubernetes/content/components/kubelet.html">Kubelet</a></a></li>
+        <li><a href="#2-kube-proxyhttpsfeiskygitbooksiokubernetescontentcomponentskube-proxyhtml">2⃣️ <a href="https://feisky.gitbooks.io/kubernetes/content/components/kube-proxy.html">kube-proxy</a></a></li>
+        <li><a href="#3-容器运行时container-runtimehttpskubernetesiozhdocsconceptsoverviewcomponents">3⃣️ <a href="https://kubernetes.io/zh/docs/concepts/overview/components/">容器运行时（Container Runtime）</a></a></li>
+      </ul>
+    </li>
+    <li><a href="#插件addons">插件（Addons）</a>
+      <ul>
+        <li><a href="#1-dnshttpsfeiskygitbooksiokubernetescontentcomponentskube-dnshtml">1⃣️ <a href="https://feisky.gitbooks.io/kubernetes/content/components/kube-dns.html">DNS</a></a></li>
+        <li><a href="#2-dashboardhttpskubernetesiozhdocstasksaccess-application-clusterweb-ui-dashboard">2⃣️ <a href="https://kubernetes.io/zh/docs/tasks/access-application-cluster/web-ui-dashboard/">Dashboard</a></a></li>
+        <li><a href="#3-容器资源监控httpskubernetesiozhdocstasksdebug-application-clusterresource-usage-monitoring">3⃣️ <a href="https://kubernetes.io/zh/docs/tasks/debug-application-cluster/resource-usage-monitoring/">容器资源监控</a></a></li>
+        <li><a href="#4-集群层面日志httpskubernetesiozhdocsconceptscluster-administrationlogging">4⃣️ <a href="https://kubernetes.io/zh/docs/concepts/cluster-administration/logging/">集群层面日志</a></a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div><section class="recent-posts row card component">
+  <div class="card-header">
+    <h2 class="card-title">最近文章</h2>
+  </div>
+  <div class="card-body">
+    <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/">MQ实现延时消息
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">RabbitMQ清空队列的几种方式
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/">代理
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/">装饰器
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/">Java SPI
+</a>
+      </li></ul>
+  </div>
+</section><section class="series-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/series">专栏</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a></div>
+      </div>
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/categories">分类</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/zh-cn/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/zh-cn/tags">标签</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/tags/java/" class="badge rounded post-taxonomy" title="Java">
+            Java</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/zh-cn/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/zh-cn/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/zh-cn/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/zh-cn/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/zh-cn/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/zh-cn/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/zh-cn/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/zh-cn/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/zh-cn/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/zh-cn/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/zh-cn/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/zh-cn/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/zh-cn/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/zh-cn/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/zh-cn/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/zh-cn/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/zh-cn/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/zh-cn/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/zh-cn/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
+      </div>
+    </section>
+    <section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=783175223&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<script src="https://xuzhijvn.github.io/js/main.da4026fda2fca654d7a2237484e7eb47b11158791407fb55217cbe95b4353a94.js" integrity="sha256-2kAm/aL8plTXoiN0hOfrR7ERWHkUB/tVIXy&#43;lbQ1OpQ=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></body>
+</html>
