@@ -36,7 +36,7 @@ images = []
 
 RabbitMQ实现延时消息有两种方案，第一种是采用rabbitmq-delayed-message-exchange 插件实现，第二种则是利用DLX（Dead Letter Exchanges）+ TTL（消息存活时间）来间接实现。
 
-第一种，在有许多延时消息量比较大时候会内存飙升。
+第一种，在延时消息量比较大时候会内存飙升。
 
 第二种，大致的实现思路如下：
 
