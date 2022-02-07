@@ -398,11 +398,11 @@ Reading messages... <span style="color:#f92672">(</span>press Ctrl-C to quit<spa
 3<span style="color:#f92672">)</span> <span style="color:#f92672">(</span>integer<span style="color:#f92672">)</span> <span style="color:#ae81ff">1</span> 
 </code></pre></div><p>这里的消费者，订阅了 queue.* 相关的队列消息。</p>
 <p>之后，生产者分别向 queue.p1 和 queue.p2 发布消息。</p>
-<pre><code>127.0.0.1:6379&gt; PUBLISH queue.p1 msg1  
-(integer) 1  
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">127.0.0.1:6379&gt; PUBLISH queue.p1 msg1  
+<span style="color:#f92672">(</span>integer<span style="color:#f92672">)</span> <span style="color:#ae81ff">1</span>  
 127.0.0.1:6379&gt; PUBLISH queue.p2 msg2  
-(integer) 1 
-</code></pre><p>这时再看消费者，它就可以接收到这 2 个生产者的消息了。</p>
+<span style="color:#f92672">(</span>integer<span style="color:#f92672">)</span> <span style="color:#ae81ff">1</span> 
+</code></pre></div><p>这时再看消费者，它就可以接收到这 2 个生产者的消息了。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">127.0.0.1:6379&gt; PSUBSCRIBE queue.*  
 Reading messages... <span style="color:#f92672">(</span>press Ctrl-C to quit<span style="color:#f92672">)</span>  
 ...  
@@ -486,9 +486,9 @@ Reading messages... <span style="color:#f92672">(</span>press Ctrl-C to quit<spa
 <p>下面我们来看，针对前面提到的消息队列要求，Stream 都是如何解决的？</p>
 <h3 id="1-stream-是否支持阻塞式拉取消息">1. Stream 是否支持「阻塞式」拉取消息？<a class="anchor ms-1" href="#1-stream-是否支持阻塞式拉取消息"><i class="fas fa-link"></i></a></h3>
 <p>可以的，在读取消息时，只需要增加 BLOCK 参数即可。</p>
-<pre><code>// BLOCK 0 表示阻塞等待，不设置超时时间  
-127.0.0.1:6379&gt; XREAD COUNT 5 BLOCK 0 STREAMS queue 1618469127777-0 
-</code></pre><p>这时，消费者就会阻塞等待，直到生产者发布新的消息才会返回。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">// BLOCK <span style="color:#ae81ff">0</span> 表示阻塞等待，不设置超时时间  
+127.0.0.1:6379&gt; XREAD COUNT <span style="color:#ae81ff">5</span> BLOCK <span style="color:#ae81ff">0</span> STREAMS queue 1618469127777-0 
+</code></pre></div><p>这时，消费者就会阻塞等待，直到生产者发布新的消息才会返回。</p>
 <h3 id="2-stream-是否支持发布--订阅模式">2. Stream 是否支持发布 / 订阅模式？<a class="anchor ms-1" href="#2-stream-是否支持发布--订阅模式"><i class="fas fa-link"></i></a></h3>
 <p>也没问题，Stream 通过以下命令完成发布订阅：</p>
 <ul>
@@ -497,39 +497,39 @@ Reading messages... <span style="color:#f92672">(</span>press Ctrl-C to quit<spa
 </ul>
 <p>下面我们来看具体如何做？</p>
 <p>首先，生产者依旧发布 2 条消息：</p>
-<pre><code>127.0.0.1:6379&gt; XADD queue * name zhangsan  
-&quot;1618470740565-0&quot;  
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">127.0.0.1:6379&gt; XADD queue * name zhangsan  
+<span style="color:#e6db74">&#34;1618470740565-0&#34;</span>  
 127.0.0.1:6379&gt; XADD queue * name lisi 
-&quot;1618470743793-0&quot; 
-</code></pre><p>之后，我们想要开启 2 组消费者处理同一批数据，就需要创建 2 个消费者组：</p>
-<pre><code>// 创建消费者组1，0-0表示从头拉取消息  
+<span style="color:#e6db74">&#34;1618470743793-0&#34;</span> 
+</code></pre></div><p>之后，我们想要开启 2 组消费者处理同一批数据，就需要创建 2 个消费者组：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">// 创建消费者组1，0-0表示从头拉取消息  
 127.0.0.1:6379&gt; XGROUP CREATE queue group1 0-0  
 OK  
 // 创建消费者组2，0-0表示从头拉取消息  
 127.0.0.1:6379&gt; XGROUP CREATE queue group2 0-0  
 OK 
-</code></pre><p>消费者组创建好之后，我们可以给每个「消费者组」下面挂一个「消费者」，让它们分别处理同一批数据。</p>
+</code></pre></div><p>消费者组创建好之后，我们可以给每个「消费者组」下面挂一个「消费者」，让它们分别处理同一批数据。</p>
 <p>第一个消费组开始消费：</p>
-<pre><code>// group1的consumer开始消费，&gt;表示拉取最新数据  
-127.0.0.1:6379&gt; XREADGROUP GROUP group1 consumer COUNT 5 STREAMS queue &gt;  
-1) 1) &quot;queue&quot;  
-   2) 1) 1) &quot;1618470740565-0&quot;  
-         2) 1) &quot;name&quot;  
-            2) &quot;zhangsan&quot;  
-      2) 1) &quot;1618470743793-0&quot;  
-         2) 1) &quot;name&quot;  
-            2) &quot;lisi&quot; 
-</code></pre><p>同样地，第二个消费组开始消费：</p>
-<pre><code>// group2的consumer开始消费，&gt;表示拉取最新数据  
-127.0.0.1:6379&gt; XREADGROUP GROUP group2 consumer COUNT 5 STREAMS queue &gt;  
-1) 1) &quot;queue&quot;  
-   2) 1) 1) &quot;1618470740565-0&quot;  
-         2) 1) &quot;name&quot;  
-            2) &quot;zhangsan&quot;  
-      2) 1) &quot;1618470743793-0&quot;  
-         2) 1) &quot;name&quot;  
-            2) &quot;lisi&quot; 
-</code></pre><p>我们可以看到，这 2 组消费者，都可以获取同一批数据进行处理了。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">// group1的consumer开始消费，&gt;表示拉取最新数据  
+127.0.0.1:6379&gt; XREADGROUP GROUP group1 consumer COUNT <span style="color:#ae81ff">5</span> STREAMS queue &gt;  
+1<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;queue&#34;</span>  
+   2<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;1618470740565-0&#34;</span>  
+         2<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;name&#34;</span>  
+            2<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;zhangsan&#34;</span>  
+      2<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;1618470743793-0&#34;</span>  
+         2<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;name&#34;</span>  
+            2<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;lisi&#34;</span> 
+</code></pre></div><p>同样地，第二个消费组开始消费：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">// group2的consumer开始消费，&gt;表示拉取最新数据  
+127.0.0.1:6379&gt; XREADGROUP GROUP group2 consumer COUNT <span style="color:#ae81ff">5</span> STREAMS queue &gt;  
+1<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;queue&#34;</span>  
+   2<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;1618470740565-0&#34;</span>  
+         2<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;name&#34;</span>  
+            2<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;zhangsan&#34;</span>  
+      2<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;1618470743793-0&#34;</span>  
+         2<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;name&#34;</span>  
+            2<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;lisi&#34;</span> 
+</code></pre></div><p>我们可以看到，这 2 组消费者，都可以获取同一批数据进行处理了。</p>
 <p>这样一来，就达到了多组消费者「订阅」消费的目的。</p>
 <p><img class="img-fluid" alt="XREADGROUP" src="https://picgo.6and.ltd/img/9a167ac652995bbad7ed9da7d39eb5fa.jpg" loading="lazy"
   
@@ -539,26 +539,26 @@ OK
 <h3 id="3-消息处理时异常stream-能否保证消息不丢失重新消费">3. 消息处理时异常，Stream 能否保证消息不丢失，重新消费？<a class="anchor ms-1" href="#3-消息处理时异常stream-能否保证消息不丢失重新消费"><i class="fas fa-link"></i></a></h3>
 <p>除了上面拉取消息时用到了消息 ID，这里为了保证重新消费，也要用到这个消息 ID。</p>
 <p>当一组消费者处理完消息后，需要执行 XACK 命令告知 Redis，这时 Redis 就会把这条消息标记为「处理完成」。</p>
-<pre><code>// group1下的 1618472043089-0 消息已处理完成  
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">// group1下的 1618472043089-0 消息已处理完成  
 127.0.0.1:6379&gt; XACK queue group1 1618472043089-0 
-</code></pre><p><img class="img-fluid" alt="stream-ack" src="https://picgo.6and.ltd/img/1ebeaa4a073d4dfb7018a9451119344b.jpg" loading="lazy"
+</code></pre></div><p><img class="img-fluid" alt="stream-ack" src="https://picgo.6and.ltd/img/1ebeaa4a073d4dfb7018a9451119344b.jpg" loading="lazy"
   
    />
 
 </p>
 <p>如果消费者异常宕机，肯定不会发送 XACK，那么 Redis 就会依旧保留这条消息。</p>
 <p>待这组消费者重新上线后，Redis 就会把之前没有处理成功的数据，重新发给这个消费者。这样一来，即使消费者异常，也不会丢失数据了。</p>
-<pre><code>// 消费者重新上线，0-0表示重新拉取未ACK的消息  
-127.0.0.1:6379&gt; XREADGROUP GROUP group1 consumer1 COUNT 5 STREAMS queue 0-0  
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">// 消费者重新上线，0-0表示重新拉取未ACK的消息  
+127.0.0.1:6379&gt; XREADGROUP GROUP group1 consumer1 COUNT <span style="color:#ae81ff">5</span> STREAMS queue 0-0  
 // 之前没消费成功的数据，依旧可以重新消费  
-1) 1) &quot;queue&quot;  
-   2) 1) 1) &quot;1618472043089-0&quot;  
-         2) 1) &quot;name&quot;  
-            2) &quot;zhangsan&quot;  
-      2) 1) &quot;1618472045158-0&quot;  
-         2) 1) &quot;name&quot;  
-            2) &quot;lisi&quot; 
-</code></pre><h3 id="4-stream-数据会写入到-rdb-和-aof-做持久化吗">4. Stream 数据会写入到 RDB 和 AOF 做持久化吗？<a class="anchor ms-1" href="#4-stream-数据会写入到-rdb-和-aof-做持久化吗"><i class="fas fa-link"></i></a></h3>
+1<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;queue&#34;</span>  
+   2<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;1618472043089-0&#34;</span>  
+         2<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;name&#34;</span>  
+            2<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;zhangsan&#34;</span>  
+      2<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;1618472045158-0&#34;</span>  
+         2<span style="color:#f92672">)</span> 1<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;name&#34;</span>  
+            2<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;lisi&#34;</span> 
+</code></pre></div><h3 id="4-stream-数据会写入到-rdb-和-aof-做持久化吗">4. Stream 数据会写入到 RDB 和 AOF 做持久化吗？<a class="anchor ms-1" href="#4-stream-数据会写入到-rdb-和-aof-做持久化吗"><i class="fas fa-link"></i></a></h3>
 <p>Stream 是新增加的数据类型，它与其它数据类型一样，每个写操作，也都会写入到 RDB 和 AOF 中。</p>
 <p>我们只需要配置好持久化策略，这样的话，就算 Redis 宕机重启，Stream 中的数据也可以从 RDB 或 AOF 中恢复回来。</p>
 <h3 id="5-消息堆积时stream-是怎么处理的">5. 消息堆积时，Stream 是怎么处理的？<a class="anchor ms-1" href="#5-消息堆积时stream-是怎么处理的"><i class="fas fa-link"></i></a></h3>
@@ -569,10 +569,10 @@ OK
 </ol>
 <p>而 Redis 在实现 Stream 时，采用了第 2 个方案。</p>
 <p>在发布消息时，你可以指定队列的最大长度，防止队列积压导致内存爆炸。</p>
-<pre><code>// 队列长度最大10000  
-127.0.0.1:6379&gt; XADD queue MAXLEN 10000 * name zhangsan  
-&quot;1618473015018-0&quot; 
-</code></pre><p>当队列长度超过上限后，旧消息会被删除，只保留固定长度的新消息。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">// 队列长度最大10000  
+127.0.0.1:6379&gt; XADD queue MAXLEN <span style="color:#ae81ff">10000</span> * name zhangsan  
+<span style="color:#e6db74">&#34;1618473015018-0&#34;</span> 
+</code></pre></div><p>当队列长度超过上限后，旧消息会被删除，只保留固定长度的新消息。</p>
 <h2 id="stream与专业mq对比">Stream与专业MQ对比<a class="anchor ms-1" href="#stream与专业mq对比"><i class="fas fa-link"></i></a></h2>
 <p>我们从以下两个方面对比：</p>
 <ul>
