@@ -12,7 +12,7 @@
 <meta name="description" content="Spring cloud gateway  👉 webflux 👉 project reactor 👉 netty 👉 epoll" /><meta itemprop="name" content="网关设计">
 <meta itemprop="description" content="Spring cloud gateway  👉 webflux 👉 project reactor 👉 netty 👉 epoll"><meta itemprop="datePublished" content="2021-09-16T10:29:48+08:00" />
 <meta itemprop="dateModified" content="2021-09-16T10:29:48+08:00" />
-<meta itemprop="wordCount" content="164">
+<meta itemprop="wordCount" content="212">
 <meta itemprop="keywords" content="SA," /><meta property="og:title" content="网关设计" />
 <meta property="og:description" content="Spring cloud gateway  👉 webflux 👉 project reactor 👉 netty 👉 epoll" />
 <meta property="og:type" content="article" />
@@ -348,6 +348,21 @@
 <li>熔断器启动</li>
 <li>线程池/信号量已满</li>
 </ol>
+<p><strong>使用hystrix的几种方式：</strong></p>
+<ul>
+<li><code>spring-cloud-gateway-core</code> 默认提供了一个 <code>HystrixGatewayFilterFactory</code> <a href="https://www.fangzhipeng.com/springcloud/2018/12/21/sc-f-gatway3.html" target="_blank" rel="noopener noreferrer">过滤器工厂</a>
+，因此 <code>gateway</code> 可以通过配置 <code>application.yml</code> 的方式<a href="https://juejin.cn/post/6844903618810740750" target="_blank" rel="noopener noreferrer">使用hystrix熔断器</a>
+。</li>
+</ul>
+<blockquote>
+<p>因为<code>hystrix</code> 已经停止维护， <code>gateway</code>在 <code>3.x</code> 版本后移除了<code>HystrixGatewayFilterFactory</code>，官方推荐使用<code>Resilience4J</code> 替代</p>
+</blockquote>
+<ul>
+<li>引入 <code>hystrix-core</code> 包后，通过注解  <code>@HystrixCommand(fallbackMethod = &quot;指定fallback方法&quot;)</code> 使用。 👉🏿 <a href="https://www.fangzhipeng.com/springcloud/2018/08/04/sc-f4-hystrix.html" target="_blank" rel="noopener noreferrer">使用详情</a>
+</li>
+<li>因为 <code>Feign</code> 整合了 <code>hystrix</code>，因此如果你使用了<code>Feign</code>，通过注解 <code>@FeignClient(value = &quot;service-hi&quot;,fallback = 指定Fallback类)</code> 使用。 👉🏿 <a href="https://www.fangzhipeng.com/springcloud/2018/08/04/sc-f4-hystrix.html" target="_blank" rel="noopener noreferrer">使用详情</a>
+</li>
+</ul>
 <h3 id="缓存">缓存<a class="anchor ms-1" href="#缓存"><i class="fas fa-link"></i></a></h3>
 <p>hystrix</p>
 <h3 id="业务隔离">业务隔离<a class="anchor ms-1" href="#业务隔离"><i class="fas fa-link"></i></a></h3>
@@ -372,17 +387,46 @@
 <li>哈希 (Hash)</li>
 <li>加权（Weighted）</li>
 </ol>
-<p>ribbon负载均衡策略介绍</p>
-<p><code>RoundRobinRule</code>：简单轮询服务列表来选择服务器。它是Ribbon默认的负载均衡规则。</p>
-<p><code>AvailabilityFilteringRule</code>：对以下两种服务器进行忽略：</p>
-<p>（1）在默认情况下，这台服务器如果3次连接失败，这台服务器就会被设置为“短路”状态。短路状态将持续30秒，如果再次连接失败，短路的持续时间就会几何级地增加。</p>
-<p>注意：可以通过修改配置loadbalancer.<clientName>.connectionFailureCountThreshold来修改连接失败多少次之后被设置为短路状态。默认是3次。</p>
-<p>（2）并发数过高的服务器。如果一个服务器的并发连接数过高，配置了AvailabilityFilteringRule规则的客户端也会将其忽略。并发连接数的上线，可以由客户端的<clientName>.<clientConfigNameSpace>.ActiveConnectionsLimit属性进行配置</p>
-<p><code>WeightedResponseTimeRule</code>：为每一个服务器赋予一个权重值。服务器响应时间越长，这个服务器的权重就越小。这个规则会随机选择服务器，这个权重值会影响服务器的选择。</p>
-<p><code>ZoneAvoidanceRule</code>：以区域可用的服务器为基础进行服务器的选择。使用Zone对服务器进行分类，这个Zone可以理解为一个机房、一个机架等。</p>
-<p><code>BestAvailableRule</code>：忽略那些短路的服务器，并选择并发数较低的服务器。</p>
-<p><code>RandomRule</code>：随机选择一个可用的服务器。</p>
-<p><code>Retry</code>：重试机制的选择逻辑</p>
+<p>ribbon所有的负载均衡策略均实现IRule接口，可以自定义</p>
+<p>系统提供了几种策略：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><strong>内置负载均衡规则类</strong></th>
+<th style="text-align:left"><strong>规则描述</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>RoundRobinRule</code></td>
+<td style="text-align:left">简单轮询服务列表来选择服务器。它是Ribbon默认的负载均衡规则。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>AvailabilityFilteringRule</code></td>
+<td style="text-align:left">对以下两种服务器进行忽略：<br />（1）在默认情况下，这台服务器如果3次连接失败，这台服务器就会被设置为“短路”状态。短路状态将持续30秒，如果再次连接失败，短路的持续时间就会几何级地增加。<br /><em>注意：可以通过修改配置<code>loadbalancer.&lt;clientName&gt;.connectionFailureCountThreshold</code>来修改连接失败多少次之后被设置为短路状态。默认是3次。</em><br />（2）并发数过高的服务器。如果一个服务器的并发连接数过高，配置了AvailabilityFilteringRule规则的客户端也会将其忽略。并发连接数的上线，可以由客户端的<code>&lt;clientName&gt;.&lt;clientConfigNameSpace&gt;.ActiveConnectionsLimit</code>属性进行配置</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>WeightedResponseTimeRule</code></td>
+<td style="text-align:left">为每一个服务器赋予一个权重值。服务器响应时间越长，这个服务器的权重就越小。这个规则会随机选择服务器，这个权重值会影响服务器的选择。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ZoneAvoidanceRule</code></td>
+<td style="text-align:left">以区域可用的服务器为基础进行服务器的选择。使用Zone对服务器进行分类，这个Zone可以理解为一个机房、一个机架等。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>BestAvailableRule</code></td>
+<td style="text-align:left">忽略那些短路的服务器，并选择并发数较低的服务器。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>RandomRule</code></td>
+<td style="text-align:left">随机选择一个可用的服务器。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Retry</code></td>
+<td style="text-align:left">重试机制的选择逻辑</td>
+</tr>
+</tbody>
+</table>
 <h3 id="适配注册中心">适配注册中心<a class="anchor ms-1" href="#适配注册中心"><i class="fas fa-link"></i></a></h3>
 <p>Eureka、Zookeeper、Nacos以及Consul都已经集成好了。</p>
 <p>形如 <code>http://abc.com/服务名/xxx</code> 的请求会被转发到对应的服务</p>
