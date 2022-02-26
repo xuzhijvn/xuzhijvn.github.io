@@ -18,7 +18,7 @@
   消除伪共享
   RingBuffer
   有了这三大杀器，Disruptor才变得如此牛逼。
-3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。" /><meta itemprop="name" content="高性能无锁队列Disruptor">
+3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现" /><meta itemprop="name" content="高性能无锁队列Disruptor">
 <meta itemprop="description" content="1. JDK中的队列 在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:
    队列名字 是否加锁 数据结构 关键技术点 是否有锁 是否有界     ArrayBlockingQueue 是 数组array ReentrantLock 有锁 有界   LinkedBlockingQueue 是 链表 ReentrantLock 有锁 有界   LinkedTransferQueue 否 链表 CAS 无锁 无界   ConcurrentLinkedQueue 否 链表 CAS 无锁 无界    我们可以看见，我们无锁的队列是无界的，有锁的队列是有界的，这里就会涉及到一个问题，我们在真正的线上环境中，无界的队列，对我们系统的影响比较大，有可能会导致我们内存直接溢出，所以我们首先得排除无界队列，当然并不是无界队列就没用了，只是在某些场景下得排除。其次还剩下ArrayBlockingQueue，LinkedBlockingQueue两个队列，他们两个都是用ReentrantLock控制的线程安全，他们两个的区别一个是数组，一个是链表，在队列中，一般获取这个队列元素之后紧接着会获取下一个元素，或者一次获取多个队列元素都有可能，而数组在内存中地址是连续的，在操作系统中会有缓存的优化(下面也会介绍缓存行)，所以访问的速度会略胜一筹，我们也会尽量去选择ArrayBlockingQueue。而事实证明在很多第三方的框架中，比如早期的log4j异步，都是选择的ArrayBlockingQueue。
 当然ArrayBlockingQueue，也有自己的弊端，就是性能比较低，为什么jdk会增加一些无锁的队列，其实就是为了增加性能，很苦恼，又需要无锁，又需要有界，这个时候恐怕会忍不住说一句你咋不上天呢？但是还真有人上天了。
@@ -28,7 +28,7 @@
   消除伪共享
   RingBuffer
   有了这三大杀器，Disruptor才变得如此牛逼。
-3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="423">
 <meta itemprop="keywords" content="Other," /><meta property="og:title" content="高性能无锁队列Disruptor" />
@@ -41,12 +41,12 @@
   消除伪共享
   RingBuffer
   有了这三大杀器，Disruptor才变得如此牛逼。
-3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。" />
+3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/other/%E9%AB%98%E6%80%A7%E8%83%BD%E6%97%A0%E9%94%81%E9%98%9F%E5%88%97disruptor/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="高性能无锁队列Disruptor"/>
@@ -59,9 +59,10 @@
   消除伪共享
   RingBuffer
   有了这三大杀器，Disruptor才变得如此牛逼。
-3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现 我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。"/>
+3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现"/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.f36f1df320942b1c5814085ba3267c2ee2c33f9ae057fa1005c03689dab0737d.css" integrity="sha256-828d8yCUKxxYFAhboyZ8LuLDP5rgV/oQBcA2idqwc30=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+<meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -410,8 +411,7 @@
 </ul>
 <p>有了这三大杀器，Disruptor才变得如此牛逼。</p>
 <h4 id="311-锁和cas">3.1.1 锁和CAS<a class="anchor ms-1" href="#311-锁和cas"><i class="fas fa-link"></i></a></h4>
-<p>CAS实现无锁队列可以参考👉<a href="https://coolshell.cn/articles/8239.html" target="_blank" rel="noopener noreferrer">无锁队列的实现</a>
-</p>
+<p>CAS实现无锁队列可以参考👉<a href="https://coolshell.cn/articles/8239.html" target="_blank" rel="noopener noreferrer">无锁队列的实现</a></p>
 <p>我们ArrayBlockingQueue为什么会被抛弃的一点，就是因为用了重量级lock锁，在我们加锁过程中我们会把锁挂起，解锁后，又会把线程恢复,这一过程会有一定的开销，并且我们一旦没有获取锁，这个线程就只能一直等待，这个线程什么事也不能做。</p>
 <p>CAS（compare and swap），顾名思义先比较在交换，一般是比较是否是老的值，如果是的进行交换设置，大家熟悉乐观锁的人都知道CAS可以用来实现乐观锁，CAS中没有线程的上下文切换，减少了不必要的开销。 这里使用JMH，用两个线程，每次1一次调用，在我本机上进行测试，代码如下:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@BenchmarkMode</span><span style="color:#f92672">({</span>Mode<span style="color:#f92672">.</span><span style="color:#a6e22e">SampleTime</span><span style="color:#f92672">})</span>
@@ -519,8 +519,7 @@
 </tbody>
 </table>
 <h5 id="缓存行">缓存行<a class="anchor ms-1" href="#缓存行"><i class="fas fa-link"></i></a></h5>
-<p>关于cache-line更细致的介绍请移步 👉👉 <a href="https://www.cnkirito.moe/cache-line/" target="_blank" rel="noopener noreferrer">JAVA 拾遗 — CPU Cache 与缓存行</a>
-</p>
+<p>关于cache-line更细致的介绍请移步 👉👉 <a href="https://www.cnkirito.moe/cache-line/" target="_blank" rel="noopener noreferrer">JAVA 拾遗 — CPU Cache 与缓存行</a></p>
 <p>在cpu的多级缓存中，并不是以独立的项来保存的，而是类似一种pageCahe的一种策略，以缓存行来保存，而缓存行的大小通常是64字节，在Java中Long是8个字节，所以可以存储8个Long,举个例子，你访问一个long的变量的时候，他会把帮助再加载7个，我们上面说为什么选择数组不选择链表，也就是这个原因，在数组中可以依靠缓冲行得到很快的访问。</p>
 <p><img class="img-fluid" alt="cache-line-1" src="https://picgo.6and.ltd/img/cache-line-1.png" loading="lazy"
   
@@ -649,10 +648,8 @@
 </ul>
 <p>EventTranslator：实现这个接口可以将我们的其他数据结构转换为在Disruptor中流通的Event。</p>
 <h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
-<p><a href="https://coolshell.cn/articles/8239.html" target="_blank" rel="noopener noreferrer">无锁队列的实现</a>
-</p>
-<p><a href="https://juejin.cn/post/6844903648875528206" target="_blank" rel="noopener noreferrer">你应该知道的高性能无锁队列Disruptor</a>
-</p>
+<p><a href="https://coolshell.cn/articles/8239.html" target="_blank" rel="noopener noreferrer">无锁队列的实现</a></p>
+<p><a href="https://juejin.cn/post/6844903648875528206" target="_blank" rel="noopener noreferrer">你应该知道的高性能无锁队列Disruptor</a></p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -679,11 +676,7 @@
     </div>
   </div>
 </div></div>
-  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly">
-  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://xuzhijvn.github.io/zh-cn/about/">关于
-</a>
-  </div><div class="post-nav post-next">
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-next">
     <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E9%9B%B6%E6%8B%B7%E8%B4%9D/">零拷贝
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
@@ -786,6 +779,12 @@
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/sa/%E5%BC%82%E6%AD%A5rpc/">异步RPC
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">Like查询优化
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/">Redis队列
 </a>
       </li><li>
@@ -793,12 +792,6 @@
 </a>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">RabbitMQ清空队列的几种方式
-</a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/">代理
-</a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/">装饰器
 </a>
       </li></ul>
   </div>
@@ -814,7 +807,8 @@
             k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
             k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
             算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
-            istio实战</a></div>
+            istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a></div>
       </div>
     </section><section class="categories-taxonomies row card component">
       <div class="card-header">
@@ -881,7 +875,8 @@
             MongoDB</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
             MyBatis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
             openresty</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
-            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
             SpringBoot</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
             牛客</a></div>
       </div>
@@ -925,8 +920,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.da4026fda2fca654d7a2237484e7eb47b11158791407fb55217cbe95b4353a94.js" integrity="sha256-2kAm/aL8plTXoiN0hOfrR7ERWHkUB/tVIXy&#43;lbQ1OpQ=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

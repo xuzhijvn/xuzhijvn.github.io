@@ -11,14 +11,16 @@
 <meta name="keywords" content="" />
 <meta name="description" content="本地连接k8s集群 在日常开发的过程中，经常会需要在本地开发的程序需要在k8s中调试的场景，比如，写了一个operator。
 如果此时，本地又没有可以直接可达的k8s集群，
-比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群 再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
+比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群
+再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
 1⃣️ 重新生成config文件 默认下，~/.kube/config 生成配置文件的时候只包含了k8s集群ip和这个节点的局域网ip，本地如果想远程操作k8s的话，必定要通过公网ip连接到k8s集群，所以我们需要把节点绑定的公网ip也放到证书里面去，即我们需要重新生成证书。如果不这样做，本地直接访问的话，会报如下提示：
 tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate is valid for 10.96.0.1, 172.17.0.14, not 106.55.152.92 先备份证书：
 [root@k8s-master .kube]# mkdir -p /etc/kubernetes/pki.bak [root@k8s-master .kube]# mv /etc/kubernetes/pki/apiserver.* /etc/kubernetes/pki.bak 重新生成证书：
 [root@k8s-master .kube]# kubeadm init phase certs all --apiserver-advertise-address=0.0.0.0 --apiserver-cert-extra-sans=10.96.0.1,172.17.0.14,xxx.xxx.xxx.xxx(公网ip) I0627 15:10:39.069106 7777 version.go:252] remote version is much newer: v1.21.2; falling back to: stable-1.18 W0627 15:10:40.982380 7777 configset.go:202] WARNING: kubeadm cannot validate component configs for API groups [kubelet." /><meta itemprop="name" content="本地连接k8s集群">
 <meta itemprop="description" content="本地连接k8s集群 在日常开发的过程中，经常会需要在本地开发的程序需要在k8s中调试的场景，比如，写了一个operator。
 如果此时，本地又没有可以直接可达的k8s集群，
-比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群 再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
+比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群
+再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
 1⃣️ 重新生成config文件 默认下，~/.kube/config 生成配置文件的时候只包含了k8s集群ip和这个节点的局域网ip，本地如果想远程操作k8s的话，必定要通过公网ip连接到k8s集群，所以我们需要把节点绑定的公网ip也放到证书里面去，即我们需要重新生成证书。如果不这样做，本地直接访问的话，会报如下提示：
 tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate is valid for 10.96.0.1, 172.17.0.14, not 106.55.152.92 先备份证书：
 [root@k8s-master .kube]# mkdir -p /etc/kubernetes/pki.bak [root@k8s-master .kube]# mv /etc/kubernetes/pki/apiserver.* /etc/kubernetes/pki.bak 重新生成证书：
@@ -28,7 +30,8 @@ tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate 
 <meta itemprop="keywords" content="云原生,k8s," /><meta property="og:title" content="本地连接k8s集群" />
 <meta property="og:description" content="本地连接k8s集群 在日常开发的过程中，经常会需要在本地开发的程序需要在k8s中调试的场景，比如，写了一个operator。
 如果此时，本地又没有可以直接可达的k8s集群，
-比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群 再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
+比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群
+再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
 1⃣️ 重新生成config文件 默认下，~/.kube/config 生成配置文件的时候只包含了k8s集群ip和这个节点的局域网ip，本地如果想远程操作k8s的话，必定要通过公网ip连接到k8s集群，所以我们需要把节点绑定的公网ip也放到证书里面去，即我们需要重新生成证书。如果不这样做，本地直接访问的话，会报如下提示：
 tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate is valid for 10.96.0.1, 172.17.0.14, not 106.55.152.92 先备份证书：
 [root@k8s-master .kube]# mkdir -p /etc/kubernetes/pki.bak [root@k8s-master .kube]# mv /etc/kubernetes/pki/apiserver.* /etc/kubernetes/pki.bak 重新生成证书：
@@ -43,13 +46,15 @@ tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate 
 <meta name="twitter:title" content="本地连接k8s集群"/>
 <meta name="twitter:description" content="本地连接k8s集群 在日常开发的过程中，经常会需要在本地开发的程序需要在k8s中调试的场景，比如，写了一个operator。
 如果此时，本地又没有可以直接可达的k8s集群，
-比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群 再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
+比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群
+再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
 1⃣️ 重新生成config文件 默认下，~/.kube/config 生成配置文件的时候只包含了k8s集群ip和这个节点的局域网ip，本地如果想远程操作k8s的话，必定要通过公网ip连接到k8s集群，所以我们需要把节点绑定的公网ip也放到证书里面去，即我们需要重新生成证书。如果不这样做，本地直接访问的话，会报如下提示：
 tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate is valid for 10.96.0.1, 172.17.0.14, not 106.55.152.92 先备份证书：
 [root@k8s-master .kube]# mkdir -p /etc/kubernetes/pki.bak [root@k8s-master .kube]# mv /etc/kubernetes/pki/apiserver.* /etc/kubernetes/pki.bak 重新生成证书：
 [root@k8s-master .kube]# kubeadm init phase certs all --apiserver-advertise-address=0.0.0.0 --apiserver-cert-extra-sans=10.96.0.1,172.17.0.14,xxx.xxx.xxx.xxx(公网ip) I0627 15:10:39.069106 7777 version.go:252] remote version is much newer: v1.21.2; falling back to: stable-1.18 W0627 15:10:40.982380 7777 configset.go:202] WARNING: kubeadm cannot validate component configs for API groups [kubelet."/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.f36f1df320942b1c5814085ba3267c2ee2c33f9ae057fa1005c03689dab0737d.css" integrity="sha256-828d8yCUKxxYFAhboyZ8LuLDP5rgV/oQBcA2idqwc30=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+<meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -334,8 +339,7 @@ tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate 
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><h1 id="本地连接k8s集群">本地连接k8s集群<a class="anchor ms-1" href="#本地连接k8s集群"><i class="fas fa-link"></i></a></h1>
 <p>在日常开发的过程中，经常会需要在本地开发的程序需要在k8s中调试的场景，比如，写了一个operator。</p>
 <p>如果此时，本地又没有可以直接可达的k8s集群，</p>
-<p>比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 <a href="http://kuring.me/post/local-connect-remote-k8s/" target="_blank" rel="noopener noreferrer">本地连接远程的内网k8s集群</a>
-</p>
+<p>比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 <a href="http://kuring.me/post/local-connect-remote-k8s/" target="_blank" rel="noopener noreferrer">本地连接远程的内网k8s集群</a></p>
 <p>再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。</p>
 <h2 id="1-重新生成config文件">1⃣️ 重新生成config文件<a class="anchor ms-1" href="#1-重新生成config文件"><i class="fas fa-link"></i></a></h2>
 <p>默认下，<code>~/.kube/config</code> 生成配置文件的时候只包含了k8s集群ip和这个节点的局域网ip，本地如果想远程操作k8s的话，必定要通过公网ip连接到k8s集群，所以我们需要把节点绑定的公网ip也放到证书里面去，即我们需要重新生成证书。如果不这样做，本地直接访问的话，会报如下提示：</p>
@@ -389,8 +393,7 @@ reviews-v1-d5b6b667f-9b7kw                           2/2     Running   <span sty
 reviews-v2-784495d9bc-xvqpw                          2/2     Running   <span style="color:#ae81ff">6</span>          296d
 reviews-v3-57fcb844b7-xsj47                          2/2     Running   <span style="color:#ae81ff">4</span>          296d
 </code></pre></div><h3 id="参考链接">参考链接🔗<a class="anchor ms-1" href="#参考链接"><i class="fas fa-link"></i></a></h3>
-<p><a href="https://stackoverflow.com/questions/46360361/invalid-x509-certificate-for-kubernetes-master" target="_blank" rel="noopener noreferrer">Invalid x509 certificate for kubernetes master</a>
-</p>
+<p><a href="https://stackoverflow.com/questions/46360361/invalid-x509-certificate-for-kubernetes-master" target="_blank" rel="noopener noreferrer">Invalid x509 certificate for kubernetes master</a></p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -417,8 +420,8 @@ reviews-v3-57fcb844b7-xsj47                          2/2     Running   <span sty
     </div>
   </div>
 </div></div>
-  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly">
-  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
+    <i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/nowcoder/%E6%9F%A5%E6%89%BE%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0/">查找重复元素
 </a>
   </div><div class="post-nav post-next">
@@ -523,6 +526,12 @@ reviews-v3-57fcb844b7-xsj47                          2/2     Running   <span sty
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/sa/%E5%BC%82%E6%AD%A5rpc/">异步RPC
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">Like查询优化
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/">Redis队列
 </a>
       </li><li>
@@ -530,12 +539,6 @@ reviews-v3-57fcb844b7-xsj47                          2/2     Running   <span sty
 </a>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">RabbitMQ清空队列的几种方式
-</a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/">代理
-</a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/">装饰器
 </a>
       </li></ul>
   </div>
@@ -551,7 +554,8 @@ reviews-v3-57fcb844b7-xsj47                          2/2     Running   <span sty
             k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
             k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
             算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
-            istio实战</a></div>
+            istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a></div>
       </div>
     </section><section class="categories-taxonomies row card component">
       <div class="card-header">
@@ -618,7 +622,8 @@ reviews-v3-57fcb844b7-xsj47                          2/2     Running   <span sty
             MongoDB</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
             MyBatis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
             openresty</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
-            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
             SpringBoot</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
             牛客</a></div>
       </div>
@@ -662,8 +667,8 @@ reviews-v3-57fcb844b7-xsj47                          2/2     Running   <span sty
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.da4026fda2fca654d7a2237484e7eb47b11158791407fb55217cbe95b4353a94.js" integrity="sha256-2kAm/aL8plTXoiN0hOfrR7ERWHkUB/tVIXy&#43;lbQ1OpQ=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

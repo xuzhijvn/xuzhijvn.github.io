@@ -6,7 +6,16 @@
     <description>Recent content in SA on 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
-    <lastBuildDate>Sun, 03 Oct 2021 11:20:44 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/tags/sa/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 25 Feb 2022 17:53:15 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/tags/sa/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>异步RPC</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/sa/%E5%BC%82%E6%AD%A5rpc/</link>
+      <pubDate>Fri, 25 Feb 2022 17:53:15 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/sa/%E5%BC%82%E6%AD%A5rpc/</guid>
+      <description>&lt;p&gt;同步RPC存在线程利用率低、超时时间难以确定、雪崩效应等缺点。异步RPC能较好的解决这些问题。&lt;/p&gt;</description>
+    </item>
+    
     <item>
       <title>Note</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/note/</link>
@@ -67,16 +76,21 @@
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/sa/api%E6%8E%A5%E5%8F%A3%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/</guid>
-      <description> 验签：防接口被肆意调用  client对request签名，server对请求进行验签。
+      <description>验签：防接口被肆意调用  client对request签名，server对请求进行验签。
 鉴权：防调用没有权限的接口  token鉴权，实际上验签、鉴权通常是一同处理的，例如：OAuth2
 验证请求的timestamp：防盗链  当前时间 - timestamp &amp;gt; 阈值，则说明该请求已经失效。
 nonce随机数：防重复提交  上述验证timestamp的过程中存在一个问题，例如：阈值 = 60s，那么60s内发生重复提交怎么办？
 解决办法是：server端保存带随机数的请求（随机数+原请求 = 新请求，通常是redis保存）。
 接口幂等性保证（唯一主键、乐观锁）  幂等性：以相同的请求调用这个接口一次和调用这个接口多次，对系统产生的影响是相同的。
-高并发下接口幂等性解决方案 恶意的重复提交：请求的timestamp、nonce较上一次没变，这种情况通过redis保存带随机数的请求可以杜绝。
+高并发下接口幂等性解决方案
+恶意的重复提交：请求的timestamp、nonce较上一次没变，这种情况通过redis保存带随机数的请求可以杜绝。
 用户误操作导致的重复提交：前端控制+幂等设计。
 幂等与重复提交的区别在于：幂等是在重复提交已经发生了的情况下，如何保证多次调用接口的结果一致，重复提交在前，幂等保证在后。
-参考链接： 如何保证接口的幂等性 说说API的防重放机制 Java生鲜电商平台-API接口设计之token、timestamp、sign 具体架构与实现（APP/小程序，传输安全） 阿里一面：如何保证API接口数据安全？ 实现接口幂等性的几种方案 </description>
+参考链接： 如何保证接口的幂等性
+说说API的防重放机制
+Java生鲜电商平台-API接口设计之token、timestamp、sign 具体架构与实现（APP/小程序，传输安全）
+阿里一面：如何保证API接口数据安全？
+实现接口幂等性的几种方案</description>
     </item>
     
     <item>
@@ -127,7 +141,7 @@ MQ MQ，必须得用 MQ。可能你还是会出现高并发写的场景，比如
 分库分表 分库分表，可能到了最后数据库层面还是免不了抗高并发的要求，好吧，那么就将一个数据库拆分为多个库，多个库来扛更高的并发；然后将一个表拆分为多个表，每个表的数据量保持少一点，提高 sql 跑的性能。
 读写分离 读写分离，这个就是说大部分时候数据库可能也是读多写少，没必要所有请求都集中在一个库上吧，可以搞个主从架构，主库写入，从库读取，搞一个读写分离。读流量太多的时候，还可以加更多的从库。
 ElasticSearch Elasticsearch，简称 es。es 是分布式的，可以随便扩容，分布式天然就可以支撑高并发，因为动不动就可以扩容加机器来扛更高的并发。那么一些比较简单的查询、统计类的操作，可以考虑用 es 来承载，还有一些全文搜索类的操作，也可以考虑用 es 来承载。
-参考 如何设计一个高并发系统？ </description>
+参考 如何设计一个高并发系统？</description>
     </item>
     
     <item>
@@ -136,7 +150,8 @@ ElasticSearch Elasticsearch，简称 es。es 是分布式的，可以随便扩�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/sa/%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/</guid>
-      <description>系统性能优化之并发编程 提升系统的QPS和吞吐量 </description>
+      <description>系统性能优化之并发编程
+提升系统的QPS和吞吐量</description>
     </item>
     
   </channel>

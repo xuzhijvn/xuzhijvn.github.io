@@ -37,7 +37,7 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/es/es%E7%BB%BC%E8%BF%B0/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="ES综述"/>
@@ -49,7 +49,8 @@ index -&gt; type -&gt; mapping -&gt; document -&gt; field。 1.2 ES高可用 类
  kafka的每个partition有多个replica副本，所有副本选出一个leader（依赖zookeeper完成选举）负责所有的读写请求。
 ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 primary shard ，负责写入数据，但是还有几个 replica shard 。 primary shard 写入数据之后，会将数据同步到其他几个 replica shard 上去。"/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.f36f1df320942b1c5814085ba3267c2ee2c33f9ae057fa1005c03689dab0737d.css" integrity="sha256-828d8yCUKxxYFAhboyZ8LuLDP5rgV/oQBcA2idqwc30=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+<meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -356,15 +357,13 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
 <p>ES 集群多个节点，会自动选举一个节点为 master 节点，这个 master 节点其实就是干一些管理的工作的，比如维护索引元数据、负责切换 primary shard 和 replica shard 身份等。要是 master 节点宕机了，那么会重新选举一个节点为 master 节点。</p>
 <p>与kafka依赖zookeeper完成 <code>选举主节点服务器(controller)</code>、  <code>选举partition leader</code>方式不同的是，es依赖自己的实现（ZenDiscovery）完成集群<code>master 节点选举</code>、<code>primary shard切换</code> 不依赖第三方组件。</p>
 <blockquote>
-<p><a href="https://www.wangjunfei.com/2020/02/26/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95%E7%A0%94%E7%A9%B6-%E4%B8%89-Kafka/" target="_blank" rel="noopener noreferrer">一致性算法研究(三)Kafka</a>
-</p>
+<p><a href="https://www.wangjunfei.com/2020/02/26/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95%E7%A0%94%E7%A9%B6-%E4%B8%89-Kafka/" target="_blank" rel="noopener noreferrer">一致性算法研究(三)Kafka</a></p>
 <p>但是，中间过程中的机器宕机等情况时，怎么来保证一致性呢？ 这个问题，kafka交给了zookeeper来解决。kafka集群启动时，会依靠zookeeper来选举一个集群的主节点服务器(controller)，controller来管理整个集群，比如队列的创建、删除，队列分区的选主，如前边所说的，topicA有3个分区，每个分区有3个副本(replica)，在创建每个分区时，kafka会使用zookeeper来选举一个分区副本的主(leader)。</p>
 <p>一个集群内有上千个队列，每个队列都有数十个甚至数百个分区，每个分区又会有若干个副本，多个副本之间谁是leader副本？这些信息称之为metadata，kafka全部储存在了zookeeper上。</p>
 <p>所以机器宕机时，controller和leader replica的选举任务都交给了zookeeper来完成，那么这时集群内机器之间的一致性，分区副本之间的一致性，这些共识问题都交给了zookeeper来解决。有了zookeeper，集群内每个机器不会对谁是controller再产生分歧，有了controller，一个集群就一个统一的“负责人”。同时，每个分区的副本之间使用zookeeper来选主，也会产生一个“负责人”，所有机器，多个副本之间都交由这些负责人来协调，不会再产生分歧，而且不会脑裂。</p>
 </blockquote>
 <blockquote>
-<p><a href="https://zhuanlan.zhihu.com/p/34830403" target="_blank" rel="noopener noreferrer">Elasticsearch分布式一致性原理剖析(一)-节点篇</a>
-</p>
+<p><a href="https://zhuanlan.zhihu.com/p/34830403" target="_blank" rel="noopener noreferrer">Elasticsearch分布式一致性原理剖析(一)-节点篇</a></p>
 <p>那为什么ES不使用Zookeeper呢，大概是官方开发觉得增加Zookeeper依赖后会多依赖一个组件，使集群部署变得更复杂，用户在运维时需要多运维一个Zookeeper。</p>
 <p>那么在自主实现这条路上，还有什么别的算法选择吗？当然有的，比如raft</p>
 <p>raft从正确性上看肯定是更好的选择，而ES的选举算法经过几次bug fix也越来越像raft。当然，在ES最早开发时还没有raft（es的前身compass于2004开源，2010进行重构并改名为es，raft算法2012才发表😔），而未来ES如果继续沿着这个方向走很可能最终就变成一个raft实现。</p>
@@ -532,8 +531,7 @@ j2ee特别牛
 </blockquote>
 <h2 id="4-优化es提升检索效率">4. 优化ES提升检索效率<a class="anchor ms-1" href="#4-优化es提升检索效率"><i class="fas fa-link"></i></a></h2>
 <h3 id="41-filesystem-cache">4.1 filesystem cache<a class="anchor ms-1" href="#41-filesystem-cache"><i class="fas fa-link"></i></a></h3>
-<p><code>filesystem cache</code> 即<code>文件系统cache</code>，由文件系统进行热点数据缓存，不受进程自主控制。关于cache的详细介绍请 👉 <a href="https://huolala.gitbook.io/code/ji-suan-ji-ji-chu/cao-zuo-xi-tong/cache-he-buffer" target="_blank" rel="noopener noreferrer">cache和buffer</a>
-</p>
+<p><code>filesystem cache</code> 即<code>文件系统cache</code>，由文件系统进行热点数据缓存，不受进程自主控制。关于cache的详细介绍请 👉 <a href="https://huolala.gitbook.io/code/ji-suan-ji-ji-chu/cao-zuo-xi-tong/cache-he-buffer" target="_blank" rel="noopener noreferrer">cache和buffer</a></p>
 <p>你往 es 里写的数据，实际上都写到磁盘文件里去了，<strong>查询的时候</strong>，操作系统会将磁盘文件里的数据自动缓存到 <code>filesystem cache</code> 里面去。</p>
 <p><img class="img-fluid" alt="es-search-process" src="https://picgo.6and.ltd/img/es-search-process.png" loading="lazy"
   
@@ -563,22 +561,15 @@ j2ee特别牛
 <p><code>scroll api</code> 或者 <code>search_after</code></p>
 <h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
 <p><strong>基础：</strong></p>
-<p><a href="doocs/advanced-java">doocs/advanced-java</a>
-</p>
-<p><a href="https://xie.infoq.cn/article/7f84ceaca3e1537eab40b853d" target="_blank" rel="noopener noreferrer">【Elasticsearch 技术分享】—— ES 查询检索数据的过程，是什么样子的？</a>
-</p>
-<p><a href="https://www.ruanyifeng.com/blog/2017/08/elasticsearch.html" target="_blank" rel="noopener noreferrer">全文搜索引擎 Elasticsearch 入门教程</a>
-</p>
+<p><a href="doocs/advanced-java">doocs/advanced-java</a></p>
+<p><a href="https://xie.infoq.cn/article/7f84ceaca3e1537eab40b853d" target="_blank" rel="noopener noreferrer">【Elasticsearch 技术分享】—— ES 查询检索数据的过程，是什么样子的？</a></p>
+<p><a href="https://www.ruanyifeng.com/blog/2017/08/elasticsearch.html" target="_blank" rel="noopener noreferrer">全文搜索引擎 Elasticsearch 入门教程</a></p>
 <p><strong>应用场景：</strong></p>
-<p><a href="https://www.cnblogs.com/liuyanling/p/13023251.html" target="_blank" rel="noopener noreferrer">七个生产案例告诉你BATJ为何选择ElasticSearch！应用场景和优势！</a>
-</p>
+<p><a href="https://www.cnblogs.com/liuyanling/p/13023251.html" target="_blank" rel="noopener noreferrer">七个生产案例告诉你BATJ为何选择ElasticSearch！应用场景和优势！</a></p>
 <p><strong>项目实战：</strong></p>
-<p><a href="https://mp.weixin.qq.com/s/cohWZy_eUOUqbmUxhXzzNA" target="_blank" rel="noopener noreferrer">Elasticsearch快速入门，掌握这些刚刚好！</a>
-</p>
-<p><a href="https://mp.weixin.qq.com/s/op7CTQS5dGOKv5BvRbeFow" target="_blank" rel="noopener noreferrer">mall整合Elasticsearch实现商品搜索</a>
-</p>
-<p><a href="https://juejin.cn/post/6844904126321524744" target="_blank" rel="noopener noreferrer">Elasticsearch项目实战，商品搜索功能设计与实现！</a>
-</p>
+<p><a href="https://mp.weixin.qq.com/s/cohWZy_eUOUqbmUxhXzzNA" target="_blank" rel="noopener noreferrer">Elasticsearch快速入门，掌握这些刚刚好！</a></p>
+<p><a href="https://mp.weixin.qq.com/s/op7CTQS5dGOKv5BvRbeFow" target="_blank" rel="noopener noreferrer">mall整合Elasticsearch实现商品搜索</a></p>
+<p><a href="https://juejin.cn/post/6844904126321524744" target="_blank" rel="noopener noreferrer">Elasticsearch项目实战，商品搜索功能设计与实现！</a></p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -605,8 +596,8 @@ j2ee特别牛
     </div>
   </div>
 </div></div>
-  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly">
-  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
+    <i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/other/gitbook%E5%AE%89%E8%A3%85/">gitbook安装
 </a>
   </div><div class="post-nav post-next">
@@ -701,6 +692,12 @@ j2ee特别牛
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/sa/%E5%BC%82%E6%AD%A5rpc/">异步RPC
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">Like查询优化
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/">Redis队列
 </a>
       </li><li>
@@ -708,12 +705,6 @@ j2ee特别牛
 </a>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">RabbitMQ清空队列的几种方式
-</a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/">代理
-</a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/">装饰器
 </a>
       </li></ul>
   </div>
@@ -729,7 +720,8 @@ j2ee特别牛
             k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
             k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
             算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
-            istio实战</a></div>
+            istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a></div>
       </div>
     </section><section class="categories-taxonomies row card component">
       <div class="card-header">
@@ -796,7 +788,8 @@ j2ee特别牛
             MongoDB</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
             MyBatis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
             openresty</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
-            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
             SpringBoot</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
             牛客</a></div>
       </div>
@@ -840,8 +833,8 @@ j2ee特别牛
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.da4026fda2fca654d7a2237484e7eb47b11158791407fb55217cbe95b4353a94.js" integrity="sha256-2kAm/aL8plTXoiN0hOfrR7ERWHkUB/tVIXy&#43;lbQ1OpQ=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

@@ -54,7 +54,7 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
   主流注册中心产品  软件产品特性并非一成不变，如果发现功能特性有变更，欢迎评论指正
      Nacos Eureka Consul CoreDNS Zookeeper     一致性协议 CP&#43;AP AP CP — CP   健康检查 TCP/HTTP/MYSQL/Client Beat Client Beat TCP/HTTP/gRPC/Cmd — Keep Alive   负载均衡策略 权重/ metadata/Selector Ribbon Fabio RoundRobin —   雪崩保护 有 有 无 无 无   自动注销实例 支持 支持 支持 不支持 支持   访问协议 HTTP/DNS HTTP HTTP/DNS DNS TCP   监听支持 支持 支持 支持 不支持 支持   多数据中心 支持 支持 支持 不支持 不支持   跨注册中心同步 支持 不支持 支持 不支持 不支持   SpringCloud集成 支持 支持 支持 不支持 支持   Dubbo集成 支持 不支持 支持 不支持 支持   K8S集成 支持 不支持 支持 支持 不支持      Consul是支持自动注销服务实例， 请见文档： https://www."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="327">
+<meta itemprop="wordCount" content="325">
 <meta itemprop="keywords" content="SA," /><meta property="og:title" content="几种注册中心对比" />
 <meta property="og:description" content="前言 服务注册中心本质上是为了解耦服务提供者和服务消费者。对于任何一个微服务，原则上都应存在或者支持多个提供者，这是由微服务的分布式属性决定的。更进一步，为了支持弹性扩缩容特性，一个微服务的提供者的数量和分布往往是动态变化的，也是无法预先确定的。因此，原本在单体应用阶段常用的静态LB机制就不再适用了，需要引入额外的组件来管理微服务提供者的注册与发现，而这个组件就是服务注册中心。
 CAP理论 CAP理论是分布式架构中重要理论
@@ -82,7 +82,7 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/sa/%E5%87%A0%E7%A7%8D%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%AF%B9%E6%AF%94/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="几种注册中心对比"/>
@@ -109,7 +109,8 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
   主流注册中心产品  软件产品特性并非一成不变，如果发现功能特性有变更，欢迎评论指正
      Nacos Eureka Consul CoreDNS Zookeeper     一致性协议 CP&#43;AP AP CP — CP   健康检查 TCP/HTTP/MYSQL/Client Beat Client Beat TCP/HTTP/gRPC/Cmd — Keep Alive   负载均衡策略 权重/ metadata/Selector Ribbon Fabio RoundRobin —   雪崩保护 有 有 无 无 无   自动注销实例 支持 支持 支持 不支持 支持   访问协议 HTTP/DNS HTTP HTTP/DNS DNS TCP   监听支持 支持 支持 支持 不支持 支持   多数据中心 支持 支持 支持 不支持 不支持   跨注册中心同步 支持 不支持 支持 不支持 不支持   SpringCloud集成 支持 支持 支持 不支持 支持   Dubbo集成 支持 不支持 支持 不支持 支持   K8S集成 支持 不支持 支持 支持 不支持      Consul是支持自动注销服务实例， 请见文档： https://www."/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.f36f1df320942b1c5814085ba3267c2ee2c33f9ae057fa1005c03689dab0737d.css" integrity="sha256-828d8yCUKxxYFAhboyZ8LuLDP5rgV/oQBcA2idqwc30=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+<meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -558,10 +559,8 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
 <p><img src="https://picgo.6and.ltd/img/p1.png" alt="img" style="zoom: 33%;" /></p>
 <blockquote>
 <ul>
-<li>Consul是支持自动注销服务实例， 请见文档： <a href="https://www.consul.io/api-docs/agent/service" target="_blank" rel="noopener noreferrer">https://www.consul.io/api-docs/agent/service</a>
-，在check的 DeregisterCriticalServiceAfter 这个参数&ndash; 感谢@超帅的菜鸟博主提供最新信息</li>
-<li>新版本的Dubbo也扩展了对 Consul 的支持。 参考: <a href="https://github.com/apache/dubbo/tree/master/dubbo-registry" target="_blank" rel="noopener noreferrer">https://github.com/apache/dubbo/tree/master/dubbo-registry</a>
-</li>
+<li>Consul是支持自动注销服务实例， 请见文档： <a href="https://www.consul.io/api-docs/agent/service" target="_blank" rel="noopener noreferrer">https://www.consul.io/api-docs/agent/service</a>，在check的 DeregisterCriticalServiceAfter 这个参数&ndash; 感谢@超帅的菜鸟博主提供最新信息</li>
+<li>新版本的Dubbo也扩展了对 Consul 的支持。 参考: <a href="https://github.com/apache/dubbo/tree/master/dubbo-registry" target="_blank" rel="noopener noreferrer">https://github.com/apache/dubbo/tree/master/dubbo-registry</a></li>
 </ul>
 </blockquote>
 <blockquote>
@@ -602,8 +601,7 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
 <p><img src="https://picgo.6and.ltd/img/20190823093459885.png" alt="Consul Template" style="zoom:67%;" /></p>
 <h3 id="consul-template">Consul Template<a class="anchor ms-1" href="#consul-template"><i class="fas fa-link"></i></a></h3>
 <p>Consul，默认服务调用者需要依赖Consul SDK来发现服务，这就无法保证对应用的零侵入性。</p>
-<p>所幸通过<a href="https://github.com/hashicorp/consul-template" target="_blank" rel="noopener noreferrer">Consul Template</a>
-，可以定时从Consul集群获取最新的服务提供者列表并刷新LB配置（比如nginx的upstream），这样对于服务调用者而言，只需要配置一个统一的服务调用地址即可。</p>
+<p>所幸通过<a href="https://github.com/hashicorp/consul-template" target="_blank" rel="noopener noreferrer">Consul Template</a>，可以定时从Consul集群获取最新的服务提供者列表并刷新LB配置（比如nginx的upstream），这样对于服务调用者而言，只需要配置一个统一的服务调用地址即可。</p>
 <p>Consul强一致性(C)带来的是：</p>
 <ol>
 <li>服务注册相比Eureka会稍慢一些。因为Consul的raft协议要求必须过半数的节点都写入成功才认为注册成功</li>
@@ -620,12 +618,9 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
 <p>Nacos除了服务的注册发现之外，还支持动态配置服务。动态配置服务可以让您以中心化、外部化和动态化的方式管理所有环境的应用配置和服务配置。动态配置消除了配置变更时重新部署应用和服务的需要，让配置管理变得更加高效和敏捷。配置中心化管理让实现无状态服务变得更简单，让服务按需弹性扩展变得更容易。</p>
 <p>一句话概括就是Nacos = Spring Cloud注册中心 + Spring Cloud配置中心。</p>
 <h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
-<p><a href="https://blog.csdn.net/fly910905/article/details/100023415" target="_blank" rel="noopener noreferrer">微服务：注册中心ZooKeeper、Eureka、Consul 、Nacos对比</a>
-</p>
-<p><a href="https://jishuin.proginn.com/p/763bfbd29957" target="_blank" rel="noopener noreferrer">注册中心选型篇-四款注册中心特点超全总结</a>
-</p>
-<p><a href="https://dubbo.apache.org/zh/blog/2021/01/14/%E8%A7%A3%E6%9E%84-dubbo-go-%E7%9A%84%E6%A0%B8%E5%BF%83%E6%B3%A8%E5%86%8C%E5%BC%95%E6%93%8E-nacos/" target="_blank" rel="noopener noreferrer">解构 Dubbo-go 的核心注册引擎 Nacos</a>
-</p>
+<p><a href="https://blog.csdn.net/fly910905/article/details/100023415" target="_blank" rel="noopener noreferrer">微服务：注册中心ZooKeeper、Eureka、Consul 、Nacos对比</a></p>
+<p><a href="https://jishuin.proginn.com/p/763bfbd29957" target="_blank" rel="noopener noreferrer">注册中心选型篇-四款注册中心特点超全总结</a></p>
+<p><a href="https://dubbo.apache.org/zh/blog/2021/01/14/%E8%A7%A3%E6%9E%84-dubbo-go-%E7%9A%84%E6%A0%B8%E5%BF%83%E6%B3%A8%E5%86%8C%E5%BC%95%E6%93%8E-nacos/" target="_blank" rel="noopener noreferrer">解构 Dubbo-go 的核心注册引擎 Nacos</a></p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -652,8 +647,8 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
     </div>
   </div>
 </div></div>
-  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly">
-  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
+    <i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E5%88%86%E5%B8%83%E5%BC%8Fid%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/">分布式ID生成方式
 </a>
   </div><div class="post-nav post-next">
@@ -754,6 +749,12 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/sa/%E5%BC%82%E6%AD%A5rpc/">异步RPC
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">Like查询优化
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/">Redis队列
 </a>
       </li><li>
@@ -761,12 +762,6 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
 </a>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">RabbitMQ清空队列的几种方式
-</a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/">代理
-</a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/">装饰器
 </a>
       </li></ul>
   </div>
@@ -782,7 +777,8 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
             k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
             k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
             算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
-            istio实战</a></div>
+            istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a></div>
       </div>
     </section><section class="categories-taxonomies row card component">
       <div class="card-header">
@@ -849,7 +845,8 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
             MongoDB</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
             MyBatis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
             openresty</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
-            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
             SpringBoot</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
             牛客</a></div>
       </div>
@@ -893,8 +890,8 @@ P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕�
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.da4026fda2fca654d7a2237484e7eb47b11158791407fb55217cbe95b4353a94.js" integrity="sha256-2kAm/aL8plTXoiN0hOfrR7ERWHkUB/tVIXy&#43;lbQ1OpQ=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

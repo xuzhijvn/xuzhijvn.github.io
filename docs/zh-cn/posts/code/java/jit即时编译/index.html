@@ -16,7 +16,8 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 1. 编译器与解释器 不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
- 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT  无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
+ 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
+ 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
 编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
 解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果  特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：" /><meta itemprop="name" content="JIT即时编译">
@@ -27,12 +28,13 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 1. 编译器与解释器 不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
- 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT  无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
+ 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
+ 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
 编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
 解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果  特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常："><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
-<meta itemprop="wordCount" content="654">
+<meta itemprop="wordCount" content="644">
 <meta itemprop="keywords" content="Java,JVM," /><meta property="og:title" content="JIT即时编译" />
 <meta property="og:description" content="JIT (just-in-time compilation) 是指程序在运行过程中对热点代码进行编译的过程，编译后的机器码存入CodeCache，下次再遇到这段代码，就会从CodeCache中读取机器码，直接执行，以此来提升程序运行的性能。
 有的JVM全程都是JIT编译运行，例如：JRockit；有的JVM是解释器 &#43; JIT运行，例如：HotSpot, J9（也支持AOT）；有的JVM没有解释器，只支持AOT&#43;JIT或者纯AOT，例如：Excelsior JET
@@ -41,7 +43,8 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 1. 编译器与解释器 不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
- 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT  无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
+ 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
+ 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
 编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
 解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果  特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：" />
@@ -49,7 +52,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jit%E5%8D%B3%E6%97%B6%E7%BC%96%E8%AF%91/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-spi/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="JIT即时编译"/>
@@ -60,12 +63,14 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 1. 编译器与解释器 不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
- 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT  无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
+ 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
+ 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
 编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
 解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果  特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常："/>
 <meta name="twitter:site" content="@razonyang"/>
-<link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.f36f1df320942b1c5814085ba3267c2ee2c33f9ae057fa1005c03689dab0737d.css" integrity="sha256-828d8yCUKxxYFAhboyZ8LuLDP5rgV/oQBcA2idqwc30=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+<meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
   <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -356,8 +361,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <p>编译器：程序运行前将其编译成机器码的程序</p>
 <p>解释器：程序运作中逐行解释源码得到结果的程序</p>
 <blockquote>
-<p>特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 <a href="https://steemit.com/cn-programming/@cifer/jit" target="_blank" rel="noopener noreferrer">解释器与 JIT</a>
-</p>
+<p>特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 <a href="https://steemit.com/cn-programming/@cifer/jit" target="_blank" rel="noopener noreferrer">解释器与 JIT</a></p>
 </blockquote>
 <p>无论是编译器还是解释器，从 <code>源码</code> 到<code>结果</code>都需要将源码经过：<code>词法分析 -&gt; 语法分析 -&gt; 语义分析</code>  处理，</p>
 <p>一个比较简单的编译器的处理步骤看起来：</p>
@@ -381,31 +385,19 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <li>至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行；</li>
 <li>兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。</li>
 </ul>
-<p><a href="https://www.zhihu.com/question/29126804/answer/43274994" target="_blank" rel="noopener noreferrer">为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？</a>
-</p>
+<p><a href="https://www.zhihu.com/question/29126804/answer/43274994" target="_blank" rel="noopener noreferrer">为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？</a></p>
 </blockquote>
 <h2 id="2-解释型语言">2. 解释型语言<a class="anchor ms-1" href="#2-解释型语言"><i class="fas fa-link"></i></a></h2>
 <p>很多资料会说，Python、Ruby、JavaScript都是“解释型语言”，是通过解释器来实现的。这么说其实很容易引起误解：语言一般只会定义其抽象语义，而不会强制性要求采用某种实现方式。</p>
-<p>例如说C一般被认为是“编译型语言”，但C的解释器也是存在的，例如<a href="http://www.softintegration.com/" target="_blank" rel="noopener noreferrer">Ch</a>
-。同样，C++也有解释器版本的实现，例如<a href="http://root.cern.ch/drupal/content/cint" target="_blank" rel="noopener noreferrer">Cint</a>
-。</p>
-<p>一般被称为“解释型语言”的是主流实现为解释器的语言，但并不是说它就无法编译。例如说经常被认为是“解释型语言”的<a href="http://schemers.org/" target="_blank" rel="noopener noreferrer">Scheme</a>
-就有好几种编译器实现，其中率先支持<a href="http://www.r6rs.org/" target="_blank" rel="noopener noreferrer">R6RS</a>
-规范的大部分内容的是<a href="http://ikarus-scheme.org/" target="_blank" rel="noopener noreferrer">Ikarus</a>
-，支持在x86上编译Scheme；它最终不是生成某种虚拟机的字节码，而是直接生成x86机器码。</p>
-<p><a href="https://www.iteye.com/blog/rednaxelafx-492667" target="_blank" rel="noopener noreferrer">虚拟机随谈（一）：解释器，树遍历解释器，基于栈与基于寄存器，大杂烩</a>
-</p>
+<p>例如说C一般被认为是“编译型语言”，但C的解释器也是存在的，例如<a href="http://www.softintegration.com/" target="_blank" rel="noopener noreferrer">Ch</a>。同样，C++也有解释器版本的实现，例如<a href="http://root.cern.ch/drupal/content/cint" target="_blank" rel="noopener noreferrer">Cint</a>。</p>
+<p>一般被称为“解释型语言”的是主流实现为解释器的语言，但并不是说它就无法编译。例如说经常被认为是“解释型语言”的<a href="http://schemers.org/" target="_blank" rel="noopener noreferrer">Scheme</a>就有好几种编译器实现，其中率先支持<a href="http://www.r6rs.org/" target="_blank" rel="noopener noreferrer">R6RS</a>规范的大部分内容的是<a href="http://ikarus-scheme.org/" target="_blank" rel="noopener noreferrer">Ikarus</a>，支持在x86上编译Scheme；它最终不是生成某种虚拟机的字节码，而是直接生成x86机器码。</p>
+<p><a href="https://www.iteye.com/blog/rednaxelafx-492667" target="_blank" rel="noopener noreferrer">虚拟机随谈（一）：解释器，树遍历解释器，基于栈与基于寄存器，大杂烩</a></p>
 <h2 id="3-jvm是否jit全程编译">3. JVM是否JIT全程编译？<a class="anchor ms-1" href="#3-jvm是否jit全程编译"><i class="fas fa-link"></i></a></h2>
 <ul>
-<li>HotSpot VM、J9 VM：<code>不是</code>，这两个JVM默认用混合模式执行引擎，以解释为基础，然后对热点做编译；这两者同时还支持AOT编译执行。J9 VM对AOT编译的支持早就有了；HotSpot VM的将在JDK9的某个更新版中发布，请参考<a href="https://link.zhihu.com/?target=https%3A//www.youtube.com/watch%3Fv%3DXybzyv8qbOc%26list%3DPLX8CzqL3ArzUo2dtMurvpUTAaujPMeuuU%26index%3D16" target="_blank" rel="noopener noreferrer">Java Goes AOT</a>
-（打不开请自备工具…）</li>
+<li>HotSpot VM、J9 VM：<code>不是</code>，这两个JVM默认用混合模式执行引擎，以解释为基础，然后对热点做编译；这两者同时还支持AOT编译执行。J9 VM对AOT编译的支持早就有了；HotSpot VM的将在JDK9的某个更新版中发布，请参考<a href="https://link.zhihu.com/?target=https%3A//www.youtube.com/watch%3Fv%3DXybzyv8qbOc%26list%3DPLX8CzqL3ArzUo2dtMurvpUTAaujPMeuuU%26index%3D16" target="_blank" rel="noopener noreferrer">Java Goes AOT</a>（打不开请自备工具…）</li>
 <li>JRockit VM：<code>是</code>，JRockit VM没有解释器，只能对所有Java方法都做JIT编译；</li>
-<li><a href="https://link.zhihu.com/?target=http%3A//www.jikesrvm.org/" target="_blank" rel="noopener noreferrer">Jikes RVM</a>
-、<a href="https://link.zhihu.com/?target=https%3A//labs.oracle.com/pls/apex/f%3Fp%3Dlabs%3A49%3A%3A%3A%3A%3AP49_PROJECT_ID%3A9" target="_blank" rel="noopener noreferrer">Maxine VM</a>
-、<a href="https://link.zhihu.com/?target=http%3A//jatovm.org/" target="_blank" rel="noopener noreferrer">Jato VM</a>
-等：<code>是</code>，跟JRockit类似，只有JIT编译器而没有解释器，因而只能JIT编译执行；</li>
-<li><a href="https://link.zhihu.com/?target=http%3A//www.excelsiorjet.com/" target="_blank" rel="noopener noreferrer">Excelsior JET</a>
-：<code>不是</code>，可配置为用纯AOT编译，或者AOT+JIT编译执行。</li>
+<li><a href="https://link.zhihu.com/?target=http%3A//www.jikesrvm.org/" target="_blank" rel="noopener noreferrer">Jikes RVM</a>、<a href="https://link.zhihu.com/?target=https%3A//labs.oracle.com/pls/apex/f%3Fp%3Dlabs%3A49%3A%3A%3A%3A%3AP49_PROJECT_ID%3A9" target="_blank" rel="noopener noreferrer">Maxine VM</a>、<a href="https://link.zhihu.com/?target=http%3A//jatovm.org/" target="_blank" rel="noopener noreferrer">Jato VM</a>等：<code>是</code>，跟JRockit类似，只有JIT编译器而没有解释器，因而只能JIT编译执行；</li>
+<li><a href="https://link.zhihu.com/?target=http%3A//www.excelsiorjet.com/" target="_blank" rel="noopener noreferrer">Excelsior JET</a>：<code>不是</code>，可配置为用纯AOT编译，或者AOT+JIT编译执行。</li>
 </ul>
 <h2 id="4-为什么有些jvm会选择不总是做jit编译而是选择用解释器jit编译器的混合执行引擎">4. 为什么有些JVM会选择不总是做JIT编译，而是选择用解释器+JIT编译器的混合执行引擎<a class="anchor ms-1" href="#4-为什么有些jvm会选择不总是做jit编译而是选择用解释器jit编译器的混合执行引擎"><i class="fas fa-link"></i></a></h2>
 <h3 id="1-编译的时间开销">1. 编译的时间开销<a class="anchor ms-1" href="#1-编译的时间开销"><i class="fas fa-link"></i></a></h3>
@@ -471,8 +463,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <p>这样，编译得太早的话，就来不及收集足够profile信息，进而会影响优化的效果；而编译太迟的话，即便收集了很多高质量的profile，但却也已经付出了profile的额外开销，编译出来的代码再快或许也弥补不过来了。</p>
 <p>在解释器里实现收集profile的功能，等解释执行一段时间后再触发JIT编译，这样就可以很好的平衡收集profile与编译优化这两方面。</p>
 <p>当然，收集profile也可以在JIT编译器里做：一开始先JIT编译生成收集profile的版本的代码，等收集了到足够profile后触发重新编译，再生成出优化的、不带profile的版本。JRockit基本上就是这样做的。</p>
-<p><a href="https://www.zhihu.com/question/37389356/answer/73820511" target="_blank" rel="noopener noreferrer">为什么 JVM 不用 JIT 全程编译？</a>
-</p>
+<p><a href="https://www.zhihu.com/question/37389356/answer/73820511" target="_blank" rel="noopener noreferrer">为什么 JVM 不用 JIT 全程编译？</a></p>
 <h2 id="5-java的执行过程">5. Java的执行过程<a class="anchor ms-1" href="#5-java的执行过程"><i class="fas fa-link"></i></a></h2>
 <p>Java的执行过程整体可以分为两个部分，第一步由javac将源码编译成字节码，在这个过程中会进行词法分析、语法分析、语义分析，编译原理中这部分的编译称为前端编译。接下来无需编译直接逐条将字节码解释执行，在解释执行的过程中，虚拟机同时对程序运行的信息进行收集，在这些信息的基础上，编译器会逐渐发挥作用，它会进行后端编译——把字节码编译成机器码，但不是所有的代码都会被编译，只有被JVM认定为的热点代码，才可能被编译。</p>
 <p>怎么样才会被认为是热点代码呢？JVM中会设置一个阈值，当方法或者代码块的在一定时间内的调用次数超过这个阈值时就会被编译，存入codeCache中。当下次执行时，再遇到这段代码，就会从codeCache中读取机器码，直接执行，以此来提升程序运行的性能。整体的执行过程大致如下图所示：</p>
@@ -645,20 +636,13 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <p>寄存器分配也是一种编译的优化手段，在C2编译器中普遍的使用。它是通过把频繁使用的变量保存在寄存器中，CPU访问寄存器的速度比内存快得多，可以提升程序的运行速度。</p>
 <p>寄存器分配和窥孔优化是程序优化的最后一步。经过寄存器分配和窥孔优化之后，程序就会被转换成机器码保存在codeCache中。</p>
 <h2 id="参考">参考：<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
-<p><a href="https://tech.meituan.com/2020/10/22/java-jit-practice-in-meituan.html" target="_blank" rel="noopener noreferrer">基本功 | Java即时编译器原理解析及实践</a>
-</p>
-<p><a href="https://juejin.cn/post/6844903630408155150" target="_blank" rel="noopener noreferrer">你了解JVM中的 JIT 即时编译及优化技术吗？</a>
-</p>
-<p><a href="https://www.iteye.com/blog/rednaxelafx-492667" target="_blank" rel="noopener noreferrer">虚拟机随谈（一）：解释器，树遍历解释器，基于栈与基于寄存器，大杂烩</a>
-</p>
-<p><a href="https://www.zhihu.com/question/34345694/answer/59407625" target="_blank" rel="noopener noreferrer">Java为什么解释执行时不直接解释源码？</a>
-</p>
-<p><a href="https://www.zhihu.com/question/29126804/answer/43274994" target="_blank" rel="noopener noreferrer">为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？</a>
-</p>
-<p><a href="https://www.zhihu.com/question/37389356/answer/73820511" target="_blank" rel="noopener noreferrer">为什么 JVM 不用 JIT 全程编译？</a>
-</p>
-<p><a href="https://www.jianshu.com/p/318617435789" target="_blank" rel="noopener noreferrer">jvm调优之分层编译</a>
-</p>
+<p><a href="https://tech.meituan.com/2020/10/22/java-jit-practice-in-meituan.html" target="_blank" rel="noopener noreferrer">基本功 | Java即时编译器原理解析及实践</a></p>
+<p><a href="https://juejin.cn/post/6844903630408155150" target="_blank" rel="noopener noreferrer">你了解JVM中的 JIT 即时编译及优化技术吗？</a></p>
+<p><a href="https://www.iteye.com/blog/rednaxelafx-492667" target="_blank" rel="noopener noreferrer">虚拟机随谈（一）：解释器，树遍历解释器，基于栈与基于寄存器，大杂烩</a></p>
+<p><a href="https://www.zhihu.com/question/34345694/answer/59407625" target="_blank" rel="noopener noreferrer">Java为什么解释执行时不直接解释源码？</a></p>
+<p><a href="https://www.zhihu.com/question/29126804/answer/43274994" target="_blank" rel="noopener noreferrer">为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？</a></p>
+<p><a href="https://www.zhihu.com/question/37389356/answer/73820511" target="_blank" rel="noopener noreferrer">为什么 JVM 不用 JIT 全程编译？</a></p>
+<p><a href="https://www.jianshu.com/p/318617435789" target="_blank" rel="noopener noreferrer">jvm调优之分层编译</a></p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -685,8 +669,8 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
     </div>
   </div>
 </div></div>
-  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly">
-  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
+    <i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%8A%9F%E8%83%BD/">k8s功能
 </a>
   </div><div class="post-nav post-next">
@@ -816,6 +800,12 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/sa/%E5%BC%82%E6%AD%A5rpc/">异步RPC
+</a>
+      </li><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">Like查询优化
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/">Redis队列
 </a>
       </li><li>
@@ -823,12 +813,6 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 </a>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">RabbitMQ清空队列的几种方式
-</a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/">代理
-</a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/">装饰器
 </a>
       </li></ul>
   </div>
@@ -844,7 +828,8 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
             k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
             k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
             算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
-            istio实战</a></div>
+            istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a></div>
       </div>
     </section><section class="categories-taxonomies row card component">
       <div class="card-header">
@@ -911,7 +896,8 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
             MongoDB</a><a href="https://xuzhijvn.github.io/zh-cn/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
             MyBatis</a><a href="https://xuzhijvn.github.io/zh-cn/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
             openresty</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
-            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/zh-cn/tags/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a><a href="https://xuzhijvn.github.io/zh-cn/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
             SpringBoot</a><a href="https://xuzhijvn.github.io/zh-cn/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
             牛客</a></div>
       </div>
@@ -955,8 +941,8 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.da4026fda2fca654d7a2237484e7eb47b11158791407fb55217cbe95b4353a94.js" integrity="sha256-2kAm/aL8plTXoiN0hOfrR7ERWHkUB/tVIXy&#43;lbQ1OpQ=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.a35670f2f90c398e5ee5c8e509b428fae75aa2746854cee10b60794633076859.js" integrity="sha256-o1Zw8vkMOY5e5cjlCbQo&#43;udaonRoVM7hC2B5RjMHaFk=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.4dba52a0a790f909408b7385316651299158381686401d50ff1f04dda6476473.js" integrity="sha256-TbpSoKeQ&#43;QlAi3OFMWZRKZFYOBaGQB1Q/x8E3aZHZHM=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

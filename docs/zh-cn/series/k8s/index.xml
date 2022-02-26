@@ -52,7 +52,7 @@ apiVersion: v1 kind: Pod metadata: name: nginx labels: app: nginx spec: containe
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%8E%A5%E5%8F%A3/</guid>
       <description>几种接口解释：
   CRI（Container Runtime Interface）。容器运行时接口。Kubernetes项目并不关心你部署的是什么容器运行时、使用的什么技术实现，只要你的这个容器运行时能够运行标准的容器镜像，它就可以通过实现CRI接入到Kubernetes项目当中。Kubernetes是通过kubelet跟CRI进行通信。
-  OCI（Open Container Initiative） ：具体的容器运行时，比如Docker项目，则一般通过OCI这个容器运行时规范同底层的Linux操作系统进行交互，即：把CRI请求翻译成对Linux操作系统的调用（操作Linux Namespace和Cgroups等）。
+  OCI（Open Container Initiative）：具体的容器运行时，比如Docker项目，则一般通过OCI这个容器运行时规范同底层的Linux操作系统进行交互，即：把CRI请求翻译成对Linux操作系统的调用（操作Linux Namespace和Cgroups等）。
  CRI是k8s对外暴露的抽象容器接口，OCI是开发容器倡议，最终CRI接口会调用符合OCI的系统内核接口
 容器生态三层抽象:
  Orchestration API -&amp;gt; Container API -&amp;gt; Kernel API
@@ -108,7 +108,8 @@ apiVersion: v1 kind: Pod metadata: name: nginx labels: app: nginx spec: containe
 PersistentVolumeClaim（PVC）是用户存储的请求。 它类似于pod。Pod消耗节点资源，PVC消耗存储资源。 pod可以请求特定级别的资源（CPU和内存）。 权限要求可以请求特定的大小和访问模式。
 虽然PersistentVolumeClaims允许用户使用抽象存储资源，但是常见的是，用户需要具有不同属性（如性能）的PersistentVolumes，用于不同的问题。 群集管理员需要能够提供多种不同于PersistentVolumes的PersistentVolumes，而不仅仅是大小和访问模式，而不会使用户了解这些卷的实现细节。 对于这些需求，存在StorageClass资源。
 StorageClass为管理员提供了一种描述他们提供的存储的“类”的方法。 不同的类可能映射到服务质量级别，或备份策略，或者由群集管理员确定的任意策略。 Kubernetes本身对于什么类别代表是不言而喻的。 这个概念有时在其他存储系统中称为“配置文件”
-例子 https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/ Lifecycle of a volume and claim PV是集群中的资源。 PVC是对这些资源的请求，也是对资源的索赔检查。 PV和PVC之间的相互作用遵循这个生命周期:
+例子 https://kubernetes.io/docs/user-guide/persistent-volumes/walkthrough/
+Lifecycle of a volume and claim PV是集群中的资源。 PVC是对这些资源的请求，也是对资源的索赔检查。 PV和PVC之间的相互作用遵循这个生命周期:
 Provisioning ——-&amp;gt; Binding ——–&amp;gt;Using——&amp;gt;Releasing——&amp;gt;Recycling
 Provisioning 这里有两种PV的提供方式:静态或者动态
 Static 集群管理员创建多个PV。 它们携带可供集群用户使用的真实存储的详细信息。 它们存在于Kubernetes API中，可用于消费。 Dynamic 当管理员创建的静态PV都不匹配用户的PersistentVolumeClaim时，集群可能会尝试为PVC动态配置卷。 此配置基于StorageClasses：PVC必须请求一个类，并且管理员必须已创建并配置该类才能进行动态配置。 要求该类的声明有效地为自己禁用动态配置 Binding 在动态配置的情况下，用户创建或已经创建了具有特定数量的存储请求和特定访问模式的PersistentVolumeClaim。 主机中的控制回路监视新的PVC，找到匹配的PV（如果可能），并将它们绑定在一起。 如果为新的PVC动态配置PV，则循环将始终将该PV绑定到PVC。 否则，用户总是至少得到他们要求的内容，但是卷可能超出了要求。 一旦绑定，PersistentVolumeClaim绑定是排他的，不管用于绑定它们的模式。
@@ -127,7 +128,7 @@ Reclaiming PersistentVolume的回收策略告诉集群在释放其声明后，�
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E8%B5%84%E6%BA%90%E5%AF%B9%E8%B1%A1/services/</guid>
       <description>Overview（概述） Kubernetes Pod是平凡的，它门会被创建，也会死掉（生老病死），并且他们是不可复活的。 ReplicationControllers动态的创建和销毁Pods(比如规模扩大或者缩小，或者执行动态更新)。每个pod都由自己的ip，这些IP也随着时间的变化也不能持续依赖。这样就引发了一个问题：如果一些Pods（让我们叫它作后台，后端）提供了一些功能供其它的Pod使用（让我们叫作前台），在kubernete集群中是如何实现让这些前台能够持续的追踪到这些后台的？
 答案是：Service
-Kubernete Service 是一个定义了一组Pod 的策略的抽象，我们也有时候叫做宏观服务。这些被服务标记的Pod都是（一般）通过label Selector决定的（下面我们会讲到我们为什么需要一个没有label selector的服务）
+Kubernete Service 是一个定义了一组Pod的策略的抽象，我们也有时候叫做宏观服务。这些被服务标记的Pod都是（一般）通过label Selector决定的（下面我们会讲到我们为什么需要一个没有label selector的服务）
 举个例子，我们假设后台是一个图形处理的后台，并且由3个副本。这些副本是可以相互替代的，并且前台并需要关心使用的哪一个后台Pod，当这个承载前台请求的pod发生变化时，前台并不需要直到这些变化，或者追踪后台的这些副本，服务是这些去耦
 对于Kubernete原生的应用，Kubernete提供了一个简单的Endpoints API，这个Endpoints api的作用就是当一个服务中的pod发生变化时，Endpoints API随之变化，对于哪些不是原生的程序，Kubernetes提供了一个基于虚拟IP的网桥的服务，这个服务会将请求转发到对应的后台pod
 Defining a service(定义一个服务) 一个Kubernete服务是一个最小的对象，类似pod,和其它的终端对象一样，我们可以朝paiserver发送请求来创建一个新的实例，比如，假设你拥有一些Pod,每个pod都开放了9376端口，并且均带有一个标签app=MyApp
@@ -188,7 +189,7 @@ DaemonSet
 DaemonSet是这样一种对象（守护进程），用于每个 Node 最多只运行一个 Pod 副本的场景，这非常适合一些系统层面的应用，例如日志收集、资源监控等，这类应用需要每个节点都运行，且不需要太多实例，一个比较好的例子就是Kubernetes的kube-proxy。
 StatefuleSet
 提供如下功能：
- 稳定的持久化存储：即Pod重新调度后还是能访问到相同的持久化数据，基于PVC来实现 稳定的网络标志：即Pod重新调度后其PodName和HostName不变，基于Headless Service（即没有Cluster IP的Service）来实现 有序部署，有序扩展：即Pod是有顺序的，在部署或者扩展的时候要依据定义的顺序依次依次进行（即从0到N-1，在下一个Pod运行之前所有之前的Pod必须都是Running和Ready状态），基于init containers来实现 有序收缩，有序删除（即从N-1到0）  像ZooKeeper, Nacos这种分布式系统，节点之间是要互相通信的，因此需要网络标志，并且每个节点需要单独存在自己的状态，因此需要稳定的持久化存储 StatefulSet Job</description>
+ 稳定的持久化存储：即Pod重新调度后还是能访问到相同的持久化数据，基于PVC来实现 稳定的网络标志：即Pod重新调度后其PodName和HostName不变，基于Headless Service（即没有Cluster IP的Service）来实现 有序部署，有序扩展：即Pod是有顺序的，在部署或者扩展的时候要依据定义的顺序依次依次进行（即从0到N-1，在下一个Pod运行之前所有之前的Pod必须都是Running和Ready状态），基于init containers来实现 有序收缩，有序删除（即从N-1到0）  像ZooKeeper, Nacos这种分布式系统，节点之间是要互相通信的，因此需要网络标志，并且每个节点需要单独存在自己的状态，因此需要稳定的持久化存储 StatefulSet</description>
     </item>
     
     <item>

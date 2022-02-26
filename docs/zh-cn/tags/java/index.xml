@@ -246,9 +246,9 @@ switch 底层是使用 int 型 来进行判断的，即使是枚举、String类�
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%8D%8F%E7%A8%8B/</guid>
       <description>1. 现状 时至今日，JDK17已经正式发布，Java也没有在语言层面对协程提供原生支持。
-一定要在Java中使用协程的话，可以使用诸如quasar , kilim , coroutines 第三方库感受一下，它们的原理基本都是字节码增强 + Java Agent机制，这种做法一是对性能影响很大，对JIT编译器的影响也非常大，另外这些库都几年前就不在更新了，远达不到生产使用的标准。
+一定要在Java中使用协程的话，可以使用诸如quasar, kilim, coroutines 第三方库感受一下，它们的原理基本都是字节码增强 + Java Agent机制，这种做法一是对性能影响很大，对JIT编译器的影响也非常大，另外这些库都几年前就不在更新了，远达不到生产使用的标准。
 还可以使用Kotlin混合编程，Kotlin中的协程本质上还是一套基于原生Java Thread API 的封装，和Go中的协程完全不是一个东西，不要混淆，更谈不上什么性能更好，Kotlin中的协程最大的价值是写起来比RxJava的线程切换还要方便，几乎就是用阻塞的写法来完成非阻塞的任务。
-openjdk也有正在孵化的官方协程项目loom ，其能否release还需拭目以待。
+openjdk也有正在孵化的官方协程项目loom，其能否release还需拭目以待。
 2. 成因 是什么原因导致Oracle一直不着急推出对协程的支持呢？
 先返回到问题的本源。当我们希望引入协程，我们想解决什么问题。我想不外乎下面几点：
   节省资源：节省内存、节省分配线程的开销（创建和销毁线程要各做一次syscall）、节省大量线程切换带来的开销
@@ -262,7 +262,9 @@ openjdk也有正在孵化的官方协程项目loom ，其能否release还需拭�
 2.2 非阻塞编程 nio 👉 netty
 2.3 优雅异步编程 响应式编程库
 可见Java对于引入协程机制并不那么紧迫；并且Java不像Golang等新语言，没有历史包袱，它们可以不提供线程只提供协程编程，但是Java如果没有thread，也没有ThreadLocal，@Transactional不起作用了，又没有等价的工具，是不是很郁闷？
-参考 为什么 Java 坚持多线程不选择协程？ Kotlin 协程真的比 Java 线程更高效吗？ 硬核系列 | 深入剖析 Java 协程 Golang 的 协程调度机制 与 GOMAXPROCS 性能调优 </description>
+参考 为什么 Java 坚持多线程不选择协程？
+Kotlin 协程真的比 Java 线程更高效吗？
+硬核系列 | 深入剖析 Java 协程</description>
     </item>
     
     <item>
@@ -274,7 +276,7 @@ openjdk也有正在孵化的官方协程项目loom ，其能否release还需拭�
       <description>反射可以在程序运行过程中动态的构造类、获取类的全部信息、调用类型方法。但是，为什么我们要这么做呢？需要构造类，new就好了，需要访问类成员变量、调用方法，直接访问、调用就好了，为什么要通过一大堆反射代码去实现呢？
 通常，class在编译期间就确定，JVM在运行时通过类加载器加载确定的class。如果在运行时才确定需要加载什么类，就需要利用java反射。java反射使得程序更加灵活，类似spring的框架将类以全限定名的形成配置在配置文件，然后再通过反射实例化。
 参考：
-https://blog.csdn.net/Appleyk/article/details/77879073 </description>
+https://blog.csdn.net/Appleyk/article/details/77879073</description>
     </item>
     
     <item>
@@ -325,7 +327,8 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
 因为操作系统支持是怎样的线程模型，很大程度上决定了运行在上面的 Java 虚拟机的线程怎样去映射，但是这一点在不同的平台上很难达成一致。
 所以JVM 规范里面没有、也不好去规定 Java 线程需要使用哪种线程模型来实现。
 同时关于本文要讨论的话题，我在知乎上也找到了类似的问题：
- https://www.zhihu.com/question/64072646/answer/216184631  这里面有一个R大的回答，大家可以看看一下。
+ https://www.zhihu.com/question/64072646/answer/216184631
+ 这里面有一个R大的回答，大家可以看看一下。
 他也是先从线程模型的角度铺垫了一下。
 我这里主要说一下使用内核线程实现（1:1实现）的这个模型。
 因为我们用的最多的 HotSpot 虚拟机，就是采用 1:1 模型来实现 Java 线程的。
@@ -339,7 +342,7 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/</guid>
-      <description>1. 下载JDK 进入Oracle 官方网站 下载合适的 JDK 版本，准备安装。
+      <description>1. 下载JDK 进入Oracle 官方网站下载合适的 JDK 版本，准备安装。
 2. 创建目录 执行如下命令，在 /usr/ 目录下创建 java 目录。
 mkdir /usr/java cd /usr/java 将下载的文件 jdk-8u151-linux-x64.tar.gz 复制到 /usr/java/ 目录下。
 3. 解压 JDK tar -zxvf jdk-8u151-linux-x64.tar.gz 4. 设置环境变量 set java environment JAVA_HOME=/usr/java/jdk1.8.0_151 JRE_HOME=/usr/java/jdk1.8.0_151/jre CLASS_PATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin export JAVA_HOME JRE_HOME CLASS_PATH PATH 使修改生效：
@@ -375,7 +378,8 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 1. 编译器与解释器 不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
- 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT  无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&amp;gt; 语法分析 -&amp;gt; 语义分析 处理，
+ 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
+ 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&amp;gt; 语法分析 -&amp;gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
 编译流程： 源码 [字符流] - 词法分析 -&amp;gt; 单词（token）流 - 语法分析 -&amp;gt; 语法树 / 抽象语法树 - 语义分析 -&amp;gt; 标注了属性的抽象语法树 - 代码生成 -&amp;gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&amp;gt; 执行结果 狭义的解释器处理步骤看起来：
 解释执行流程： 源码 [字符流] - 需要做词法分析+语法分析+类型检查的字符流解释器 -&amp;gt; 执行结果  特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：</description>
@@ -403,7 +407,8 @@ java.lang.OutOfMemoryError: Java heap space Dumping heap to java_pid3404.hprof .
 ThreadLocal 的使用是非常简单的，看下面的代码：
 public class Test { public static void main(String[] args) { ThreadLocal&amp;lt;String&amp;gt; local = new ThreadLocal&amp;lt;&amp;gt;(); //设置值  local.set(&amp;#34;hello word&amp;#34;); //获取刚刚设置的值  System.out.println(local.get()); } } ThreadLocal的数据结构 为什么ThreadLocalMap 采用开放地址法来解决哈希冲突? ThreadLocal 往往存放的数据量不会特别大，这个时候开放地址法简单的结构会显得更省空间（链地址法需要额外的指针空间）
 常用的hash解决方法有：拉链法（HashMap，指针需要占用空间）、开发地址（如果发生冲突，那就基于冲突位置再次探测寻址，直至不冲突，适用于记录总数可以预知的场景，如果位桶不够用就得扩容，扩容影响性能）、再hash（如果第1个hash函数冲突，那就使用第2个，多次hash是有时间成本的）
-ThreadLocal应用场景 传递参数 ThreadLocal用于传递参数及优势 保证线程安全 SimpleDateFormat是线程不安全的，例如下面的写法会报错：
+ThreadLocal应用场景 传递参数 ThreadLocal用于传递参数及优势
+保证线程安全 SimpleDateFormat是线程不安全的，例如下面的写法会报错：
 日期转换的一个工具类
 public class DateUtil { private static final SimpleDateFormat sdf = new SimpleDateFormat(&amp;#34;yyyy-MM-dd HH:mm:ss&amp;#34;); public static Date parse(String dateStr) { Date date = null; try { date = sdf.</description>
     </item>
@@ -458,7 +463,8 @@ public class JoinTest { public static void main(String[] args) { Task task1 = ne
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%AF%B9%E8%B1%A1%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%BA%E5%BA%8F/</guid>
       <description>父类静态成员变量、父类静态代码块 👉🏿 子类静态成员变量、子类静态代码块 👉🏿 父类成员变量、父类代码块 👉🏿 父类构造方法 👉🏿 子类成员变量、子类代码块 👉🏿 子类构造方法
-Java中类及方法的加载顺序 Java类加载顺序 </description>
+Java中类及方法的加载顺序
+Java类加载顺序</description>
     </item>
     
     <item>
@@ -540,7 +546,7 @@ wait方法是Object类的成员方法
 wait方法不需要处理
 4、sleep方法可以在任何地方使用；
 wait方法只能在同步方法和同步代码块中使用
-参考 Linux线程的状态与调度 </description>
+参考 Linux线程的状态与调度</description>
     </item>
     
     <item>
@@ -569,7 +575,8 @@ mvn archetype:generate -DarchetypeCatalog=local 然后会让你选择模板序�
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E9%94%81/</guid>
-      <description>阿里面试，问了我乐观锁、悲观锁、AQS、sync和Lock，这个回答让我拿了offer 阿里面试官：说一下公平锁和非公平锁的区别？ </description>
+      <description>阿里面试，问了我乐观锁、悲观锁、AQS、sync和Lock，这个回答让我拿了offer
+阿里面试官：说一下公平锁和非公平锁的区别？</description>
     </item>
     
     <item>
@@ -591,7 +598,8 @@ Java零拷贝机制解析 Linux提供的领拷贝技术 Java并不是全支持�
 NIO提供的内存映射：MappedByteBuffer
 NIO提供的sendfile：FileChannel.transferTo() FileChannel.transferFrom()
 适用场景 数据不需要应用程序计算处理的场景，例如：访问静态资源
-参考 Java中的零拷贝 Java零拷贝 </description>
+参考 Java中的零拷贝
+Java零拷贝</description>
     </item>
     
   </channel>
