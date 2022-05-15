@@ -38,8 +38,8 @@
 因为 0.2 和 0.1 只是指数稍有不同，所以上图中只展示了 0.1 对应的单精度浮点数，从上图的结果我们可以看出，0.1 和 0.2 在浮点数中只能用近似值来代替，精度十分有限，因为单精度浮点数的小数位为 23，双精度的小数位为 52，同时都隐式地包含首位的 1，所以它们的精度在十进制中分别是(log_{10}(2^{24})\approx 7."/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -328,22 +328,22 @@
 </ol>
 <h2 id="1-ieee-754-精度上限">1. IEEE 754 精度上限<a class="anchor ms-1" href="#1-ieee-754-精度上限"><i class="fas fa-link"></i></a></h2>
 <p>编程语言中的浮点数一般都是 32 位的单精度浮点数 float 和 64 位的双精度浮点数 double，部分语言会使用 float32 或者 float64 区分这两种不同精度的浮点数。想要使用有限的位数表示全部的实数是不可能的，不用说无限长度的小数和无理数，因为长度的限制，有限小数在浮点数中都无法精确的表示。</p>
-<p><img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5fffb936317de.png" alt="img" style="zoom: 50%;" /></p>
+<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5fffb936317de.png" alt="img" style="zoom: 50%;" />
 <ul>
 <li>单精度浮点数 <code>float</code> 总共包含 32 位，其中 1 位表示符号、8 位表示指数，最后 23 位表示小数；</li>
 <li>双精度浮点数 <code>double</code> 总共包含 64 位，其中 1 位表示符号，11 位表示指数，最后 52 位表示小数；</li>
 </ul>
 <p>我们以单精度浮点数 0.15625 为例:</p>
-<p><img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5fffb9ee768b2.png" alt="img" style="zoom:50%;" /></p>
+<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5fffb9ee768b2.png" alt="img" style="zoom:50%;" />
 <p>通过上图中的公式 (sign * 2^{exp}* (1+fraction))可以将浮点数的二进制表示转换成十进制的小数。0.15625 虽然还可以用单精度的浮点数精确表示，但是 0.1 和 0.2 只能使用浮点数表示近似的值：</p>
-<p><img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5fffba69c1ef6.png" alt="img" style="zoom:50%;" /></p>
+<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5fffba69c1ef6.png" alt="img" style="zoom:50%;" />
 <p>因为 0.2 和 0.1 只是指数稍有不同，所以上图中只展示了 0.1 对应的单精度浮点数，从上图的结果我们可以看出，0.1 和 0.2 在浮点数中只能用近似值来代替，精度十分有限，因为单精度浮点数的小数位为 23，双精度的小数位为 52，同时都隐式地包含首位的 1，所以它们的精度在十进制中分别是(log_{10}(2^{24})\approx 7.22) 和 (log_{10}(2^{53})\approx 15.95) 位。</p>
 <p>因为 0.1 和 0.2 使用单精度浮点数表示的实际值为 0.100000001490116119384765625 和 0.200000002980232238769531257，所以它们在相加后就得到的结果与我们在一开始看到的非常相似：</p>
-<p><img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5fffba9850e3e.png" alt="img" style="zoom:50%;" /></p>
+<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5fffba9850e3e.png" alt="img" style="zoom:50%;" />
 <p>上图只是使用单精度浮点数表示的数字，如果使用双精度浮点数，最终结果中的 3 和 4 之间会有更多的 0，但是小数出现的顺序是非常相似的。浮点数的运算法则相对来说比较复杂，感兴趣的读者可以自行搜索相关的资料，我们在这里不展开介绍了。</p>
 <h2 id="2-bigdecimal">2. BigDecimal<a class="anchor ms-1" href="#2-bigdecimal"><i class="fas fa-link"></i></a></h2>
 <p>为了解决浮点数的精度问题，一些编程语言引入了十进制的小数 Decimal。Decimal 在不同社区中都十分常见，如果编程语言没有原生支持 Decimal，我们在开源社区也一定能够找到使用特定语言实现的 Decimal 库。Java 通过 BigDecimal 提供了无限精度的小数，该类中包含三个关键的成员变量 intVal、scale 和 precision：</p>
-<pre><code>public class BigDecimal extends Number implements Comparable&lt;BigDecimal&gt; {
+<pre tabindex="0"><code>public class BigDecimal extends Number implements Comparable&lt;BigDecimal&gt; {
     private BigInteger intVal;
     private int scale;
     private int precision = 0;
@@ -355,15 +355,15 @@
 <li><code>scale</code> 中存储的是小数的位数，即 <code>2</code>；</li>
 <li><code>prevision</code> 中存储的是全部的有效位数，小数点前 4 位，小数点后 2 位，即 <code>6</code>；</li>
 </ul>
-<p><img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5fffbb0055d5e.png" alt="img" style="zoom:50%;" /></p>
+<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5fffbb0055d5e.png" alt="img" style="zoom:50%;" />
 <p>BigDecimal 这种使用多个整数的方法避开了二进制无法准确表示部分十进制小数的问题，因为 BigInteger 可以使用数组表示任意长度的整数，所以如果机器的内存资源是无限的，BigDecimal 在理论上也可以表示无限精度的小数。</p>
 <p>虽然部分编程语言实现了理论上无限精度的 BigDecimal，但是在实际应用中我们大多不需要无限的精度保证，C# 等编程语言通过 16 字节的 Decimal 提供的 28 ~ 29 位的精度，而在金融系统中使用 16 字节的 Decimal 一般就可以保证数据计算的准确性了。</p>
 <h2 id="有理数">有理数<a class="anchor ms-1" href="#有理数"><i class="fas fa-link"></i></a></h2>
 <p>使用 <code>Decimal</code> 和 <code>BigDecimal</code> 虽然可以在很大程度上解决浮点数的精度问题，但是它们在遇到无限小数时仍然无能为力，使用十进制的小数永远无法准确地表示 <code>1/3</code>，无论使用多少位小数都无法避免精度的损失：</p>
-<p><img src="https://picgo.6and.ltd/img/img_5fffbb6fb631b.png" alt="img" style="zoom:50%;" /></p>
+<img src="https://picgo.6and.ltd/img/img_5fffbb6fb631b.png" alt="img" style="zoom:50%;" />
 <p>当我们遇到这种情况时，使用有理数（Rational）是解决类似问题的最好方法，使用分数可以准确的表示 <code>1/10</code>、<code>1/5</code> 和 <code>1/3</code></p>
 <p>这种解决精度问题的方法更接近原始的数学公式，分数的分子和分母是有理数结构体中的两个变量，多个分数的加减乘除操作与数学中对分数的计算没有任何区别，自然也就不会造成精度的损失，我们可以简单了解一下 Java 中有理数的实现<a href="https://draveness.me/whys-the-design-decimal-and-rational/#fn:7" target="_blank" rel="noopener noreferrer">7</a>：</p>
-<pre><code>public class Rational implements Comparable&lt;Rational&gt; {
+<pre tabindex="0"><code>public class Rational implements Comparable&lt;Rational&gt; {
     private int num;   // the numerator
     private int den;   // the denominator
     public double toDouble() {
@@ -404,10 +404,10 @@
 </div></div>
   <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
     <i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E6%B7%B1%E5%BA%A6%E5%9B%BE%E8%A7%A3redis-cluster%E5%8E%9F%E7%90%86/">深度图解Redis Cluster原理
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/other/%E9%AB%98%E6%80%A7%E8%83%BD%E6%97%A0%E9%94%81%E9%98%9F%E5%88%97disruptor/">高性能无锁队列Disruptor
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E6%B3%9B%E5%9E%8B/">泛型
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E7%9A%84%E8%B0%83%E7%94%A8%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E7%94%A8-http-%E8%80%8C%E7%94%A8-rpc/">服务之间的调用为啥不直接用 HTTP 而用 RPC？
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
@@ -509,6 +509,9 @@
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/yshop-k8s/">Yshop K8s
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E7%9A%84%E5%8D%B8%E8%BD%BD/">JVM类的卸载
 </a>
       </li><li>
@@ -520,9 +523,6 @@
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">Like查询优化
 </a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/">Redis队列
-</a>
       </li></ul>
   </div>
 </section><section class="series-taxonomies row card component">
@@ -533,9 +533,9 @@
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
-            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
-            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
             算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
             istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
             rpc</a></div>
@@ -651,8 +651,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

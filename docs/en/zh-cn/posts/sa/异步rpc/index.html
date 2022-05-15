@@ -1,0 +1,609 @@
+<!doctype html><html lang="en" data-palette="indigo"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>异步RPC - 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/icons/icon-180x180.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-16x16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
+<link rel="manifest" href="https://xuzhijvn.github.io/en/manifest.json">
+<meta name="keywords" content="" />
+<meta name="description" content="同步RPC存在线程利用率低、超时时间难以确定、雪崩效应等缺点。异步RPC能较好的解决这些问题。" /><meta itemprop="name" content="异步RPC">
+<meta itemprop="description" content="同步RPC存在线程利用率低、超时时间难以确定、雪崩效应等缺点。异步RPC能较好的解决这些问题。"><meta itemprop="datePublished" content="2022-02-25T17:53:15+08:00" />
+<meta itemprop="dateModified" content="2022-02-25T17:53:15+08:00" />
+<meta itemprop="wordCount" content="154">
+<meta itemprop="keywords" content="SA,rpc," /><meta property="og:title" content="异步RPC" />
+<meta property="og:description" content="同步RPC存在线程利用率低、超时时间难以确定、雪崩效应等缺点。异步RPC能较好的解决这些问题。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/en/zh-cn/posts/sa/%E5%BC%82%E6%AD%A5rpc/" /><meta property="article:section" content="zh-cn" />
+<meta property="article:published_time" content="2022-02-25T17:53:15+08:00" />
+<meta property="article:modified_time" content="2022-02-25T17:53:15+08:00" />
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="异步RPC"/>
+<meta name="twitter:description" content="同步RPC存在线程利用率低、超时时间难以确定、雪崩效应等缺点。异步RPC能较好的解决这些问题。"/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/en/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+   width="400" height="400"
+   />
+👴🏻💪
+    </a>
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Share</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e5%bc%82%e6%ad%a5RPC&url=https%3a%2f%2fxuzhijvn.github.io%2fen%2fzh-cn%2fposts%2fsa%2f%25E5%25BC%2582%25E6%25AD%25A5rpc%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fxuzhijvn.github.io%2fen%2fzh-cn%2fposts%2fsa%2f%25E5%25BC%2582%25E6%25AD%25A5rpc%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</div>
+    <button class="navbar-settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-ellipsis-v"></i>
+</button>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Settings</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-language"></i> Language</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="dropdown">
+        <a class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-cn/">简体中文</a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> Mode</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> Palette</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="Blue"
+        class="btn btn-sm w-100 palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="Blue Gray"
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="Brown"
+        class="btn btn-sm w-100 palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="Cyan"
+        class="btn btn-sm w-100 palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="Green"
+        class="btn btn-sm w-100 palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="Indigo"
+        class="btn btn-sm w-100 palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="Orange"
+        class="btn btn-sm w-100 palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="Pink"
+        class="btn btn-sm w-100 palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="Purple"
+        class="btn btn-sm w-100 palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="Red"
+        class="btn btn-sm w-100 palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="Teal"
+        class="btn btn-sm w-100 palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="Yellow"
+        class="btn btn-sm w-100 palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> Go back
+  </a>
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> Reload
+  </a>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> Copy URL
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> Share
+  </a></section>
+
+</div>
+</div>
+
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://xuzhijvn.github.io/en/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/en/en/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>Archives
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/en/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/categories">
+            <i class="fas fa-fw fa-folder"></i>Categories
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/tags">
+            <i class="fas fa-fw fa-tags"></i>Tags
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/series">
+            <i class="fas fa-fw fa-columns"></i>Series
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownProjects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Projects
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownProjects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap Theme
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 Admin
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/">Home</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/zh-cn/">Zh-cns</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">异步RPC</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper">
+  <div class="d-flex flex-column component rounded post-panel">
+    
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="Buy me a coffee">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" href="#postTOC" aria-controls="Table of contents" role="button" title="Table of contents">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    
+  </div>
+</div>
+<article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title">异步RPC
+</h1>
+  </div>
+  <div class="card-body"><div class="post-meta">
+  <span class="post-date" title="created on 2022-02-25 17:53:15 &#43;0800 CST.">
+    Feb 25, 2022
+  </span><span class="post-reading-time">
+    1 min read
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/en/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge post-taxonomy">架构演进</a><a href="https://xuzhijvn.github.io/en/series/rpc/" class="badge post-taxonomy">rpc</a><a href="https://xuzhijvn.github.io/en/tags/sa/" class="badge post-taxonomy">SA</a><a href="https://xuzhijvn.github.io/en/tags/rpc/" class="badge post-taxonomy">rpc</a></span>
+</div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>同步RPC存在线程利用率低、超时时间难以确定、雪崩效应等缺点。异步RPC能较好的解决这些问题。</p>
+<h2 id="1-同步-rpc-调用面临的挑战">1. 同步 RPC 调用面临的挑战<a class="anchor ms-1" href="#1-同步-rpc-调用面临的挑战"><i class="fas fa-link"></i></a></h2>
+<ol>
+<li><code>线程利用率低</code>：线程资源是系统中非常重要的资源，在一个进程中线程总数是有限制的，提升线程使用率就能够有效提升系统的吞吐量，在同步 RPC 调用中，如果服务端没有返回响应，客户端业务线程就会一直阻塞，无法处理其它业务消息。</li>
+<li><code>纠结的超时时间</code>：RPC 调用的超时时间配置是个比较棘手的问题。如果配置的过大，一旦服务端返回响应慢，就容易把客户端挂死。如果配置的过小，则超时失败率会增加。即便参考测试环境的平均和最大时延来设置，由于生产环境数据、硬件等与测试环境的差异，也很难一次设置的比较合理。另外，考虑到客户端流量的变化、服务端依赖的数据库、缓存、第三方系统等的性能波动，这都会导致服务调用时延发生变化，因此，依靠超时时间来保障系统的可靠性，难度很大。</li>
+<li><code>雪崩效应</code>：在一个同步调用链中，只要下游某个服务返回响应慢，会导致故障沿着调用链向上游蔓延，最终把整个系统都拖垮，引起雪崩</li>
+</ol>
+<h2 id="2-异步-rpc-调用的应用场景">2. 异步 RPC 调用的应用场景<a class="anchor ms-1" href="#2-异步-rpc-调用的应用场景"><i class="fas fa-link"></i></a></h2>
+<h3 id="21-缩短长流程的调用时延">2.1 缩短长流程的调用时延<a class="anchor ms-1" href="#21-缩短长流程的调用时延"><i class="fas fa-link"></i></a></h3>
+<p>对于一些逻辑上不存在互相依赖关系的服务，可以通过异步 RPC 调用，实现服务的并行调用，通过并行调用来降低服务调用总耗时。</p>
+<h3 id="22-服务调用耗时波动较大场景">2.2 服务调用耗时波动较大场景<a class="anchor ms-1" href="#22-服务调用耗时波动较大场景"><i class="fas fa-link"></i></a></h3>
+<p>对于一些业务场景，服务调用耗时与消息本身、调用的资源对象有关系，例如上传和下载接口，如果下载的资源较多则耗时就会相应的增加。对于这类场景，接口的调用超时时间比较难配置，如果配置过大，服务端自身响应慢之后会拖垮调用方，如果配置过小，万一遇到一个需要较长耗时的 RPC 调用就会超时。通过异步 RPC 调用，就不用再担心调用方业务线程被阻塞，超时时间可以相应配置大一些，减少超时导致的失败。</p>
+<h3 id="23-第三方接口调用">2.3 第三方接口调用<a class="anchor ms-1" href="#23-第三方接口调用"><i class="fas fa-link"></i></a></h3>
+<p>对于大部分的第三方服务调用，都需要采用防御性编程，防止因为第三方故障导致自身不能正常工作。如果采用同步 RPC 方式调用第三方服务，一旦第三方服务的处理耗时增加，就会导致客户端调用线程被阻塞，当超时时间配置不合理时，系统很容易被阻塞。通过异步化的 RPC 调用，可以防止被第三方服务端阻塞，Hystrix 的第三方故障隔离就是采用类似机制，只不过它底层创建了线程池，通过 Hystrix 的线程池将第三方服务调用与业务线程做了隔离，实现了非侵入式的故障隔离。</p>
+<h3 id="24-性能和资源利用率提升">2.4 性能和资源利用率提升<a class="anchor ms-1" href="#24-性能和资源利用率提升"><i class="fas fa-link"></i></a></h3>
+<p>对于一个同步串行化调用的系统，大量的业务线程都在等待服务端返回响应，系统的 CPU 使用率很低，但是性能却无法有效提升，这个问题几乎是所有采用同步 RPC 调用的业务都遇到的一个通病。要想充分利用 CPU 资源，需要让业务线程尽可能的跑满 CPU，而不是经常性的处于同步等待状态。采用异步 RPC 调用之后，在单位时间内业务线程可以接收并处理更多的请求消息，更充分的利用 CPU 资源，提升系统的吞吐量。</p>
+<p>根据一些公开的测试数据，一些业务采用异步 RPC 替换同步 RPC 调用之后，综合性能提升 2-3 倍+。</p>
+<h2 id="3-异步-rpc-实现原理">3. 异步 RPC 实现原理<a class="anchor ms-1" href="#3-异步-rpc-实现原理"><i class="fas fa-link"></i></a></h2>
+<p>所谓异步回调，在得到结果之前，不会处于阻塞状态，理论上任何时间都没有任何线程处于阻塞状态，因此异步回调的模型，理论上只需要很少的工作线程与服务连接就能够达到很高的吞吐量。</p>
+<p><img class="img-fluid" alt="RPC-client异步回调" src="https://picgo.6and.ltd/img/1493814917513968.jpg" loading="lazy"
+  
+   />
+
+</p>
+<p>上图中<strong>左边的框框</strong>，是少量 <font color=red>工作线程</font>（少数几个就行了）进行调用与回调。</p>
+<p><strong>中间粉色的框框</strong>，代表了<font color=red>RPC-client</font>组件。</p>
+<p><strong>右边橙色框</strong>，代表了<font color=red>RPC-server</font>。</p>
+<p><strong>蓝色六个小框</strong>，代表了异步RPC-client六个核心组件：<font color=red>上下文管理器，超时管理器，序列化组件，下游收发队列，下游收发线程，连接池组件</font>。</p>
+<p><strong>白色的流程小框</strong>，以及箭头序号1-17，代表整个工作线程的<font color=red>串行执行步骤</font>：</p>
+<p>1）<strong>业务代码发起异步RPC调用</strong>，<code>Add(Obj1,Obj2, callback)</code></p>
+<p>2）上下文管理器，将请求，回调，上下文存储起来</p>
+<p>3）序列化组件，将对象调用序列化成二进制字节流，可理解为一个待发送的包packet1</p>
+<p>4）下游收发队列，将报文放入“待发送队列”，此时调用返回，不会阻塞工作线程</p>
+<p>5）下游收发线程，将报文从“待发送队列”中取出，通过连接池组件拿到一个可用的连接connection</p>
+<p>6）通过连接connection将包packet1发送给RPC-server</p>
+<p>7）发送包在网络传输，发给RPC-server</p>
+<p>8）响应包在网络传输，发回给RPC-client</p>
+<p>9）通过连接connection从RPC-server收取响应包packet2</p>
+<p>10）下游收发线程，将报文放入“已接受队列”，通过连接池组件，将conneciont放回连接池</p>
+<p>11）下游收发队列里，报文被取出，此时回调将要开始，不会阻塞工作线程</p>
+<p>12）序列化组件，将packet2范序列化为Result对象</p>
+<p>13）上下文管理器，将结果，回调，上下文取出</p>
+<p>14）<strong>通过callback回调业务代码，返回Result结果</strong>，工作线程继续往下走</p>
+<p>如果请求长时间不返回，处理流程是：</p>
+<p>15）上下文管理器，请求长时间没有返回</p>
+<p>16）超时管理器拿到超时的上下文</p>
+<p>17）<strong>通过timeout_cb回调业务代码</strong>，工作线程继续往下走</p>
+<h3 id="31-为什么需要上下文管理器">3.1 为什么需要上下文管理器？<a class="anchor ms-1" href="#31-为什么需要上下文管理器"><i class="fas fa-link"></i></a></h3>
+<p>回答：由于请求包的发送，响应包的回调都是异步的，甚至不在同一个工作线程中完成，<font color=red>需要一个组件来记录一个请求的上下文，把 <code>请求-响应-回调</code> 等一些信息匹配起来</font>。</p>
+<h3 id="32-如何将-请求-响应-回调-这些信息匹配起来">3.2 如何将 请求-响应-回调 这些信息匹配起来？<a class="anchor ms-1" href="#32-如何将-请求-响应-回调-这些信息匹配起来"><i class="fas fa-link"></i></a></h3>
+<p>这是一个很有意思的问题，通过一条连接往下游服务发送了a，b，c三个请求包，异步的收到了x，y，z三个响应包：</p>
+<p><img class="img-fluid" alt="响应包匹配" src="https://picgo.6and.ltd/img/1493815262685061.png" loading="lazy"
+  
+   />
+
+</p>
+<p><strong>（1）怎么知道哪个请求包与哪个响应包对应？</strong></p>
+<p><strong>（2）怎么知道哪个响应包与哪个回调函数对应？</strong></p>
+<p>回答：这是<font color=red>通过【请求id】来实现 <code>请求-响应-回调</code> 的串联</font>的。</p>
+<p><img class="img-fluid" alt="请求id" src="https://picgo.6and.ltd/img/1493815329535331.png" loading="lazy"
+  
+   />
+
+</p>
+<p>整个处理流程如上，通过请求id，上下文管理器来对应请求-响应-callback之间的映射关系：</p>
+<p>1）生成请求id</p>
+<p>2）生成请求上下文context，上下文中包含发送时间time，回调函数callback等信息</p>
+<p>3）上下文管理器记录req-id与上下文context的映射关系，</p>
+<p>4）将req-id打在请求包里发给RPC-server</p>
+<p>5）RPC-server将req-id打在响应包里返回</p>
+<p>6）由响应包中的req-id，通过上下文管理器找到原来的上下文context</p>
+<p>7）从上下文context中拿到回调函数callback</p>
+<p>8）callback将Result带回，推动业务的进一步执行</p>
+<h3 id="33-如何实现负载均衡故障转移">3.3 如何实现负载均衡，故障转移？<a class="anchor ms-1" href="#33-如何实现负载均衡故障转移"><i class="fas fa-link"></i></a></h3>
+<p>回答：与同步的连接池思路相同。不同在于，同步连接池使用阻塞方式收发，需要与一个服务的一个ip建立多条连接，异步收发，一个服务的一个ip只需要建立少量的连接（例如，一条tcp连接）。</p>
+<h3 id="34-如何实现超时发送与接收">3.4 如何实现超时发送与接收？<a class="anchor ms-1" href="#34-如何实现超时发送与接收"><i class="fas fa-link"></i></a></h3>
+<p>回答：同步阻塞发送，可以直接使用带超时的send/recv来实现，异步非阻塞的nio的网络报文收发，如何实现超时接收呢？（由于连接不会一直等待回包，那如何知晓超时呢？）这时，超时管理器就上场啦。</p>
+<p><strong>超时管理器</strong> 和 <strong>上下文管理器</strong>：</p>
+<p><img class="img-fluid" alt="超时管理器" src="https://picgo.6and.ltd/img/1493815461259351.png" loading="lazy"
+  
+   />
+
+</p>
+<p>超时管理器，用于实现请求回包超时回调处理。</p>
+<p>每一个请求发送给下游RPC-server，会在上下文管理器中保存req-id与上下文的信息，上下文中保存了请求很多相关信息，例如req-id，回包回调，超时回调，发送时间等。</p>
+<p><font color=red>超时管理器启动timer对上下文管理器中的context进行扫描，看上下文中请求发送时间是否过长，如果过长，就不再等待回包，直接超时回调</font>，推动业务流程继续往下走，并将上下文删除掉。</p>
+<p>如果超时回调执行后，正常的回包又到达，通过req-id在上下文管理器里找不到上下文，就直接将请求丢弃（因为已经超时处理过了）。</p>
+<p>however，异步回调和同步回调相比，除了序列化组件和连接池组件，会多出上下文管理器，超时管理器，下游收发队列，下游收发线程等组件，并且对调用方的调用习惯有影响（同步-&gt;回调）。异步回调能提高系统整体的吞吐量，具体使用哪种方式实现RPC-client，可以结合业务场景来选取（对时延敏感的可以选用同步，对吞吐量敏感的可以选用异步）。</p>
+<h2 id="4-dubbo异步调用">4. dubbo异步调用<a class="anchor ms-1" href="#4-dubbo异步调用"><i class="fas fa-link"></i></a></h2>
+<p>dubbo实现异步调用的原理：</p>
+<p><img class="img-fluid" alt="dubbo-rpc-async" src="https://picgo.6and.ltd/img/future-20220226231412484.jpg" loading="lazy"
+  
+   />
+
+</p>
+<p>其原理和本文原理类似。</p>
+<p>dubbo官方提供3种调用方式 👉 <a href="https://dubbo.apache.org/zh/docs/advanced/async-call/" target="_blank" rel="noopener noreferrer">异步调用</a></p>
+<p>其中 <a href="https://dubbo.apache.org/zh/docs/advanced/async-call/#%E4%BD%BF%E7%94%A8-rpccontext" target="_blank" rel="noopener noreferrer">使用 RpcContext</a> 的方式又可以细分成： <code>1.需要修改 Dubbo xml 配置文件或者注解</code>     <code>2. 无需修改任何配置文件，我们可以直接通过RpcContext#asyncCall异步完成方法调用</code>   👉 <a href="https://developer.51cto.com/article/643383.html" target="_blank" rel="noopener noreferrer">Dubbo 同步调用太慢，也许你可以试试异步处理</a></p>
+<h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
+<p><a href="https://www.infoq.cn/article/q3ipeyqv-uf5ysisq62c" target="_blank" rel="noopener noreferrer">深入剖析通信层和 RPC 调用的异步化（上）</a></p>
+<p><a href="https://www.infoq.cn/article/qkxxy3ir*c84oxmsf5qh" target="_blank" rel="noopener noreferrer">深入剖析通信层和 RPC 调用的异步化（下）</a></p>
+<p><a href="https://www.w3cschool.cn/architectroad/architectroad-rpc-client-asynchronous-send-and-receive.html" target="_blank" rel="noopener noreferrer">RPC-client异步收发核心细节</a></p></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>Buy me a coffee</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>Alipay
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>WeChat
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
+    <i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://xuzhijvn.github.io/en/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">Like查询优化
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://xuzhijvn.github.io/en/zh-cn/posts/docker/docker%E5%8E%9F%E7%90%86%E7%AE%80%E4%BB%8B/">Docker原理简介
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div></div>
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">Copyright</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title">Comments</h2>
+  </div>
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    <section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony" src="https://xuzhijvn.github.io/images/profile.webp" loading="lazy"
+   width="400" height="400"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div></div>
+  </div>
+</section>
+  <div class="post-toc row mb-4 card component" id="postTOC">
+  <div class="card-header">
+    <h2 class="card-title">Contents</h2>
+  </div>
+  <div class="card-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-同步-rpc-调用面临的挑战">1. 同步 RPC 调用面临的挑战</a></li>
+    <li><a href="#2-异步-rpc-调用的应用场景">2. 异步 RPC 调用的应用场景</a>
+      <ul>
+        <li><a href="#21-缩短长流程的调用时延">2.1 缩短长流程的调用时延</a></li>
+        <li><a href="#22-服务调用耗时波动较大场景">2.2 服务调用耗时波动较大场景</a></li>
+        <li><a href="#23-第三方接口调用">2.3 第三方接口调用</a></li>
+        <li><a href="#24-性能和资源利用率提升">2.4 性能和资源利用率提升</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-异步-rpc-实现原理">3. 异步 RPC 实现原理</a>
+      <ul>
+        <li><a href="#31-为什么需要上下文管理器">3.1 为什么需要上下文管理器？</a></li>
+        <li><a href="#32-如何将-请求-响应-回调-这些信息匹配起来">3.2 如何将 <code>请求-响应-回调</code> 这些信息匹配起来？</a></li>
+        <li><a href="#33-如何实现负载均衡故障转移">3.3 如何实现负载均衡，故障转移？</a></li>
+        <li><a href="#34-如何实现超时发送与接收">3.4 如何实现超时发送与接收？</a></li>
+      </ul>
+    </li>
+    <li><a href="#4-dubbo异步调用">4. dubbo异步调用</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div><section class="recent-posts row card component">
+  <div class="card-header">
+    <h2 class="card-title">Recent Posts</h2>
+  </div>
+  <div class="card-body">
+    <ul class="post-list"></ul>
+  </div>
+</section><section class="series-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/series">Series</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/series/manual/" class="badge rounded post-taxonomy" title="Manual">
+            Manual</a><a href="https://xuzhijvn.github.io/en/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/en/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/en/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/en/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a><a href="https://xuzhijvn.github.io/en/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a></div>
+      </div>
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/categories">Categories</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/en/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/en/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/en/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/en/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/en/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/en/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a><a href="https://xuzhijvn.github.io/en/categories/%E5%AE%B9%E5%99%A8/" class="badge rounded post-taxonomy" title="容器">
+            容器</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/tags">Tags</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/tags/java/" class="badge rounded post-taxonomy" title="Java">
+            Java</a><a href="https://xuzhijvn.github.io/en/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/en/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/en/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/en/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/en/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/en/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/en/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/en/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/en/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/en/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/en/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/en/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/en/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/en/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/en/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/en/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/en/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/en/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/en/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/en/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/en/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/en/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/en/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/en/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/en/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/en/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/en/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/en/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/en/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/en/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/en/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/en/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/en/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/en/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/en/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/en/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/en/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/en/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/en/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/en/tags/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a><a href="https://xuzhijvn.github.io/en/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/en/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
+      </div>
+    </section>
+    <section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=783175223&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></body>
+</html>

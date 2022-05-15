@@ -21,11 +21,11 @@
  UUID 数据库自增ID 数据库多主模式 号段模式 Redis 雪花算法（SnowFlake） 滴滴出品（TinyID） 百度 （Uidgenerator） 美团（Leaf）  那么它们都是如何实现？以及各自有什么优缺点？我们往下看
  以上图片源自网络，如有侵权联系删除
  1、基于UUID 在Java的世界里，想要得到一个具有唯一性的ID，首先被想到可能就是UUID，毕竟它有着全球唯一的特性。那么UUID可以做分布式ID吗？答案是可以的，但是并不推荐！
-public static void main(String[] args) { String uuid = UUID.randomUUID().toString().replaceAll(&amp;#34;-&amp;#34;,&amp;#34;&amp;#34;); System.out.println(uuid); } UUID的生成简单到只有一行代码，输出结果 c2b8c2b9e46c47e3b30dca3b0d447718，但UUID却并不适用于实际的业务需求。像用作订单号UUID这样的字符串没有丝毫的意义，看不出和订单相关的有用信息；而对于数据库来说用作业务主键ID，它不仅是太长还是字符串，存储性能差查询也很耗时，所以不推荐用作分布式ID。
+public static void main(String[] args) {  String uuid = UUID.randomUUID().toString().replaceAll(&amp;#34;-&amp;#34;,&amp;#34;&amp;#34;);  System.out.println(uuid);  } UUID的生成简单到只有一行代码，输出结果 c2b8c2b9e46c47e3b30dca3b0d447718，但UUID却并不适用于实际的业务需求。像用作订单号UUID这样的字符串没有丝毫的意义，看不出和订单相关的有用信息；而对于数据库来说用作业务主键ID，它不仅是太长还是字符串，存储性能差查询也很耗时，所以不推荐用作分布式ID。
 优点：
  生成足够简单，本地生成无网络消耗，具有唯一性  缺点：
  无序的字符串，不具备趋势自增特性 没有具体的业务含义 长度过长16 字节128位，36位长度的字符串，存储以及查询对MySQL的性能消耗较大，MySQL官方明确建议主键要尽量越短越好，作为数据库主键 UUID 的无序性会导致数据位置频繁变动，严重影响性能。  2、基于数据库自增ID 基于数据库的auto_increment自增ID完全可以充当分布式ID，具体实现：需要一个单独的MySQL实例用来生成ID，建表结构如下：
-CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.SEQUENCE_ID ( id bigint(20) unsigned NOT NULL auto_increment, value char(10) NOT NULL default &amp;#39;&amp;#39;, PRIMARY KEY (id), ) ENGINE=MyISAM; insert into SEQUENCE_ID(value) VALUES (&amp;#39;values&amp;#39;); 当我们需要一个ID的时候，向表中插入一条记录返回主键ID，但这种方式有一个比较致命的缺点，访问量激增时MySQL本身就是系统的瓶颈，用它来实现分布式服务风险比较大，不推荐！</description>
+CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.</description>
     </item>
     
     <item>

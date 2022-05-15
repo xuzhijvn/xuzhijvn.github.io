@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>MQ on 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title>
+    <link>https://xuzhijvn.github.io/en/tags/mq/</link>
+    <description>Recent content in MQ on 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
+    <lastBuildDate>Sat, 05 Feb 2022 11:46:49 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/en/tags/mq/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Redis队列</title>
+      <link>https://xuzhijvn.github.io/en/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/</link>
+      <pubDate>Sat, 05 Feb 2022 11:46:49 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/en/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/</guid>
+      <description>&lt;p&gt;本文深入分析了Redis用作MQ的可行性，对比分析了List、Pub/Sub、Stream的优缺点，并将Stream和专业MQ进行对比分析。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>MQ实现延时消息</title>
+      <link>https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/</link>
+      <pubDate>Thu, 20 Jan 2022 13:58:34 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/</guid>
+      <description>&lt;p&gt;本文分析一下目前比较主流的几款开源消息中间件对延时消息的支持情况以及实现方式。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>RabbitMQ清空队列的几种方式</title>
+      <link>https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/</link>
+      <pubDate>Tue, 04 Jan 2022 10:04:18 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/</guid>
+      <description>&lt;p&gt;🔢 🔢&lt;/p&gt;
+&lt;p&gt;这里列举几种清空RabbitMQ队列的方案&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>MQ消息最终一致性解决方案</title>
+      <link>https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/mq%E6%B6%88%E6%81%AF%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/mq%E6%B6%88%E6%81%AF%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</guid>
+      <description>只有RocketMQ支持事务消息，如果我们的MQ不是RocketMQ，可以采用本地消息+MQ达到同样的效果，并且本地消息表还可以做出独立的服务。
+随着分布式服务架构的流行与普及，原来在单体应用中执行的多个逻辑操作，现在被拆分成了多个服务之间的远程调用。虽然服务化为我们的系统带来了水平伸缩的能力，然而随之而来挑战就是分布式事务问题，多个服务之间使用自己单独维护的数据库，它们彼此之间不在同一个事务中，假如A执行成功了，B执行却失败了，而A的事务此时已经提交，无法回滚，那么最终就会导致两边数据不一致性的问题；尽管很早之前就有基于两阶段提交的XA分布式事务，但是这类方案因为需要资源的全局锁定，导致性能极差；因此后面就逐渐衍生出了消息最终一致性、TCC等柔性事务的分布式事务方案，本文主要分析的是基于消息的最终一致性方案。
+0\. 简单RPC处理存在的一致性问题 在正式开始讲述正题之前，我们先看一下，不依赖任何分布式事务手段，单纯将本地业务逻辑和远程调用逻辑放在同一个本地事务中会有什么问题。
+我们以订单创建为例，订单系统先创建订单(本地事务)，然后RPC调用库存扣减服务。
+@Transactionnal public void processOrder() {  try{  // 订单处理(业务操作)  orderService.process();  // 库存扣减（RPC远程调用）  storageService.deduction();  }catch(Exception e){  事务回滚;  } } 如果库存服务由于DB数据量比较大，导致处理超时，订单服务在出现超时异常后，直接回滚本地事务，从而导致订单服务这边没数据，而库存服务那边数据却已经写入了，最终导致两边业务数据的不一致。
+即使不存在 “DB数据量比较大” 这种特殊情况，也一定会存在因为网络抖动，订单服务调用库存服务超时而本地回滚，但是库存服务实际操作成功的情况。
+其根本的原因就在于：远程调用，结果最终可能为成功、失败、超时；而对于超时的情况，处理方最终的结果可能是成功，也可能是失败，调用方是无法知晓的。
+1\. 普通消息的处理流程  消息生成者发送消息 MQ收到消息，将消息进行持久化，在存储中新增一条记录 返回ACK给生产者 MQ push 消息给对应的消费者，然后等待消费者返回ACK 如果消息消费者在指定时间内成功返回ack，那么MQ认为消息消费成功，在存储中删除消息，即执行第6步；如果MQ在指定时间内没有收到ACK，则认为消息消费失败，会尝试重新push消息,重复执行4、5、6步骤 MQ删除消息  1.2 普通消息处理存在的一致性问题 我们还是以订单创建为例，订单系统先创建订单(本地事务)，再发送消息给下游处理；如果订单创建成功，然而消息没有发送出去，那么下游所有系统都无法感知到这个事件，会出现脏数据；
+public void processOrder() {  // 订单处理(业务操作)  orderService.process();  // 发送订单处理成功消息(发送消息)  sendBizMsg (); } 如果先发送订单消息，再创建订单；那么就有可能消息发送成功，但是在订单创建的时候却失败了，此时下游系统却认为这个订单已经创建，也会出现脏数据。
+public void processOrder() {  // 发送订单处理成功消息(发送消息)  sendBizMsg ();  // 订单处理(业务操作)  orderService.</description>
+    </item>
+    
+    <item>
+      <title>MQ综述</title>
+      <link>https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/mq%E7%BB%BC%E8%BF%B0/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/mq%E7%BB%BC%E8%BF%B0/</guid>
+      <description>1. 概念  Broker Producer Consumer Topic Queue Message  2. 模式 2.1. 点对点 PTP 点对点: 使用 Queue 作为通信载体
+消息生产者生产消息发送到 Queue 中，然后消息消费者从 Queue 中取出并且消费消息。消息被消费以后，Queue 中不再存储，所以消息消费者不可能消费到已经被消费的消息。Queue 支持存在多个消费者，但是对一个消息而言，只会有一个消费者可以消费
+2.2. 发布/订阅 Pub/Sub 发布订阅(广播): 使用 Topic 作为通信载体
+消息生产者(发布)将消息发布到 Topic 中，同时有多个消息消费者(订阅)消费该消息。和点对点方式不同，发布到 Topic 的消息会被所有订阅者消费
+总结 Queue 实现了负载均衡，将 Producer 生产的消息发送到消息队列中，由多个消费者消费。但一个消息只能被一个消费者接受，当没有消费者可用时，这个消息会被保存直到有一个可用的消费者
+Topic 实现了发布和订阅，当你发布一个消息，所有订阅这个 Topic 的服务都能得到这个消息，所以从1到N个订阅者都能得到一个消息的拷贝
+3. 协议 3.1. AMQP协议 AMQP 即 Advanced Message Queuing Protocol ，一个提供统一消息服务的应用层标准高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计。基于此协议的客户端与消息中间件可传递消息，并不受客户端/中间件不同产品，不同开发语言等条件的限制。兼容 JMS。RabbitMQ 就是基于 AMQP 协议实现的。
+优点：可靠、通用
+ JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS 的客户端之间可以通过 JMS 服务进行异步的消息传输。JMS（JAVA Message Service，Java 消息服务）API 是一个消息服务的标准或者说是规范，允许应用程序组件基于 JavaEE 平台创建、发送、接收和读取消息。它使分布式通信耦合度更低，消息服务更加可靠以及异步性。</description>
+    </item>
+    
+    <item>
+      <title>常备知识点</title>
+      <link>https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/kafka/%E5%B8%B8%E5%A4%87%E7%9F%A5%E8%AF%86%E7%82%B9/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/kafka/%E5%B8%B8%E5%A4%87%E7%9F%A5%E8%AF%86%E7%82%B9/</guid>
+      <description>1. 生产消费模型 参考：Kafka生产者消费者模型</description>
+    </item>
+    
+  </channel>
+</rss>

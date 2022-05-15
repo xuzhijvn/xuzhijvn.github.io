@@ -17,7 +17,7 @@
 Nginx-ingress 通过前置的 Loadbalancer 类型的 Service 接收集群流量，将流量转发至 Nginx-ingress Pod 内并对配置的策略进行检查，再转发至目标 Service，最终将流量转发至业务容器。
 传统的 Nginx 需要我们配置 conf 文件策略。但 Nginx-ingress 通过实现 Nginx-ingress-Controller 将原生 conf 配置文件和 yaml 配置文件进行了转化，当我们配置 yaml 文件的策略后，Nginx-ingress-Controller 将对其进行转化，并且动态更新策略，动态 Reload Nginx Pod，实现自动管理。
 那么 Nginx-ingress-Controller 如何能够动态感知集群的策略变化呢？方法有很多种，可以通过 webhook admission 拦截器，也可以通过 ServiceAccount 与 Kubernetes Api 进行交互，动态获取。Nginx-ingress-Controller 使用后者来实现。所以在部署 Nginx-ingress 我们会发现 Deployment 内指定了 Pod 的 ServiceAccount，以及实现了 RoleBinding ，最终达到 Pod 与 Kubernetes Api 交互的目标。
-dev apiVersion: v1 kind: Namespace metadata: name: dev --- apiVersion: apps/v1 kind: Deployment metadata: name: nginx namespace: dev spec: selector: matchLabels: app: nginx replicas: 1 template: metadata: labels: app: nginx spec: containers: - name: nginx image: wangweicoding-docker.</description>
+dev apiVersion: v1 kind: Namespace metadata:  name: dev --- apiVersion: apps/v1 kind: Deployment metadata:  name: nginx  namespace: dev spec:  selector:  matchLabels:  app: nginx  replicas: 1  template:  metadata:  labels:  app: nginx  spec:  containers:  - name: nginx  image: wangweicoding-docker.</description>
     </item>
     
     <item>
@@ -38,10 +38,21 @@ $ kubectl autoscale deployment wordpress --namespace kube-example --cpu-percent=
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/k8s%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</guid>
       <description>1⃣️ Container Container（容器）是一种便携式、轻量级的操作系统级虚拟化技术。它使用 namespace 隔离不同的软件运行环境，并通过镜像自包含软件的运行环境，从而使得容器可以很方便的在任何地方运行。
-2⃣️ 2⃣️ Pod Kubernetes 使用 Pod 来管理容器，每个 Pod 可以包含一个或多个紧密关联的容器。
+2⃣️ Pod Kubernetes 使用 Pod 来管理容器，每个 Pod 可以包含一个或多个紧密关联的容器。
 Pod 是一组紧密关联的容器集合，它们共享 PID（同一个Pod中应用可以看到其它进程）、IPC（同一个Pod中的应用可以通过VPC或者POSIX进行通信）、Network （同一个Pod的中的应用对相同的IP地址和端口有权限）和 UTS namespace（同一个Pod中的应用共享一个主机名称），是 Kubernetes 调度的基本单位。Pod 内的多个容器共享网络和文件系统，可以通过进程间通信和文件共享这种简单高效的方式组合完成服务。
 在 Kubernetes 中，所有对象都使用 manifest（yaml 或 json）来定义，比如一个简单的 nginx 服务可以定义为 nginx.yaml，它包含一个镜像为 nginx 的容器：
-apiVersion: v1 kind: Pod metadata: name: nginx labels: app: nginx spec: containers: - name: nginx image: nginx ports: - containerPort: 80 3⃣️ Node Node 是 Pod 真正运行的主机，可以是物理机，也可以是虚拟机。为了管理 Pod，每个 Node 节点上至少要运行 container runtime（比如 docker 或者 rkt）、kubelet 和 kube-proxy 服务。</description>
+apiVersion: v1 kind: Pod metadata:  name: nginx  labels:  app: nginx spec:  containers:  - name: nginx  image: nginx  ports:  - containerPort: 80 3⃣️ Node Node 是 Pod 真正运行的主机，可以是物理机，也可以是虚拟机。为了管理 Pod，每个 Node 节点上至少要运行 container runtime（比如 docker 或者 rkt）、kubelet 和 kube-proxy 服务。</description>
+    </item>
+    
+    <item>
+      <title>k8s架构</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%9E%B6%E6%9E%84/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%9E%B6%E6%9E%84/</guid>
+      <description>Kubernetes 主要由以下几个核心组件组成:
+ etcd 保存了整个集群的状态，就是一个数据库； apiserver 提供了资源操作的唯一入口，并提供认证、授权、访问控制、API 注册和发现等机制； controller manager 负责维护集群的状态，比如故障检测、自动扩展、滚动更新等； scheduler 负责资源的调度，按照预定的调度策略将 Pod 调度到相应的机器上； kubelet 负责维护容器的生命周期，同时也负责 Volume（CSI）和网络（CNI）的管理； Container runtime 负责镜像管理以及 Pod 和容器的真正运行（CRI）； kube-proxy 负责为 Service 提供 cluster 内部的服务发现和负载均衡；  当然了除了上面的这些核心组件，还有一些推荐的插件：
+ kube-dns 负责为整个集群提供 DNS 服务 Ingress Controller 为服务提供外网入口 Heapster 提供资源监控 Dashboard 提供 GUI  </description>
     </item>
     
     <item>
@@ -64,26 +75,15 @@ apiVersion: v1 kind: Pod metadata: name: nginx labels: app: nginx spec: containe
     </item>
     
     <item>
-      <title>k8s架构</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%9E%B6%E6%9E%84/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%9E%B6%E6%9E%84/</guid>
-      <description>Kubernetes 主要由以下几个核心组件组成:
- etcd 保存了整个集群的状态，就是一个数据库； apiserver 提供了资源操作的唯一入口，并提供认证、授权、访问控制、API 注册和发现等机制； controller manager 负责维护集群的状态，比如故障检测、自动扩展、滚动更新等； scheduler 负责资源的调度，按照预定的调度策略将 Pod 调度到相应的机器上； kubelet 负责维护容器的生命周期，同时也负责 Volume（CSI）和网络（CNI）的管理； Container runtime 负责镜像管理以及 Pod 和容器的真正运行（CRI）； kube-proxy 负责为 Service 提供 cluster 内部的服务发现和负载均衡；  当然了除了上面的这些核心组件，还有一些推荐的插件：
- kube-dns 负责为整个集群提供 DNS 服务 Ingress Controller 为服务提供外网入口 Heapster 提供资源监控 Dashboard 提供 GUI  </description>
-    </item>
-    
-    <item>
       <title>k8s组件</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E7%BB%84%E4%BB%B6/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E7%BB%84%E4%BB%B6/</guid>
-      <description>Master（控制平面）组件 1⃣️ 1⃣️ kube-apiserver  提供集群管理的 REST API 接口，包括认证授权、数据校验以及集群状态变更等 提供其他模块之间的数据交互和通信的枢纽（其他模块通过 API Server 查询或修改数据，只有 API Server 才直接操作 etcd）  2⃣️ 2⃣️ etcd etcd 是 CoreOS 基于 Raft 开发的分布式 key-value 存储，可用于服务发现、共享配置以及一致性保障（如数据库选主、分布式锁等）。
+      <description>Master（控制平面）组件 1⃣️ kube-apiserver  提供集群管理的 REST API 接口，包括认证授权、数据校验以及集群状态变更等 提供其他模块之间的数据交互和通信的枢纽（其他模块通过 API Server 查询或修改数据，只有 API Server 才直接操作 etcd）  2⃣️ etcd etcd 是 CoreOS 基于 Raft 开发的分布式 key-value 存储，可用于服务发现、共享配置以及一致性保障（如数据库选主、分布式锁等）。
 主要功能🔧包括：
  基本的 key-value 存储 监听机制 key 的过期及续约机制，用于监控和服务发现 原子 CAS 和 CAD，用于分布式锁和 leader 选举  Etcd，Zookeeper，Consul 比较 🆚：
- Etcd 和 Zookeeper 提供的能力非常相似，都是通用的一致性元信息存储，都提供 watch 机制用于变更通知和分发，也都被分布式系统用来作为共享信息存储，在软件生态中所处的位置也几乎是一样的，可以互相替代的。二者除了实现细节，语言，一致性协议上的区别，最大的区别在周边生态圈。Zookeeper 是 apache 下的，用 java 写的，提供 rpc 接口，最早从 hadoop 项目中孵化出来，在分布式系统中得到广泛使用（hadoop, solr, kafka, mesos 等）。Etcd 是 coreos 公司旗下的开源产品，比较新，以其简单好用的 rest 接口以及活跃的社区俘获了一批用户，在新的一些集群中得到使用（比如 kubernetes）。虽然 v3 为了性能也改成二进制 rpc 接口了，但其易用性上比 Zookeeper 还是好一些。 而 Consul 的目标则更为具体一些，Etcd 和 Zookeeper 提供的是分布式一致性存储能力，具体的业务场景需要用户自己实现，比如服务发现，比如配置变更。而 Consul 则以服务发现和配置变更为主要目标，同时附带了 kv 存储。  3⃣️ 3⃣️ kube-scheduler kube-scheduler 负责分配调度 Pod 到集群内的节点上，它监听 kube-apiserver，查询还未分配 Node 的 Pod，然后根据调度策略为这些 Pod 分配节点（更新 Pod 的 NodeName 字段）。</description>
+ Etcd 和 Zookeeper 提供的能力非常相似，都是通用的一致性元信息存储，都提供 watch 机制用于变更通知和分发，也都被分布式系统用来作为共享信息存储，在软件生态中所处的位置也几乎是一样的，可以互相替代的。二者除了实现细节，语言，一致性协议上的区别，最大的区别在周边生态圈。Zookeeper 是 apache 下的，用 java 写的，提供 rpc 接口，最早从 hadoop 项目中孵化出来，在分布式系统中得到广泛使用（hadoop, solr, kafka, mesos 等）。Etcd 是 coreos 公司旗下的开源产品，比较新，以其简单好用的 rest 接口以及活跃的社区俘获了一批用户，在新的一些集群中得到使用（比如 kubernetes）。虽然 v3 为了性能也改成二进制 rpc 接口了，但其易用性上比 Zookeeper 还是好一些。 而 Consul 的目标则更为具体一些，Etcd 和 Zookeeper 提供的是分布式一致性存储能力，具体的业务场景需要用户自己实现，比如服务发现，比如配置变更。而 Consul 则以服务发现和配置变更为主要目标，同时附带了 kv 存储。  3⃣️ kube-scheduler kube-scheduler 负责分配调度 Pod 到集群内的节点上，它监听 kube-apiserver，查询还未分配 Node 的 Pod，然后根据调度策略为这些 Pod 分配节点（更新 Pod 的 NodeName 字段）。</description>
     </item>
     
     <item>
@@ -132,37 +132,20 @@ Kubernete Service 是一个定义了一组Pod的策略的抽象，我们也有�
 举个例子，我们假设后台是一个图形处理的后台，并且由3个副本。这些副本是可以相互替代的，并且前台并需要关心使用的哪一个后台Pod，当这个承载前台请求的pod发生变化时，前台并不需要直到这些变化，或者追踪后台的这些副本，服务是这些去耦
 对于Kubernete原生的应用，Kubernete提供了一个简单的Endpoints API，这个Endpoints api的作用就是当一个服务中的pod发生变化时，Endpoints API随之变化，对于哪些不是原生的程序，Kubernetes提供了一个基于虚拟IP的网桥的服务，这个服务会将请求转发到对应的后台pod
 Defining a service(定义一个服务) 一个Kubernete服务是一个最小的对象，类似pod,和其它的终端对象一样，我们可以朝paiserver发送请求来创建一个新的实例，比如，假设你拥有一些Pod,每个pod都开放了9376端口，并且均带有一个标签app=MyApp
-{ &amp;#34;“kind”&amp;#34;: &amp;#34;“Service”&amp;#34;, &amp;#34;“apiVersion”&amp;#34;: &amp;#34;“v1”&amp;#34;, &amp;#34;“metadata”&amp;#34;: { &amp;#34;“name”&amp;#34;: &amp;#34;“my-service”&amp;#34; }, &amp;#34;“spec”&amp;#34;: { &amp;#34;“selector”&amp;#34;: { &amp;#34;“app”&amp;#34;: &amp;#34;“MyApp”&amp;#34; }, &amp;#34;“ports”&amp;#34;: [ { &amp;#34;“protocol”&amp;#34;: &amp;#34;“TCP”&amp;#34;, &amp;#34;“port”&amp;#34;: 80, &amp;#34;“targetPort”&amp;#34;: 9376 } ] } } 这段代码会创建一个新的服务对象，名称为：my-service，并且会连接目标端口9376，并且带有label app=MyApp的pod,这个服务会被分配一个ip地址，这个ip是给服务代理使用的（下面我们会看到），服务的选择器会持续的评估，并且结果会被发送到一个Endpoints 对象，这个Endpoints的对象的名字也叫“my-service”.
-服务可以将一个“入端口”转发到任何“目标端口”，默认情况下targetPort的值会和port的值相同，更有趣的是，targetPort可以是字符串，可以指定到一个name,这个name是pod的一个端口。并且实际指派给这个name的端口可以是不同在不同的后台pod中，这样让我们能更加灵活的部署我们的服务，比如；我们可以在下一个更新版本中修改后台pod暴露的端口而不会影响客户的使用（更新过程不会打断）
- 服务支持tcp和UDP，但是默认的是TCP Services without selectors（没有选择器的服务）  服务总体上抽象了对Pod的访问，但是服务也抽象了其它的内容，比如：
-1：比如你希望有一个额外的数据库云在生产环境中，但是在测试的时候，我们希望使用自己的数据库
-2：我们希望将服务指向其它的服务或者其它命名空间或者其它的云平台上的服务
-3：我们正在向kubernete迁移，并且我们后台并没有在Kubernete中
-如上的情况下，我们可以定义一个服务没有选择器
-{ &amp;#34;“kind”&amp;#34;: &amp;#34;“Service”&amp;#34;, &amp;#34;“apiVersion”&amp;#34;: &amp;#34;“v1″&amp;#34;, &amp;#34;“metadata”&amp;#34;: { &amp;#34;“name”&amp;#34;: &amp;#34;“my-service”&amp;#34; }, &amp;#34;“spec”&amp;#34;: { &amp;#34;“ports”&amp;#34;: [ { &amp;#34;“protocol”&amp;#34;: &amp;#34;“TCP”&amp;#34;, &amp;#34;“port”&amp;#34;: 80, &amp;#34;“targetPort”&amp;#34;: 9376 } ] } } 因为没有选择器，所以相应的Endpoints对象就不会被创建，但是我们手动把我们的服务和Endpoints对应起来</description>
+{  &amp;#34;“kind”&amp;#34;: &amp;#34;“Service”&amp;#34;,  &amp;#34;“apiVersion”&amp;#34;: &amp;#34;“v1”&amp;#34;,  &amp;#34;“metadata”&amp;#34;: {  &amp;#34;“name”&amp;#34;: &amp;#34;“my-service”&amp;#34;  },  &amp;#34;“spec”&amp;#34;: {  &amp;#34;“selector”&amp;#34;: {  &amp;#34;“app”&amp;#34;: &amp;#34;“MyApp”&amp;#34;  },  &amp;#34;“ports”&amp;#34;: [  {  &amp;#34;“protocol”&amp;#34;: &amp;#34;“TCP”&amp;#34;,  &amp;#34;“port”&amp;#34;: 80,  &amp;#34;“targetPort”&amp;#34;: 9376  }  ]  } } 这段代码会创建一个新的服务对象，名称为：my-service，并且会连接目标端口9376，并且带有label app=MyApp的pod,这个服务会被分配一个ip地址，这个ip是给服务代理使用的（下面我们会看到），服务的选择器会持续的评估，并且结果会被发送到一个Endpoints 对象，这个Endpoints的对象的名字也叫“my-service”.
+服务可以将一个“入端口”转发到任何“目标端口”，默认情况下targetPort的值会和port的值相同，更有趣的是，targetPort可以是字符串，可以指定到一个name,这个name是pod的一个端口。并且实际指派给这个name的端口可以是不同在不同的后台pod中，这样让我们能更加灵活的部署我们的服务，比如；我们可以在下一个更新版本中修改后台pod暴露的端口而不会影响客户的使用（更新过程不会打断）</description>
     </item>
     
     <item>
-      <title>一些概念</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/</link>
+      <title>多Pod实现灰度</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/%E5%A4%9Apod%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/</guid>
-      <description>什么是云原生？ 云原生是一种构建和运行应用程序的方法，是一套技术体系和方法论。云原生（CloudNative）是一个组合词，Cloud+Native。Cloud表示应用程序位于云中，而不是传统的数据中心；Native表示应用程序从设计之初即考虑到云的环境，原生为云而设计，在云上以最佳姿势运行，充分利用和发挥云平台的弹性+分布式优势。
- 什么是云原生架构？ 采用开源堆栈（K8S+Docker）进行容器化，基于微服务架构提高灵活性和可维护性，借助敏捷方法、DevOps支持持续迭代和运维自动化，利用云平台设施实现弹性伸缩、动态调度、优化资源利用率。
-什么是云原生应用？ 在架构设计、开发方式、部署维护等各个阶段和方面都基于云的特点建设的应用。
- 什么是容器编排？ 容器编排是指自动化容器的部署、管理、扩展和联网。
- k8s周边：
- k3s : 轻量化k8s k9s : kubectl命令的封装 KubeOperator : 国产k8s发行版 Kubesphere : k8s企业级别增强（多云、多集群） kubeedge : 边缘计算 Kubeless : 面向serverless的k8s   什么是服务网格？ k8s/istio与云原生的关系？ </description>
-    </item>
-    
-    <item>
-      <title>云厂商集成k8s</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/%E4%BA%91%E5%8E%82%E5%95%86%E9%9B%86%E6%88%90k8s/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/%E4%BA%91%E5%8E%82%E5%95%86%E9%9B%86%E6%88%90k8s/</guid>
-      <description>阿里云 ACK 腾讯云 TKE 华为云 CCE AWS EKS Google GKE Azure AKS DigitalOcean k8s Oracle OKE</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/%E5%A4%9Apod%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/</guid>
+      <description>如果您想使用 Deployment 将最新的应用程序版本发布给一部分用户（或服务器），您可以为每个版本创建一个 Deployment，此时，应用程序的新旧两个版本都可以同时获得生产上的流量。
+实施方案   部署第一个版本
+第一个版本的 Deployment 包含了 3 个Pod副本，Service 通过 label selector app: nginx 选择对应的 Pod，nginx 的标签为 1.7.9
+apiVersion: apps/v1 kind: Deployment metadata:  name: nginx-deployment  labels:  app: nginx spec:  replicas: 3  selector:  matchLabels:  app: nginx  template:  metadata:  labels:  app: nginx  spec:  containers:  - name: nginx  image: nginx:1.7.9 --- apiVersion: v1 kind: Service metadata:  name: nginx-service  labels:  app: nginx spec:  selector:  app: nginx  ports:  - name: nginx-port  protocol: TCP  port: 80  nodePort: 32600  targetPort: 80  type: NodePort   假设此时想要发布新的版本 nginx 1.</description>
     </item>
     
     <item>
@@ -193,15 +176,26 @@ StatefuleSet
     </item>
     
     <item>
-      <title>多Pod实现灰度</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/%E5%A4%9Apod%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/</link>
+      <title>一些概念</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/%E5%A4%9Apod%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/</guid>
-      <description>如果您想使用 Deployment 将最新的应用程序版本发布给一部分用户（或服务器），您可以为每个版本创建一个 Deployment，此时，应用程序的新旧两个版本都可以同时获得生产上的流量。
-实施方案   部署第一个版本
-第一个版本的 Deployment 包含了 3 个Pod副本，Service 通过 label selector app: nginx 选择对应的 Pod，nginx 的标签为 1.7.9
-apiVersion: apps/v1 kind: Deployment metadata: name: nginx-deployment labels: app: nginx spec: replicas: 3 selector: matchLabels: app: nginx template: metadata: labels: app: nginx spec: containers: - name: nginx image: nginx:1.7.9 --- apiVersion: v1 kind: Service metadata: name: nginx-service labels: app: nginx spec: selector: app: nginx ports: - name: nginx-port protocol: TCP port: 80 nodePort: 32600 targetPort: 80 type: NodePort   假设此时想要发布新的版本 nginx 1.</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/</guid>
+      <description>什么是云原生？ 云原生是一种构建和运行应用程序的方法，是一套技术体系和方法论。云原生（CloudNative）是一个组合词，Cloud+Native。Cloud表示应用程序位于云中，而不是传统的数据中心；Native表示应用程序从设计之初即考虑到云的环境，原生为云而设计，在云上以最佳姿势运行，充分利用和发挥云平台的弹性+分布式优势。
+ 什么是云原生架构？ 采用开源堆栈（K8S+Docker）进行容器化，基于微服务架构提高灵活性和可维护性，借助敏捷方法、DevOps支持持续迭代和运维自动化，利用云平台设施实现弹性伸缩、动态调度、优化资源利用率。
+什么是云原生应用？ 在架构设计、开发方式、部署维护等各个阶段和方面都基于云的特点建设的应用。
+ 什么是容器编排？ 容器编排是指自动化容器的部署、管理、扩展和联网。
+ k8s周边：
+ k3s : 轻量化k8s k9s : kubectl命令的封装 KubeOperator : 国产k8s发行版 Kubesphere : k8s企业级别增强（多云、多集群） kubeedge : 边缘计算 Kubeless : 面向serverless的k8s   什么是服务网格？ k8s/istio与云原生的关系？ </description>
+    </item>
+    
+    <item>
+      <title>云厂商集成k8s</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/%E4%BA%91%E5%8E%82%E5%95%86%E9%9B%86%E6%88%90k8s/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/%E4%BA%91%E5%8E%82%E5%95%86%E9%9B%86%E6%88%90k8s/</guid>
+      <description>阿里云 ACK 腾讯云 TKE 华为云 CCE AWS EKS Google GKE Azure AKS DigitalOcean k8s Oracle OKE</description>
     </item>
     
   </channel>

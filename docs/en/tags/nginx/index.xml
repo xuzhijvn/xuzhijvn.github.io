@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>nginx on 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title>
+    <link>https://xuzhijvn.github.io/en/tags/nginx/</link>
+    <description>Recent content in nginx on 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
+    <lastBuildDate>Sun, 29 Aug 2021 23:33:21 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/en/tags/nginx/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>基于keepalived实现nginx高可用</title>
+      <link>https://xuzhijvn.github.io/en/zh-cn/posts/code/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/</link>
+      <pubDate>Sun, 29 Aug 2021 23:33:21 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/en/zh-cn/posts/code/nginx/%E5%9F%BA%E4%BA%8Ekeepalived%E5%AE%9E%E7%8E%B0nginx%E9%AB%98%E5%8F%AF%E7%94%A8/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Nginx负载均衡</title>
+      <link>https://xuzhijvn.github.io/en/zh-cn/posts/code/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</link>
+      <pubDate>Sun, 29 Aug 2021 23:29:12 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/en/zh-cn/posts/code/nginx/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>400 Bad Request</title>
+      <link>https://xuzhijvn.github.io/en/zh-cn/posts/code/nginx/400-bad-request/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/en/zh-cn/posts/code/nginx/400-bad-request/</guid>
+      <description>需要设置 proxy_set_header Host $host:$server_port;
+location ^~/gateway/ {  proxy_set_header Host $host:$server_port;  proxy_set_header X-Real-IP $remote_addr;  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  proxy_set_header X-NginX-Proxy true;  proxy_pass http://k8s_yshop-gateway-svc/; } </description>
+    </item>
+    
+    <item>
+      <title>nginx授权登陆报403问题</title>
+      <link>https://xuzhijvn.github.io/en/zh-cn/posts/code/nginx/nginx%E6%8E%88%E6%9D%83%E7%99%BB%E9%99%86%E6%8A%A5403%E9%97%AE%E9%A2%98/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/en/zh-cn/posts/code/nginx/nginx%E6%8E%88%E6%9D%83%E7%99%BB%E9%99%86%E6%8A%A5403%E9%97%AE%E9%A2%98/</guid>
+      <description>在给nginx加上授权模块后，再访问应用报403访问禁止的错误。
+一开始是这样：
+1. 生成密码文件 printf &amp;#34;yourusername:$(openssl passwd -apr1)&amp;#34; &amp;gt; /etc/nginx/passwords 2. nginx配置 server {  # ...  auth_basic &amp;#34;Protected&amp;#34;;  auth_basic_user_file passwords;  # ... } [v_error]auth_basic_user_file 后面跟的是相对路径，这样配置很容易导致nginx找不到文件，因此改成绝对路径就万事大吉了：[/v_error]
+server{		listen 443 ssl; 	server_name netdata.6and.ltd;  #listen [::]:81 default_server ipv6only=on; 	#ssl on; 	ssl_certificate httpssl/1_netdata.6and.ltd_bundle.crt; 	ssl_certificate_key httpssl/2_netdata.6and.ltd.key; 	ssl_session_timeout 5m; 	ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;  ssl_protocols TLSv1 TLSv1.1 TLSv1.2; 	ssl_prefer_server_ciphers on; 	#index index.html index.htm index.php; 	#root /home/wwwroot/;  	#error_page 404 /404.</description>
+    </item>
+    
+    <item>
+      <title>去除请求path前缀</title>
+      <link>https://xuzhijvn.github.io/en/zh-cn/posts/code/nginx/%E5%8E%BB%E9%99%A4%E8%AF%B7%E6%B1%82path%E5%89%8D%E7%BC%80/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/en/zh-cn/posts/code/nginx/%E5%8E%BB%E9%99%A4%E8%AF%B7%E6%B1%82path%E5%89%8D%E7%BC%80/</guid>
+      <description>1. proxy_pass后面加根路径/ location ^~/user/ {  proxy_set_header Host $host;  proxy_set_header X-Real-IP $remote_addr;  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  proxy_set_header X-NginX-Proxy true;   proxy_pass http://user/; } ^~/user/表示匹配前缀是user的请求，proxy_pass的结尾有/， 则会把/user/*后面的路径直接拼接到后面，即移除user。
+2. 使用rewrite location ^~/user/ {  proxy_set_header Host $host;  proxy_set_header X-Real-IP $remote_addr;  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  proxy_set_header X-NginX-Proxy true;   rewrite ^/user/(.*)$ /$1 break;  proxy_pass http://user; } 注意到proxy_pass结尾没有/， rewrite重写了url。
+参考链接： Nginx代理proxy pass配置去除前缀
+Nginx 转发域名地址报 400 Bad Request</description>
+    </item>
+    
+    <item>
+      <title>部署vue项目</title>
+      <link>https://xuzhijvn.github.io/en/zh-cn/posts/code/nginx/%E9%83%A8%E7%BD%B2vue%E9%A1%B9%E7%9B%AE/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/en/zh-cn/posts/code/nginx/%E9%83%A8%E7%BD%B2vue%E9%A1%B9%E7%9B%AE/</guid>
+      <description>时常我们想通过path来区分项目，例如通过 http://xxxx/admin 访问我们的后台，如果vue是的mode是history，请注意如下配置：
+ 修改vue-config.js文件配置  module.exports = {publicPath: &amp;#34;&amp;#34;}; 修改路由route/index  const router = new Router({  base: &amp;#39;/admin/&amp;#39;, //路由模式为history模式时，base必须要加上;路由模式为hash模式时，base可加可不加  mode: &amp;#39;history&amp;#39;,  routes: [] } 此时，请求是形如 http://xxxx/admin/xxx.css，从而避免出现形如http://xxxx/xxx.css找不到资源的情况。</description>
+    </item>
+    
+  </channel>
+</rss>

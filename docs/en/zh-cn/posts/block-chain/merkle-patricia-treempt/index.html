@@ -1,0 +1,788 @@
+<!doctype html><html lang="en" data-palette="indigo"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Merkle Patricia Tree - 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/icons/icon-180x180.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-16x16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
+<link rel="manifest" href="https://xuzhijvn.github.io/en/manifest.json">
+<meta name="keywords" content="" />
+<meta name="description" content="区块链一个重要的亮点就是防篡改，那么它是怎么做到防篡改的呢？其中一个重要的知识点就是Merkle Patricia Tree(MPT)，本篇就来解析下何为MPT。
+MPT是一种加密认证的数据结构，它融合了Merkle树和Patricia Trie树(基数树/压缩前缀树)两种数据类型的优点。
+则在介绍MPT树之前先介绍下Merkle树(默克尔树)、Trie树(前缀树)和Patricia Trie(基数树/压缩前缀树)，介绍Trie树是因为Patricia Trie是基于Trie树衍化来的。
+Trie树 Trie树又称前缀树或字典树，是一种检索树，使用一个有序的树结构存储一个动态数据集或者关联数组，其中的键通常是字符串。与二叉查找树不同，键不是直接保存在节点中，而是由节点在树中的位置决定。一个节点的所有子孙相对于当前节点都有相同的前缀，而根节点为空字符串。一般情况下，不是所有的节点都有对应的值，只有叶子节点和部分内部节点所对应的键才有相关的值。
+Trie树中，key是从树根到对应value得真实的路径。即从根节点开始，key中的每个字符会标识走那个子节点从而到达相应value。Value被存储在叶子节点，是每条路径的终止。假如key来自一个包含N个字符的字母表，那么树中的每个节点都可能会有多达N个孩子，树的最大深度是key的最大长度。看个例子画个图就了然了。 例子：关键字集合{“a”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为
+Trie树
+不理想情况下，数据集中存在一个很长的key，而这个key与其它key又没有太多的公共前缀，这就造成整个树的深度会加大，需要存储多个节点，存储比较稀疏而且极不平衡。 例子：关键字集合{“algori”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为
+稀疏Trie树
+Patricia Trie树 既然Trie树在某些情况下存储空间利用率不高，那就给压缩下，然后就出现了Patricia Trie树。
+Patricia Trie树是一种空间使用率经过优化的Trie树。与Trie树不同的是，Patricia Trie 里如果存在一个父节点只有一个子节点，那么这个父节点将与其子节点合并。这样压缩存储可以减少Trie树中不必要的深度，大大加快搜索节点速度。 如下图所示
+Patricia Trie树
+Merkle树 Merkle树是由计算机科学家Ralph Merkle在很多年前提出的，并以他本人的名字来命名，是一种树形数据结构，可以是二叉树，也可以是多叉树。 它由若干叶节点、中间节点和一个根节点构成。最下面的叶节点包含基础数据，每个中间节点是它子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部。
+由于Merkle树是自底向上构建的，而且除叶子结点之外的其它节点都是其子节点的散列，这样每个节点的值发生变化都会一层一层的向上反映，最终在根节点上表现出来。也就是说只要对比两个Merkle树的根节点是否相等就能得到两份数据集是否一样，而且还可以验证Merkle树的某个分支。
+比特币使用Merkle树存储一个区块中的所有交易信息，一是为了防篡改，因为散列是向上的，伪造任何一个节点都会引起上层节点的改动，最终导致根节点的变化。二是为了允许区块的数据可以零散的传送，即节点可以从一个节点下载区块头，从另外的源下载与其相关的树的其他部分，而依然能够确认所有的数据都是正确的。
+看下图的例子，首先将L1-L4四个单元数据散列化，然后将散列值存储至相应的叶子节点。这些节点是Hash0-0, Hash0-1, Hash1-0, Hash1-1，然后将相邻两个节点的散列值合并成一个字符串，然后计算这个字符串的散列，得到的就是这两个节点的父节点的散列值。
+Merkle树
+在比特币网络中，merkle树被用来归纳一个区块中的所有交易，同时生成整个交易集合的数字指纹。此外，由于merkle树的存在，使得在比特币这种公链的场景下，扩展一种“轻节点”实现简单支付验证变成可能。
+知道了Merkle树在比特币中的应用，那么他是怎么构成呢？现在就简单看下其构成。它由一组叶节点、一组中间节点和一个根节点构成。最下面的叶节点包含基础数据，每个中间节点是它的子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部 。
+Merkle树具有下列特性:
+ 每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。  Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
+首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。" /><meta itemprop="name" content="Merkle Patricia Tree">
+<meta itemprop="description" content="区块链一个重要的亮点就是防篡改，那么它是怎么做到防篡改的呢？其中一个重要的知识点就是Merkle Patricia Tree(MPT)，本篇就来解析下何为MPT。
+MPT是一种加密认证的数据结构，它融合了Merkle树和Patricia Trie树(基数树/压缩前缀树)两种数据类型的优点。
+则在介绍MPT树之前先介绍下Merkle树(默克尔树)、Trie树(前缀树)和Patricia Trie(基数树/压缩前缀树)，介绍Trie树是因为Patricia Trie是基于Trie树衍化来的。
+Trie树 Trie树又称前缀树或字典树，是一种检索树，使用一个有序的树结构存储一个动态数据集或者关联数组，其中的键通常是字符串。与二叉查找树不同，键不是直接保存在节点中，而是由节点在树中的位置决定。一个节点的所有子孙相对于当前节点都有相同的前缀，而根节点为空字符串。一般情况下，不是所有的节点都有对应的值，只有叶子节点和部分内部节点所对应的键才有相关的值。
+Trie树中，key是从树根到对应value得真实的路径。即从根节点开始，key中的每个字符会标识走那个子节点从而到达相应value。Value被存储在叶子节点，是每条路径的终止。假如key来自一个包含N个字符的字母表，那么树中的每个节点都可能会有多达N个孩子，树的最大深度是key的最大长度。看个例子画个图就了然了。 例子：关键字集合{“a”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为
+Trie树
+不理想情况下，数据集中存在一个很长的key，而这个key与其它key又没有太多的公共前缀，这就造成整个树的深度会加大，需要存储多个节点，存储比较稀疏而且极不平衡。 例子：关键字集合{“algori”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为
+稀疏Trie树
+Patricia Trie树 既然Trie树在某些情况下存储空间利用率不高，那就给压缩下，然后就出现了Patricia Trie树。
+Patricia Trie树是一种空间使用率经过优化的Trie树。与Trie树不同的是，Patricia Trie 里如果存在一个父节点只有一个子节点，那么这个父节点将与其子节点合并。这样压缩存储可以减少Trie树中不必要的深度，大大加快搜索节点速度。 如下图所示
+Patricia Trie树
+Merkle树 Merkle树是由计算机科学家Ralph Merkle在很多年前提出的，并以他本人的名字来命名，是一种树形数据结构，可以是二叉树，也可以是多叉树。 它由若干叶节点、中间节点和一个根节点构成。最下面的叶节点包含基础数据，每个中间节点是它子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部。
+由于Merkle树是自底向上构建的，而且除叶子结点之外的其它节点都是其子节点的散列，这样每个节点的值发生变化都会一层一层的向上反映，最终在根节点上表现出来。也就是说只要对比两个Merkle树的根节点是否相等就能得到两份数据集是否一样，而且还可以验证Merkle树的某个分支。
+比特币使用Merkle树存储一个区块中的所有交易信息，一是为了防篡改，因为散列是向上的，伪造任何一个节点都会引起上层节点的改动，最终导致根节点的变化。二是为了允许区块的数据可以零散的传送，即节点可以从一个节点下载区块头，从另外的源下载与其相关的树的其他部分，而依然能够确认所有的数据都是正确的。
+看下图的例子，首先将L1-L4四个单元数据散列化，然后将散列值存储至相应的叶子节点。这些节点是Hash0-0, Hash0-1, Hash1-0, Hash1-1，然后将相邻两个节点的散列值合并成一个字符串，然后计算这个字符串的散列，得到的就是这两个节点的父节点的散列值。
+Merkle树
+在比特币网络中，merkle树被用来归纳一个区块中的所有交易，同时生成整个交易集合的数字指纹。此外，由于merkle树的存在，使得在比特币这种公链的场景下，扩展一种“轻节点”实现简单支付验证变成可能。
+知道了Merkle树在比特币中的应用，那么他是怎么构成呢？现在就简单看下其构成。它由一组叶节点、一组中间节点和一个根节点构成。最下面的叶节点包含基础数据，每个中间节点是它的子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部 。
+Merkle树具有下列特性:
+ 每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。  Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
+首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="404">
+<meta itemprop="keywords" content="BlockChain," /><meta property="og:title" content="Merkle Patricia Tree" />
+<meta property="og:description" content="区块链一个重要的亮点就是防篡改，那么它是怎么做到防篡改的呢？其中一个重要的知识点就是Merkle Patricia Tree(MPT)，本篇就来解析下何为MPT。
+MPT是一种加密认证的数据结构，它融合了Merkle树和Patricia Trie树(基数树/压缩前缀树)两种数据类型的优点。
+则在介绍MPT树之前先介绍下Merkle树(默克尔树)、Trie树(前缀树)和Patricia Trie(基数树/压缩前缀树)，介绍Trie树是因为Patricia Trie是基于Trie树衍化来的。
+Trie树 Trie树又称前缀树或字典树，是一种检索树，使用一个有序的树结构存储一个动态数据集或者关联数组，其中的键通常是字符串。与二叉查找树不同，键不是直接保存在节点中，而是由节点在树中的位置决定。一个节点的所有子孙相对于当前节点都有相同的前缀，而根节点为空字符串。一般情况下，不是所有的节点都有对应的值，只有叶子节点和部分内部节点所对应的键才有相关的值。
+Trie树中，key是从树根到对应value得真实的路径。即从根节点开始，key中的每个字符会标识走那个子节点从而到达相应value。Value被存储在叶子节点，是每条路径的终止。假如key来自一个包含N个字符的字母表，那么树中的每个节点都可能会有多达N个孩子，树的最大深度是key的最大长度。看个例子画个图就了然了。 例子：关键字集合{“a”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为
+Trie树
+不理想情况下，数据集中存在一个很长的key，而这个key与其它key又没有太多的公共前缀，这就造成整个树的深度会加大，需要存储多个节点，存储比较稀疏而且极不平衡。 例子：关键字集合{“algori”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为
+稀疏Trie树
+Patricia Trie树 既然Trie树在某些情况下存储空间利用率不高，那就给压缩下，然后就出现了Patricia Trie树。
+Patricia Trie树是一种空间使用率经过优化的Trie树。与Trie树不同的是，Patricia Trie 里如果存在一个父节点只有一个子节点，那么这个父节点将与其子节点合并。这样压缩存储可以减少Trie树中不必要的深度，大大加快搜索节点速度。 如下图所示
+Patricia Trie树
+Merkle树 Merkle树是由计算机科学家Ralph Merkle在很多年前提出的，并以他本人的名字来命名，是一种树形数据结构，可以是二叉树，也可以是多叉树。 它由若干叶节点、中间节点和一个根节点构成。最下面的叶节点包含基础数据，每个中间节点是它子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部。
+由于Merkle树是自底向上构建的，而且除叶子结点之外的其它节点都是其子节点的散列，这样每个节点的值发生变化都会一层一层的向上反映，最终在根节点上表现出来。也就是说只要对比两个Merkle树的根节点是否相等就能得到两份数据集是否一样，而且还可以验证Merkle树的某个分支。
+比特币使用Merkle树存储一个区块中的所有交易信息，一是为了防篡改，因为散列是向上的，伪造任何一个节点都会引起上层节点的改动，最终导致根节点的变化。二是为了允许区块的数据可以零散的传送，即节点可以从一个节点下载区块头，从另外的源下载与其相关的树的其他部分，而依然能够确认所有的数据都是正确的。
+看下图的例子，首先将L1-L4四个单元数据散列化，然后将散列值存储至相应的叶子节点。这些节点是Hash0-0, Hash0-1, Hash1-0, Hash1-1，然后将相邻两个节点的散列值合并成一个字符串，然后计算这个字符串的散列，得到的就是这两个节点的父节点的散列值。
+Merkle树
+在比特币网络中，merkle树被用来归纳一个区块中的所有交易，同时生成整个交易集合的数字指纹。此外，由于merkle树的存在，使得在比特币这种公链的场景下，扩展一种“轻节点”实现简单支付验证变成可能。
+知道了Merkle树在比特币中的应用，那么他是怎么构成呢？现在就简单看下其构成。它由一组叶节点、一组中间节点和一个根节点构成。最下面的叶节点包含基础数据，每个中间节点是它的子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部 。
+Merkle树具有下列特性:
+ 每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。  Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
+首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/en/zh-cn/posts/block-chain/merkle-patricia-treempt/" /><meta property="article:section" content="zh-cn" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Merkle Patricia Tree"/>
+<meta name="twitter:description" content="区块链一个重要的亮点就是防篡改，那么它是怎么做到防篡改的呢？其中一个重要的知识点就是Merkle Patricia Tree(MPT)，本篇就来解析下何为MPT。
+MPT是一种加密认证的数据结构，它融合了Merkle树和Patricia Trie树(基数树/压缩前缀树)两种数据类型的优点。
+则在介绍MPT树之前先介绍下Merkle树(默克尔树)、Trie树(前缀树)和Patricia Trie(基数树/压缩前缀树)，介绍Trie树是因为Patricia Trie是基于Trie树衍化来的。
+Trie树 Trie树又称前缀树或字典树，是一种检索树，使用一个有序的树结构存储一个动态数据集或者关联数组，其中的键通常是字符串。与二叉查找树不同，键不是直接保存在节点中，而是由节点在树中的位置决定。一个节点的所有子孙相对于当前节点都有相同的前缀，而根节点为空字符串。一般情况下，不是所有的节点都有对应的值，只有叶子节点和部分内部节点所对应的键才有相关的值。
+Trie树中，key是从树根到对应value得真实的路径。即从根节点开始，key中的每个字符会标识走那个子节点从而到达相应value。Value被存储在叶子节点，是每条路径的终止。假如key来自一个包含N个字符的字母表，那么树中的每个节点都可能会有多达N个孩子，树的最大深度是key的最大长度。看个例子画个图就了然了。 例子：关键字集合{“a”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为
+Trie树
+不理想情况下，数据集中存在一个很长的key，而这个key与其它key又没有太多的公共前缀，这就造成整个树的深度会加大，需要存储多个节点，存储比较稀疏而且极不平衡。 例子：关键字集合{“algori”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为
+稀疏Trie树
+Patricia Trie树 既然Trie树在某些情况下存储空间利用率不高，那就给压缩下，然后就出现了Patricia Trie树。
+Patricia Trie树是一种空间使用率经过优化的Trie树。与Trie树不同的是，Patricia Trie 里如果存在一个父节点只有一个子节点，那么这个父节点将与其子节点合并。这样压缩存储可以减少Trie树中不必要的深度，大大加快搜索节点速度。 如下图所示
+Patricia Trie树
+Merkle树 Merkle树是由计算机科学家Ralph Merkle在很多年前提出的，并以他本人的名字来命名，是一种树形数据结构，可以是二叉树，也可以是多叉树。 它由若干叶节点、中间节点和一个根节点构成。最下面的叶节点包含基础数据，每个中间节点是它子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部。
+由于Merkle树是自底向上构建的，而且除叶子结点之外的其它节点都是其子节点的散列，这样每个节点的值发生变化都会一层一层的向上反映，最终在根节点上表现出来。也就是说只要对比两个Merkle树的根节点是否相等就能得到两份数据集是否一样，而且还可以验证Merkle树的某个分支。
+比特币使用Merkle树存储一个区块中的所有交易信息，一是为了防篡改，因为散列是向上的，伪造任何一个节点都会引起上层节点的改动，最终导致根节点的变化。二是为了允许区块的数据可以零散的传送，即节点可以从一个节点下载区块头，从另外的源下载与其相关的树的其他部分，而依然能够确认所有的数据都是正确的。
+看下图的例子，首先将L1-L4四个单元数据散列化，然后将散列值存储至相应的叶子节点。这些节点是Hash0-0, Hash0-1, Hash1-0, Hash1-1，然后将相邻两个节点的散列值合并成一个字符串，然后计算这个字符串的散列，得到的就是这两个节点的父节点的散列值。
+Merkle树
+在比特币网络中，merkle树被用来归纳一个区块中的所有交易，同时生成整个交易集合的数字指纹。此外，由于merkle树的存在，使得在比特币这种公链的场景下，扩展一种“轻节点”实现简单支付验证变成可能。
+知道了Merkle树在比特币中的应用，那么他是怎么构成呢？现在就简单看下其构成。它由一组叶节点、一组中间节点和一个根节点构成。最下面的叶节点包含基础数据，每个中间节点是它的子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部 。
+Merkle树具有下列特性:
+ 每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。  Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
+首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。"/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/en/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+   width="400" height="400"
+   />
+👴🏻💪
+    </a>
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Share</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=Merkle%20Patricia%20Tree&url=https%3a%2f%2fxuzhijvn.github.io%2fen%2fzh-cn%2fposts%2fblock-chain%2fmerkle-patricia-treempt%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fxuzhijvn.github.io%2fen%2fzh-cn%2fposts%2fblock-chain%2fmerkle-patricia-treempt%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</div>
+    <button class="navbar-settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-ellipsis-v"></i>
+</button>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Settings</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-language"></i> Language</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="dropdown">
+        <a class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-cn/">简体中文</a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> Mode</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> Palette</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="Blue"
+        class="btn btn-sm w-100 palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="Blue Gray"
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="Brown"
+        class="btn btn-sm w-100 palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="Cyan"
+        class="btn btn-sm w-100 palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="Green"
+        class="btn btn-sm w-100 palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="Indigo"
+        class="btn btn-sm w-100 palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="Orange"
+        class="btn btn-sm w-100 palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="Pink"
+        class="btn btn-sm w-100 palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="Purple"
+        class="btn btn-sm w-100 palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="Red"
+        class="btn btn-sm w-100 palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="Teal"
+        class="btn btn-sm w-100 palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="Yellow"
+        class="btn btn-sm w-100 palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> Go back
+  </a>
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> Reload
+  </a>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> Copy URL
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> Share
+  </a></section>
+
+</div>
+</div>
+
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://xuzhijvn.github.io/en/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/en/en/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>Archives
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/en/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/categories">
+            <i class="fas fa-fw fa-folder"></i>Categories
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/tags">
+            <i class="fas fa-fw fa-tags"></i>Tags
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/series">
+            <i class="fas fa-fw fa-columns"></i>Series
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownProjects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Projects
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownProjects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap Theme
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 Admin
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/">Home</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/zh-cn/">Zh-cns</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">Merkle Patricia Tree</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper">
+  <div class="d-flex flex-column component rounded post-panel">
+    
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="Buy me a coffee">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" href="#postTOC" aria-controls="Table of contents" role="button" title="Table of contents">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    
+  </div>
+</div>
+<article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title">Merkle Patricia Tree
+</h1>
+  </div>
+  <div class="card-body"><div class="post-meta">
+  <span class="post-date" title="created on 2021-08-27 11:15:10 &#43;0800 CST.">
+    Aug 27, 2021
+  </span><span class="post-reading-time">
+    2 min read
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/en/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge post-taxonomy">区块链</a><a href="https://xuzhijvn.github.io/en/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/en/tags/blockchain/" class="badge post-taxonomy">BlockChain</a></span>
+</div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>区块链一个重要的亮点就是防篡改，那么它是怎么做到防篡改的呢？其中一个重要的知识点就是Merkle Patricia Tree(MPT)，本篇就来解析下何为MPT。</p>
+<p>MPT是一种加密认证的数据结构，它融合了Merkle树和Patricia Trie树(基数树/压缩前缀树)两种数据类型的优点。</p>
+<p>则在介绍MPT树之前先介绍下Merkle树(默克尔树)、Trie树(前缀树)和Patricia Trie(基数树/压缩前缀树)，介绍Trie树是因为Patricia Trie是基于Trie树衍化来的。</p>
+<h4 id="trie树">Trie树<a class="anchor ms-1" href="#trie树"><i class="fas fa-link"></i></a></h4>
+<p>Trie树又称前缀树或字典树，是一种检索树，使用一个有序的树结构存储一个动态数据集或者关联数组，其中的键通常是字符串。与二叉查找树不同，键不是直接保存在节点中，而是由节点在树中的位置决定。一个节点的所有子孙相对于当前节点都有相同的前缀，而根节点为空字符串。一般情况下，不是所有的节点都有对应的值，只有叶子节点和部分内部节点所对应的键才有相关的值。</p>
+<p>Trie树中，key是从树根到对应value得真实的路径。即从根节点开始，key中的每个字符会标识走那个子节点从而到达相应value。Value被存储在叶子节点，是每条路径的终止。假如key来自一个包含N个字符的字母表，那么树中的每个节点都可能会有多达N个孩子，树的最大深度是key的最大长度。看个例子画个图就了然了。
+例子：关键字集合{“a”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/trie.png" loading="lazy"
+  
+   />
+
+ Trie树</p>
+<p>不理想情况下，数据集中存在一个很长的key，而这个key与其它key又没有太多的公共前缀，这就造成整个树的深度会加大，需要存储多个节点，存储比较稀疏而且极不平衡。
+例子：关键字集合{“algori”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/trie1-1024x796.png" loading="lazy"
+  
+   />
+
+ 稀疏Trie树</p>
+<h4 id="patricia-trie树">Patricia Trie树<a class="anchor ms-1" href="#patricia-trie树"><i class="fas fa-link"></i></a></h4>
+<p>既然Trie树在某些情况下存储空间利用率不高，那就给压缩下，然后就出现了Patricia Trie树。</p>
+<p>Patricia Trie树是一种空间使用率经过优化的Trie树。与Trie树不同的是，Patricia Trie 里如果存在一个父节点只有一个子节点，那么这个父节点将与其子节点合并。这样压缩存储可以减少Trie树中不必要的深度，大大加快搜索节点速度。
+如下图所示</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/patricia-1024x650.png" loading="lazy"
+  
+   />
+
+ Patricia Trie树</p>
+<h4 id="merkle树">Merkle树<a class="anchor ms-1" href="#merkle树"><i class="fas fa-link"></i></a></h4>
+<p>Merkle树是由计算机科学家Ralph Merkle在很多年前提出的，并以他本人的名字来命名，是一种树形数据结构，可以是二叉树，也可以是多叉树。
+它由若干叶节点、中间节点和一个根节点构成。最下面的叶节点包含基础数据，每个中间节点是它子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部。</p>
+<p>由于Merkle树是自底向上构建的，而且除叶子结点之外的其它节点都是其子节点的散列，这样每个节点的值发生变化都会一层一层的向上反映，最终在根节点上表现出来。也就是说只要对比两个Merkle树的根节点是否相等就能得到两份数据集是否一样，而且还可以验证Merkle树的某个分支。</p>
+<p>比特币使用Merkle树存储一个区块中的所有交易信息，一是为了防篡改，因为散列是向上的，伪造任何一个节点都会引起上层节点的改动，最终导致根节点的变化。二是为了允许区块的数据可以零散的传送，即节点可以从一个节点下载区块头，从另外的源下载与其相关的树的其他部分，而依然能够确认所有的数据都是正确的。</p>
+<p>看下图的例子，首先将L1-L4四个单元数据散列化，然后将散列值存储至相应的叶子节点。这些节点是Hash0-0, Hash0-1, Hash1-0, Hash1-1，然后将相邻两个节点的散列值合并成一个字符串，然后计算这个字符串的散列，得到的就是这两个节点的父节点的散列值。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/merkle-1024x620.png" loading="lazy"
+  
+   />
+
+ Merkle树</p>
+<p>在比特币网络中，merkle树被用来归纳一个区块中的所有交易，同时生成整个交易集合的数字指纹。此外，由于merkle树的存在，使得在比特币这种公链的场景下，扩展一种“轻节点”实现简单支付验证变成可能。</p>
+<p>知道了Merkle树在比特币中的应用，那么他是怎么构成呢？现在就简单看下其构成。<em>它由一组叶节点、一组中间节点和一个根节点构成</em>。最下面的叶节点包含基础数据，每个中间节点是它的子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部 。</p>
+<p>Merkle树具有下列特性:</p>
+<ol>
+<li>每个数据集对应一个唯一合法的根散列值。</li>
+<li>很容易更新、添加或者删除树节点，以及生成新的根散列值 。</li>
+<li>不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。</li>
+<li>任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。</li>
+</ol>
+<h4 id="merkle-patricia-tree">Merkle Patricia Tree<a class="anchor ms-1" href="#merkle-patricia-tree"><i class="fas fa-link"></i></a></h4>
+<p>叨叨了那么多，本篇的主角终于出来了。
+Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。</p>
+<p>首先，为了保证树的加密安全，<em>每个节点通过它的散列值被引用</em>，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。<em>在当前的以太坊版本中，MPT存储在LevelDB数据库中</em>。</p>
+<p>其次，MPT树引人了很多节点类型来提高效率。包括以下4种:</p>
+<ul>
+<li>空节点(NULL) – represented as the empty string</li>
+</ul>
+<p>简单的表示空，在代码中是一个空串。</p>
+<ul>
+<li>叶子节点(leaf) – a 2-item node [encodedPath, value]</li>
+</ul>
+<p>表示为[key,value]的一个键值对，其中key是key的一种特殊十六进制编码(MP编码)， value是value的RLP编码。</p>
+<ul>
+<li>分支节点(branch) – a 17-item node [v0 … v15, vt]</li>
+</ul>
+<p>因为MPT树中的key被编码成一种特殊的16进制的表示，再加上最后的value，所以分支节点是一个长度为17的list，前16个元素对应着key中的16个可能的十六进制字符，如果有一个[key,value]对在这个分支节点终止，最后一个元素代表这个值value，即分支节点既可以是搜索路径的终止也可以是路径的中间节点。</p>
+<ul>
+<li>扩展节点(extension) – a 2-item node [encodedPath, key]</li>
+</ul>
+<p>也是[key，value]的一个键值对，但是这里的value是其他节点的hash值，这个hash可以被用来查询数据库中的节点。也就是说通过hash链接到其他节点。</p>
+<p>下面看个以太坊中MPT树的官方示例</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/e-mpt.png" loading="lazy"
+  
+   />
+
+</p>
+<h4 id="示例">示例<a class="anchor ms-1" href="#示例"><i class="fas fa-link"></i></a></h4>
+<p>看到这里你肯定依然是一脸懵逼，(不要问我我是怎么知道的。。。。)，接下来我们就来根据一批数据构造一个MPT树，这样你会理解一些。
+但是在讲例子之前，还得先介绍几种编码方式，要不看例子的时候对key的取值会比较懵。</p>
+<h4 id="key编码">key编码<a class="anchor ms-1" href="#key编码"><i class="fas fa-link"></i></a></h4>
+<p>在以太坊中，MPT树的key值共有三种不同的编码方式，分别为:</p>
+<ol>
+<li>Raw编码(原生的字符)</li>
+<li>Hex编码(扩展的16进制编码)</li>
+<li>Hex-Prefix编码(16进制前缀编码)</li>
+</ol>
+<pre tabindex="0"><code>Raw编码
+
+Raw编码就是原生的key值，不做任何改变。这种编码方式的key，是MPT对外提供接口的默认编码方式。
+例如key为”dog”，value为”puppy”的数据项，其key的Raw编码就是[‘d’, ‘o’, ‘g’]，换成ASCII表示方式就是[64, 6f, 67] : dog =&gt; ‘puppy’
+
+Hex编码
+
+Hex编码就是把一个8位的字节数据根据高4位和低4位拆解为两个4位的数字，然后两个数字的高4位都补0，最后将补完之后的两个字节编码为16进制。
+这里需要注意的是key对应的值为真实的数据项，即是一个有意义的kv对，比如dog-&gt;puppy(也就是叶子结点)，而不是key-&gt;节点hash(也就是分支节点)，则在末尾添加一个ASCII值为16(十六进制为0x10)的字符串作为terminator。如果是分支节点则不加任何字符。
+例如key为”dog”，value为”puppy”的数据项，其key中d(100)的二进制编码为01100100，拆解为两个4位的数字为0110和0100，高位补0之后的二进制为00000110和00000100，16进制为6和4，依次编码o和g。又因为dog对应的value是真实的数据项，则在末尾添加16。最后最终的Hex编码为[ 6, 4, 6, 15, 6, 7, 16 ] : dog =&gt; ‘puppy’
+
+Hex-Prefix编码
+
+首先根据名字得知这是一个前缀编码，是在原key的基础上加上一些标识作为前缀，其次我们看下这种编码方式的目的：
+1. 区分leaf和extension
+2. 把奇数路径变成偶数路径
+
+则这个前缀的生成肯定与leaf、extension和key的奇偶相关了，下面看下编码步骤为:
+1. 先按Hex对key进行编码
+2. key的结尾如果是0x10(也就是16)，则去掉这个终止符
+3. key之前补一个四元组，这个四元组第0位区分奇偶信息，第1位区分节点类型，表格表示如下
+</code></pre><table>
+<thead>
+<tr>
+<th>node type</th>
+<th>path length</th>
+<th>prefix</th>
+<th>hexchar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>extension</td>
+<td>even</td>
+<td>0000</td>
+<td>0x0</td>
+</tr>
+<tr>
+<td>extension</td>
+<td>odd</td>
+<td>0001</td>
+<td>0x1</td>
+</tr>
+<tr>
+<td>leaf</td>
+<td>even</td>
+<td>0010</td>
+<td>0x2</td>
+</tr>
+<tr>
+<td>leaf</td>
+<td>odd</td>
+<td>0011</td>
+<td>0x3</td>
+</tr>
+</tbody>
+</table>
+<pre tabindex="0"><code>4. 如果输入key的长度是偶数，则在之前的四元组后再添加一个四元组0x0
+5. 将原来的key内容压缩，将分离的两个byte以高四位低四位进行合并
+</code></pre><p>这里有个名词解释下，四元组是四个bit位的组合(例如二进制表达的0010就是一个四元组)，其中Nibble就是一个四元组，是key的基本单元。</p>
+<pre tabindex="0"><code>例如key为”dog”，value为”puppy”的数据项，则首先对dog进行Hex编码[ 6, 4, 6, 15, 6, 7, 16 ]，然后按照上面的步骤进行编码，dog的Hex编码末尾是16，去掉终止符为[ 6, 4, 6, 15, 6, 7 ]，准备在key前补四元组，dog为叶子节点并且编码之后的长度为6是偶数，所以四元组为0010(0x2)，此时到了第4步，key编码之后的长度是偶数，则在前一个四元组(0x2)之后再添加一个四元组0x0，最终的前缀为0x20。最后将原来的key内容进行高低四位合并，最终的Hex-Prefix编码是[ 0x20, 0x64, 0x6f, 0x67 ]
+</code></pre><p>以上三种编码方式的转换关系为：</p>
+<pre tabindex="0"><code>Raw编码: 原生的key编码，是MPT对外提供接口中使用的编码方式，当数据项被插入到树中时，Raw编码被转换成Hex编码
+Hex编码: 16进制扩展编码，用于对内存中树节点key进行编码，当树节点被持久化到数据库时，Hex编码被转换成HP编码
+HP编码: 16进制前缀编码，用于对数据库中树节点key进行编码，当树节点被加载到内存时，HP编码被转换成Hex编码
+</code></pre><h4 id="构造过程">构造过程<a class="anchor ms-1" href="#构造过程"><i class="fas fa-link"></i></a></h4>
+<p>接下来我们就实际操作下：
+假设我们有一个树有这样一些kv对(‘dog’, ‘puppy’), (‘horse’, ‘stallion’), (‘do’, ‘verb’), (‘doge’, ‘coin’)。
+首先，我们将key转成Hex编码，如下：</p>
+<pre tabindex="0"><code># 64 6f
+[ 6, 4, 6, 15, 16 ] : do =&gt; &#39;verb&#39;
+#64 6f 67
+[ 6, 4, 6, 15, 6, 7, 16 ] : dog =&gt; &#39;puppy&#39;
+#64 6f 67 65
+[ 6, 4, 6, 15, 6, 7, 6, 5, 16 ] : doge =&gt; &#39;coin&#39;
+#68 6f 72 73 65
+[ 6, 8, 6, 15, 7, 2, 7, 3, 6, 5, 16 ] : horse =&gt; &#39;stallion&#39;
+</code></pre><p>其构造MPT树如图：</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/mpt-1024x972.png" loading="lazy"
+  
+   />
+
+ MPT</p>
+<pre tabindex="0"><code>rootHash: [ &lt;16&gt;, hashA ]
+hashA:    [ &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, hashB, &lt;&gt;, &lt;&gt;, &lt;&gt;, hashC, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt; ]
+hashC:    [ &lt;20 6f 72 73 65&gt;, &#39;stallion&#39; ]
+hashB:    [ &lt;00 6f&gt;, hashD ]
+hashD:    [ &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, hashE, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &#39;verb&#39; ]
+hashE:    [ &lt;17&gt;, hashF ]
+hashF:    [ &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, hashG, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &#39;puppy&#39; ]
+hashG:    [ &lt;35&gt;, &#39;coin&#39; ]
+</code></pre><p>构造过程为 假设插入第一个kv对是do-&gt;verb，key根据Hex-Prefix编码为[‘0x20’, ‘0x64’, ‘0x6f’]，MPT树为：</p>
+<ol>
+<li>假设插入第一个kv对是do-&gt;verb，key根据Hex-Prefix编码为[‘0x20’, ‘0x64’, ‘0x6f’]，MPT树为：</li>
+</ol>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/leafA.png" loading="lazy"
+  
+   />
+
+ 叶子节点</p>
+<ol start="2">
+<li>接着插入第二个kv对dog-&gt;puppy，dog和do的公共前缀为[‘64’, ‘6f’]，do是叶子结点A，将<em>叶子结点替换成扩展节点A</em>，并将新key与叶子节点A的公共前缀(646f)作为扩展节点的key，<em>扩展节点的value是新分支节点B的hash值</em>，然后将do和dog剩余的key插入到分支节点中，由于do没有剩余的key，则将对应的value写入分支节点B的value中，dog剩余的key为67，则分支节点B中的路径为6，指向叶子结点C。7为dog剩下的最后一个key值，是奇数叶子结点则前缀为3，所有最终的MPT树为：</li>
+</ol>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/two-1024x542.png" loading="lazy"
+  
+   />
+
+ 叶子节点插入</p>
+<ol start="3">
+<li>再插入第三个kv对doge-&gt;coin，按照上面的步骤生成的MPT树是：</li>
+</ol>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/three-1024x745.png" loading="lazy"
+  
+   />
+
+</p>
+<ol start="4">
+<li>最后插入第四个kv对horse-&gt;stallion，horse与其它key的公共前缀只有6，则将扩展节点A新增一个分支节点F作为其孩子节点，将新key与扩展节点A的公共前缀6作为扩展节点A的key，A是扩展节点并且key为奇数，所以前缀为1，value为新增分支节点F的hash。原扩展节点A变成新扩展节点之后剩余的key，与新key剩下的key，插入到分支节点F中，分别放入4和8中，4指向新的扩展节点G，8指向叶子节点H。最终的MPT树为：</li>
+</ol>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/four-1024x659.png" loading="lazy"
+  
+   />
+
+</p>
+<h4 id="mpt在以太坊中的应用">MPT在以太坊中的应用<a class="anchor ms-1" href="#mpt在以太坊中的应用"><i class="fas fa-link"></i></a></h4>
+<p>Merkle数据结构在区块链领域中使用比较广泛，比特币和以太坊都是用了Merkle树，其中以太坊中保留了三颗MPT，分别是<em>状态树、交易树和收据树</em>，这三种树可以帮助以太坊客户端做一些简易的查询，如查询某个账户的余额、某笔交易是否被包含在区块中等。</p>
+<p>需要注意的是在以太坊中对MPT再进行了一次封装，对<em>数据项的key进行了一次哈希计算sha3(key)</em>，value进行了RLP(Recursive length prefix encoding,递归长度前缀编码)编码，数据库中存储额外的sha3(key)与key之间的对应关系。</p>
+<h4 id="原文链接">原文链接：<a class="anchor ms-1" href="#原文链接"><i class="fas fa-link"></i></a></h4>
+<p><a href="http://bigdatadecode.club/Merkle-Patricia-Tree.html" target="_blank" rel="noopener noreferrer">http://bigdatadecode.club/Merkle-Patricia-Tree.html</a></p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>Buy me a coffee</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>Alipay
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>WeChat
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
+    <i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://xuzhijvn.github.io/en/zh-cn/posts/code/mongodb/mongodb%E7%BB%BC%E8%BF%B0/">MongoDB综述
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://xuzhijvn.github.io/en/zh-cn/posts/code/maven/maven%E5%9F%BA%E7%A1%80/">Maven基础
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div></div>
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">Copyright</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title">Comments</h2>
+  </div>
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    <section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony" src="https://xuzhijvn.github.io/images/profile.webp" loading="lazy"
+   width="400" height="400"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div></div>
+  </div>
+</section>
+  <div class="post-toc row mb-4 card component" id="postTOC">
+  <div class="card-header">
+    <h2 class="card-title">Contents</h2>
+  </div>
+  <div class="card-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div><section class="recent-posts row card component">
+  <div class="card-header">
+    <h2 class="card-title">Recent Posts</h2>
+  </div>
+  <div class="card-body">
+    <ul class="post-list"></ul>
+  </div>
+</section><section class="series-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/series">Series</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/series/manual/" class="badge rounded post-taxonomy" title="Manual">
+            Manual</a><a href="https://xuzhijvn.github.io/en/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/en/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/en/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/en/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a><a href="https://xuzhijvn.github.io/en/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a></div>
+      </div>
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/categories">Categories</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/en/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/en/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/en/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/en/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/en/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/en/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a><a href="https://xuzhijvn.github.io/en/categories/%E5%AE%B9%E5%99%A8/" class="badge rounded post-taxonomy" title="容器">
+            容器</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/tags">Tags</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/tags/java/" class="badge rounded post-taxonomy" title="Java">
+            Java</a><a href="https://xuzhijvn.github.io/en/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/en/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/en/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/en/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/en/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/en/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/en/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/en/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/en/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/en/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/en/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/en/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/en/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/en/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/en/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/en/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/en/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/en/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/en/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/en/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/en/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/en/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/en/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/en/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/en/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/en/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/en/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/en/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/en/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/en/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/en/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/en/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/en/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/en/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/en/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/en/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/en/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/en/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/en/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/en/tags/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a><a href="https://xuzhijvn.github.io/en/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/en/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
+      </div>
+    </section>
+    <section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=783175223&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></body>
+</html>

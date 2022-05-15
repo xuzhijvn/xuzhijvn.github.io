@@ -1,0 +1,1462 @@
+<!doctype html><html lang="en" data-palette="indigo"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>几种序列化框架对比 - 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/icons/icon-180x180.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-16x16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
+<link rel="manifest" href="https://xuzhijvn.github.io/en/manifest.json">
+<meta name="keywords" content="" />
+<meta name="description" content="JDK Serializable, FST 只适用于Java；Protobuf, Thrift, Avro 支持多种语言，但都需要先通过IDL（接口描述语言，Interface description language）定义Schema；Avro和Kryo序列化后的数据最小，FST和Kryo序列化时间开销表现最好；Hessian支持多语言，无需IDL定义Schema，对Java数据类型、语法的支持最佳。" /><meta itemprop="name" content="几种序列化框架对比">
+<meta itemprop="description" content="JDK Serializable, FST 只适用于Java；Protobuf, Thrift, Avro 支持多种语言，但都需要先通过IDL（接口描述语言，Interface description language）定义Schema；Avro和Kryo序列化后的数据最小，FST和Kryo序列化时间开销表现最好；Hessian支持多语言，无需IDL定义Schema，对Java数据类型、语法的支持最佳。"><meta itemprop="datePublished" content="2021-09-26T19:49:15+08:00" />
+<meta itemprop="dateModified" content="2021-09-26T19:49:15+08:00" />
+<meta itemprop="wordCount" content="979">
+<meta itemprop="keywords" content="Java,SA," /><meta property="og:title" content="几种序列化框架对比" />
+<meta property="og:description" content="JDK Serializable, FST 只适用于Java；Protobuf, Thrift, Avro 支持多种语言，但都需要先通过IDL（接口描述语言，Interface description language）定义Schema；Avro和Kryo序列化后的数据最小，FST和Kryo序列化时间开销表现最好；Hessian支持多语言，无需IDL定义Schema，对Java数据类型、语法的支持最佳。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/java/%E5%87%A0%E7%A7%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94/" /><meta property="article:section" content="zh-cn" />
+<meta property="article:published_time" content="2021-09-26T19:49:15+08:00" />
+<meta property="article:modified_time" content="2021-09-26T19:49:15+08:00" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="几种序列化框架对比"/>
+<meta name="twitter:description" content="JDK Serializable, FST 只适用于Java；Protobuf, Thrift, Avro 支持多种语言，但都需要先通过IDL（接口描述语言，Interface description language）定义Schema；Avro和Kryo序列化后的数据最小，FST和Kryo序列化时间开销表现最好；Hessian支持多语言，无需IDL定义Schema，对Java数据类型、语法的支持最佳。"/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/en/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+   width="400" height="400"
+   />
+👴🏻💪
+    </a>
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Share</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e5%87%a0%e7%a7%8d%e5%ba%8f%e5%88%97%e5%8c%96%e6%a1%86%e6%9e%b6%e5%af%b9%e6%af%94&url=https%3a%2f%2fxuzhijvn.github.io%2fen%2fzh-cn%2fposts%2fcode%2fjava%2f%25E5%2587%25A0%25E7%25A7%258D%25E5%25BA%258F%25E5%2588%2597%25E5%258C%2596%25E6%25A1%2586%25E6%259E%25B6%25E5%25AF%25B9%25E6%25AF%2594%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fxuzhijvn.github.io%2fen%2fzh-cn%2fposts%2fcode%2fjava%2f%25E5%2587%25A0%25E7%25A7%258D%25E5%25BA%258F%25E5%2588%2597%25E5%258C%2596%25E6%25A1%2586%25E6%259E%25B6%25E5%25AF%25B9%25E6%25AF%2594%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</div>
+    <button class="navbar-settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-ellipsis-v"></i>
+</button>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Settings</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-language"></i> Language</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="dropdown">
+        <a class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-cn/">简体中文</a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> Mode</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> Palette</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="Blue"
+        class="btn btn-sm w-100 palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="Blue Gray"
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="Brown"
+        class="btn btn-sm w-100 palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="Cyan"
+        class="btn btn-sm w-100 palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="Green"
+        class="btn btn-sm w-100 palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="Indigo"
+        class="btn btn-sm w-100 palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="Orange"
+        class="btn btn-sm w-100 palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="Pink"
+        class="btn btn-sm w-100 palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="Purple"
+        class="btn btn-sm w-100 palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="Red"
+        class="btn btn-sm w-100 palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="Teal"
+        class="btn btn-sm w-100 palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="Yellow"
+        class="btn btn-sm w-100 palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> Go back
+  </a>
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> Reload
+  </a>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> Copy URL
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> Share
+  </a></section>
+
+</div>
+</div>
+
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://xuzhijvn.github.io/en/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/en/en/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>Archives
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/en/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/categories">
+            <i class="fas fa-fw fa-folder"></i>Categories
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/tags">
+            <i class="fas fa-fw fa-tags"></i>Tags
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/series">
+            <i class="fas fa-fw fa-columns"></i>Series
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownProjects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Projects
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownProjects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap Theme
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 Admin
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/">Home</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/zh-cn/">Zh-cns</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">几种序列化框架对比</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper">
+  <div class="d-flex flex-column component rounded post-panel">
+    
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="Buy me a coffee">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" href="#postTOC" aria-controls="Table of contents" role="button" title="Table of contents">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    
+  </div>
+</div>
+<article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title">几种序列化框架对比
+</h1>
+  </div>
+  <div class="card-body"><div class="post-meta">
+  <span class="post-date" title="created on 2021-09-26 19:49:15 &#43;0800 CST.">
+    Sep 26, 2021
+  </span><span class="post-reading-time">
+    5 min read
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/en/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/en/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/en/tags/java/" class="badge post-taxonomy">Java</a><a href="https://xuzhijvn.github.io/en/tags/sa/" class="badge post-taxonomy">SA</a></span>
+</div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p><code>JDK Serializable</code>, <code>FST</code> 只适用于Java；<code>Protobuf</code>, <code>Thrift</code>, <code>Avro</code> 支持多种语言，但都需要先通过IDL（接口描述语言，Interface description language）定义Schema；<code>Avro</code>和<code>Kryo</code>序列化后的数据最小，<code>FST</code>和<code>Kryo</code>序列化时间开销表现最好；<code>Hessian</code>支持多语言，无需IDL定义Schema，对Java数据类型、语法的支持最佳。</p>
+<h2 id="1-背景介绍">1. 背景介绍<a class="anchor ms-1" href="#1-背景介绍"><i class="fas fa-link"></i></a></h2>
+<p>序列化与反序列化是我们日常数据持久化和网络传输中经常使用的技术，但是目前各种序列化框架让人眼花缭乱，不清楚什么场景到底采用哪种序列化框架。本文会将业界开源的序列化框架进行对比测试，分别从通用性、易用性、可扩展性、性能和数据类型与Java语法支持五方面给出对比测试。</p>
+<ul>
+<li>
+<p>通用性：通用性是指序列化框架是否支持跨语言、跨平台。</p>
+</li>
+<li>
+<p>易用性：易用性是指序列化框架是否便于使用、调试，会影响开发效率。</p>
+</li>
+<li>
+<p>可扩展性：随着业务的发展，传输实体可能会发生变化，但是旧实体有可能还会被使用。这时候就需要考虑所选择的序列化框架是否具有良好的扩展性。</p>
+</li>
+<li>
+<p>性能：序列化性能主要包括时间开销和空间开销。序列化的数据通常用于持久化或网络传输，所以其大小是一个重要的指标。而编解码时间同样是影响序列化协议选择的重要指标，因为如今的系统都在追求高性能。</p>
+</li>
+<li>
+<p>Java数据类型和语法支持：不同序列化框架所能够支持的数据类型以及语法结构是不同的。这里我们要对Java的数据类型和语法特性进行测试，来看看不同序列化框架对Java数据类型和语法结构的支持度。</p>
+</li>
+</ul>
+<p>下面分别对JDK Serializable、FST、Kryo、Protobuf、Thrift、Hession和Avro进行对比测试。</p>
+<h2 id="2-序列化框架">2. 序列化框架<a class="anchor ms-1" href="#2-序列化框架"><i class="fas fa-link"></i></a></h2>
+<h3 id="1-jdk-serializable">1 JDK Serializable<a class="anchor ms-1" href="#1-jdk-serializable"><i class="fas fa-link"></i></a></h3>
+<p>JDK Serializable是Java自带的序列化框架，我们只需要实现java.io.Serializable或java.io.Externalizable接口，就可以使用Java自带的序列化机制。实现序列化接口只是表示该类能够被序列化/反序列化，我们还需要借助I/O操作的ObjectInputStream和ObjectOutputStream对对象进行序列化和反序列化。</p>
+<p>下面是使用JDK 序列化框架进行编解码的Demo：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * 编码
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> */</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> <span style="color:#a6e22e">encoder</span><span style="color:#f92672">(</span>Object ob<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//用于缓冲字节数字
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    ByteArrayOutputStream byteArrayOutputStream <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ByteArrayOutputStream<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//序列化对象
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    ObjectOutputStream objectOutputStream <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ObjectOutputStream<span style="color:#f92672">(</span>byteArrayOutputStream<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    objectOutputStream<span style="color:#f92672">.</span><span style="color:#a6e22e">writeObject</span><span style="color:#f92672">(</span>ob<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> result <span style="color:#f92672">=</span> byteArrayOutputStream<span style="color:#f92672">.</span><span style="color:#a6e22e">toByteArray</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//关闭流
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    objectOutputStream<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    byteArrayOutputStream<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * 解码
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> */</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> T <span style="color:#a6e22e">decoder</span><span style="color:#f92672">(</span><span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> bytes<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    ByteArrayInputStream byteArrayInputStream <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ByteArrayInputStream<span style="color:#f92672">(</span>bytes<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    ObjectInputStream objectInputStream <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ObjectInputStream<span style="color:#f92672">(</span>byteArrayInputStream<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    T object <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>T<span style="color:#f92672">)</span> objectInputStream<span style="color:#f92672">.</span><span style="color:#a6e22e">readObject</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    objectInputStream<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    byteArrayInputStream<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> object<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p><strong>通用性</strong></p>
+<p>由于是Java内置序列化框架，所以本身是不支持跨语言序列化与反序列化。</p>
+<p><strong>易用性</strong></p>
+<p>作为Java内置序列化框架，无序引用任何外部依赖即可完成序列化任务。但是JDK Serializable在使用上相比开源框架难用许多，可以看到上面的编解码使用非常生硬，需要借助ByteArrayOutputStream和ByteArrayInputStream才可以完整字节的转换。</p>
+<p><strong>可扩展性</strong></p>
+<p>JDK Serializable中通过serialVersionUID控制序列化类的版本，如果序列化与反序列化版本不一致，则会抛出java.io.InvalidClassException异常信息，提示序列化与反序列化SUID不一致。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>java<span style="color:#f92672">.</span><span style="color:#a6e22e">io</span><span style="color:#f92672">.</span><span style="color:#a6e22e">InvalidClassException</span><span style="color:#f92672">:</span> com<span style="color:#f92672">.</span><span style="color:#a6e22e">yjz</span><span style="color:#f92672">.</span><span style="color:#a6e22e">serialization</span><span style="color:#f92672">.</span><span style="color:#a6e22e">java</span><span style="color:#f92672">.</span><span style="color:#a6e22e">UserInfo</span><span style="color:#f92672">;</span> local <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">incompatible</span><span style="color:#f92672">:</span> stream classdesc serialVersionUID <span style="color:#f92672">=</span> <span style="color:#f92672">-</span>5548195544707231683<span style="color:#f92672">,</span> local <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">serialVersionUID</span> <span style="color:#f92672">=</span> <span style="color:#f92672">-</span>5194320341014913710
+</span></span></code></pre></div><p>上面这种情况，是由于我们没有定义serialVersionUID，而是由JDK自动hash生成的，所以序列化与反序列化前后结果不一致。</p>
+<p>但是我们可以通过自定义serialVersionUID方式来规避掉这种情况(序列化前后都是使用定义的serialVersionUID)，这样JDK Serializable就可以支持字段扩展了。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">long</span> serialVersionUID <span style="color:#f92672">=</span> 1L<span style="color:#f92672">;</span>
+</span></span></code></pre></div><p><strong>性能</strong></p>
+<p>JDK Serializable是Java自带的序列化框架，但是在性能上其实一点不像亲生的。下面测试用例是我们贯穿全文的一个测试实体。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MessageInfo</span> <span style="color:#66d9ef">implements</span> Serializable <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String username<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> String password<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> age<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> HashMap<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span>Object<span style="color:#f92672">&gt;</span> params<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> MessageInfo <span style="color:#a6e22e">buildMessage</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        MessageInfo messageInfo <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> MessageInfo<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        messageInfo<span style="color:#f92672">.</span><span style="color:#a6e22e">setUsername</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;abcdefg&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        messageInfo<span style="color:#f92672">.</span><span style="color:#a6e22e">setPassword</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;123456789&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        messageInfo<span style="color:#f92672">.</span><span style="color:#a6e22e">setAge</span><span style="color:#f92672">(</span>27<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span>Object<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i<span style="color:#f92672">&lt;</span> 20<span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            map<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">valueOf</span><span style="color:#f92672">(</span>i<span style="color:#f92672">),</span><span style="color:#e6db74">&#34;a&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> messageInfo<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>使用JDK序列化后字节大小为：432。光看这组数字也许不会感觉到什么，之后我们会拿这个数据和其它序列化框架进行对比。</p>
+<p>我们对该测试用例进行1000万次序列化，然后计算时间总和：</p>
+<table>
+<thead>
+<tr>
+<th>1000万序列化耗时(ms)</th>
+<th>1000万反序列化耗时(ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>38952</td>
+<td>96508</td>
+</tr>
+</tbody>
+</table>
+<p>同样我们之后会同其它序列化框架进行对比。</p>
+<p><strong>数据类型和语法结构支持性</strong></p>
+<p>由于JDK Serializable是Java语法原生序列化框架，所以基本都能够支持Java数据类型和语法。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>JDK</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8种基础类型</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>List集合类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>Set集合类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>Queue集合类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>Map映射</td>
+<td>大部分支持(WeakHashMap不支持)</td>
+</tr>
+<tr>
+<td>自定义类类型</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>枚举类型</td>
+<td>支持</td>
+</tr>
+</tbody>
+</table>
+<p>WeakHashMap没有实现Serializable接口。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>JDK</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>对象为null</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>没有无参构造函数</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>static内部类</td>
+<td>支持(static内部类需要实现序列化接口)</td>
+</tr>
+<tr>
+<td>非static内部类</td>
+<td>支持，但是外部类也需要实现序列化接口</td>
+</tr>
+<tr>
+<td>局部内部类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>匿名内部类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>Lambda表达式</td>
+<td>修改代码可以支持，看注1</td>
+</tr>
+<tr>
+<td>闭包</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>异常类</td>
+<td>支持</td>
+</tr>
+</tbody>
+</table>
+<p>注1：但我们要序列化下面代码：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Runnable runnable <span style="color:#f92672">=</span> <span style="color:#f92672">()</span> <span style="color:#f92672">-&gt;</span> System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Hello&#34;</span><span style="color:#f92672">);</span>
+</span></span></code></pre></div><p>直接序列化会得到以下异常：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>com<span style="color:#f92672">.</span><span style="color:#a6e22e">yjz</span><span style="color:#f92672">.</span><span style="color:#a6e22e">serialization</span><span style="color:#f92672">.</span><span style="color:#a6e22e">SerializerFunctionTest$$Lambda$1</span><span style="color:#f92672">/</span>189568618
+</span></span></code></pre></div><p>原因就是我们Runnable的Lambda并没有实现Serializable接口。我们可以做如下修改，即可支持Lambda表达式序列化。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Runnable runnable <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Runnable <span style="color:#f92672">&amp;</span> Serializable<span style="color:#f92672">)</span> <span style="color:#f92672">()</span> <span style="color:#f92672">-&gt;</span> System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Hello&#34;</span><span style="color:#f92672">);</span>
+</span></span></code></pre></div><h3 id="2-fst序列化框架">2 FST序列化框架<a class="anchor ms-1" href="#2-fst序列化框架"><i class="fas fa-link"></i></a></h3>
+<p>FST(fast-serialization)是完全兼容JDK序列化协议的Java序列化框架，它在序列化速度上能达到JDK的10倍，序列化结果只有JDK的1/3。目前FST的版本为2.56，在2.17版本之后提供了对Android的支持。</p>
+<p>下面是使用FST序列化的Demo，FSTConfiguration是线程安全的，但是为了防止频繁调用时其成为性能瓶颈，一般会使用TreadLocal为每个线程分配一个FSTConfiguration。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ThreadLocal<span style="color:#f92672">&lt;</span>FSTConfiguration<span style="color:#f92672">&gt;</span> conf <span style="color:#f92672">=</span> ThreadLocal<span style="color:#f92672">.</span><span style="color:#a6e22e">withInitial</span><span style="color:#f92672">(()</span> <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>      FSTConfiguration conf <span style="color:#f92672">=</span> FSTConfiguration<span style="color:#f92672">.</span><span style="color:#a6e22e">createDefaultConfiguration</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span> conf<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">});</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> <span style="color:#a6e22e">encoder</span><span style="color:#f92672">(</span>Object object<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> conf<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">().</span><span style="color:#a6e22e">asByteArray</span><span style="color:#f92672">(</span>object<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> T <span style="color:#a6e22e">decoder</span><span style="color:#f92672">(</span><span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> bytes<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    Object ob <span style="color:#f92672">=</span> conf<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">().</span><span style="color:#a6e22e">asObject</span><span style="color:#f92672">(</span>bytes<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#f92672">(</span>T<span style="color:#f92672">)</span>ob<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p><strong>通用性</strong></p>
+<p>FST同样是针对Java而开发的序列化框架，所以也不存在跨语言特性。</p>
+<p><strong>易用性</strong></p>
+<p>在易用性上，FST可以说能够甩JDK Serializable几条街，语法极其简洁，FSTConfiguration封装了大部分方法。</p>
+<p><strong>可扩展性</strong></p>
+<p>FST通过@Version注解能够支持新增字段与旧的数据流兼容。对于新增的字段都需要通过@Version注解标识，没有版本注释意味着版本为0。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> String origiField<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@Version</span><span style="color:#f92672">(</span>1<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> String addField<span style="color:#f92672">;</span>
+</span></span></code></pre></div><p>注意：</p>
+<ul>
+<li>
+<p>删除字段将破坏向后兼容性，但是如果我们在原始字段情况下删除字段是能够向后兼容的(没有新增任何字段)。但是如果新增字段后，再删除字段的话就会破坏其兼容性。</p>
+</li>
+<li>
+<p>Version注解功能不能应用于自己实现的readObject/writeObject情况。</p>
+</li>
+<li>
+<p>如果自己实现了Serializer，需要自己控制Version。</p>
+</li>
+</ul>
+<p>综合来看，FST在扩展性上面虽然支持，但是用起来还是比较繁琐的。</p>
+<p><strong>性能</strong></p>
+<p>使用FST序列化上面的测试用例，序列化后大小为：172，相比JDK序列化的432 ，将近减少了1/3。下面我们再看序列化与反序列化的时间开销。</p>
+<table>
+<thead>
+<tr>
+<th>1000万序列化耗时(ms)</th>
+<th>1000万反序列化耗时(ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>13587</td>
+<td>19031</td>
+</tr>
+</tbody>
+</table>
+<p>我们可以优化一下FST，将循环引用判断关闭，并且对序列化类进行余注册。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> ThreadLocal<span style="color:#f92672">&lt;</span>FSTConfiguration<span style="color:#f92672">&gt;</span> conf <span style="color:#f92672">=</span> ThreadLocal<span style="color:#f92672">.</span><span style="color:#a6e22e">withInitial</span><span style="color:#f92672">(()</span> <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>      FSTConfiguration conf <span style="color:#f92672">=</span> FSTConfiguration<span style="color:#f92672">.</span><span style="color:#a6e22e">createDefaultConfiguration</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>      conf<span style="color:#f92672">.</span><span style="color:#a6e22e">registerClass</span><span style="color:#f92672">(</span>UserInfo<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>      conf<span style="color:#f92672">.</span><span style="color:#a6e22e">setShareReferences</span><span style="color:#f92672">(</span><span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span> conf<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">});</span>
+</span></span></code></pre></div><p>通过上面的优化配置，得到的时间开销如下：</p>
+<table>
+<thead>
+<tr>
+<th>1000万序列化耗时(ms)</th>
+<th>1000万反序列化耗时(ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7609</td>
+<td>17792</td>
+</tr>
+</tbody>
+</table>
+<p>可以看到序列化时间将近提升了2倍，但是通过优化后的序列化数据大小增长到了191 。</p>
+<p><strong>数据类型和语法结构支持性</strong></p>
+<p>FST是基于JDK序列化框架而进行开发的，所以在数据类型和语法上和Java支持性一致。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>FST</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8种基础类型</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>List集合类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>Set集合类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>Queue集合类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>Map映射</td>
+<td>大部门支持(WeakHashMap不支持)</td>
+</tr>
+<tr>
+<td>自定义类类型</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>枚举类型</td>
+<td>支持</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>FST</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>对象为null</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>没有无参构造函数</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>static内部类</td>
+<td>支持(static内部类需要实现序列化接口)</td>
+</tr>
+<tr>
+<td>非static内部类</td>
+<td>支持，但是外部类也需要实现序列化接口</td>
+</tr>
+<tr>
+<td>局部内部类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>匿名内部类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>Lambda表达式</td>
+<td>修改代码可以支持(同JDK)</td>
+</tr>
+<tr>
+<td>闭包</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>异常类</td>
+<td>支持</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-kryo序列化框架">3 Kryo序列化框架<a class="anchor ms-1" href="#3-kryo序列化框架"><i class="fas fa-link"></i></a></h3>
+<p>Kryo一个快速有效的Java二进制序列化框架，它依赖底层ASM库用于字节码生成，因此有比较好的运行速度。Kryo的目标就是提供一个序列化速度快、结果体积小、API简单易用的序列化框架。Kryo支持自动深/浅拷贝，它是直接通过对象-&gt;对象的深度拷贝，而不是对象-&gt;字节-&gt;对象的过程。</p>
+<p>下面是使用Kryo进行序列化的Demo：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> ThreadLocal<span style="color:#f92672">&lt;</span>Kryo<span style="color:#f92672">&gt;</span> kryoLocal <span style="color:#f92672">=</span> ThreadLocal<span style="color:#f92672">.</span><span style="color:#a6e22e">withInitial</span><span style="color:#f92672">(()</span> <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        Kryo kryo <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Kryo<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>            kryo<span style="color:#f92672">.</span><span style="color:#a6e22e">setRegistrationRequired</span><span style="color:#f92672">(</span><span style="color:#66d9ef">false</span><span style="color:#f92672">);</span><span style="color:#75715e">//不需要提前预注册类
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> kryo<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">});</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> <span style="color:#a6e22e">encoder</span><span style="color:#f92672">(</span>Object object<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        Output output <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Output<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        kryoLocal<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">().</span><span style="color:#a6e22e">writeObject</span><span style="color:#f92672">(</span>output<span style="color:#f92672">,</span>object<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        output<span style="color:#f92672">.</span><span style="color:#a6e22e">flush</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> output<span style="color:#f92672">.</span><span style="color:#a6e22e">toBytes</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> T <span style="color:#a6e22e">decoder</span><span style="color:#f92672">(</span><span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> bytes<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        Input input <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Input<span style="color:#f92672">(</span>bytes<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        Object ob <span style="color:#f92672">=</span> kryoLocal<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">().</span><span style="color:#a6e22e">readClassAndObject</span><span style="color:#f92672">(</span>input<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#f92672">(</span>T<span style="color:#f92672">)</span> ob<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span></code></pre></div><blockquote>
+<p>需要注意的是使用Output.writeXxx时候一定要用对应的Input.readxxx，比如Output.writeClassAndObject()要与Input.readClassAndObject()。</p>
+</blockquote>
+<p><strong>通用性</strong></p>
+<p>首先Kryo官网说自己是一款Java二进制序列化框架，其次在网上搜了一遍没有看到Kryo的跨语言使用，只是一些文章提及了跨语言使用非常复杂，但是没有找到其它语言的相关实现。</p>
+<p><strong>易用性</strong></p>
+<p>在使用方式上Kryo提供的API也是非常简洁易用，Input和Output封装了你几乎能够想到的所有流操作。Kryo提供了丰富的灵活配置，比如自定义序列化器、设置默认序列化器等等，这些配置使用起来还是比较费劲的。</p>
+<p><strong>可扩展性</strong></p>
+<p>Kryo默认序列化器FiledSerializer是不支持字段扩展的，如果想要使用扩展序列化器则需要配置其它默认序列化器。</p>
+<p>比如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> ThreadLocal<span style="color:#f92672">&lt;</span>Kryo<span style="color:#f92672">&gt;</span> kryoLocal <span style="color:#f92672">=</span> ThreadLocal<span style="color:#f92672">.</span><span style="color:#a6e22e">withInitial</span><span style="color:#f92672">(()</span> <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        Kryo kryo <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Kryo<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        kryo<span style="color:#f92672">.</span><span style="color:#a6e22e">setRegistrationRequired</span><span style="color:#f92672">(</span><span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        kryo<span style="color:#f92672">.</span><span style="color:#a6e22e">setDefaultSerializer</span><span style="color:#f92672">(</span>TaggedFieldSerializer<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> kryo<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">});</span>
+</span></span></code></pre></div><p><strong>性能</strong></p>
+<p>使用Kryo测试上面的测试用例，Kryo序列化后的字节大小为172 ，和FST未经优化的大小一致。时间开销如下：</p>
+<table>
+<thead>
+<tr>
+<th>1000万序列化时间开销(ms)</th>
+<th>1000万反序列化时间开销(ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>13550</td>
+<td>14315</td>
+</tr>
+</tbody>
+</table>
+<p>我们同样关闭循环引用配置和预注册序列化类，序列化后的字节大小为120，因为这时候类序列化的标识是使用的数字，而不是类全名。使用的是时间开销如下：</p>
+<table>
+<thead>
+<tr>
+<th>1000万序列化时间开销(ms)</th>
+<th>1000万反序列化时间开销(ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>11799</td>
+<td>11584</td>
+</tr>
+</tbody>
+</table>
+<p><strong>数据类型和语法结构支持性</strong></p>
+<p>Kryo对于序列化类的基本要求就是需要含有无参构造函数，因为反序列化过程中需要使用无参构造函数创建对象。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Kryo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8种基础类型</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>List集合类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>Set集合类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>Queue集合类</td>
+<td>部分支持(ArrayBlockingQueue不支持)</td>
+</tr>
+<tr>
+<td>Map映射</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>自定义类类型</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>枚举类型</td>
+<td>支持</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Kryo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>对象为null</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>没有无参构造函数</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>static内部类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>非static内部类</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>局部内部类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>匿名内部类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>Lambda表达式</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>闭包</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>异常类</td>
+<td>不支持(StackOverflowError)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-protocol-buffer">4 Protocol buffer<a class="anchor ms-1" href="#4-protocol-buffer"><i class="fas fa-link"></i></a></h3>
+<p>Protocol buffer是一种语言中立、平台无关、可扩展的序列化框架。Protocol buffer相较于前面几种序列化框架而言，它是需要预先定义Schema的。</p>
+<p>下面是使用Protobuf的Demo：</p>
+<p>（1）编写proto描述文件：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-protobuf" data-lang="protobuf"><span style="display:flex;"><span>syntax <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;proto3&#34;</span>;<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">option</span> java_package <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;com.yjz.serialization.protobuf3&#34;</span>;<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">message</span> <span style="color:#a6e22e">MessageInfo</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>{<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>    <span style="color:#66d9ef">string</span> username <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>    <span style="color:#66d9ef">string</span> password <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>;<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>    <span style="color:#66d9ef">int32</span> age <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>;<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>    map&lt;<span style="color:#66d9ef">string</span>,<span style="color:#66d9ef">string</span>&gt; params <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>;<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>}<span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>（2）生成Java代码：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>protoc <span style="color:#f92672">--</span>java_out<span style="color:#f92672">=./</span>src<span style="color:#f92672">/</span>main<span style="color:#f92672">/</span>java message<span style="color:#f92672">.</span><span style="color:#a6e22e">proto</span>
+</span></span></code></pre></div><p>（3）生成的Java代码，已经自带了编解码方法：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">//编码
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> bytes <span style="color:#f92672">=</span> MessageInfo<span style="color:#f92672">.</span><span style="color:#a6e22e">toByteArray</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//解码
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>MessageInfo messageInfo <span style="color:#f92672">=</span> Message<span style="color:#f92672">.</span><span style="color:#a6e22e">MessageInfo</span><span style="color:#f92672">.</span><span style="color:#a6e22e">parseFrom</span><span style="color:#f92672">(</span>bytes<span style="color:#f92672">);</span>
+</span></span></code></pre></div><p><strong>通用性</strong></p>
+<p>protobuf设计之初的目标就是能够设计一款与语言无关的序列化框架，它目前支持了Java、Python、C++、Go、C#等，并且很多其它语言都提供了第三方包。所以在通用性上，protobuf是非常给力的。</p>
+<p><strong>易用性</strong></p>
+<p>protobuf需要使用IDL来定义Schema描述文件，定义完描述文件后，我们可以直接使用protoc来直接生成序列化与反序列化代码。所以，在使用上只需要简单编写描述文件，就可以使用protobuf了。</p>
+<p><strong>可扩展性</strong></p>
+<p>可扩展性同样是protobuf设计之初的目标之一，我们可以非常轻松的在.proto文件进行修改。</p>
+<p>新增字段：对于新增字段，我们一定要保证新增字段要有对应的默认值，这样才能够与旧代码交互。相应的新协议生成的消息，可以被旧协议解析。</p>
+<p>删除字段：删除字段需要注意的是，对应的字段、标签不能够在后续更新中使用。为了避免错误，我们可以通过reserved规避带哦。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>message userinfo<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    reserved 3<span style="color:#f92672">,</span>7<span style="color:#f92672">;</span>  <span style="color:#75715e">//在保留标签中，添加删除的字段标签
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  reserved <span style="color:#e6db74">&#34;age&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;sex&#34;</span> <span style="color:#75715e">//在保留字段中，添加删除的字段
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>protobuf在数据兼容性上也非常友好，int32、unit32、int64、unit64、bool是完全兼容的，所以我们可以根据需要修改其类型。</p>
+<p>通过上面来看，protobuf在扩展性上做了很多，能够很友好的支持协议扩展。</p>
+<p><strong>性能</strong></p>
+<p>我们同样使用上面的实例来进行性能测试，使用protobuf序列化后的字节大小为 192，下面是对应的时间开销。</p>
+<table>
+<thead>
+<tr>
+<th>1000万数据序列化耗时(ms)</th>
+<th>1000万数据反序列化耗时(ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>14235</td>
+<td>30694</td>
+</tr>
+</tbody>
+</table>
+<p>可以看出protobuf的反序列化性能要比FST、Kryo差一些。</p>
+<p><strong>数据类型和语法结构支持</strong></p>
+<p>Protobuf使用IDL定义Schema所以不支持定义Java方法，下面序列化变量的测试：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Protobuf</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8种基础类型</td>
+<td>基本支持(无byte、shot、char)</td>
+</tr>
+<tr>
+<td>List集合类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>Set集合类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>Queue集合类</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>Map映射</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>自定义类类型</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>枚举类型</td>
+<td>支持</td>
+</tr>
+</tbody>
+</table>
+<p>注：List、Set、Queue通过protobuf repeated定义测试的。只要实现Iterable接口的类都可以使用repeated列表。</p>
+<h3 id="5-thrift序列化框架">5 Thrift序列化框架<a class="anchor ms-1" href="#5-thrift序列化框架"><i class="fas fa-link"></i></a></h3>
+<p>Thrift是由Facebook实现的一种高效的、支持多种语言的远程服务调用框架，即RPC(Remote Procedure Call)。后来Facebook将Thrift开源到Apache。可以看到Thrift是一个RPC框架，但是由于Thrift提供了多语言之间的RPC服务，所以很多时候被用于序列化中。</p>
+<p>使用Thrift实现序列化主要分为三步，创建thrift IDL文件、编译生成Java代码、使用TSerializer和TDeserializer进行序列化和反序列化。</p>
+<p>（1）使用Thrift IDL定义thrift文件：</p>
+<pre tabindex="0"><code class="language-idl" data-lang="idl">namespace java com.yjz.serialization.thrift
+
+struct MessageInfo{
+    1: string username;
+    2: string password;
+    3: i32 age;
+    4: map&lt;string,string&gt; params;
+}
+</code></pre><p>（2）使用thrift编译器生成Java代码：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>thrift <span style="color:#f92672">--</span>gen java message<span style="color:#f92672">.</span><span style="color:#a6e22e">thrift</span>
+</span></span></code></pre></div><p>（3）使用TSerializer和TDeserializer进行编解码：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> <span style="color:#a6e22e">encoder</span><span style="color:#f92672">(</span>MessageInfo messageInfo<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        TSerializer serializer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> TSerializer<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> serializer<span style="color:#f92672">.</span><span style="color:#a6e22e">serialize</span><span style="color:#f92672">(</span>messageInfo<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> MessageInfo <span style="color:#a6e22e">decoder</span><span style="color:#f92672">(</span><span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> bytes<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        TDeserializer deserializer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> TDeserializer<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        MessageInfo messageInfo <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> MessageInfo<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        deserializer<span style="color:#f92672">.</span><span style="color:#a6e22e">deserialize</span><span style="color:#f92672">(</span>messageInfo<span style="color:#f92672">,</span>bytes<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> messageInfo<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span></code></pre></div><p><strong>通用性</strong></p>
+<p>Thrift和protobuf类似，都需要使用IDL定义描述文件，这是目前实现跨语言序列化/RPC的一种有效方式。Thrift目前支持 C++、Java、Python、PHP、Ruby、 Erlang、Perl、Haskell、C#、Cocoa、JavaScript、Node.js、Smalltalk、OCaml、Delphi等语言，所以可以看到Thrift具有很强的通用性。</p>
+<p><strong>易用性</strong></p>
+<p>Thrift在易用性上和protobuf类似，都需要经过三步：使用IDL编写thrift文件、编译生成Java代码和调用序列化与反序列化方法。protobuf在生成类中已经内置了序列化与反序列化方法，而Thrift需要单独调用内置序列化器来进行编解码。</p>
+<p><strong>可扩展性</strong></p>
+<p>Thrift支持字段扩展，在扩展字段过程中需要注意以下问题：</p>
+<ul>
+<li>
+<p>修改字段名称：修改字段名称不影响序列化与反序列化，反序列化数据赋值到更新过的字段上。因为编解码过程利用的是编号对应。</p>
+</li>
+<li>
+<p>修改字段类型：修改字段类型，如果修改的字段为optional类型字段，则返回数据为null或0(数据类型默认值)。如果修改是required类型字段，则会直接抛出异常，提示字段没有找到。</p>
+</li>
+<li>
+<p>新增字段：如果新增字段是required类型，则需要为其设置默认值，负责在反序列化过程抛出异常。如果为optional类型字段，反序列化过程不会存在该字段(因为optional字段没有赋值的情况，不会参与序列化与反序列化)。如果为缺省类型，则反序列化值为null或0(和数据类型有关)。</p>
+</li>
+<li>
+<p>删除字段：无论required类型字段还是optional类型字段，都可以删除，不会影响反序列化。</p>
+</li>
+<li>
+<p>删除后的字段整数标签不要复用，负责会影响反序列化。</p>
+</li>
+</ul>
+<p><strong>性能</strong></p>
+<p>上面的测试用例，使用Thrift序列化后的字节大小为：257，下面是对应的序列化时间与反序列化时间开销：</p>
+<table>
+<thead>
+<tr>
+<th>1000万序列化时间开销(ms)</th>
+<th>1000万反序列化时间开销(ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>28634</td>
+<td>20722</td>
+</tr>
+</tbody>
+</table>
+<p>Thrift在序列化和反序列化的时间开销总和上和protobuf差不多，protobuf在序列化时间上更占优势，而Thrift在反序列化上有自己的优势。</p>
+<p><strong>数据类型和语法结构支持</strong></p>
+<p>数据类型支持：由于Thrift使用IDL来定义序列化类，所以能够支持的数据类型就是Thrift数据类型。Thrift所能够支持的Java数据类型：</p>
+<ol>
+<li>8中基础数据类型，没有short、char，只能使用double和String代替。</li>
+<li>集合类型，支持List、Set、Map，不支持Queue。</li>
+<li>自定义类类型(struct类型)。</li>
+<li>枚举类型。</li>
+<li>字节数组。</li>
+</ol>
+<p>Thrift同样不支持定义Java方法。</p>
+<h3 id="6-hessian序列化框架">6 Hessian序列化框架<a class="anchor ms-1" href="#6-hessian序列化框架"><i class="fas fa-link"></i></a></h3>
+<p>Hessian是caucho公司开发的轻量级RPC(Remote Procedure Call)框架，它使用HTTP协议传输，使用Hessian二进制序列化。</p>
+<p>Hessian由于其支持跨语言、高效的二进制序列化协议，被经常用于序列化框架使用。Hessian序列化协议分为Hessian1.0和Hessian2.0，Hessian2.0协议对序列化过程进行了优化(优化内容待看)，在性能上相较Hessian1.0有明显提升。</p>
+<p>使用Hessian序列化非常简单，只需要通过HessianInput和HessianOutput即可完成对象的序列化，下面是Hessian序列化的Demo：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> <span style="color:#a6e22e">encoder2</span><span style="color:#f92672">(</span>T obj<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        ByteArrayOutputStream bos <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ByteArrayOutputStream<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        Hessian2Output hessian2Output <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Hessian2Output<span style="color:#f92672">(</span>bos<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        hessian2Output<span style="color:#f92672">.</span><span style="color:#a6e22e">writeObject</span><span style="color:#f92672">(</span>obj<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> bos<span style="color:#f92672">.</span><span style="color:#a6e22e">toByteArray</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> T <span style="color:#a6e22e">decoder2</span><span style="color:#f92672">(</span><span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> bytes<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        ByteArrayInputStream bis <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ByteArrayInputStream<span style="color:#f92672">(</span>bytes<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        Hessian2Input hessian2Input <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Hessian2Input<span style="color:#f92672">(</span>bis<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        Object obj <span style="color:#f92672">=</span> hessian2Input<span style="color:#f92672">.</span><span style="color:#a6e22e">readObject</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#f92672">(</span>T<span style="color:#f92672">)</span> obj<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span></code></pre></div><p><strong>通用性</strong></p>
+<p>Hessian与Protobuf、Thrift一样，支持跨语言RPC通信。Hessian相比其它跨语言PRC框架的一个主要优势在于，它不是采用IDL来定义数据和服务，而是通过自描述来完成服务的定义。目前Hessian已经实现了语言包括：Java、Flash/Flex、Python、C++、.Net/C#、D、Erlang、PHP、Ruby、Object-C。</p>
+<p><strong>易用性</strong></p>
+<p>相较于Protobuf和Thrift，由于Hessian不需要通过IDL来定义数据和服务，对于序列化的数据只需要实现Serializable接口即可，所以使用上相比Protobuf和Thrift更加容易。</p>
+<p><strong>可扩展性</strong></p>
+<p>Hession序列化类虽然需要实现Serializable接口，但是它并不受serialVersionUID影响，能够轻松支持字段扩展。</p>
+<ol>
+<li>修改字段名称：反序列化后新字段名称为null或0(受类型影响)。</li>
+<li>新增字段：反序列化后新增字段为null或0(受类型影响)。</li>
+<li>删除字段：能够正常反序列化。</li>
+<li>修改字段类型：如果字段类型兼容能够正常反序列化，如果不兼容则直接抛出异常。</li>
+</ol>
+<p><strong>性能</strong></p>
+<p>使用Hessian1.0协议序列化上面的测试用例，序列化结果大小为277。使用Hessian2.0序列化协议，序列化结果大小为178。</p>
+<p>序列化化与反序列化的时间开销如下：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>1000万序列化时间开销(ms)</th>
+<th>1000万反序列化时间开销(ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hessian1.0</td>
+<td>57648</td>
+<td>55261</td>
+</tr>
+<tr>
+<td>Hessian2.0</td>
+<td>38823</td>
+<td>17682</td>
+</tr>
+</tbody>
+</table>
+<p>可以看到Hessian1.0的无论在序列化后体积大小，还是在序列化、反序列化时间上都比Hessian2.0相差很远。</p>
+<p><strong>数据类型和语法结构支持</strong></p>
+<p>由于Hession使用Java自描述序列化类，所以Java原生数据类型、集合类、自定义类、枚举等基本都能够支持(SynchronousQueue不支持)，Java语法结构也能够很好的支持。</p>
+<h3 id="7-avro序列化框架">7 Avro序列化框架<a class="anchor ms-1" href="#7-avro序列化框架"><i class="fas fa-link"></i></a></h3>
+<p>Avro是一个数据序列化框架。它是Apache Hadoop下的一个子项目，由Doug Cutting主导Hadoop过程中开发的数据序列化框架。Avro在设计之初就用于支持数据密集型应用，很适合远程或本地大规模数据交换和存储。</p>
+<p>使用Avro序列化分为三步：</p>
+<p>（1）定义avsc文件：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;namespace&#34;</span>: <span style="color:#e6db74">&#34;com.yjz.serialization.avro&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;record&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;MessageInfo&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;fields&#34;</span>: [
+</span></span><span style="display:flex;"><span>        {<span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;username&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>},
+</span></span><span style="display:flex;"><span>        {<span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;password&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>},
+</span></span><span style="display:flex;"><span>        {<span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;age&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;int&#34;</span>},
+</span></span><span style="display:flex;"><span>        {<span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;params&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>: {<span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;map&#34;</span>,<span style="color:#f92672">&#34;values&#34;</span>: <span style="color:#e6db74">&#34;string&#34;</span>}
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>（2）使用avro-tools.jar编译生成Java代码(或maven编译生成)：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>java <span style="color:#f92672">-</span>jar avro<span style="color:#f92672">-</span>tools<span style="color:#f92672">-</span>1<span style="color:#f92672">.</span><span style="color:#a6e22e">8</span><span style="color:#f92672">.</span><span style="color:#a6e22e">2</span><span style="color:#f92672">.</span><span style="color:#a6e22e">jar</span> compile schema src<span style="color:#f92672">/</span>main<span style="color:#f92672">/</span>resources<span style="color:#f92672">/</span>avro<span style="color:#f92672">/</span>Message<span style="color:#f92672">.</span><span style="color:#a6e22e">avsc</span> <span style="color:#f92672">./</span>src<span style="color:#f92672">/</span>main<span style="color:#f92672">/</span>java
+</span></span></code></pre></div><p>（3）借助BinaryEncoder和BinaryDecoder进行编解码：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span>  <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> <span style="color:#a6e22e">encoder</span><span style="color:#f92672">(</span>MessageInfo obj<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        DatumWriter<span style="color:#f92672">&lt;</span>MessageInfo<span style="color:#f92672">&gt;</span> datumWriter <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> SpecificDatumWriter<span style="color:#f92672">&lt;&gt;(</span>MessageInfo<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        ByteArrayOutputStream outputStream <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ByteArrayOutputStream<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        BinaryEncoder binaryEncoder <span style="color:#f92672">=</span> EncoderFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">().</span><span style="color:#a6e22e">directBinaryEncoder</span><span style="color:#f92672">(</span>outputStream<span style="color:#f92672">,</span><span style="color:#66d9ef">null</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        datumWriter<span style="color:#f92672">.</span><span style="color:#a6e22e">write</span><span style="color:#f92672">(</span>obj<span style="color:#f92672">,</span>binaryEncoder<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> outputStream<span style="color:#f92672">.</span><span style="color:#a6e22e">toByteArray</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> MessageInfo <span style="color:#a6e22e">decoder</span><span style="color:#f92672">(</span><span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> bytes<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        DatumReader<span style="color:#f92672">&lt;</span>MessageInfo<span style="color:#f92672">&gt;</span> datumReader <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> SpecificDatumReader<span style="color:#f92672">&lt;&gt;(</span>MessageInfo<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        BinaryDecoder binaryDecoder <span style="color:#f92672">=</span> DecoderFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">().</span><span style="color:#a6e22e">directBinaryDecoder</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> ByteArrayInputStream<span style="color:#f92672">(</span>bytes<span style="color:#f92672">),</span><span style="color:#66d9ef">null</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> datumReader<span style="color:#f92672">.</span><span style="color:#a6e22e">read</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> MessageInfo<span style="color:#f92672">(),</span>binaryDecoder<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span></code></pre></div><p><strong>通用性</strong></p>
+<p>Avro通过Schema定义数据结构，目前支持Java、C、C++、C#、Python、PHP和Ruby语言，所以在这些语言之间Avro具有很好的通用性。</p>
+<p><strong>易用性</strong></p>
+<p>Avro对于动态语言无需生成代码，但对于Java这类静态语言，还是需要使用avro-tools.jar来编译生成Java代码。在Schema编写上，个人感觉相比Thrift、Protobuf更加复杂。</p>
+<p><strong>可扩展性</strong></p>
+<ol>
+<li>给所有field定义default值。如果某field没有default值，以后将不能删除该field。</li>
+<li>如果要新增field，必须定义default值。</li>
+<li>不能修改field type。</li>
+<li>不能修改field name，不过可以通过增加alias解决。</li>
+</ol>
+<p><strong>性能</strong></p>
+<p>使用Avro生成代码序列化之后的结果为：111。下面是使用Avro序列化的时间开销：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>1000万序列化时间开销(ms)</th>
+<th>1000万序反列化时间开销(ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>生成Java代码</td>
+<td>26565</td>
+<td>45383</td>
+</tr>
+</tbody>
+</table>
+<p><strong>数据类型和语法结构支持</strong></p>
+<p>Avro需要使用Avro所支持的数据类型来编写Schema信息，所以能够支持的Java数据类型即为Avro所支持的数据类型。Avro支持数据类型有：基础类型(null、boolean、int、long、float、double、bytes、string)，复杂数据类型(Record、Enum、Array、Map、Union、Fixed)。</p>
+<p>Avro自动生成代码，或者直接使用Schema，不能支持在序列化类中定义java方法。</p>
+<h2 id="3-总结">3. 总结<a class="anchor ms-1" href="#3-总结"><i class="fas fa-link"></i></a></h2>
+<h3 id="1-通用性">1 通用性<a class="anchor ms-1" href="#1-通用性"><i class="fas fa-link"></i></a></h3>
+<p>下面是从通用性上对比各个序列化框架，可以看出Protobuf在通用上是最佳的，能够支持多种主流变成语言。</p>
+<table>
+<thead>
+<tr>
+<th>序列化框架</th>
+<th>通用性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JDK Serializer</td>
+<td>只适用于Java</td>
+</tr>
+<tr>
+<td>FST</td>
+<td>只适用于Java</td>
+</tr>
+<tr>
+<td>Kryo</td>
+<td>主要适用于Java(可复杂支持跨语言)</td>
+</tr>
+<tr>
+<td>Protocol buffer</td>
+<td>支持多种语言</td>
+</tr>
+<tr>
+<td>Thrift</td>
+<td>支持多种语言</td>
+</tr>
+<tr>
+<td>Hessian</td>
+<td>支持多种语言</td>
+</tr>
+<tr>
+<td>Avro</td>
+<td>支持多种语言</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-易用性">2 易用性<a class="anchor ms-1" href="#2-易用性"><i class="fas fa-link"></i></a></h3>
+<p>下面是从API使用的易用性上面来对比各个序列化框架，可以说除了JDK Serializer外的序列化框架都提供了不错API使用方式。</p>
+<table>
+<thead>
+<tr>
+<th>序列化框架</th>
+<th>易用性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JDK Serializer</td>
+<td>使用语法过于生硬</td>
+</tr>
+<tr>
+<td>FST</td>
+<td>使用简洁，FSTConfiguration提供了序列化与反序列化的方法</td>
+</tr>
+<tr>
+<td>Kryo</td>
+<td>使用简洁，Input/Output封装了几乎所有能有需要的流方法</td>
+</tr>
+<tr>
+<td>Protocol buffer</td>
+<td>稍微复杂。需要编写所需序列化类的proto文件，然后编译生成Java代码。但是自动生成Java类，包含了序列化与反序列化方法</td>
+</tr>
+<tr>
+<td>Thrift</td>
+<td>稍微复杂。需要编写所需的序列化类的thrift文件，然后编译生成Java代码。然后通过TSerializer和TDserializer进行序列化与反序列化</td>
+</tr>
+<tr>
+<td>Hessian</td>
+<td>使用简单，在跨语言的基础上不需要使用IDL</td>
+</tr>
+<tr>
+<td>Avro</td>
+<td>使用较复杂。相较于Protobuf和Thrift来说，对于一些静态语言无序生成代码。但是对于Java来一般还需要生成代码，并且Avro提供的API不是很友好</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-可扩展性">3 可扩展性<a class="anchor ms-1" href="#3-可扩展性"><i class="fas fa-link"></i></a></h3>
+<p>下面是各个序列化框架的可扩展性对比，可以看到Protobuf的可扩展性是最方便、自然的。其它序列化框架都需要一些配置、注解等操作。</p>
+<table>
+<thead>
+<tr>
+<th>序列化框架</th>
+<th>可扩展性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JDK Serializer</td>
+<td>自定义serialVersionUID，保证序列化前后VUID一致即可</td>
+</tr>
+<tr>
+<td>FST</td>
+<td>通过@Version控制版本，新增字段需要修改Version版本</td>
+</tr>
+<tr>
+<td>Kryo</td>
+<td>默认序列化器不支持字段扩展，需要修改默认序列化器或自己实现序列化器</td>
+</tr>
+<tr>
+<td>Protocol buffer</td>
+<td>支持字段扩展，只要保证新增id标识没有使用过即可</td>
+</tr>
+<tr>
+<td>Thrift</td>
+<td>支持字段扩展。新增字段为required类型时，需要设置默认值</td>
+</tr>
+<tr>
+<td>Hessian</td>
+<td>支持字段扩展</td>
+</tr>
+<tr>
+<td>Avro</td>
+<td>支持字段扩展。注意需要为字段设置默认值</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-性能">4 性能<a class="anchor ms-1" href="#4-性能"><i class="fas fa-link"></i></a></h3>
+<p><strong>序列化大小对比</strong></p>
+<p>对比各个序列化框架序列化后的数据大小如下，可以看出kryo preregister(预先注册序列化类)和Avro序列化结果都很不错。所以，如果在序列化大小上有需求，可以选择Kryo或Avro。</p>
+<img src="https://picgo.6and.ltd/img/asgpg-27v39.jpg" alt="序列化大小对比" style="zoom: 50%;" />
+<p><strong>序列化时间开销对比</strong></p>
+<p>下面是序列化与反序列化的时间开销，kryo preregister和fst preregister都能提供优异的性能，其中fst pre序列化时间就最佳，而kryo pre在序列化和反序列化时间开销上基本一致。所以，如果序列化时间是主要的考虑指标，可以选择Kryo或FST，都能提供不错的性能体验。</p>
+<img src="https://picgo.6and.ltd/img/alke8-p8d4o-20210926201322402.jpg" alt="序列化时间开销对比" style="zoom:50%;" />
+<h3 id="5-数据类型和语法结构支持">5 数据类型和语法结构支持<a class="anchor ms-1" href="#5-数据类型和语法结构支持"><i class="fas fa-link"></i></a></h3>
+<p>各序列化框架对Java数据类型支持的对比：</p>
+<img src="https://picgo.6and.ltd/img/apo0o-bnctj-20210926201315400.jpg" alt="Java数据类型支持的对比" style="zoom:50%;" />
+<p>注：集合类型测试基本覆盖了所有对应的实现类。</p>
+<ol>
+<li>List测试内容：ArrayList、LinkedList、Stack、CopyOnWriteArrayList、Vector。</li>
+<li>Set测试内容：HashSet、LinkedHashSet、TreeSet、CopyOnWriteArraySet。</li>
+<li>Map测试内容：HashMap、LinkedHashMap、TreeMap、WeakHashMap、ConcurrentHashMap、Hashtable。</li>
+<li>Queue测试内容：PriorityQueue、ArrayBlockingQueue、LinkedBlockingQueue、ConcurrentLinkedQueue、SynchronousQueue、ArrayDeque、LinkedBlockingDeque和ConcurrentLinkedDeque。</li>
+</ol>
+<p>下面根据测试总结了以上序列化框架所能支持的数据类型、语法。</p>
+<img src="https://s4.aconvert.com/convert/p3r68-cdx67/akyu8-wvrew.jpg" alt="能支持的数据类型、语法" style="zoom:50%;" />
+<ul>
+<li>注1：static内部类需要实现序列化接口。</li>
+<li>注2：外部类需要实现序列化接口。</li>
+<li>注3：需要在Lambda表达式前添加(IXxx &amp; Serializable)。</li>
+</ul>
+<blockquote>
+<p>由于Protobuf、Thrift是IDL定义类文件，然后使用各自的编译器生成Java代码。IDL没有提供定义staic内部类、非static内部类等语法，所以这些功能无法测试。</p>
+</blockquote>
+<h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
+<p><a href="https://mp.weixin.qq.com/s/DiphH8bvR8TtLyQmnTkpuw" target="_blank" rel="noopener noreferrer">几种Java常用序列化框架的选型与对比</a></p>
+<p><a href="https://mp.weixin.qq.com/s/Zpb2OuZxJpWX2mow3qd-xg" target="_blank" rel="noopener noreferrer">Java对象为啥要实现Serializable接口？</a></p></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>Buy me a coffee</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>Alipay
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>WeChat
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
+    <i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://xuzhijvn.github.io/en/zh-cn/posts/code/mysql/mysql%E5%AE%9E%E9%AA%8C/">MySQL实验
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://xuzhijvn.github.io/en/zh-cn/posts/code/java/java%E5%BA%8F%E5%88%97%E5%8C%96/">Java序列化
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div></div>
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">Copyright</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title">Comments</h2>
+  </div>
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    <section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony" src="https://xuzhijvn.github.io/images/profile.webp" loading="lazy"
+   width="400" height="400"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div></div>
+  </div>
+</section>
+  <div class="post-toc row mb-4 card component" id="postTOC">
+  <div class="card-header">
+    <h2 class="card-title">Contents</h2>
+  </div>
+  <div class="card-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-背景介绍">1. 背景介绍</a></li>
+    <li><a href="#2-序列化框架">2. 序列化框架</a>
+      <ul>
+        <li><a href="#1-jdk-serializable">1 JDK Serializable</a></li>
+        <li><a href="#2-fst序列化框架">2 FST序列化框架</a></li>
+        <li><a href="#3-kryo序列化框架">3 Kryo序列化框架</a></li>
+        <li><a href="#4-protocol-buffer">4 Protocol buffer</a></li>
+        <li><a href="#5-thrift序列化框架">5 Thrift序列化框架</a></li>
+        <li><a href="#6-hessian序列化框架">6 Hessian序列化框架</a></li>
+        <li><a href="#7-avro序列化框架">7 Avro序列化框架</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-总结">3. 总结</a>
+      <ul>
+        <li><a href="#1-通用性">1 通用性</a></li>
+        <li><a href="#2-易用性">2 易用性</a></li>
+        <li><a href="#3-可扩展性">3 可扩展性</a></li>
+        <li><a href="#4-性能">4 性能</a></li>
+        <li><a href="#5-数据类型和语法结构支持">5 数据类型和语法结构支持</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div><section class="recent-posts row card component">
+  <div class="card-header">
+    <h2 class="card-title">Recent Posts</h2>
+  </div>
+  <div class="card-body">
+    <ul class="post-list"></ul>
+  </div>
+</section><section class="series-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/series">Series</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/series/manual/" class="badge rounded post-taxonomy" title="Manual">
+            Manual</a><a href="https://xuzhijvn.github.io/en/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/en/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/en/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/en/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a><a href="https://xuzhijvn.github.io/en/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a></div>
+      </div>
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/categories">Categories</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/en/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/en/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/en/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/en/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/en/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/en/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a><a href="https://xuzhijvn.github.io/en/categories/%E5%AE%B9%E5%99%A8/" class="badge rounded post-taxonomy" title="容器">
+            容器</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/tags">Tags</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/tags/java/" class="badge rounded post-taxonomy" title="Java">
+            Java</a><a href="https://xuzhijvn.github.io/en/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/en/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/en/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/en/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/en/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/en/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/en/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/en/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/en/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/en/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/en/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/en/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/en/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/en/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/en/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/en/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/en/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/en/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/en/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/en/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/en/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/en/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/en/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/en/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/en/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/en/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/en/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/en/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/en/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/en/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/en/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/en/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/en/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/en/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/en/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/en/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/en/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/en/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/en/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/en/tags/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a><a href="https://xuzhijvn.github.io/en/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/en/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
+      </div>
+    </section>
+    <section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=783175223&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></body>
+</html>

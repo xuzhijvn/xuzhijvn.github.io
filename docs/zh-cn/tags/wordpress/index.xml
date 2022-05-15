@@ -14,8 +14,7 @@
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/other/wordpress/docker-compose%E7%9A%84%E6%96%B9%E5%BC%8F%E9%83%A8%E7%BD%B2wordpress/</guid>
       <description>docker-compose的方式部署wordpress
- 安装docker  sudo yum install -y yum-utils device-mapper-persistent-data lvm2 sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo sudo yum install docker-ce docker-ce-cli containerd.io  编写docker-compose.yml  mysql: image: mysql:5.7 environment: - MYSQL_ROOT_PASSWORD=123456 - MYSQL_DATABASE=wordpress web: image: wordpress links: - mysql environment: - WORDPRESS_DB_PASSWORD=123456 ports: - &amp;#34;0.0.0.0:8080:80&amp;#34; working_dir: /var/www/html volumes: - wordpress:/var/www/html  启动docker  sudo systemctl start docker  运行docker-compose  docker-compose up 参考：
-What does &amp;ldquo;local address&amp;rdquo; and &amp;ldquo;foreign address&amp;rdquo; mean in the netstat command result?</description>
+ 安装docker  sudo yum install -y yum-utils device-mapper-persistent-data lvm2  sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo  sudo yum install docker-ce docker-ce-cli containerd.io  编写docker-compose.yml  mysql:  image: mysql:5.7  environment:  - MYSQL_ROOT_PASSWORD=123456  - MYSQL_DATABASE=wordpress web:  image: wordpress  links:  - mysql  environment:  - WORDPRESS_DB_PASSWORD=123456  ports:  - &amp;#34;0.0.0.0:8080:80&amp;#34;  working_dir: /var/www/html  volumes:  - wordpress:/var/www/html  启动docker  sudo systemctl start docker  运行docker-compose  docker-compose up 参考：</description>
     </item>
     
     <item>
@@ -27,7 +26,7 @@ What does &amp;ldquo;local address&amp;rdquo; and &amp;ldquo;foreign address&amp
       <description>nginx 访问 .php文件变成下载(chrome) 或者直接显示源码(edge)
 原因：这是因为nginx没有设置好碰到php文件时，要传递到后方的php解释器。
 需要在nginx.conf的server{}添加如下内容：
-location ~ [^/]\.php(/|$) { #fastcgi_pass remote_php_ip:9000; fastcgi_pass unix:/dev/shm/php-cgi.sock; fastcgi_index index.php; include fastcgi.conf; } </description>
+ location ~ [^/]\.php(/|$) {  #fastcgi_pass remote_php_ip:9000;  fastcgi_pass unix:/dev/shm/php-cgi.sock;  fastcgi_index index.php;  include fastcgi.conf;  } </description>
     </item>
     
     <item>
@@ -72,17 +71,6 @@ WordPress加入ssl后可能出现的网站访问缓慢、样式无法被加载�
     </item>
     
     <item>
-      <title>wordpress文章发布后，nginx报404解决方法</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/other/wordpress/wordpress%E6%96%87%E7%AB%A0%E5%8F%91%E5%B8%83%E5%90%8Enginx%E6%8A%A5404%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/other/wordpress/wordpress%E6%96%87%E7%AB%A0%E5%8F%91%E5%B8%83%E5%90%8Enginx%E6%8A%A5404%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</guid>
-      <description>wordpress文章发布后，nginx报404解决方法
-修改nginx.conf文件，在location /节点下添加如下代码：
-location / { try_files $uri $uri/ /index.php?q=$uri&amp;amp;$args; } 然后重启nginx即可解决。</description>
-    </item>
-    
-    <item>
       <title>WordPress更换域名</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/other/wordpress/wordpress%E6%9B%B4%E6%8D%A2%E5%9F%9F%E5%90%8D/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
@@ -94,8 +82,18 @@ location / { try_files $uri $uri/ /index.php?q=$uri&amp;amp;$args; } 然后重�
 1. 无法通过nginx转发请求到容器端口 原因：nginx配置不正确
 解决：补充缺失的如下配置
 add_header X-Frame-Options SAMEORIGIN; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_hide_header X-Frame-Options; 最终类似：
-server { listen 443 ssl; listen [::]:443 ssl; include snippets/ssl-params.conf; server_name wptest.your-awesome-domain.com; # domain當然要用自己的，subdomain請隨自己喜好 location / { add_header X-Frame-Options SAMEORIGIN; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_hide_header X-Frame-Options; proxy_pass http://localhost:8000; # 注意這邊跟上面docker-compose設定的port相同 } } 2. 提示“重定向次数过多” 修改wordpress根目录下的wp-config.php：
-$_SERVER[&amp;#39;HTTPS&amp;#39;] = &amp;#39;on&amp;#39;; define(&amp;#39;FORCE_SSL_LOGIN&amp;#39;, true); define(&amp;#39;FORCE_SSL_ADMIN&amp;#39;, true); 参考链接： https://softman.</description>
+server {  listen 443 ssl;  listen [::]:443 ssl;   include snippets/ssl-params.conf;   server_name wptest.your-awesome-domain.com; # domain當然要用自己的，subdomain請隨自己喜好   location / {  add_header X-Frame-Options SAMEORIGIN;  proxy_set_header Host $host;  proxy_set_header X-Real-IP $remote_addr;  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  proxy_set_header X-Forwarded-Proto $scheme;  proxy_hide_header X-Frame-Options;  proxy_pass http://localhost:8000; # 注意這邊跟上面docker-compose設定的port相同  } } 2.</description>
+    </item>
+    
+    <item>
+      <title>wordpress文章发布后，nginx报404解决方法</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/other/wordpress/wordpress%E6%96%87%E7%AB%A0%E5%8F%91%E5%B8%83%E5%90%8Enginx%E6%8A%A5404%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/other/wordpress/wordpress%E6%96%87%E7%AB%A0%E5%8F%91%E5%B8%83%E5%90%8Enginx%E6%8A%A5404%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</guid>
+      <description>wordpress文章发布后，nginx报404解决方法
+修改nginx.conf文件，在location /节点下添加如下代码：
+location / {  try_files $uri $uri/ /index.php?q=$uri&amp;amp;$args; } 然后重启nginx即可解决。</description>
     </item>
     
   </channel>

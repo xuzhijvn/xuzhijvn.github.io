@@ -1,0 +1,824 @@
+<!doctype html><html lang="en" data-palette="indigo"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>从零搭建K8S - 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/icons/icon-180x180.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-16x16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
+<link rel="manifest" href="https://xuzhijvn.github.io/en/manifest.json">
+<meta name="keywords" content="" />
+<meta name="description" content="从零搭建K8S
+机器准备    名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上    由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
+1. 修改hostname [root@k8s-master ~]$ vim /etc/hostname # 修改hostname [root@k8s-master ~]$ vim /etc/hosts	# 将本机IP指向hostname [root@k8s-master ~]$ reboot -h # 重启(可以做完全部前期准备后再重启) 修改后：
+[root@k8s-master ~]# cat /etc/hosts  ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6." /><meta itemprop="name" content="从零搭建K8S">
+<meta itemprop="description" content="从零搭建K8S
+机器准备    名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上    由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
+1. 修改hostname [root@k8s-master ~]$ vim /etc/hostname # 修改hostname [root@k8s-master ~]$ vim /etc/hosts	# 将本机IP指向hostname [root@k8s-master ~]$ reboot -h # 重启(可以做完全部前期准备后再重启) 修改后：
+[root@k8s-master ~]# cat /etc/hosts  ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="801">
+<meta itemprop="keywords" content="云原生,k8s," /><meta property="og:title" content="从零搭建K8S" />
+<meta property="og:description" content="从零搭建K8S
+机器准备    名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上    由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
+1. 修改hostname [root@k8s-master ~]$ vim /etc/hostname # 修改hostname [root@k8s-master ~]$ vim /etc/hosts	# 将本机IP指向hostname [root@k8s-master ~]$ reboot -h # 重启(可以做完全部前期准备后再重启) 修改后：
+[root@k8s-master ~]# cat /etc/hosts  ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/en/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BAk8s/" /><meta property="article:section" content="zh-cn" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="从零搭建K8S"/>
+<meta name="twitter:description" content="从零搭建K8S
+机器准备    名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上    由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
+1. 修改hostname [root@k8s-master ~]$ vim /etc/hostname # 修改hostname [root@k8s-master ~]$ vim /etc/hosts	# 将本机IP指向hostname [root@k8s-master ~]$ reboot -h # 重启(可以做完全部前期准备后再重启) 修改后：
+[root@k8s-master ~]# cat /etc/hosts  ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6."/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/en/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+   width="400" height="400"
+   />
+👴🏻💪
+    </a>
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Share</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e4%bb%8e%e9%9b%b6%e6%90%ad%e5%bb%baK8S&url=https%3a%2f%2fxuzhijvn.github.io%2fen%2fzh-cn%2fposts%2fk8s%2f%25E5%25AE%259E%25E6%2588%2598%2f%25E4%25BB%258E%25E9%259B%25B6%25E6%2590%25AD%25E5%25BB%25BAk8s%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fxuzhijvn.github.io%2fen%2fzh-cn%2fposts%2fk8s%2f%25E5%25AE%259E%25E6%2588%2598%2f%25E4%25BB%258E%25E9%259B%25B6%25E6%2590%25AD%25E5%25BB%25BAk8s%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</div>
+    <button class="navbar-settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-ellipsis-v"></i>
+</button>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Settings</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-language"></i> Language</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="dropdown">
+        <a class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-cn/">简体中文</a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> Mode</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> Palette</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="Blue"
+        class="btn btn-sm w-100 palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="Blue Gray"
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="Brown"
+        class="btn btn-sm w-100 palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="Cyan"
+        class="btn btn-sm w-100 palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="Green"
+        class="btn btn-sm w-100 palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="Indigo"
+        class="btn btn-sm w-100 palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="Orange"
+        class="btn btn-sm w-100 palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="Pink"
+        class="btn btn-sm w-100 palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="Purple"
+        class="btn btn-sm w-100 palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="Red"
+        class="btn btn-sm w-100 palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="Teal"
+        class="btn btn-sm w-100 palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="Yellow"
+        class="btn btn-sm w-100 palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> Go back
+  </a>
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> Reload
+  </a>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> Copy URL
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> Share
+  </a></section>
+
+</div>
+</div>
+
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://xuzhijvn.github.io/en/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/en/en/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>Archives
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/en/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/categories">
+            <i class="fas fa-fw fa-folder"></i>Categories
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/tags">
+            <i class="fas fa-fw fa-tags"></i>Tags
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/series">
+            <i class="fas fa-fw fa-columns"></i>Series
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownProjects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Projects
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownProjects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap Theme
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 Admin
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/">Home</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/zh-cn/">Zh-cns</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">从零搭建K8S</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper">
+  <div class="d-flex flex-column component rounded post-panel">
+    
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="Buy me a coffee">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" href="#postTOC" aria-controls="Table of contents" role="button" title="Table of contents">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    
+  </div>
+</div>
+<article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title">从零搭建K8S
+</h1>
+  </div>
+  <div class="card-body"><div class="post-meta">
+  <span class="post-date" title="created on 2021-08-27 11:15:10 &#43;0800 CST.">
+    Aug 27, 2021
+  </span><span class="post-reading-time">
+    4 min read
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/en/series/k8s%E5%AE%9E%E6%88%98/" class="badge post-taxonomy">k8s实战</a><a href="https://xuzhijvn.github.io/en/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge post-taxonomy">云原生</a><a href="https://xuzhijvn.github.io/en/tags/k8s/" class="badge post-taxonomy">k8s</a></span>
+</div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>从零搭建K8S</p>
+<h2 id="机器准备">机器准备<a class="anchor ms-1" href="#机器准备"><i class="fas fa-link"></i></a></h2>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>数量</th>
+<th>IP</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>master</td>
+<td>1</td>
+<td>172.17.0.14</td>
+<td>操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G</td>
+</tr>
+<tr>
+<td>node1</td>
+<td>1</td>
+<td>172.18.0.7</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>node2</td>
+<td>1</td>
+<td>172.19.0.5</td>
+<td>同上</td>
+</tr>
+</tbody>
+</table>
+<p>由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。</p>
+<h2 id="1-修改hostname">1. 修改hostname<a class="anchor ms-1" href="#1-修改hostname"><i class="fas fa-link"></i></a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ vim /etc/hostname <span style="color:#75715e"># 修改hostname</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ vim /etc/hosts	<span style="color:#75715e"># 将本机IP指向hostname</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ reboot -h 		<span style="color:#75715e"># 重启(可以做完全部前期准备后再重启)</span>
+</span></span></code></pre></div><p>修改后：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># cat /etc/hosts</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>::1 VM_0_5_centos VM_0_5_centos
+</span></span><span style="display:flex;"><span>::1 localhost.localdomain localhost
+</span></span><span style="display:flex;"><span>::1 localhost6.localdomain6 localhost6
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>127.0.0.1 localhost localhost.localdomain k8s-master
+</span></span><span style="display:flex;"><span>172.17.0.14 k8s-master
+</span></span><span style="display:flex;"><span>172.18.0.7 k8s-node1
+</span></span><span style="display:flex;"><span>172.19.0.5 k8s-node2
+</span></span></code></pre></div><h2 id="2-配置防火墙">2. 配置防火墙<a class="anchor ms-1" href="#2-配置防火墙"><i class="fas fa-link"></i></a></h2>
+<p>笔者图方便, 直接关闭了防火墙. 若安全要求较高, 可以参考官方文档放行必要端口.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ systemctl stop firewalld	<span style="color:#75715e"># 关闭服务</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ systemctl disable firewalld	<span style="color:#75715e"># 禁用服务</span>
+</span></span></code></pre></div><h2 id="3-禁用selinux">3. 禁用SELinux<a class="anchor ms-1" href="#3-禁用selinux"><i class="fas fa-link"></i></a></h2>
+<p>腾讯云centos7.6默认是禁止的，如果你的不是，请修改<code>/etc/selinux/config</code>, 设置SELINUX=disabled. 重启机器.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ sestatus	<span style="color:#75715e"># 查看SELinux状态</span>
+</span></span><span style="display:flex;"><span>SELinux status: disabled
+</span></span></code></pre></div><h2 id="4-禁用交换分区">4. 禁用交换分区<a class="anchor ms-1" href="#4-禁用交换分区"><i class="fas fa-link"></i></a></h2>
+<p>腾讯云centos7.6默认是禁止的，如果你的不是，请编辑<code>/etc/fstab</code>, 将swap注释掉. 重启机器.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ vim /etc/fstab 
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#/dev/mapper/cl-swap     swap                    swap    defaults        0 0</span>
+</span></span></code></pre></div><h2 id="5-安装docker">5. 安装Docker<a class="anchor ms-1" href="#5-安装docker"><i class="fas fa-link"></i></a></h2>
+<p>方法一： 官方安装脚本自动安装</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+</span></span></code></pre></div><p>方法二： 手动安装</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>//第一步
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>yum install -y yum-utils <span style="color:#ae81ff">\ </span>device-mapper-persistent-data <span style="color:#ae81ff">\ </span>lvm2
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>//第二步
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>yum-config-manager <span style="color:#ae81ff">\ </span>--add-repo <span style="color:#ae81ff">\ </span>http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>//第三步
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>yum install docker-ce docker-ce-cli containerd.io
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>//第四步
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>systemctl start docker
+</span></span></code></pre></div><p>配置docker：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># cat /etc/docker/daemon.json </span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">&#34;registry-mirrors&#34;</span>: <span style="color:#f92672">[</span> <span style="color:#e6db74">&#34;https://mirror.ccs.tencentyun.com&#34;</span><span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">&#34;exec-opts&#34;</span>: <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;native.cgroupdriver=systemd&#34;</span><span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">&#34;bip&#34;</span>: <span style="color:#e6db74">&#34;172.200.0.1/16&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>安装配置完毕后执行:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ systemctl enable docker
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ systemctl start docker
+</span></span></code></pre></div><h2 id="6-安装kubernetes">6. 安装Kubernetes<a class="anchor ms-1" href="#6-安装kubernetes"><i class="fas fa-link"></i></a></h2>
+<p>由于国内网络原因, 官方文档中的地址不可用, 本文替换为阿里云镜像地址, 执行以下代码即可:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cat <span style="color:#e6db74">&lt;&lt;EOF &gt; /etc/yum.repos.d/kubernetes.repo
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">[kubernetes]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">name=Kubernetes
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">baseurl=http://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">enabled=1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">gpgcheck=1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">repo_gpgcheck=1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">gpgkey=http://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg http://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
+</span></span></code></pre></div><p>安装kubeadm，kubelet，kubectl：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>yum install -y kubelet kubeadm kubectl
+</span></span><span style="display:flex;"><span>systemctl enable kubelet <span style="color:#f92672">&amp;&amp;</span> systemctl start kubelet
+</span></span></code></pre></div><p>修改网络配置：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cat <span style="color:#e6db74">&lt;&lt;EOF &gt;  /etc/sysctl.d/k8s.conf
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">net.bridge.bridge-nf-call-ip6tables = 1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">net.bridge.bridge-nf-call-iptables = 1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
+</span></span><span style="display:flex;"><span>sysctl --system
+</span></span></code></pre></div><p>[su_highlight]注意: 至此, 以上的全部操作, 在Worker机器上也需要执行. 注意hostname等不要相同.[/su_highlight]</p>
+<h2 id="7-初始化master">7. 初始化Master<a class="anchor ms-1" href="#7-初始化master"><i class="fas fa-link"></i></a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ kubeadm config print init-defaults &gt; kubeadm-init.yaml
+</span></span></code></pre></div><p>该文件有两处需要修改:</p>
+<p>将<code>advertiseAddress</code>: 1.2.3.4修改为本机地址
+将<code>imageRepository</code>: k8s.gcr.io修改为imageRepository: registry.cn-hangzhou.aliyuncs.com/google_containers</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">kubeadm.k8s.io/v1beta2</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">bootstrapTokens</span>:
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">groups</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">system:bootstrappers:kubeadm:default-node-token</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">token</span>: <span style="color:#ae81ff">abcdef.0123456789abcdef</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">ttl</span>: <span style="color:#ae81ff">24h0m0s</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">usages</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">signing</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">authentication</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">InitConfiguration</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">localAPIEndpoint</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">advertiseAddress</span>: <span style="color:#ae81ff">172.17.0.14</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">bindPort</span>: <span style="color:#ae81ff">6443</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">nodeRegistration</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">criSocket</span>: <span style="color:#ae81ff">/var/run/dockershim.sock</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">k8s-master</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">taints</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">effect</span>: <span style="color:#ae81ff">NoSchedule</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">key</span>: <span style="color:#ae81ff">node-role.kubernetes.io/master</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiServer</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">timeoutForControlPlane</span>: <span style="color:#ae81ff">4m0s</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">kubeadm.k8s.io/v1beta2</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">certificatesDir</span>: <span style="color:#ae81ff">/etc/kubernetes/pki</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">kubernetes</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">controllerManager</span>: {}
+</span></span><span style="display:flex;"><span><span style="color:#f92672">dns</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">CoreDNS</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">etcd</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">local</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">dataDir</span>: <span style="color:#ae81ff">/var/lib/etcd</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">imageRepository</span>: <span style="color:#ae81ff">registry.cn-hangzhou.aliyuncs.com/google_containers</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ClusterConfiguration</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kubernetesVersion</span>: <span style="color:#ae81ff">v1.15.0</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">networking</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">dnsDomain</span>: <span style="color:#ae81ff">cluster.local</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">serviceSubnet</span>: <span style="color:#ae81ff">10.96.0.0</span><span style="color:#ae81ff">/12</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">scheduler</span>: {}
+</span></span></code></pre></div><p>下载镜像：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ kubeadm config images pull --config kubeadm-init.yaml
+</span></span></code></pre></div><p>执行初始化：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ kubeadm init --config kubeadm-init.yaml
+</span></span></code></pre></div><p>等待执行完毕后, 会输出如下内容：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>Your Kubernetes control-plane has initialized successfully!
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>To start using your cluster, you need to run the following as a regular user:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  mkdir -p $HOME/.kube
+</span></span><span style="display:flex;"><span>  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+</span></span><span style="display:flex;"><span>  sudo chown <span style="color:#66d9ef">$(</span>id -u<span style="color:#66d9ef">)</span>:<span style="color:#66d9ef">$(</span>id -g<span style="color:#66d9ef">)</span> $HOME/.kube/config
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>You should now deploy a pod network to the cluster.
+</span></span><span style="display:flex;"><span>Run <span style="color:#e6db74">&#34;kubectl apply -f [podnetwork].yaml&#34;</span> with one of the options listed at:
+</span></span><span style="display:flex;"><span>  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Then you can join any number of worker nodes by running the following on each as root:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>kubeadm join 172.17.0.14:6443 --token abcdef.0123456789abcdef <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --discovery-token-ca-cert-hash sha256:e245251e3de01986694f77319827481ed8669be6ba2ccc23a29596072b275346
+</span></span></code></pre></div><p>最后两行需要保存下来, kubeadm join &hellip;是worker节点加入所需要执行的命令.</p>
+<p>接下来配置环境, 让当前用户可以执行kubectl命令:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>mkdir -p $HOME/.kube
+</span></span><span style="display:flex;"><span>sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+</span></span><span style="display:flex;"><span>sudo chown <span style="color:#66d9ef">$(</span>id -u<span style="color:#66d9ef">)</span>:<span style="color:#66d9ef">$(</span>id -g<span style="color:#66d9ef">)</span> $HOME/.kube/config
+</span></span></code></pre></div><p>测试一下: 此处的NotReady是因为网络还没配置.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master kubernetes<span style="color:#f92672">]</span>$ kubectl get node
+</span></span><span style="display:flex;"><span>NAME         STATUS     ROLES    AGE     VERSION
+</span></span><span style="display:flex;"><span>k8s-master   NotReady   master   3m25s   v1.15.3
+</span></span></code></pre></div><h2 id="8-配置网络">8. 配置网络<a class="anchor ms-1" href="#8-配置网络"><i class="fas fa-link"></i></a></h2>
+<p>下载描述文件：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ wget https://docs.projectcalico.org/v3.15/manifests/calico.yaml
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ cat kubeadm-init.yaml | grep serviceSubnet:
+</span></span><span style="display:flex;"><span>serviceSubnet: 10.96.0.0/12
+</span></span></code></pre></div><p>打开calico.yaml, 将<code>192.168.0.0/16</code>修改为<code>10.96.0.0/12</code></p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5ef33afe955d8-20210621122448233.png" loading="lazy"
+  
+   />
+
+</p>
+<p>[su_highlight]需要注意的是, <code>calico.yaml</code>中的IP和<code>kubeadm-init.yaml</code>需要保持一致, 要么初始化前修改<code>kubeadm-init.yaml</code>, 要么初始化后修改<code>calico.yaml</code>.[/su_highlight]</p>
+<p>执行<code>kubectl apply -f calico.yaml</code>初始化网络.</p>
+<p>此时查看node信息, master的状态已经是Ready了.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ kubectl get node
+</span></span><span style="display:flex;"><span>NAME         STATUS   ROLES    AGE   VERSION
+</span></span><span style="display:flex;"><span>k8s-master   Ready    master   15m   v1.15.3
+</span></span></code></pre></div><h2 id="9-安装dashboard">9. 安装Dashboard<a class="anchor ms-1" href="#9-安装dashboard"><i class="fas fa-link"></i></a></h2>
+<h3 id="91-部署dashboard">91. 部署Dashboard<a class="anchor ms-1" href="#91-部署dashboard"><i class="fas fa-link"></i></a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.3/aio/deploy/recommended.yaml
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ kubectl apply -f recommended.yaml
+</span></span></code></pre></div><p>部署完毕后, 执行<code>kubectl get pods --all-namespaces</code>查看pods状态</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master kubernetes<span style="color:#f92672">]</span>$ kubectl get pods --all-namespaces | grep dashboard
+</span></span><span style="display:flex;"><span>NAMESPACE              NAME                                        READY   STATUS   
+</span></span><span style="display:flex;"><span>kubernetes-dashboard   dashboard-metrics-scraper-fb986f88d-m9d8z   1/1     Running
+</span></span><span style="display:flex;"><span>kubernetes-dashboard   kubernetes-dashboard-6bb65fcc49-7s85s       1/1     Running
+</span></span></code></pre></div><h3 id="92-创建用户">9.2 创建用户<a class="anchor ms-1" href="#92-创建用户"><i class="fas fa-link"></i></a></h3>
+<p>创建一个用于登录Dashboard的用户. 创建文件<code>dashboard-adminuser.yaml</code>内容如下:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>apiVersion: v1
+</span></span><span style="display:flex;"><span>kind: ServiceAccount
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  name: admin-user
+</span></span><span style="display:flex;"><span>  namespace: kube-system
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>apiVersion: rbac.authorization.k8s.io/v1
+</span></span><span style="display:flex;"><span>kind: ClusterRoleBinding
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  name: admin-user
+</span></span><span style="display:flex;"><span>roleRef:
+</span></span><span style="display:flex;"><span>  apiGroup: rbac.authorization.k8s.io
+</span></span><span style="display:flex;"><span>  kind: ClusterRole
+</span></span><span style="display:flex;"><span>  name: cluster-admin
+</span></span><span style="display:flex;"><span>subjects:
+</span></span><span style="display:flex;"><span>- kind: ServiceAccount
+</span></span><span style="display:flex;"><span>  name: admin-user
+</span></span><span style="display:flex;"><span>  namespace: kube-system
+</span></span></code></pre></div><p>执行命令<code>kubectl apply -f dashboard-adminuser.yaml</code>.</p>
+<h3 id="93-生成证书">9.3 生成证书<a class="anchor ms-1" href="#93-生成证书"><i class="fas fa-link"></i></a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ grep <span style="color:#e6db74">&#39;client-certificate-data&#39;</span> ~/.kube/config | head -n <span style="color:#ae81ff">1</span> | awk <span style="color:#e6db74">&#39;{print $2}&#39;</span> | base64 -d &gt;&gt; kubecfg.crt
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ grep <span style="color:#e6db74">&#39;client-key-data&#39;</span> ~/.kube/config | head -n <span style="color:#ae81ff">1</span> | awk <span style="color:#e6db74">&#39;{print $2}&#39;</span> | base64 -d &gt;&gt; kubecfg.key
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span>$ openssl pkcs12 -export -clcerts -inkey kubecfg.key -in kubecfg.crt -out kubecfg.p12 -name <span style="color:#e6db74">&#34;kubernetes-client&#34;</span>
+</span></span></code></pre></div><p>第三条命令生成证书时会提示输入密码, 可以直接两次回车跳过.</p>
+<p><code>kubecfg.p12</code>即需要导入客户端机器的证书. 将证书拷贝到客户端机器上, 导入即可. chrome浏览器按下图所示导入：</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5ef33c7e9db84-20210621122443116.png" loading="lazy"
+  
+   />
+
+</p>
+<p>此时我们可以登录面板了, 访问地址: <code>https://{k8s-master-ip}:6443/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login</code></p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5ef33d17328d4.png" loading="lazy"
+  
+   />
+
+</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5ef33d20519c2.png" loading="lazy"
+  
+   />
+
+</p>
+<h3 id="94-登录dashboard">9.4 登录Dashboard<a class="anchor ms-1" href="#94-登录dashboard"><i class="fas fa-link"></i></a></h3>
+<p>执行<code>kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')</code>, 获取Token.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk &#39;{print $1}&#39;)</span>
+</span></span><span style="display:flex;"><span>Name:         admin-user-token-6mpx4
+</span></span><span style="display:flex;"><span>Namespace:    kube-system
+</span></span><span style="display:flex;"><span>Labels:       &lt;none&gt;
+</span></span><span style="display:flex;"><span>Annotations:  kubernetes.io/service-account.name: admin-user
+</span></span><span style="display:flex;"><span>              kubernetes.io/service-account.uid: cabcc858-826a-4236-8514-51f473bf7752
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Type:  kubernetes.io/service-account-token
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Data
+</span></span><span style="display:flex;"><span><span style="color:#f92672">====</span>
+</span></span><span style="display:flex;"><span>ca.crt:     <span style="color:#ae81ff">1025</span> bytes
+</span></span><span style="display:flex;"><span>namespace:  <span style="color:#ae81ff">11</span> bytes
+</span></span><span style="display:flex;"><span>token:      eyJhbGciOiJSUzI1NiIsImtpZCI6Iks2dmRwalB5SWNKbWJTVUUxanVlVlAwbTk1OHR6QzhfN0FOZUw0V3huM0UifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLTZtcHg0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiJjYWJjYzg1OC04MjZhLTQyMzYtODUxNC01MWY0NzNiZjc3NTIiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06YWRtaW4tdXNlciJ9.jHAzmmOBRn5tfZBeukORLm--9_q879fTHPDzjjyCm42MbHP0TFrgbo2A8ZmN0Od4qe9rTHiD9pJl3BtUQ06pIMsly7LvENnuLAxGuK3oDqc5FCdqb8L-f9-9HmBo7nEAMy67i6Cv9TjfD9790ejfOg6ZI0PC8MDXInxSgY97hlwBlyJh_M5zz8SMnOOnMYyr8UFmHRZJjTO5pdIs7cdVBxLz27wzw4h0svJyOsi9MBqHskN6Hq7KOsEYP5wyDHXmU_iHqQJH64R9DA6dpHx6v3qV1dyhtXJE9tZECsvoVtvNlKQ-VirtX4sJX29a5wAXDqkcysDiClIXZGZKtg8tFw
+</span></span></code></pre></div><p>复制该Token到登录页, 点击登录即可, 效果如下:</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5ef33d9fd5224-20210621122422540.png" loading="lazy"
+  
+   />
+
+</p>
+<h2 id="10-添加node节点">10. 添加Node节点<a class="anchor ms-1" href="#10-添加node节点"><i class="fas fa-link"></i></a></h2>
+<p>执行如下命令将Worker加入集群:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubeadm join 172.17.0.14:6443 --token abcdef.0123456789abcdef <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --discovery-token-ca-cert-hash sha256:e245251e3de01986694f77319827481ed8669be6ba2ccc23a29596072b275346
+</span></span></code></pre></div><p>注意: 此处的秘钥是初始化Master后生成的, 参考前文.</p>
+<p>如果token过期，使用如下命令重新生成：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubeadm token create --print-join-command
+</span></span></code></pre></div><p>参考连接：<a href="https://www.cnblogs.com/hongdada/p/9854696.html" target="_blank" rel="noopener noreferrer">kubeadm 生成的token过期后，集群增加节点</a></p>
+<p>如果join时报错：<code>[ERROR FileContent--proc-sys-net-ipv4-ip_forward]: /proc/sys/net/ipv4/ip_forward contents are not set to 1</code> 执行如下命令：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;1&#34;</span>&gt;/proc/sys/net/ipv4/ip_forward
+</span></span></code></pre></div><p>参考链接：<a href="https://learnku.com/articles/35188" target="_blank" rel="noopener noreferrer">kubernetes 加入子节点</a></p>
+<p>添加完毕后, 在Master上查看节点状态:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl get node</span>
+</span></span><span style="display:flex;"><span>NAME         STATUS   ROLES    AGE    VERSION
+</span></span><span style="display:flex;"><span>k8s-master   Ready    master   125m   v1.18.4
+</span></span><span style="display:flex;"><span>k8s-node1    Ready    &lt;none&gt;   97m    v1.18.4
+</span></span><span style="display:flex;"><span>k8s-node2    Ready    &lt;none&gt;   95m    v1.18.4
+</span></span></code></pre></div><p>在面板上也可查看:</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5ef33e6d5addd-20210621122430349.png" loading="lazy"
+  
+   />
+
+</p>
+<p>配置node节点，以便node节点能够执行类似<code>kubectl get node</code>的时候不至于报<code>The connection to the server localhost:8080 was refused - did you specify the right host or port?</code></p>
+<p>在node节点上执行：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>mkdir -p $HOME/.kube
+</span></span><span style="display:flex;"><span>cp -i /etc/kubernetes/kubelet.conf $HOME/.kube/config
+</span></span><span style="display:flex;"><span>chown <span style="color:#66d9ef">$(</span>id -u<span style="color:#66d9ef">)</span>:<span style="color:#66d9ef">$(</span>id -g<span style="color:#66d9ef">)</span> $HOME/.kube/config //如果你本身是root用户，可以不执行
+</span></span></code></pre></div><h2 id="参考链接">参考链接<a class="anchor ms-1" href="#参考链接"><i class="fas fa-link"></i></a></h2>
+<p><a href="https://juejin.im/post/5d7fb46d5188253264365dcf" target="_blank" rel="noopener noreferrer">https://juejin.im/post/5d7fb46d5188253264365dcf</a></p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>Buy me a coffee</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>Alipay
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>WeChat
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
+    <i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://xuzhijvn.github.io/en/zh-cn/posts/code/java/%E4%BD%A0%E4%BA%86%E8%A7%A3%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7%E5%8F%AF%E8%83%BD%E6%98%AF%E9%94%99%E7%9A%84/">你了解的可见性可能是错的
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://xuzhijvn.github.io/en/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/%E4%BA%91%E5%8E%82%E5%95%86%E9%9B%86%E6%88%90k8s/">云厂商集成k8s
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div></div>
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">Copyright</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title">Comments</h2>
+  </div>
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    <section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony" src="https://xuzhijvn.github.io/images/profile.webp" loading="lazy"
+   width="400" height="400"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div></div>
+  </div>
+</section>
+  <div class="post-toc row mb-4 card component" id="postTOC">
+  <div class="card-header">
+    <h2 class="card-title">Contents</h2>
+  </div>
+  <div class="card-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#机器准备">机器准备</a></li>
+    <li><a href="#1-修改hostname">1. 修改hostname</a></li>
+    <li><a href="#2-配置防火墙">2. 配置防火墙</a></li>
+    <li><a href="#3-禁用selinux">3. 禁用SELinux</a></li>
+    <li><a href="#4-禁用交换分区">4. 禁用交换分区</a></li>
+    <li><a href="#5-安装docker">5. 安装Docker</a></li>
+    <li><a href="#6-安装kubernetes">6. 安装Kubernetes</a></li>
+    <li><a href="#7-初始化master">7. 初始化Master</a></li>
+    <li><a href="#8-配置网络">8. 配置网络</a></li>
+    <li><a href="#9-安装dashboard">9. 安装Dashboard</a>
+      <ul>
+        <li><a href="#91-部署dashboard">91. 部署Dashboard</a></li>
+        <li><a href="#92-创建用户">9.2 创建用户</a></li>
+        <li><a href="#93-生成证书">9.3 生成证书</a></li>
+        <li><a href="#94-登录dashboard">9.4 登录Dashboard</a></li>
+      </ul>
+    </li>
+    <li><a href="#10-添加node节点">10. 添加Node节点</a></li>
+    <li><a href="#参考链接">参考链接</a></li>
+  </ul>
+</nav>
+  </div>
+</div><section class="recent-posts row card component">
+  <div class="card-header">
+    <h2 class="card-title">Recent Posts</h2>
+  </div>
+  <div class="card-body">
+    <ul class="post-list"></ul>
+  </div>
+</section><section class="series-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/series">Series</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/series/manual/" class="badge rounded post-taxonomy" title="Manual">
+            Manual</a><a href="https://xuzhijvn.github.io/en/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/en/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/en/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/en/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a><a href="https://xuzhijvn.github.io/en/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a></div>
+      </div>
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/categories">Categories</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/en/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/en/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/en/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/en/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/en/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/en/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a><a href="https://xuzhijvn.github.io/en/categories/%E5%AE%B9%E5%99%A8/" class="badge rounded post-taxonomy" title="容器">
+            容器</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/tags">Tags</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/tags/java/" class="badge rounded post-taxonomy" title="Java">
+            Java</a><a href="https://xuzhijvn.github.io/en/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/en/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/en/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/en/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/en/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/en/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/en/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/en/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/en/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/en/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/en/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/en/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/en/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/en/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/en/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/en/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/en/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/en/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/en/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/en/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/en/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/en/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/en/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/en/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/en/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/en/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/en/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/en/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/en/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/en/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/en/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/en/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/en/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/en/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/en/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/en/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/en/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/en/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/en/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/en/tags/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a><a href="https://xuzhijvn.github.io/en/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/en/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
+      </div>
+    </section>
+    <section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=783175223&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></body>
+</html>

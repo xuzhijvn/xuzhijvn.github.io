@@ -6,7 +6,16 @@
     <description>Recent content in 云原生 on 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
-    <lastBuildDate>Fri, 27 Aug 2021 11:15:10 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 15 May 2022 14:46:38 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Yshop K8s</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/yshop-k8s/</link>
+      <pubDate>Sun, 15 May 2022 14:46:38 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/yshop-k8s/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>ingress</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/ingress/</link>
@@ -17,7 +26,7 @@
 2. ingress与ingress-controller 要理解ingress，需要区分两个概念，ingress和ingress-controller：
  ingress：指的是k8s中的一个api对象，一般用yaml配置。作用是定义请求如何转发到service的规则，可以理解为配置模板。 ingress-controller：具体实现反向代理及负载均衡的程序，对ingress定义的规则进行解析，根据配置的规则来实现请求转发。  简单来说，ingress-controller才是负责具体转发的组件，通过各种方式将它暴露在集群入口，外部对集群的请求流量会先到ingress-controller，而ingress对象是用来告诉ingress-controller该如何转发请求，比如哪些域名哪些path要转发到哪些服务等等。
 2.1 ingress ingress是一个API对象，和其他对象一样，通过yaml文件来配置。ingress通过http或https暴露集群内部service，给service提供外部URL、负载均衡、SSL/TLS能力以及基于host的方向代理。ingress要依靠ingress-controller来具体实现以上功能。前一小节的图如果用ingress来表示，大概就是如下配置：
-apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotations: kubernetes.io/ingress.class: &amp;#34;nginx&amp;#34; nginx.ingress.kubernetes.io/use-regex: &amp;#34;true&amp;#34; spec: tls: - hosts: - api.abc.com secretName: abc-tls rules: - host: api.abc.com http: paths: - backend: serviceName: apiserver servicePort: 80 - host: www.abc.com http: paths: - path: /image/* backend: serviceName: fileserver servicePort: 80 - host: www.abc.com http: paths: - backend: serviceName: feserver servicePort: 8080 2.</description>
+apiVersion: extensions/v1beta1 kind: Ingress metadata:  name: abc-ingress  annotations:  kubernetes.io/ingress.class: &amp;#34;nginx&amp;#34;  nginx.ingress.kubernetes.io/use-regex: &amp;#34;true&amp;#34; spec:  tls:  - hosts:  - api.abc.com  secretName: abc-tls  rules:  - host: api.abc.com  http:  paths:  - backend:  serviceName: apiserver  servicePort: 80  - host: www.abc.com  http:  paths:  - path: /image/*  backend:  serviceName: fileserver  servicePort: 80  - host: www.</description>
     </item>
     
     <item>
@@ -30,27 +39,7 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
 Nginx-ingress 通过前置的 Loadbalancer 类型的 Service 接收集群流量，将流量转发至 Nginx-ingress Pod 内并对配置的策略进行检查，再转发至目标 Service，最终将流量转发至业务容器。
 传统的 Nginx 需要我们配置 conf 文件策略。但 Nginx-ingress 通过实现 Nginx-ingress-Controller 将原生 conf 配置文件和 yaml 配置文件进行了转化，当我们配置 yaml 文件的策略后，Nginx-ingress-Controller 将对其进行转化，并且动态更新策略，动态 Reload Nginx Pod，实现自动管理。
 那么 Nginx-ingress-Controller 如何能够动态感知集群的策略变化呢？方法有很多种，可以通过 webhook admission 拦截器，也可以通过 ServiceAccount 与 Kubernetes Api 进行交互，动态获取。Nginx-ingress-Controller 使用后者来实现。所以在部署 Nginx-ingress 我们会发现 Deployment 内指定了 Pod 的 ServiceAccount，以及实现了 RoleBinding ，最终达到 Pod 与 Kubernetes Api 交互的目标。
-dev apiVersion: v1 kind: Namespace metadata: name: dev --- apiVersion: apps/v1 kind: Deployment metadata: name: nginx namespace: dev spec: selector: matchLabels: app: nginx replicas: 1 template: metadata: labels: app: nginx spec: containers: - name: nginx image: wangweicoding-docker.</description>
-    </item>
-    
-    <item>
-      <title>istio原理</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%9F%BA%E7%A1%80/istio%E5%8E%9F%E7%90%86/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%9F%BA%E7%A1%80/istio%E5%8E%9F%E7%90%86/</guid>
-      <description>istio原理</description>
-    </item>
-    
-    <item>
-      <title>istio启用策略检查功能</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%90%AF%E7%94%A8%E7%AD%96%E7%95%A5%E6%A3%80%E6%9F%A5%E5%8A%9F%E8%83%BD/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%90%AF%E7%94%A8%E7%AD%96%E7%95%A5%E6%A3%80%E6%9F%A5%E5%8A%9F%E8%83%BD/</guid>
-      <description>istio启用策略检查功能
-不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
- 默认安装istio之后disablePolicyChecks=true  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&amp;#34;{@.data.mesh}&amp;#34; | grep disablePolicyChecks disablePolicyChecks: true 编辑 istio configmap 以启用策略检查  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&amp;#34;{@.data.mesh}&amp;#34; | sed -e &amp;#34;s/disablePolicyChecks: true/disablePolicyChecks: false/&amp;#34; &amp;gt; /tmp/mesh.yaml [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system create cm Istio -o yaml --dry-run --from-file=mesh=/tmp/mesh.yaml | kubectl replace -f - W0902 17:00:37.208604 16538 helpers.go:535] --dry-run is deprecated and can be replaced with --dry-run=client.</description>
+dev apiVersion: v1 kind: Namespace metadata:  name: dev --- apiVersion: apps/v1 kind: Deployment metadata:  name: nginx  namespace: dev spec:  selector:  matchLabels:  app: nginx  replicas: 1  template:  metadata:  labels:  app: nginx  spec:  containers:  - name: nginx  image: wangweicoding-docker.</description>
     </item>
     
     <item>
@@ -75,16 +64,35 @@ istioctl manifest generate --set profile=demo | kubectl delete -f - 参考 istio
     </item>
     
     <item>
+      <title>istio启用策略检查功能</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%90%AF%E7%94%A8%E7%AD%96%E7%95%A5%E6%A3%80%E6%9F%A5%E5%8A%9F%E8%83%BD/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%90%AF%E7%94%A8%E7%AD%96%E7%95%A5%E6%A3%80%E6%9F%A5%E5%8A%9F%E8%83%BD/</guid>
+      <description>istio启用策略检查功能
+不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
+ 默认安装istio之后disablePolicyChecks=true  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&amp;#34;{@.data.mesh}&amp;#34; | grep disablePolicyChecks disablePolicyChecks: true 编辑 istio configmap 以启用策略检查  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&amp;#34;{@.data.mesh}&amp;#34; | sed -e &amp;#34;s/disablePolicyChecks: true/disablePolicyChecks: false/&amp;#34; &amp;gt; /tmp/mesh.yaml [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system create cm Istio -o yaml --dry-run --from-file=mesh=/tmp/mesh.yaml | kubectl replace -f - W0902 17:00:37.208604 16538 helpers.go:535] --dry-run is deprecated and can be replaced with --dry-run=client.</description>
+    </item>
+    
+    <item>
       <title>istio实现灰度</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/</guid>
       <description>istio实现灰度
-Gateway apiVersion: networking.istio.io/v1alpha3 kind: Gateway metadata: name: bookinfo-gateway spec: selector: istio: ingressgateway # use istio default controller servers: - port: number: 80 name: http protocol: HTTP hosts: - &amp;#34;*&amp;#34; VirtualService 是在 Istio 服务网格内对服务的请求如何进行路由控制？VirtualService 中就包含了这方面的定义。例如一个 Virtual Service 可以把请求路由到不同版本，甚至是可以路由到一个完全不同于请求要求的服务上去。路由可以用很多条件进行判断，例如请求的源和目的地、HTTP 路径和 Header 以及各个服务版本的权重等。
+Gateway apiVersion: networking.istio.io/v1alpha3 kind: Gateway metadata:  name: bookinfo-gateway spec:  selector:  istio: ingressgateway # use istio default controller  servers:  - port:  number: 80  name: http  protocol: HTTP  hosts:  - &amp;#34;*&amp;#34; VirtualService 是在 Istio 服务网格内对服务的请求如何进行路由控制？VirtualService 中就包含了这方面的定义。例如一个 Virtual Service 可以把请求路由到不同版本，甚至是可以路由到一个完全不同于请求要求的服务上去。路由可以用很多条件进行判断，例如请求的源和目的地、HTTP 路径和 Header 以及各个服务版本的权重等。
 路由规则对应着一或多个用 VirtualService 配置指定的请求目的主机。这些主机可以是也可以不是实际的目标负载，甚至可以不是同一网格内可路由的服务。例如要给到 reviews 服务的请求定义路由规则，可以使用内部的名称 reviews，也可以用域名 bookinfo.com，VirtualService 可以定义这样的 host 字段：
-hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的方式定义了一或多个完全限定名（FQDN）。上面的 reviews，会隐式的扩展成为特定的 FQDN，例如在 Kubernetes 环境中，全名会从 VirtualService 所在的集群和命名空间中继承而来（比如说 reviews.default.svc.cluster.local）。
---- apiVersion: networking.istio.io/v1alpha3 kind: VirtualService metadata: name: bookinfo spec: hosts: - &amp;#34;*&amp;#34; gateways: - bookinfo-gateway http: - match: - uri: exact: /productpage - uri: prefix: /static - uri: exact: /login - uri: exact: /logout - uri: prefix: /api/v1/products route: - destination: host: productpage port: number: 9080 所有的流量都去到reviews:v1</description>
+hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的方式定义了一或多个完全限定名（FQDN）。上面的 reviews，会隐式的扩展成为特定的 FQDN，例如在 Kubernetes 环境中，全名会从 VirtualService 所在的集群和命名空间中继承而来（比如说 reviews.</description>
+    </item>
+    
+    <item>
+      <title>istio原理</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%9F%BA%E7%A1%80/istio%E5%8E%9F%E7%90%86/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%9F%BA%E7%A1%80/istio%E5%8E%9F%E7%90%86/</guid>
+      <description>istio原理</description>
     </item>
     
     <item>
@@ -97,7 +105,19 @@ hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的�
 背景 配置文件变化，无需重新构建镜像部署。
 1. 准备nfs 1、准备好nfs服务器。参考：nfs安装 的nfs服务端配置。 2、k8s node节点可以不启用rpcbind服务，但是必须安装nfs-utils（yum install nfs-utils），否则nfs-client-provisioner pod无法启动，因为nfs-client.yaml里面有nfs的相关配置，而这些nfs配置要生效需依赖nfs-utils。参考：nfs安装 的nfs客户端配置。
 2. 创建StorageClass对象 理论部分参考：StorageClass
-2.1 nfs-client.yaml kind: Deployment apiVersion: apps/v1 metadata: name: nfs-client-provisioner spec: replicas: 1 strategy: type: Recreate selector: matchLabels: app: nfs-client-provisioner template: metadata: labels: app: nfs-client-provisioner spec: serviceAccountName: nfs-client-provisioner containers: - name: nfs-client-provisioner image: quay.io/external_storage/nfs-client-provisioner:latest volumeMounts: - name: nfs-client-root mountPath: /persistentvolumes env: - name: PROVISIONER_NAME value: fuseim.pri/ifs - name: NFS_SERVER value: nfs - name: NFS_PATH value: /mnt/nfs/k8s volumes: - name: nfs-client-root nfs: server: nfs path: /mnt/nfs/k8s  k8s node节点可以不启用rpcbind服务，但必须安装nfs-utils。</description>
+2.1 nfs-client.yaml kind: Deployment apiVersion: apps/v1 metadata:  name: nfs-client-provisioner spec:  replicas: 1  strategy:  type: Recreate  selector:  matchLabels:  app: nfs-client-provisioner  template:  metadata:  labels:  app: nfs-client-provisioner  spec:  serviceAccountName: nfs-client-provisioner  containers:  - name: nfs-client-provisioner  image: quay.io/external_storage/nfs-client-provisioner:latest  volumeMounts:  - name: nfs-client-root  mountPath: /persistentvolumes  env:  - name: PROVISIONER_NAME  value: fuseim.</description>
+    </item>
+    
+    <item>
+      <title>k8s部署应用(前端静态)</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/k8s%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/k8s%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81/</guid>
+      <description>k8s部署应用(前端静态)
+0. 准备条件  部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S     名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上     应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库：   理解k8s基础概念，可以参考Kubernetes: 基础概念介绍
+  1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &amp;gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
+1.2 生成拉取镜像的密钥 kubectl create secret docker-registry registry-secret-tencent --docker-server=ccr.</description>
     </item>
     
     <item>
@@ -118,10 +138,21 @@ $ kubectl autoscale deployment wordpress --namespace kube-example --cpu-percent=
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/k8s%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</guid>
       <description>1⃣️ Container Container（容器）是一种便携式、轻量级的操作系统级虚拟化技术。它使用 namespace 隔离不同的软件运行环境，并通过镜像自包含软件的运行环境，从而使得容器可以很方便的在任何地方运行。
-2⃣️ 2⃣️ Pod Kubernetes 使用 Pod 来管理容器，每个 Pod 可以包含一个或多个紧密关联的容器。
+2⃣️ Pod Kubernetes 使用 Pod 来管理容器，每个 Pod 可以包含一个或多个紧密关联的容器。
 Pod 是一组紧密关联的容器集合，它们共享 PID（同一个Pod中应用可以看到其它进程）、IPC（同一个Pod中的应用可以通过VPC或者POSIX进行通信）、Network （同一个Pod的中的应用对相同的IP地址和端口有权限）和 UTS namespace（同一个Pod中的应用共享一个主机名称），是 Kubernetes 调度的基本单位。Pod 内的多个容器共享网络和文件系统，可以通过进程间通信和文件共享这种简单高效的方式组合完成服务。
 在 Kubernetes 中，所有对象都使用 manifest（yaml 或 json）来定义，比如一个简单的 nginx 服务可以定义为 nginx.yaml，它包含一个镜像为 nginx 的容器：
-apiVersion: v1 kind: Pod metadata: name: nginx labels: app: nginx spec: containers: - name: nginx image: nginx ports: - containerPort: 80 3⃣️ Node Node 是 Pod 真正运行的主机，可以是物理机，也可以是虚拟机。为了管理 Pod，每个 Node 节点上至少要运行 container runtime（比如 docker 或者 rkt）、kubelet 和 kube-proxy 服务。</description>
+apiVersion: v1 kind: Pod metadata:  name: nginx  labels:  app: nginx spec:  containers:  - name: nginx  image: nginx  ports:  - containerPort: 80 3⃣️ Node Node 是 Pod 真正运行的主机，可以是物理机，也可以是虚拟机。为了管理 Pod，每个 Node 节点上至少要运行 container runtime（比如 docker 或者 rkt）、kubelet 和 kube-proxy 服务。</description>
+    </item>
+    
+    <item>
+      <title>k8s架构</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%9E%B6%E6%9E%84/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%9E%B6%E6%9E%84/</guid>
+      <description>Kubernetes 主要由以下几个核心组件组成:
+ etcd 保存了整个集群的状态，就是一个数据库； apiserver 提供了资源操作的唯一入口，并提供认证、授权、访问控制、API 注册和发现等机制； controller manager 负责维护集群的状态，比如故障检测、自动扩展、滚动更新等； scheduler 负责资源的调度，按照预定的调度策略将 Pod 调度到相应的机器上； kubelet 负责维护容器的生命周期，同时也负责 Volume（CSI）和网络（CNI）的管理； Container runtime 负责镜像管理以及 Pod 和容器的真正运行（CRI）； kube-proxy 负责为 Service 提供 cluster 内部的服务发现和负载均衡；  当然了除了上面的这些核心组件，还有一些推荐的插件：
+ kube-dns 负责为整个集群提供 DNS 服务 Ingress Controller 为服务提供外网入口 Heapster 提供资源监控 Dashboard 提供 GUI  </description>
     </item>
     
     <item>
@@ -144,26 +175,15 @@ apiVersion: v1 kind: Pod metadata: name: nginx labels: app: nginx spec: containe
     </item>
     
     <item>
-      <title>k8s架构</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%9E%B6%E6%9E%84/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%9E%B6%E6%9E%84/</guid>
-      <description>Kubernetes 主要由以下几个核心组件组成:
- etcd 保存了整个集群的状态，就是一个数据库； apiserver 提供了资源操作的唯一入口，并提供认证、授权、访问控制、API 注册和发现等机制； controller manager 负责维护集群的状态，比如故障检测、自动扩展、滚动更新等； scheduler 负责资源的调度，按照预定的调度策略将 Pod 调度到相应的机器上； kubelet 负责维护容器的生命周期，同时也负责 Volume（CSI）和网络（CNI）的管理； Container runtime 负责镜像管理以及 Pod 和容器的真正运行（CRI）； kube-proxy 负责为 Service 提供 cluster 内部的服务发现和负载均衡；  当然了除了上面的这些核心组件，还有一些推荐的插件：
- kube-dns 负责为整个集群提供 DNS 服务 Ingress Controller 为服务提供外网入口 Heapster 提供资源监控 Dashboard 提供 GUI  </description>
-    </item>
-    
-    <item>
       <title>k8s组件</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E7%BB%84%E4%BB%B6/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E7%BB%84%E4%BB%B6/</guid>
-      <description>Master（控制平面）组件 1⃣️ 1⃣️ kube-apiserver  提供集群管理的 REST API 接口，包括认证授权、数据校验以及集群状态变更等 提供其他模块之间的数据交互和通信的枢纽（其他模块通过 API Server 查询或修改数据，只有 API Server 才直接操作 etcd）  2⃣️ 2⃣️ etcd etcd 是 CoreOS 基于 Raft 开发的分布式 key-value 存储，可用于服务发现、共享配置以及一致性保障（如数据库选主、分布式锁等）。
+      <description>Master（控制平面）组件 1⃣️ kube-apiserver  提供集群管理的 REST API 接口，包括认证授权、数据校验以及集群状态变更等 提供其他模块之间的数据交互和通信的枢纽（其他模块通过 API Server 查询或修改数据，只有 API Server 才直接操作 etcd）  2⃣️ etcd etcd 是 CoreOS 基于 Raft 开发的分布式 key-value 存储，可用于服务发现、共享配置以及一致性保障（如数据库选主、分布式锁等）。
 主要功能🔧包括：
  基本的 key-value 存储 监听机制 key 的过期及续约机制，用于监控和服务发现 原子 CAS 和 CAD，用于分布式锁和 leader 选举  Etcd，Zookeeper，Consul 比较 🆚：
- Etcd 和 Zookeeper 提供的能力非常相似，都是通用的一致性元信息存储，都提供 watch 机制用于变更通知和分发，也都被分布式系统用来作为共享信息存储，在软件生态中所处的位置也几乎是一样的，可以互相替代的。二者除了实现细节，语言，一致性协议上的区别，最大的区别在周边生态圈。Zookeeper 是 apache 下的，用 java 写的，提供 rpc 接口，最早从 hadoop 项目中孵化出来，在分布式系统中得到广泛使用（hadoop, solr, kafka, mesos 等）。Etcd 是 coreos 公司旗下的开源产品，比较新，以其简单好用的 rest 接口以及活跃的社区俘获了一批用户，在新的一些集群中得到使用（比如 kubernetes）。虽然 v3 为了性能也改成二进制 rpc 接口了，但其易用性上比 Zookeeper 还是好一些。 而 Consul 的目标则更为具体一些，Etcd 和 Zookeeper 提供的是分布式一致性存储能力，具体的业务场景需要用户自己实现，比如服务发现，比如配置变更。而 Consul 则以服务发现和配置变更为主要目标，同时附带了 kv 存储。  3⃣️ 3⃣️ kube-scheduler kube-scheduler 负责分配调度 Pod 到集群内的节点上，它监听 kube-apiserver，查询还未分配 Node 的 Pod，然后根据调度策略为这些 Pod 分配节点（更新 Pod 的 NodeName 字段）。</description>
+ Etcd 和 Zookeeper 提供的能力非常相似，都是通用的一致性元信息存储，都提供 watch 机制用于变更通知和分发，也都被分布式系统用来作为共享信息存储，在软件生态中所处的位置也几乎是一样的，可以互相替代的。二者除了实现细节，语言，一致性协议上的区别，最大的区别在周边生态圈。Zookeeper 是 apache 下的，用 java 写的，提供 rpc 接口，最早从 hadoop 项目中孵化出来，在分布式系统中得到广泛使用（hadoop, solr, kafka, mesos 等）。Etcd 是 coreos 公司旗下的开源产品，比较新，以其简单好用的 rest 接口以及活跃的社区俘获了一批用户，在新的一些集群中得到使用（比如 kubernetes）。虽然 v3 为了性能也改成二进制 rpc 接口了，但其易用性上比 Zookeeper 还是好一些。 而 Consul 的目标则更为具体一些，Etcd 和 Zookeeper 提供的是分布式一致性存储能力，具体的业务场景需要用户自己实现，比如服务发现，比如配置变更。而 Consul 则以服务发现和配置变更为主要目标，同时附带了 kv 存储。  3⃣️ kube-scheduler kube-scheduler 负责分配调度 Pod 到集群内的节点上，它监听 kube-apiserver，查询还未分配 Node 的 Pod，然后根据调度策略为这些 Pod 分配节点（更新 Pod 的 NodeName 字段）。</description>
     </item>
     
     <item>
@@ -179,18 +199,6 @@ apiVersion: v1 kind: Pod metadata: name: nginx labels: app: nginx spec: containe
     </item>
     
     <item>
-      <title>k8s部署应用(前端静态)</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/k8s%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/k8s%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81/</guid>
-      <description>k8s部署应用(前端静态)
-0. 准备条件  部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S     名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上     应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库：   理解k8s基础概念，可以参考Kubernetes: 基础概念介绍
-  1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &amp;gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
-1.2 生成拉取镜像的密钥 kubectl create secret docker-registry registry-secret-tencent --docker-server=ccr.</description>
-    </item>
-    
-    <item>
       <title>nfs安装</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/nfs%E5%AE%89%E8%A3%85/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
@@ -199,7 +207,7 @@ apiVersion: v1 kind: Pod metadata: name: nginx labels: app: nginx spec: containe
       <description>nfs安装
 1. 环境说明    角色 ip os     NFS 服务端 172.31.0.12 CentOS 7.6   NFS 客户端 172.18.0.7 CentOS 7.6    2. NFS 服务端 2.1 安装 nfs-utils # rpcbind 作为依赖会自动安装。 &amp;gt; yum install nfs-utils 2.2 配置并启动服务 允许rpcbind.service、nfs.service开机自启：
 # 启动相关服务 &amp;gt; systemctl start rpcbind &amp;gt; systemctl start nfs 防火墙允许服务通过：
-# 防火墙允许服务通过 &amp;gt; firewall-cmd --zone=public --permanent --add-service={rpc-bind,mountd,nfs} success &amp;gt; firewall-cmd --reload success 或者直接关闭防火墙：systemctl stop firewalld</description>
+# 防火墙允许服务通过 &amp;gt; firewall-cmd --zone=public --permanent --add-service={rpc-bind,mountd,nfs} success  &amp;gt; firewall-cmd --reload success 或者直接关闭防火墙：systemctl stop firewalld</description>
     </item>
     
     <item>
@@ -211,7 +219,7 @@ apiVersion: v1 kind: Pod metadata: name: nginx labels: app: nginx spec: containe
       <description>operator实战 1⃣️ 需求 我们将定义一个 crd ，spec 包含以下信息：
 Replicas	# 副本数 Image	# 镜像 Resources	# 资源限制 Envs	# 环境变量 Ports	# 服务端口 2⃣️ 编码 初始化项目目录：
 tony@192 k8s % pwd /Users/tony/workspace/k8s tony@192 k8s % mkdir -p app-operator/src/github.com/xuzhijvn/app cd app-operator/src/github.com/xuzhijvn/app 初始化operator项目结构，并创建api：
-operator-sdk init --domain=huolala.cn --repo=github.com/xuzhijvn/app operator-sdk create api --group app --version v1 --kind App --resource=true --controller=true 修改 CRD 类型定义代码 api/v1/app_types.go:
+ operator-sdk init --domain=huolala.cn --repo=github.com/xuzhijvn/app  operator-sdk create api --group app --version v1 --kind App --resource=true --controller=true 修改 CRD 类型定义代码 api/v1/app_types.go:
 /* Copyright 2021. Licensed under the Apache License, Version 2.0 (the &amp;#34;License&amp;#34;); you may not use this file except in compliance with the License.</description>
     </item>
     
@@ -245,7 +253,7 @@ Reclaiming PersistentVolume的回收策略告诉集群在释放其声明后，�
       <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/pvc%E4%B8%8D%E4%BC%9A%E4%B8%BB%E5%8A%A8%E5%9B%9E%E6%94%B6%E9%97%AE%E9%A2%98/</guid>
       <description>pvc不会主动回收问题
 使用k8s部署nacos的时候发现，通过volumeClaimTemplates配置的pvc不会随着使用kubectl delete -f xxx.yaml 删除StatefulSet的时候一同被删除。nacos-pvc-nfs.yaml文件如下所示：
---- apiVersion: v1 kind: Service metadata: name: nacos-headless labels: app: nacos annotations: service.alpha.kubernetes.io/tolerate-unready-endpoints: &amp;#34;true&amp;#34; spec: ports: - port: 8848 name: server targetPort: 8848 - port: 7848 name: rpc targetPort: 7848 clusterIP: None selector: app: nacos --- apiVersion: v1 kind: ConfigMap metadata: name: nacos-cm data: mysql.db.name: &amp;#34;nacos_devtest&amp;#34; mysql.port: &amp;#34;3306&amp;#34; mysql.user: &amp;#34;nacos&amp;#34; mysql.password: &amp;#34;nacos&amp;#34; --- apiVersion: apps/v1 kind: StatefulSet metadata: name: nacos spec: serviceName: nacos-headless replicas: 3 template: metadata: labels: app: nacos annotations: pod.</description>
+--- apiVersion: v1 kind: Service metadata:  name: nacos-headless  labels:  app: nacos  annotations:  service.alpha.kubernetes.io/tolerate-unready-endpoints: &amp;#34;true&amp;#34; spec:  ports:  - port: 8848  name: server  targetPort: 8848  - port: 7848  name: rpc  targetPort: 7848  clusterIP: None  selector:  app: nacos --- apiVersion: v1 kind: ConfigMap metadata:  name: nacos-cm data:  mysql.db.name: &amp;#34;nacos_devtest&amp;#34;  mysql.</description>
     </item>
     
     <item>
@@ -260,37 +268,49 @@ Kubernete Service 是一个定义了一组Pod的策略的抽象，我们也有�
 举个例子，我们假设后台是一个图形处理的后台，并且由3个副本。这些副本是可以相互替代的，并且前台并需要关心使用的哪一个后台Pod，当这个承载前台请求的pod发生变化时，前台并不需要直到这些变化，或者追踪后台的这些副本，服务是这些去耦
 对于Kubernete原生的应用，Kubernete提供了一个简单的Endpoints API，这个Endpoints api的作用就是当一个服务中的pod发生变化时，Endpoints API随之变化，对于哪些不是原生的程序，Kubernetes提供了一个基于虚拟IP的网桥的服务，这个服务会将请求转发到对应的后台pod
 Defining a service(定义一个服务) 一个Kubernete服务是一个最小的对象，类似pod,和其它的终端对象一样，我们可以朝paiserver发送请求来创建一个新的实例，比如，假设你拥有一些Pod,每个pod都开放了9376端口，并且均带有一个标签app=MyApp
-{ &amp;#34;“kind”&amp;#34;: &amp;#34;“Service”&amp;#34;, &amp;#34;“apiVersion”&amp;#34;: &amp;#34;“v1”&amp;#34;, &amp;#34;“metadata”&amp;#34;: { &amp;#34;“name”&amp;#34;: &amp;#34;“my-service”&amp;#34; }, &amp;#34;“spec”&amp;#34;: { &amp;#34;“selector”&amp;#34;: { &amp;#34;“app”&amp;#34;: &amp;#34;“MyApp”&amp;#34; }, &amp;#34;“ports”&amp;#34;: [ { &amp;#34;“protocol”&amp;#34;: &amp;#34;“TCP”&amp;#34;, &amp;#34;“port”&amp;#34;: 80, &amp;#34;“targetPort”&amp;#34;: 9376 } ] } } 这段代码会创建一个新的服务对象，名称为：my-service，并且会连接目标端口9376，并且带有label app=MyApp的pod,这个服务会被分配一个ip地址，这个ip是给服务代理使用的（下面我们会看到），服务的选择器会持续的评估，并且结果会被发送到一个Endpoints 对象，这个Endpoints的对象的名字也叫“my-service”.
-服务可以将一个“入端口”转发到任何“目标端口”，默认情况下targetPort的值会和port的值相同，更有趣的是，targetPort可以是字符串，可以指定到一个name,这个name是pod的一个端口。并且实际指派给这个name的端口可以是不同在不同的后台pod中，这样让我们能更加灵活的部署我们的服务，比如；我们可以在下一个更新版本中修改后台pod暴露的端口而不会影响客户的使用（更新过程不会打断）
- 服务支持tcp和UDP，但是默认的是TCP Services without selectors（没有选择器的服务）  服务总体上抽象了对Pod的访问，但是服务也抽象了其它的内容，比如：
-1：比如你希望有一个额外的数据库云在生产环境中，但是在测试的时候，我们希望使用自己的数据库
-2：我们希望将服务指向其它的服务或者其它命名空间或者其它的云平台上的服务
-3：我们正在向kubernete迁移，并且我们后台并没有在Kubernete中
-如上的情况下，我们可以定义一个服务没有选择器
-{ &amp;#34;“kind”&amp;#34;: &amp;#34;“Service”&amp;#34;, &amp;#34;“apiVersion”&amp;#34;: &amp;#34;“v1″&amp;#34;, &amp;#34;“metadata”&amp;#34;: { &amp;#34;“name”&amp;#34;: &amp;#34;“my-service”&amp;#34; }, &amp;#34;“spec”&amp;#34;: { &amp;#34;“ports”&amp;#34;: [ { &amp;#34;“protocol”&amp;#34;: &amp;#34;“TCP”&amp;#34;, &amp;#34;“port”&amp;#34;: 80, &amp;#34;“targetPort”&amp;#34;: 9376 } ] } } 因为没有选择器，所以相应的Endpoints对象就不会被创建，但是我们手动把我们的服务和Endpoints对应起来</description>
+{  &amp;#34;“kind”&amp;#34;: &amp;#34;“Service”&amp;#34;,  &amp;#34;“apiVersion”&amp;#34;: &amp;#34;“v1”&amp;#34;,  &amp;#34;“metadata”&amp;#34;: {  &amp;#34;“name”&amp;#34;: &amp;#34;“my-service”&amp;#34;  },  &amp;#34;“spec”&amp;#34;: {  &amp;#34;“selector”&amp;#34;: {  &amp;#34;“app”&amp;#34;: &amp;#34;“MyApp”&amp;#34;  },  &amp;#34;“ports”&amp;#34;: [  {  &amp;#34;“protocol”&amp;#34;: &amp;#34;“TCP”&amp;#34;,  &amp;#34;“port”&amp;#34;: 80,  &amp;#34;“targetPort”&amp;#34;: 9376  }  ]  } } 这段代码会创建一个新的服务对象，名称为：my-service，并且会连接目标端口9376，并且带有label app=MyApp的pod,这个服务会被分配一个ip地址，这个ip是给服务代理使用的（下面我们会看到），服务的选择器会持续的评估，并且结果会被发送到一个Endpoints 对象，这个Endpoints的对象的名字也叫“my-service”.
+服务可以将一个“入端口”转发到任何“目标端口”，默认情况下targetPort的值会和port的值相同，更有趣的是，targetPort可以是字符串，可以指定到一个name,这个name是pod的一个端口。并且实际指派给这个name的端口可以是不同在不同的后台pod中，这样让我们能更加灵活的部署我们的服务，比如；我们可以在下一个更新版本中修改后台pod暴露的端口而不会影响客户的使用（更新过程不会打断）</description>
     </item>
     
     <item>
-      <title>一些概念</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/</link>
+      <title>暴露grafana等内部组件服务</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/%E6%9A%B4%E9%9C%B2grafana%E7%AD%89%E5%86%85%E9%83%A8%E7%BB%84%E4%BB%B6%E6%9C%8D%E5%8A%A1/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/</guid>
-      <description>什么是云原生？ 云原生是一种构建和运行应用程序的方法，是一套技术体系和方法论。云原生（CloudNative）是一个组合词，Cloud+Native。Cloud表示应用程序位于云中，而不是传统的数据中心；Native表示应用程序从设计之初即考虑到云的环境，原生为云而设计，在云上以最佳姿势运行，充分利用和发挥云平台的弹性+分布式优势。
- 什么是云原生架构？ 采用开源堆栈（K8S+Docker）进行容器化，基于微服务架构提高灵活性和可维护性，借助敏捷方法、DevOps支持持续迭代和运维自动化，利用云平台设施实现弹性伸缩、动态调度、优化资源利用率。
-什么是云原生应用？ 在架构设计、开发方式、部署维护等各个阶段和方面都基于云的特点建设的应用。
- 什么是容器编排？ 容器编排是指自动化容器的部署、管理、扩展和联网。
- k8s周边：
- k3s : 轻量化k8s k9s : kubectl命令的封装 KubeOperator : 国产k8s发行版 Kubesphere : k8s企业级别增强（多云、多集群） kubeedge : 边缘计算 Kubeless : 面向serverless的k8s   什么是服务网格？ k8s/istio与云原生的关系？ </description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/%E6%9A%B4%E9%9C%B2grafana%E7%AD%89%E5%86%85%E9%83%A8%E7%BB%84%E4%BB%B6%E6%9C%8D%E5%8A%A1/</guid>
+      <description>暴露grafana等内部组件服务
+在安装完成istio后，默认状态下，集群外用户不能直接访问istio集群内的grafana等管理、监控服务。
+有两种方法可以将集群内服务开放出来。一种是使用port-forward方式将本地端口流量转发到pod端口，实现集群内服务的访问；另一种方式是采用istio gateway方式，将集群内服务暴露到外网。
+第一种方式（以暴露Prometheus为例，官方教程也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
+kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=prometheus -o jsonpath=&amp;#39;{.items[0].metadata.name}&amp;#39;) 9090:9090 &amp;amp; 第二种方式需要将集群的默认网关服务ingressgateway的网络模式设置为LB/nodeport模式，作为代理实现对外服务。
+1. 设置ingress gateway的工作模式 安装istio的时候默认就是LB的
+2. 验证ingress gateway的网络模式 [root@k8s-master ~]# kubectl get svc -n Istio-system NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE grafana ClusterIP 10.101.122.19 &amp;lt;none&amp;gt; 3000/TCP 11h Istio-egressgateway ClusterIP 10.106.2.83 &amp;lt;none&amp;gt; 80/TCP,443/TCP,15443/TCP 11h Istio-ingressgateway LoadBalancer 10.110.238.41 &amp;lt;pending&amp;gt; 15020:31598/TCP,80:30299/TCP,443:31413/TCP,15029:30249/TCP,15030:32499/TCP,15031:31399/TCP,15032:32373/TCP,31400:30156/TCP,15443:30319/TCP 11h Istio-pilot ClusterIP 10.103.43.172 &amp;lt;none&amp;gt; 15010/TCP,15011/TCP,15012/TCP,8080/TCP,15014/TCP,443/TCP 11h istiod ClusterIP 10.105.251.21 &amp;lt;none&amp;gt; 15012/TCP,443/TCP 11h jaeger-agent ClusterIP None &amp;lt;none&amp;gt; 5775/UDP,6831/UDP,6832/UDP 11h jaeger-collector ClusterIP 10.</description>
     </item>
     
     <item>
-      <title>云厂商集成k8s</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/%E4%BA%91%E5%8E%82%E5%95%86%E9%9B%86%E6%88%90k8s/</link>
+      <title>本地连接k8s集群</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E6%9C%AC%E5%9C%B0%E8%BF%9E%E6%8E%A5k8s%E9%9B%86%E7%BE%A4/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/%E4%BA%91%E5%8E%82%E5%95%86%E9%9B%86%E6%88%90k8s/</guid>
-      <description>阿里云 ACK 腾讯云 TKE 华为云 CCE AWS EKS Google GKE Azure AKS DigitalOcean k8s Oracle OKE</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E6%9C%AC%E5%9C%B0%E8%BF%9E%E6%8E%A5k8s%E9%9B%86%E7%BE%A4/</guid>
+      <description>本地连接k8s集群 在日常开发的过程中，经常会需要在本地开发的程序需要在k8s中调试的场景，比如，写了一个operator。
+如果此时，本地又没有可以直接可达的k8s集群，
+比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群
+再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
+1⃣️ 重新生成config文件 默认下，~/.kube/config 生成配置文件的时候只包含了k8s集群ip和这个节点的局域网ip，本地如果想远程操作k8s的话，必定要通过公网ip连接到k8s集群，所以我们需要把节点绑定的公网ip也放到证书里面去，即我们需要重新生成证书。如果不这样做，本地直接访问的话，会报如下提示：
+tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate is valid for 10.96.0.1, 172.17.0.14, not 106.55.152.92 先备份证书：
+[root@k8s-master .kube]# mkdir -p /etc/kubernetes/pki.bak [root@k8s-master .kube]# mv /etc/kubernetes/pki/apiserver.* /etc/kubernetes/pki.bak 重新生成证书：
+[root@k8s-master .kube]# kubeadm init phase certs all --apiserver-advertise-address=0.0.0.0 --apiserver-cert-extra-sans=10.96.0.1,172.17.0.14,xxx.xxx.xxx.xxx(公网ip) I0627 15:10:39.069106 7777 version.go:252] remote version is much newer: v1.21.2; falling back to: stable-1.18 W0627 15:10:40.982380 7777 configset.go:202] WARNING: kubeadm cannot validate component configs for API groups [kubelet.</description>
+    </item>
+    
+    <item>
+      <title>部署sentinel-dashboard</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E9%83%A8%E7%BD%B2sentinel-dashboard/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E9%83%A8%E7%BD%B2sentinel-dashboard/</guid>
+      <description>部署sentinel-dashboard
+1. 构建镜像 FROMopenjdk:8-jdk-alpineVOLUME/tmpADD sentinel-dashboard-1.8.0.jar sentinel-dashboard.jarCMD java ${JAVA_OPTS} -jar sentinel-dashboard.jarEXPOSE87182. 创建headless service apiVersion: v1 kind: Service metadata:  name: sentinel-headless  labels:  app: sentinel  annotations:  service.alpha.kubernetes.io/tolerate-unready-endpoints: &amp;#34;true&amp;#34; spec:  ports:  - port: 8718  name: server  targetPort: 8718  clusterIP: None  selector:  app: sentinel 3. 创建StatefulSet apiVersion: apps/v1 kind: StatefulSet metadata:  name: sentinel spec:  serviceName: sentinel  replicas: 1  template:  metadata:  labels:  app: sentinel  annotations:  pod.</description>
     </item>
     
     <item>
@@ -302,48 +322,28 @@ Defining a service(定义一个服务) 一个Kubernete服务是一个最小的�
       <description>从零搭建K8S
 机器准备    名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上    由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
 1. 修改hostname [root@k8s-master ~]$ vim /etc/hostname # 修改hostname [root@k8s-master ~]$ vim /etc/hosts	# 将本机IP指向hostname [root@k8s-master ~]$ reboot -h # 重启(可以做完全部前期准备后再重启) 修改后：
-[root@k8s-master ~]# cat /etc/hosts ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6.</description>
+[root@k8s-master ~]# cat /etc/hosts  ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6.</description>
     </item>
     
     <item>
-      <title>使用kubeadm更新k8s证书</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E4%BD%BF%E7%94%A8kubeadm%E6%9B%B4%E6%96%B0k8s%E8%AF%81%E4%B9%A6/</link>
+      <title>多Pod实现灰度</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/%E5%A4%9Apod%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E4%BD%BF%E7%94%A8kubeadm%E6%9B%B4%E6%96%B0k8s%E8%AF%81%E4%B9%A6/</guid>
-      <description>使用kubeadm更新k8s证书 今天操作k8s的时候，突然说证书无效：
-Unable to connect to the server: x509: certificate has expired or is not yet valid 通过 kubeadm alpha certs check-expiration 查看，确实是过期了：
-[root@k8s-master ~]# kubeadm alpha certs check-expiration [check-expiration] Reading configuration from the cluster... [check-expiration] FYI: You can look at this config file with &amp;#39;kubectl -n kube-system get cm kubeadm-config -oyaml&amp;#39; [check-expiration] Error reading configuration from the Cluster. Falling back to default configuration W0627 11:21:35.745166 8754 configset.go:202] WARNING: kubeadm cannot validate component configs for API groups [kubelet.</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/%E5%A4%9Apod%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/</guid>
+      <description>如果您想使用 Deployment 将最新的应用程序版本发布给一部分用户（或服务器），您可以为每个版本创建一个 Deployment，此时，应用程序的新旧两个版本都可以同时获得生产上的流量。
+实施方案   部署第一个版本
+第一个版本的 Deployment 包含了 3 个Pod副本，Service 通过 label selector app: nginx 选择对应的 Pod，nginx 的标签为 1.7.9
+apiVersion: apps/v1 kind: Deployment metadata:  name: nginx-deployment  labels:  app: nginx spec:  replicas: 3  selector:  matchLabels:  app: nginx  template:  metadata:  labels:  app: nginx  spec:  containers:  - name: nginx  image: nginx:1.7.9 --- apiVersion: v1 kind: Service metadata:  name: nginx-service  labels:  app: nginx spec:  selector:  app: nginx  ports:  - name: nginx-port  protocol: TCP  port: 80  nodePort: 32600  targetPort: 80  type: NodePort   假设此时想要发布新的版本 nginx 1.</description>
     </item>
     
     <item>
-      <title>切换namespace</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E5%88%87%E6%8D%A2namespace/</link>
+      <title>服务网格原理</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%9F%BA%E7%A1%80/%E6%9C%8D%E5%8A%A1%E7%BD%91%E6%A0%BC%E5%8E%9F%E7%90%86/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E5%88%87%E6%8D%A2namespace/</guid>
-      <description>切换namespace
-0. 背景 k8s如何切换namespace？？而不必每次执行命令的时候在后面指定namespace？k8s并没有直接提供切换namespace的命令。不过可以通过：
- 切换context达到切换namespace的目的，这需要提前创建好context和namespace的绑定关系（如：kubectl config set-context test --namespace=test）,然后使用 kubectl config use-context test 切换context，从而间接的达到切换namespace的目的。这方法属实是太别扭了，强迫症患者都不喜欢。 或者使用kubectx工具，其本质是动态的修改context和namespace的绑定关系。使用形如：kubens test 即可切换。这样才是切换namespace的正确打开方式，优雅多了。  参考资料： Kubernetes命名空间
-一条命令解决Kubernetes更改默认的namespace
-Kubernetes 切换context和namespace
-k8s集群namespace和context使用
-ahmetb / kubectx
-提高您的kubectl生产力（第三部分）：集群上下文切换、使用别名减少输入和插件扩展</description>
-    </item>
-    
-    <item>
-      <title>同步镜像到自己的仓库</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E5%90%8C%E6%AD%A5%E9%95%9C%E5%83%8F%E5%88%B0%E8%87%AA%E5%B7%B1%E7%9A%84%E4%BB%93%E5%BA%93/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E5%90%8C%E6%AD%A5%E9%95%9C%E5%83%8F%E5%88%B0%E8%87%AA%E5%B7%B1%E7%9A%84%E4%BB%93%E5%BA%93/</guid>
-      <description>同步镜像到自己的仓库 经常有一些国外的镜像仓库，在国内无法拉取，此时我们可以先找台国外的服务器拉取下来，重新打tag后推送到自己的镜像仓库。
-1⃣️ 免费服务器
-https://labs.play-with-k8s.com/
-2⃣️ 拉取-打tag-推送
-3⃣️ 验证
-参考链接🔗 如何拉取k8s.grc.io、quay.io的镜像</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%9F%BA%E7%A1%80/%E6%9C%8D%E5%8A%A1%E7%BD%91%E6%A0%BC%E5%8E%9F%E7%90%86/</guid>
+      <description>服务网格原理</description>
     </item>
     
     <item>
@@ -374,6 +374,70 @@ StatefuleSet
     </item>
     
     <item>
+      <title>切换namespace</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E5%88%87%E6%8D%A2namespace/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E5%88%87%E6%8D%A2namespace/</guid>
+      <description>切换namespace
+0. 背景 k8s如何切换namespace？？而不必每次执行命令的时候在后面指定namespace？k8s并没有直接提供切换namespace的命令。不过可以通过：
+ 切换context达到切换namespace的目的，这需要提前创建好context和namespace的绑定关系（如：kubectl config set-context test --namespace=test）,然后使用 kubectl config use-context test 切换context，从而间接的达到切换namespace的目的。这方法属实是太别扭了，强迫症患者都不喜欢。 或者使用kubectx工具，其本质是动态的修改context和namespace的绑定关系。使用形如：kubens test 即可切换。这样才是切换namespace的正确打开方式，优雅多了。  参考资料： Kubernetes命名空间
+一条命令解决Kubernetes更改默认的namespace
+Kubernetes 切换context和namespace
+k8s集群namespace和context使用
+ahmetb / kubectx
+提高您的kubectl生产力（第三部分）：集群上下文切换、使用别名减少输入和插件扩展</description>
+    </item>
+    
+    <item>
+      <title>使用kubeadm更新k8s证书</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E4%BD%BF%E7%94%A8kubeadm%E6%9B%B4%E6%96%B0k8s%E8%AF%81%E4%B9%A6/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E4%BD%BF%E7%94%A8kubeadm%E6%9B%B4%E6%96%B0k8s%E8%AF%81%E4%B9%A6/</guid>
+      <description>使用kubeadm更新k8s证书 今天操作k8s的时候，突然说证书无效：
+Unable to connect to the server: x509: certificate has expired or is not yet valid 通过 kubeadm alpha certs check-expiration 查看，确实是过期了：
+[root@k8s-master ~]# kubeadm alpha certs check-expiration [check-expiration] Reading configuration from the cluster... [check-expiration] FYI: You can look at this config file with &amp;#39;kubectl -n kube-system get cm kubeadm-config -oyaml&amp;#39; [check-expiration] Error reading configuration from the Cluster. Falling back to default configuration  W0627 11:21:35.745166 8754 configset.go:202] WARNING: kubeadm cannot validate component configs for API groups [kubelet.</description>
+    </item>
+    
+    <item>
+      <title>同步镜像到自己的仓库</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E5%90%8C%E6%AD%A5%E9%95%9C%E5%83%8F%E5%88%B0%E8%87%AA%E5%B7%B1%E7%9A%84%E4%BB%93%E5%BA%93/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E5%90%8C%E6%AD%A5%E9%95%9C%E5%83%8F%E5%88%B0%E8%87%AA%E5%B7%B1%E7%9A%84%E4%BB%93%E5%BA%93/</guid>
+      <description>同步镜像到自己的仓库 经常有一些国外的镜像仓库，在国内无法拉取，此时我们可以先找台国外的服务器拉取下来，重新打tag后推送到自己的镜像仓库。
+1⃣️ 免费服务器
+https://labs.play-with-k8s.com/
+2⃣️ 拉取-打tag-推送
+3⃣️ 验证
+参考链接🔗 如何拉取k8s.grc.io、quay.io的镜像</description>
+    </item>
+    
+    <item>
+      <title>一些概念</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/</guid>
+      <description>什么是云原生？ 云原生是一种构建和运行应用程序的方法，是一套技术体系和方法论。云原生（CloudNative）是一个组合词，Cloud+Native。Cloud表示应用程序位于云中，而不是传统的数据中心；Native表示应用程序从设计之初即考虑到云的环境，原生为云而设计，在云上以最佳姿势运行，充分利用和发挥云平台的弹性+分布式优势。
+ 什么是云原生架构？ 采用开源堆栈（K8S+Docker）进行容器化，基于微服务架构提高灵活性和可维护性，借助敏捷方法、DevOps支持持续迭代和运维自动化，利用云平台设施实现弹性伸缩、动态调度、优化资源利用率。
+什么是云原生应用？ 在架构设计、开发方式、部署维护等各个阶段和方面都基于云的特点建设的应用。
+ 什么是容器编排？ 容器编排是指自动化容器的部署、管理、扩展和联网。
+ k8s周边：
+ k3s : 轻量化k8s k9s : kubectl命令的封装 KubeOperator : 国产k8s发行版 Kubesphere : k8s企业级别增强（多云、多集群） kubeedge : 边缘计算 Kubeless : 面向serverless的k8s   什么是服务网格？ k8s/istio与云原生的关系？ </description>
+    </item>
+    
+    <item>
+      <title>云厂商集成k8s</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/%E4%BA%91%E5%8E%82%E5%95%86%E9%9B%86%E6%88%90k8s/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/%E4%BA%91%E5%8E%82%E5%95%86%E9%9B%86%E6%88%90k8s/</guid>
+      <description>阿里云 ACK 腾讯云 TKE 华为云 CCE AWS EKS Google GKE Azure AKS DigitalOcean k8s Oracle OKE</description>
+    </item>
+    
+    <item>
       <title>在namespace之间共享secret</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E5%9C%A8namespace%E4%B9%8B%E9%97%B4%E5%85%B1%E4%BA%ABsecret/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
@@ -382,68 +446,6 @@ StatefuleSet
       <description>在namespace之间共享secret
 有的时候在default空间下创建了拉取镜像的secret，当部署k8s的资源到其他namespace的时候，如果部署的的是deployment的之类的势必会要拉取镜像，这个时候必然失败，因为secret创建在default空间下，所以我们需要将secret复制一份到需要的namespace下面：
 kubectl get secret coding-regcred --namespace=default -oyaml | grep -v &amp;#39;^\s*namespace:\s&amp;#39; | kubectl apply --namespace=tkb -f - 参考链接：Kubernetes - sharing secret across namespaces</description>
-    </item>
-    
-    <item>
-      <title>多Pod实现灰度</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/%E5%A4%9Apod%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/%E5%A4%9Apod%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/</guid>
-      <description>如果您想使用 Deployment 将最新的应用程序版本发布给一部分用户（或服务器），您可以为每个版本创建一个 Deployment，此时，应用程序的新旧两个版本都可以同时获得生产上的流量。
-实施方案   部署第一个版本
-第一个版本的 Deployment 包含了 3 个Pod副本，Service 通过 label selector app: nginx 选择对应的 Pod，nginx 的标签为 1.7.9
-apiVersion: apps/v1 kind: Deployment metadata: name: nginx-deployment labels: app: nginx spec: replicas: 3 selector: matchLabels: app: nginx template: metadata: labels: app: nginx spec: containers: - name: nginx image: nginx:1.7.9 --- apiVersion: v1 kind: Service metadata: name: nginx-service labels: app: nginx spec: selector: app: nginx ports: - name: nginx-port protocol: TCP port: 80 nodePort: 32600 targetPort: 80 type: NodePort   假设此时想要发布新的版本 nginx 1.</description>
-    </item>
-    
-    <item>
-      <title>暴露grafana等内部组件服务</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/%E6%9A%B4%E9%9C%B2grafana%E7%AD%89%E5%86%85%E9%83%A8%E7%BB%84%E4%BB%B6%E6%9C%8D%E5%8A%A1/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/%E6%9A%B4%E9%9C%B2grafana%E7%AD%89%E5%86%85%E9%83%A8%E7%BB%84%E4%BB%B6%E6%9C%8D%E5%8A%A1/</guid>
-      <description>暴露grafana等内部组件服务
-在安装完成istio后，默认状态下，集群外用户不能直接访问istio集群内的grafana等管理、监控服务。
-有两种方法可以将集群内服务开放出来。一种是使用port-forward方式将本地端口流量转发到pod端口，实现集群内服务的访问；另一种方式是采用istio gateway方式，将集群内服务暴露到外网。
-第一种方式（以暴露Prometheus为例，官方教程也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：
-kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=prometheus -o jsonpath=&amp;#39;{.items[0].metadata.name}&amp;#39;) 9090:9090 &amp;amp; 第二种方式需要将集群的默认网关服务ingressgateway的网络模式设置为LB/nodeport模式，作为代理实现对外服务。
-1. 设置ingress gateway的工作模式 安装istio的时候默认就是LB的
-2. 验证ingress gateway的网络模式 [root@k8s-master ~]# kubectl get svc -n Istio-system NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE grafana ClusterIP 10.101.122.19 &amp;lt;none&amp;gt; 3000/TCP 11h Istio-egressgateway ClusterIP 10.106.2.83 &amp;lt;none&amp;gt; 80/TCP,443/TCP,15443/TCP 11h Istio-ingressgateway LoadBalancer 10.110.238.41 &amp;lt;pending&amp;gt; 15020:31598/TCP,80:30299/TCP,443:31413/TCP,15029:30249/TCP,15030:32499/TCP,15031:31399/TCP,15032:32373/TCP,31400:30156/TCP,15443:30319/TCP 11h Istio-pilot ClusterIP 10.103.43.172 &amp;lt;none&amp;gt; 15010/TCP,15011/TCP,15012/TCP,8080/TCP,15014/TCP,443/TCP 11h istiod ClusterIP 10.105.251.21 &amp;lt;none&amp;gt; 15012/TCP,443/TCP 11h jaeger-agent ClusterIP None &amp;lt;none&amp;gt; 5775/UDP,6831/UDP,6832/UDP 11h jaeger-collector ClusterIP 10.</description>
-    </item>
-    
-    <item>
-      <title>服务网格原理</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%9F%BA%E7%A1%80/%E6%9C%8D%E5%8A%A1%E7%BD%91%E6%A0%BC%E5%8E%9F%E7%90%86/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%9F%BA%E7%A1%80/%E6%9C%8D%E5%8A%A1%E7%BD%91%E6%A0%BC%E5%8E%9F%E7%90%86/</guid>
-      <description>服务网格原理</description>
-    </item>
-    
-    <item>
-      <title>本地连接k8s集群</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E6%9C%AC%E5%9C%B0%E8%BF%9E%E6%8E%A5k8s%E9%9B%86%E7%BE%A4/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E6%9C%AC%E5%9C%B0%E8%BF%9E%E6%8E%A5k8s%E9%9B%86%E7%BE%A4/</guid>
-      <description>本地连接k8s集群 在日常开发的过程中，经常会需要在本地开发的程序需要在k8s中调试的场景，比如，写了一个operator。
-如果此时，本地又没有可以直接可达的k8s集群，
-比如k8s是在公有云的vpc环境内，外面无法直接访问。想要本地连接远程k8s集群，可以参考 本地连接远程的内网k8s集群
-再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。
-1⃣️ 重新生成config文件 默认下，~/.kube/config 生成配置文件的时候只包含了k8s集群ip和这个节点的局域网ip，本地如果想远程操作k8s的话，必定要通过公网ip连接到k8s集群，所以我们需要把节点绑定的公网ip也放到证书里面去，即我们需要重新生成证书。如果不这样做，本地直接访问的话，会报如下提示：
-tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate is valid for 10.96.0.1, 172.17.0.14, not 106.55.152.92 先备份证书：
-[root@k8s-master .kube]# mkdir -p /etc/kubernetes/pki.bak [root@k8s-master .kube]# mv /etc/kubernetes/pki/apiserver.* /etc/kubernetes/pki.bak 重新生成证书：
-[root@k8s-master .kube]# kubeadm init phase certs all --apiserver-advertise-address=0.0.0.0 --apiserver-cert-extra-sans=10.96.0.1,172.17.0.14,xxx.xxx.xxx.xxx(公网ip) I0627 15:10:39.069106 7777 version.go:252] remote version is much newer: v1.21.2; falling back to: stable-1.18 W0627 15:10:40.982380 7777 configset.go:202] WARNING: kubeadm cannot validate component configs for API groups [kubelet.</description>
-    </item>
-    
-    <item>
-      <title>部署sentinel-dashboard</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E9%83%A8%E7%BD%B2sentinel-dashboard/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E9%83%A8%E7%BD%B2sentinel-dashboard/</guid>
-      <description>部署sentinel-dashboard
-1. 构建镜像 FROMopenjdk:8-jdk-alpineVOLUME/tmpADD sentinel-dashboard-1.8.0.jar sentinel-dashboard.jarCMD java ${JAVA_OPTS} -jar sentinel-dashboard.jarEXPOSE87182. 创建headless service apiVersion: v1 kind: Service metadata: name: sentinel-headless labels: app: sentinel annotations: service.alpha.kubernetes.io/tolerate-unready-endpoints: &amp;#34;true&amp;#34; spec: ports: - port: 8718 name: server targetPort: 8718 clusterIP: None selector: app: sentinel 3. 创建StatefulSet apiVersion: apps/v1 kind: StatefulSet metadata: name: sentinel spec: serviceName: sentinel replicas: 1 template: metadata: labels: app: sentinel annotations: pod.alpha.kubernetes.io/initialized: &amp;#34;true&amp;#34; spec: containers: - name: sentinel imagePullPolicy: IfNotPresent image: ccr.ccs.tencentyun.com/xuzhijun/sentinel-dashboard:latest resources: requests: memory: &amp;#34;512Mi&amp;#34; cpu: &amp;#34;200m&amp;#34; ports: - containerPort: 8719 name: client env: - name: TZ value: Asia/Shanghai - name: JAVA_OPTS value: &amp;#34;-Dserver.</description>
     </item>
     
   </channel>

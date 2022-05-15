@@ -8,17 +8,6 @@
     <copyright>Copyright © 2016-{year} Razon Yang. All Rights Reserved.</copyright>
     <lastBuildDate>Fri, 27 Aug 2021 11:15:10 +0800</lastBuildDate><atom:link href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>istio启用策略检查功能</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%90%AF%E7%94%A8%E7%AD%96%E7%95%A5%E6%A3%80%E6%9F%A5%E5%8A%9F%E8%83%BD/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%90%AF%E7%94%A8%E7%AD%96%E7%95%A5%E6%A3%80%E6%9F%A5%E5%8A%9F%E8%83%BD/</guid>
-      <description>istio启用策略检查功能
-不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
- 默认安装istio之后disablePolicyChecks=true  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&amp;#34;{@.data.mesh}&amp;#34; | grep disablePolicyChecks disablePolicyChecks: true 编辑 istio configmap 以启用策略检查  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&amp;#34;{@.data.mesh}&amp;#34; | sed -e &amp;#34;s/disablePolicyChecks: true/disablePolicyChecks: false/&amp;#34; &amp;gt; /tmp/mesh.yaml [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system create cm Istio -o yaml --dry-run --from-file=mesh=/tmp/mesh.yaml | kubectl replace -f - W0902 17:00:37.208604 16538 helpers.go:535] --dry-run is deprecated and can be replaced with --dry-run=client.</description>
-    </item>
-    
-    <item>
       <title>istio安装</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%AE%89%E8%A3%85/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
@@ -40,16 +29,26 @@ istioctl manifest generate --set profile=demo | kubectl delete -f - 参考 istio
     </item>
     
     <item>
+      <title>istio启用策略检查功能</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%90%AF%E7%94%A8%E7%AD%96%E7%95%A5%E6%A3%80%E6%9F%A5%E5%8A%9F%E8%83%BD/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%90%AF%E7%94%A8%E7%AD%96%E7%95%A5%E6%A3%80%E6%9F%A5%E5%8A%9F%E8%83%BD/</guid>
+      <description>istio启用策略检查功能
+不得不说，istio的官方文档真的很垃圾，操作手册没有随着版本同步更新不说，启用策略检查功能依照官方做法也不能生效。现先以istio-1.5.10为例总结启用策略检查功能的方法如下：
+ 默认安装istio之后disablePolicyChecks=true  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&amp;#34;{@.data.mesh}&amp;#34; | grep disablePolicyChecks disablePolicyChecks: true 编辑 istio configmap 以启用策略检查  [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system get cm Istio -o jsonpath=&amp;#34;{@.data.mesh}&amp;#34; | sed -e &amp;#34;s/disablePolicyChecks: true/disablePolicyChecks: false/&amp;#34; &amp;gt; /tmp/mesh.yaml [root@k8s-master Istio-1.5.10]# kubectl -n Istio-system create cm Istio -o yaml --dry-run --from-file=mesh=/tmp/mesh.yaml | kubectl replace -f - W0902 17:00:37.208604 16538 helpers.go:535] --dry-run is deprecated and can be replaced with --dry-run=client.</description>
+    </item>
+    
+    <item>
       <title>istio实现灰度</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/</guid>
       <description>istio实现灰度
-Gateway apiVersion: networking.istio.io/v1alpha3 kind: Gateway metadata: name: bookinfo-gateway spec: selector: istio: ingressgateway # use istio default controller servers: - port: number: 80 name: http protocol: HTTP hosts: - &amp;#34;*&amp;#34; VirtualService 是在 Istio 服务网格内对服务的请求如何进行路由控制？VirtualService 中就包含了这方面的定义。例如一个 Virtual Service 可以把请求路由到不同版本，甚至是可以路由到一个完全不同于请求要求的服务上去。路由可以用很多条件进行判断，例如请求的源和目的地、HTTP 路径和 Header 以及各个服务版本的权重等。
+Gateway apiVersion: networking.istio.io/v1alpha3 kind: Gateway metadata:  name: bookinfo-gateway spec:  selector:  istio: ingressgateway # use istio default controller  servers:  - port:  number: 80  name: http  protocol: HTTP  hosts:  - &amp;#34;*&amp;#34; VirtualService 是在 Istio 服务网格内对服务的请求如何进行路由控制？VirtualService 中就包含了这方面的定义。例如一个 Virtual Service 可以把请求路由到不同版本，甚至是可以路由到一个完全不同于请求要求的服务上去。路由可以用很多条件进行判断，例如请求的源和目的地、HTTP 路径和 Header 以及各个服务版本的权重等。
 路由规则对应着一或多个用 VirtualService 配置指定的请求目的主机。这些主机可以是也可以不是实际的目标负载，甚至可以不是同一网格内可路由的服务。例如要给到 reviews 服务的请求定义路由规则，可以使用内部的名称 reviews，也可以用域名 bookinfo.com，VirtualService 可以定义这样的 host 字段：
-hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的方式定义了一或多个完全限定名（FQDN）。上面的 reviews，会隐式的扩展成为特定的 FQDN，例如在 Kubernetes 环境中，全名会从 VirtualService 所在的集群和命名空间中继承而来（比如说 reviews.default.svc.cluster.local）。
---- apiVersion: networking.istio.io/v1alpha3 kind: VirtualService metadata: name: bookinfo spec: hosts: - &amp;#34;*&amp;#34; gateways: - bookinfo-gateway http: - match: - uri: exact: /productpage - uri: prefix: /static - uri: exact: /login - uri: exact: /logout - uri: prefix: /api/v1/products route: - destination: host: productpage port: number: 9080 所有的流量都去到reviews:v1</description>
+hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的方式定义了一或多个完全限定名（FQDN）。上面的 reviews，会隐式的扩展成为特定的 FQDN，例如在 Kubernetes 环境中，全名会从 VirtualService 所在的集群和命名空间中继承而来（比如说 reviews.</description>
     </item>
     
     <item>

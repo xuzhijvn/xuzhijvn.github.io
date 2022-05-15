@@ -54,8 +54,8 @@ tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate 
 [root@k8s-master .kube]# kubeadm init phase certs all --apiserver-advertise-address=0.0.0.0 --apiserver-cert-extra-sans=10.96.0.1,172.17.0.14,xxx.xxx.xxx.xxx(公网ip) I0627 15:10:39.069106 7777 version.go:252] remote version is much newer: v1.21.2; falling back to: stable-1.18 W0627 15:10:40.982380 7777 configset.go:202] WARNING: kubeadm cannot validate component configs for API groups [kubelet."/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -343,33 +343,33 @@ tony@192 ~ % kubectl get pod Unable to connect to the server: x509: certificate 
 <p>再比如k8s集群是自己通过多台云服务器自行搭建的，master节点有自己的公网ip。想要本地连接远程k8s集群，可以参考本文。</p>
 <h2 id="1-重新生成config文件">1⃣️ 重新生成config文件<a class="anchor ms-1" href="#1-重新生成config文件"><i class="fas fa-link"></i></a></h2>
 <p>默认下，<code>~/.kube/config</code> 生成配置文件的时候只包含了k8s集群ip和这个节点的局域网ip，本地如果想远程操作k8s的话，必定要通过公网ip连接到k8s集群，所以我们需要把节点绑定的公网ip也放到证书里面去，即我们需要重新生成证书。如果不这样做，本地直接访问的话，会报如下提示：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">tony@192 ~ % kubectl get pod 
-Unable to connect to the server: x509: certificate is valid <span style="color:#66d9ef">for</span> 10.96.0.1, 172.17.0.14, not 106.55.152.92
-</code></pre></div><p>先备份证书：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@k8s-master .kube<span style="color:#f92672">]</span><span style="color:#75715e"># mkdir -p /etc/kubernetes/pki.bak</span>
-<span style="color:#f92672">[</span>root@k8s-master .kube<span style="color:#f92672">]</span><span style="color:#75715e"># mv /etc/kubernetes/pki/apiserver.* /etc/kubernetes/pki.bak</span>
-</code></pre></div><p>重新生成证书：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@k8s-master .kube<span style="color:#f92672">]</span><span style="color:#75715e"># kubeadm init phase certs all --apiserver-advertise-address=0.0.0.0 --apiserver-cert-extra-sans=10.96.0.1,172.17.0.14,xxx.xxx.xxx.xxx(公网ip)</span>
-I0627 15:10:39.069106    <span style="color:#ae81ff">7777</span> version.go:252<span style="color:#f92672">]</span> remote version is much newer: v1.21.2; falling back to: stable-1.18
-W0627 15:10:40.982380    <span style="color:#ae81ff">7777</span> configset.go:202<span style="color:#f92672">]</span> WARNING: kubeadm cannot validate component configs <span style="color:#66d9ef">for</span> API groups <span style="color:#f92672">[</span>kubelet.config.k8s.io kubeproxy.config.k8s.io<span style="color:#f92672">]</span>
-<span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using certificateDir folder <span style="color:#e6db74">&#34;/etc/kubernetes/pki&#34;</span>
-<span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing ca certificate authority
-<span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Generating <span style="color:#e6db74">&#34;apiserver&#34;</span> certificate and key
-<span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> apiserver serving cert is signed <span style="color:#66d9ef">for</span> DNS names <span style="color:#f92672">[</span>k8s-master kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local<span style="color:#f92672">]</span> and IPs <span style="color:#f92672">[</span>10.96.0.1 172.17.0.14 10.96.0.1 172.17.0.14 106.55.152.92<span style="color:#f92672">]</span>
-<span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing apiserver-kubelet-client certificate and key on disk
-<span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing front-proxy-ca certificate authority
-<span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing front-proxy-client certificate and key on disk
-<span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing etcd/ca certificate authority
-<span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing etcd/server certificate and key on disk
-<span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing etcd/peer certificate and key on disk
-<span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing etcd/healthcheck-client certificate and key on disk
-<span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing apiserver-etcd-client certificate and key on disk
-<span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using the existing <span style="color:#e6db74">&#34;sa&#34;</span> key
-</code></pre></div><p>重启apiserver:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@k8s-master .kube<span style="color:#f92672">]</span><span style="color:#75715e"># docker rm -f `docker ps -q -f &#39;name=k8s_kube-apiserver*&#39;`</span>
-cd130929bc7e
-<span style="color:#f92672">[</span>root@k8s-master .kube<span style="color:#f92672">]</span><span style="color:#75715e"># systemctl restart kubelet</span>
-</code></pre></div><h2 id="2-修改ip">2⃣️ 修改ip<a class="anchor ms-1" href="#2-修改ip"><i class="fas fa-link"></i></a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tony@192 ~ % kubectl get pod 
+</span></span><span style="display:flex;"><span>Unable to connect to the server: x509: certificate is valid <span style="color:#66d9ef">for</span> 10.96.0.1, 172.17.0.14, not 106.55.152.92
+</span></span></code></pre></div><p>先备份证书：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master .kube<span style="color:#f92672">]</span><span style="color:#75715e"># mkdir -p /etc/kubernetes/pki.bak</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master .kube<span style="color:#f92672">]</span><span style="color:#75715e"># mv /etc/kubernetes/pki/apiserver.* /etc/kubernetes/pki.bak</span>
+</span></span></code></pre></div><p>重新生成证书：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master .kube<span style="color:#f92672">]</span><span style="color:#75715e"># kubeadm init phase certs all --apiserver-advertise-address=0.0.0.0 --apiserver-cert-extra-sans=10.96.0.1,172.17.0.14,xxx.xxx.xxx.xxx(公网ip)</span>
+</span></span><span style="display:flex;"><span>I0627 15:10:39.069106    <span style="color:#ae81ff">7777</span> version.go:252<span style="color:#f92672">]</span> remote version is much newer: v1.21.2; falling back to: stable-1.18
+</span></span><span style="display:flex;"><span>W0627 15:10:40.982380    <span style="color:#ae81ff">7777</span> configset.go:202<span style="color:#f92672">]</span> WARNING: kubeadm cannot validate component configs <span style="color:#66d9ef">for</span> API groups <span style="color:#f92672">[</span>kubelet.config.k8s.io kubeproxy.config.k8s.io<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using certificateDir folder <span style="color:#e6db74">&#34;/etc/kubernetes/pki&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing ca certificate authority
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Generating <span style="color:#e6db74">&#34;apiserver&#34;</span> certificate and key
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> apiserver serving cert is signed <span style="color:#66d9ef">for</span> DNS names <span style="color:#f92672">[</span>k8s-master kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local<span style="color:#f92672">]</span> and IPs <span style="color:#f92672">[</span>10.96.0.1 172.17.0.14 10.96.0.1 172.17.0.14 106.55.152.92<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing apiserver-kubelet-client certificate and key on disk
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing front-proxy-ca certificate authority
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing front-proxy-client certificate and key on disk
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing etcd/ca certificate authority
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing etcd/server certificate and key on disk
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing etcd/peer certificate and key on disk
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing etcd/healthcheck-client certificate and key on disk
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using existing apiserver-etcd-client certificate and key on disk
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>certs<span style="color:#f92672">]</span> Using the existing <span style="color:#e6db74">&#34;sa&#34;</span> key
+</span></span></code></pre></div><p>重启apiserver:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master .kube<span style="color:#f92672">]</span><span style="color:#75715e"># docker rm -f `docker ps -q -f &#39;name=k8s_kube-apiserver*&#39;`</span>
+</span></span><span style="display:flex;"><span>cd130929bc7e
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master .kube<span style="color:#f92672">]</span><span style="color:#75715e"># systemctl restart kubelet</span>
+</span></span></code></pre></div><h2 id="2-修改ip">2⃣️ 修改ip<a class="anchor ms-1" href="#2-修改ip"><i class="fas fa-link"></i></a></h2>
 <p>拷贝master节点的配置文件 <code>~/.kube/config</code> 到本地 <code>~/.kube/config</code> ，修改server的ip地址为master节点的公网ip地址</p>
 <p><img class="img-fluid" alt="image-20210627152937670" src="https://picgo.6and.ltd/img/image-20210627152937670.png" loading="lazy"
   
@@ -377,22 +377,22 @@ cd130929bc7e
 
 </p>
 <h2 id="3-本地验证">3⃣️ 本地验证<a class="anchor ms-1" href="#3-本地验证"><i class="fas fa-link"></i></a></h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">tony@192 ~ % kubectl get pod
-NAME                                                 READY   STATUS    RESTARTS   AGE
-ceres-admin-server-deployment-7f9c4c697d-7pphh       2/2     Running   <span style="color:#ae81ff">0</span>          92d
-ceres-admin-web-deployment-7c8fb64f58-ft8xv          2/2     Running   <span style="color:#ae81ff">2</span>          192d
-ceres-app-server-deployment-65b6bb99f9-qlwb2         2/2     Running   <span style="color:#ae81ff">0</span>          92d
-ceres-jobs-server-deployment-bdcd669bb-284k5         2/2     Running   <span style="color:#ae81ff">2</span>          217d
-ceres-merchant-web-deployment-6c6b668b8d-5vtq5       2/2     Running   <span style="color:#ae81ff">2</span>          192d
-ceres-settled-merchant-deployment-5f74c8f46d-f982v   2/2     Running   <span style="color:#ae81ff">2</span>          213d
-details-v1-6c9f8bcbcb-pzkfm                          2/2     Running   <span style="color:#ae81ff">6</span>          296d
-nfs-client-provisioner-6965c6967-6jv6c               2/2     Running   <span style="color:#ae81ff">8</span>          217d
-productpage-v1-7f9d9c48c8-kgtlw                      2/2     Running   <span style="color:#ae81ff">4</span>          296d
-ratings-v1-65cff55fb8-vmj4z                          2/2     Running   <span style="color:#ae81ff">6</span>          296d
-reviews-v1-d5b6b667f-9b7kw                           2/2     Running   <span style="color:#ae81ff">4</span>          296d
-reviews-v2-784495d9bc-xvqpw                          2/2     Running   <span style="color:#ae81ff">6</span>          296d
-reviews-v3-57fcb844b7-xsj47                          2/2     Running   <span style="color:#ae81ff">4</span>          296d
-</code></pre></div><h3 id="参考链接">参考链接🔗<a class="anchor ms-1" href="#参考链接"><i class="fas fa-link"></i></a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tony@192 ~ % kubectl get pod
+</span></span><span style="display:flex;"><span>NAME                                                 READY   STATUS    RESTARTS   AGE
+</span></span><span style="display:flex;"><span>ceres-admin-server-deployment-7f9c4c697d-7pphh       2/2     Running   <span style="color:#ae81ff">0</span>          92d
+</span></span><span style="display:flex;"><span>ceres-admin-web-deployment-7c8fb64f58-ft8xv          2/2     Running   <span style="color:#ae81ff">2</span>          192d
+</span></span><span style="display:flex;"><span>ceres-app-server-deployment-65b6bb99f9-qlwb2         2/2     Running   <span style="color:#ae81ff">0</span>          92d
+</span></span><span style="display:flex;"><span>ceres-jobs-server-deployment-bdcd669bb-284k5         2/2     Running   <span style="color:#ae81ff">2</span>          217d
+</span></span><span style="display:flex;"><span>ceres-merchant-web-deployment-6c6b668b8d-5vtq5       2/2     Running   <span style="color:#ae81ff">2</span>          192d
+</span></span><span style="display:flex;"><span>ceres-settled-merchant-deployment-5f74c8f46d-f982v   2/2     Running   <span style="color:#ae81ff">2</span>          213d
+</span></span><span style="display:flex;"><span>details-v1-6c9f8bcbcb-pzkfm                          2/2     Running   <span style="color:#ae81ff">6</span>          296d
+</span></span><span style="display:flex;"><span>nfs-client-provisioner-6965c6967-6jv6c               2/2     Running   <span style="color:#ae81ff">8</span>          217d
+</span></span><span style="display:flex;"><span>productpage-v1-7f9d9c48c8-kgtlw                      2/2     Running   <span style="color:#ae81ff">4</span>          296d
+</span></span><span style="display:flex;"><span>ratings-v1-65cff55fb8-vmj4z                          2/2     Running   <span style="color:#ae81ff">6</span>          296d
+</span></span><span style="display:flex;"><span>reviews-v1-d5b6b667f-9b7kw                           2/2     Running   <span style="color:#ae81ff">4</span>          296d
+</span></span><span style="display:flex;"><span>reviews-v2-784495d9bc-xvqpw                          2/2     Running   <span style="color:#ae81ff">6</span>          296d
+</span></span><span style="display:flex;"><span>reviews-v3-57fcb844b7-xsj47                          2/2     Running   <span style="color:#ae81ff">4</span>          296d
+</span></span></code></pre></div><h3 id="参考链接">参考链接🔗<a class="anchor ms-1" href="#参考链接"><i class="fas fa-link"></i></a></h3>
 <p><a href="https://stackoverflow.com/questions/46360361/invalid-x509-certificate-for-kubernetes-master" target="_blank" rel="noopener noreferrer">Invalid x509 certificate for kubernetes master</a></p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -422,10 +422,10 @@ reviews-v3-57fcb844b7-xsj47                          2/2     Running   <span sty
 </div></div>
   <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
     <i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/nowcoder/%E6%9F%A5%E6%89%BE%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0/">查找重复元素
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E9%83%A8%E7%BD%B2sentinel-dashboard/">部署sentinel-dashboard
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%9F%BA%E7%A1%80/%E6%9C%8D%E5%8A%A1%E7%BD%91%E6%A0%BC%E5%8E%9F%E7%90%86/">服务网格原理
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E6%82%B2%E8%A7%82%E9%94%81%E5%92%8C%E4%B9%90%E8%A7%82%E9%94%81/">悲观锁和乐观锁
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
@@ -526,6 +526,9 @@ reviews-v3-57fcb844b7-xsj47                          2/2     Running   <span sty
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/yshop-k8s/">Yshop K8s
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E7%9A%84%E5%8D%B8%E8%BD%BD/">JVM类的卸载
 </a>
       </li><li>
@@ -537,9 +540,6 @@ reviews-v3-57fcb844b7-xsj47                          2/2     Running   <span sty
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">Like查询优化
 </a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/">Redis队列
-</a>
       </li></ul>
   </div>
 </section><section class="series-taxonomies row card component">
@@ -550,9 +550,9 @@ reviews-v3-57fcb844b7-xsj47                          2/2     Running   <span sty
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
-            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
-            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
             算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
             istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
             rpc</a></div>
@@ -668,8 +668,8 @@ reviews-v3-57fcb844b7-xsj47                          2/2     Running   <span sty
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

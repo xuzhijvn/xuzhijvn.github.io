@@ -1,0 +1,776 @@
+<!doctype html><html lang="en" data-palette="indigo"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>docker-compose.yml文件详解 - 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/icons/icon-180x180.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-16x16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
+<link rel="manifest" href="https://xuzhijvn.github.io/en/manifest.json">
+<meta name="keywords" content="" />
+<meta name="description" content="docker-compose.yml文件详解
+Compose和Docker兼容性：  Compose 文件格式有3个版本,分别为1, 2.x 和 3.x  目前主流的为 3.x 其支持 docker 1.13.0 及其以上的版本  常用参数：  version  # 指定 compose 文件的版本  services  # 定义所有的 service 信息, services 下面的第一级别的 key 既是一个 service 的名称   build  # 指定包含构建上下文的路径, 或作为一个对象，该对象具有 context 和指定的 dockerfile 文件以及 args 参数值  context # context: 指定 Dockerfile 文件所在的路径  dockerfile # dockerfile: 指定 context 指定的目录下面的 Dockerfile 的名称(默认为 Dockerfile)  args # args: Dockerfile 在 build 过程中需要的参数 (等同于 docker container build --build-arg 的作用)  cache_from  # v3." /><meta itemprop="name" content="docker-compose.yml文件详解">
+<meta itemprop="description" content="docker-compose.yml文件详解
+Compose和Docker兼容性：  Compose 文件格式有3个版本,分别为1, 2.x 和 3.x  目前主流的为 3.x 其支持 docker 1.13.0 及其以上的版本  常用参数：  version  # 指定 compose 文件的版本  services  # 定义所有的 service 信息, services 下面的第一级别的 key 既是一个 service 的名称   build  # 指定包含构建上下文的路径, 或作为一个对象，该对象具有 context 和指定的 dockerfile 文件以及 args 参数值  context # context: 指定 Dockerfile 文件所在的路径  dockerfile # dockerfile: 指定 context 指定的目录下面的 Dockerfile 的名称(默认为 Dockerfile)  args # args: Dockerfile 在 build 过程中需要的参数 (等同于 docker container build --build-arg 的作用)  cache_from  # v3."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="1176">
+<meta itemprop="keywords" content="Other," /><meta property="og:title" content="docker-compose.yml文件详解" />
+<meta property="og:description" content="docker-compose.yml文件详解
+Compose和Docker兼容性：  Compose 文件格式有3个版本,分别为1, 2.x 和 3.x  目前主流的为 3.x 其支持 docker 1.13.0 及其以上的版本  常用参数：  version  # 指定 compose 文件的版本  services  # 定义所有的 service 信息, services 下面的第一级别的 key 既是一个 service 的名称   build  # 指定包含构建上下文的路径, 或作为一个对象，该对象具有 context 和指定的 dockerfile 文件以及 args 参数值  context # context: 指定 Dockerfile 文件所在的路径  dockerfile # dockerfile: 指定 context 指定的目录下面的 Dockerfile 的名称(默认为 Dockerfile)  args # args: Dockerfile 在 build 过程中需要的参数 (等同于 docker container build --build-arg 的作用)  cache_from  # v3." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/en/zh-cn/posts/other/docker-compose.yml%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3/" /><meta property="article:section" content="zh-cn" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="docker-compose.yml文件详解"/>
+<meta name="twitter:description" content="docker-compose.yml文件详解
+Compose和Docker兼容性：  Compose 文件格式有3个版本,分别为1, 2.x 和 3.x  目前主流的为 3.x 其支持 docker 1.13.0 及其以上的版本  常用参数：  version  # 指定 compose 文件的版本  services  # 定义所有的 service 信息, services 下面的第一级别的 key 既是一个 service 的名称   build  # 指定包含构建上下文的路径, 或作为一个对象，该对象具有 context 和指定的 dockerfile 文件以及 args 参数值  context # context: 指定 Dockerfile 文件所在的路径  dockerfile # dockerfile: 指定 context 指定的目录下面的 Dockerfile 的名称(默认为 Dockerfile)  args # args: Dockerfile 在 build 过程中需要的参数 (等同于 docker container build --build-arg 的作用)  cache_from  # v3."/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/en/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+   width="400" height="400"
+   />
+👴🏻💪
+    </a>
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Share</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=docker-compose.yml%e6%96%87%e4%bb%b6%e8%af%a6%e8%a7%a3&url=https%3a%2f%2fxuzhijvn.github.io%2fen%2fzh-cn%2fposts%2fother%2fdocker-compose.yml%25E6%2596%2587%25E4%25BB%25B6%25E8%25AF%25A6%25E8%25A7%25A3%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fxuzhijvn.github.io%2fen%2fzh-cn%2fposts%2fother%2fdocker-compose.yml%25E6%2596%2587%25E4%25BB%25B6%25E8%25AF%25A6%25E8%25A7%25A3%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</div>
+    <button class="navbar-settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-ellipsis-v"></i>
+</button>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Settings</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-language"></i> Language</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="dropdown">
+        <a class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-cn/">简体中文</a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> Mode</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> Palette</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="Blue"
+        class="btn btn-sm w-100 palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="Blue Gray"
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="Brown"
+        class="btn btn-sm w-100 palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="Cyan"
+        class="btn btn-sm w-100 palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="Green"
+        class="btn btn-sm w-100 palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="Indigo"
+        class="btn btn-sm w-100 palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="Orange"
+        class="btn btn-sm w-100 palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="Pink"
+        class="btn btn-sm w-100 palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="Purple"
+        class="btn btn-sm w-100 palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="Red"
+        class="btn btn-sm w-100 palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="Teal"
+        class="btn btn-sm w-100 palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="Yellow"
+        class="btn btn-sm w-100 palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> Go back
+  </a>
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> Reload
+  </a>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> Copy URL
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> Share
+  </a></section>
+
+</div>
+</div>
+
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://xuzhijvn.github.io/en/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/en/en/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>Archives
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/en/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/categories">
+            <i class="fas fa-fw fa-folder"></i>Categories
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/tags">
+            <i class="fas fa-fw fa-tags"></i>Tags
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/series">
+            <i class="fas fa-fw fa-columns"></i>Series
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownProjects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Projects
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownProjects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap Theme
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 Admin
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/">Home</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/zh-cn/">Zh-cns</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">docker-compose.yml文件详解</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper">
+  <div class="d-flex flex-column component rounded post-panel">
+    
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="Buy me a coffee">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    
+    
+  </div>
+</div>
+<article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title">docker-compose.yml文件详解
+</h1>
+  </div>
+  <div class="card-body"><div class="post-meta">
+  <span class="post-date" title="created on 2021-08-27 11:15:10 &#43;0800 CST.">
+    Aug 27, 2021
+  </span><span class="post-reading-time">
+    6 min read
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/en/categories/%E5%85%B6%E4%BB%96/" class="badge post-taxonomy">其他</a><a href="https://xuzhijvn.github.io/en/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/en/tags/other/" class="badge post-taxonomy">Other</a></span>
+</div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>docker-compose.yml文件详解</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ae81ff">Compose和Docker兼容性：</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">Compose 文件格式有3个版本,分别为1, 2.x 和 3.x</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">目前主流的为 3.x 其支持 docker 1.13.0 及其以上的版本</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">常用参数：</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">version          </span> <span style="color:#75715e"># 指定 compose 文件的版本</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">services         </span> <span style="color:#75715e"># 定义所有的 service 信息, services 下面的第一级别的 key 既是一个 service 的名称</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">build                </span> <span style="color:#75715e"># 指定包含构建上下文的路径, 或作为一个对象，该对象具有 context 和指定的 dockerfile 文件以及 args 参数值</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">context               # context</span>: <span style="color:#ae81ff">指定 Dockerfile 文件所在的路径</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">dockerfile            # dockerfile</span>: <span style="color:#ae81ff">指定 context 指定的目录下面的 Dockerfile 的名称(默认为 Dockerfile)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">args                  # args</span>: <span style="color:#ae81ff">Dockerfile 在 build 过程中需要的参数 (等同于 docker container build --build-arg 的作用)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">cache_from           </span> <span style="color:#75715e"># v3.2中新增的参数, 指定缓存的镜像列表 (等同于 docker container build --cache_from 的作用)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">labels               </span> <span style="color:#75715e"># v3.3中新增的参数, 设置镜像的元数据 (等同于 docker container build --labels 的作用)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">shm_size             </span> <span style="color:#75715e"># v3.5中新增的参数, 设置容器 /dev/shm 分区的大小 (等同于 docker container build --shm-size 的作用)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">command              </span> <span style="color:#75715e"># 覆盖容器启动后默认执行的命令, 支持 shell 格式和 [] 格式</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">configs              </span> <span style="color:#75715e"># 不知道怎么用</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">cgroup_parent        </span> <span style="color:#75715e"># 不知道怎么用</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">container_name       </span> <span style="color:#75715e"># 指定容器的名称 (等同于 docker run --name 的作用)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">credential_spec      </span> <span style="color:#75715e"># 不知道怎么用</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">deploy               </span> <span style="color:#75715e"># v3 版本以上, 指定与部署和运行服务相关的配置, deploy 部分是 docker stack 使用的, docker stack 依赖 docker swarm</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">endpoint_mode        </span> <span style="color:#75715e"># v3.3 版本中新增的功能, 指定服务暴露的方式</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">vip                  </span> <span style="color:#75715e"># Docker 为该服务分配了一个虚拟 IP(VIP), 作为客户端的访问服务的地址</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">dnsrr                </span> <span style="color:#75715e"># DNS轮询, Docker 为该服务设置 DNS 条目, 使得服务名称的 DNS 查询返回一个 IP 地址列表, 客户端直接访问其中的一个地址</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">labels               </span> <span style="color:#75715e"># 指定服务的标签，这些标签仅在服务上设置</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">mode                 </span> <span style="color:#75715e"># 指定 deploy 的模式</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">global               </span> <span style="color:#75715e"># 每个集群节点都只有一个容器</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">replicated           </span> <span style="color:#75715e"># 用户可以指定集群中容器的数量(默认)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">placement            </span> <span style="color:#75715e"># 不知道怎么用</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">replicas             </span> <span style="color:#75715e"># deploy 的 mode 为 replicated 时, 指定容器副本的数量</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">resources            </span> <span style="color:#75715e"># 资源限制</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">limits               </span> <span style="color:#75715e"># 设置容器的资源限制</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">cpus</span>: <span style="color:#e6db74">&#34;0.5&#34;</span>           <span style="color:#75715e"># 设置该容器最多只能使用 50% 的 CPU </span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">memory</span>: <span style="color:#ae81ff">50M          </span> <span style="color:#75715e"># 设置该容器最多只能使用 50M 的内存空间 </span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">reservations         </span> <span style="color:#75715e"># 设置为容器预留的系统资源(随时可用)</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">cpus</span>: <span style="color:#e6db74">&#34;0.2&#34;</span>           <span style="color:#75715e"># 为该容器保留 20% 的 CPU</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">memory</span>: <span style="color:#ae81ff">20M          </span> <span style="color:#75715e"># 为该容器保留 20M 的内存空间</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">restart_policy       </span> <span style="color:#75715e"># 定义容器重启策略, 用于代替 restart 参数</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">condition            </span> <span style="color:#75715e"># 定义容器重启策略(接受三个参数)</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#ae81ff">none                 </span> <span style="color:#75715e"># 不尝试重启</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">on</span>-<span style="color:#ae81ff">failure           </span> <span style="color:#75715e"># 只有当容器内部应用程序出现问题才会重启</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#ae81ff">any                  </span> <span style="color:#75715e"># 无论如何都会尝试重启(默认)</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">delay                </span> <span style="color:#75715e"># 尝试重启的间隔时间(默认为 0s)</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">max_attempts         </span> <span style="color:#75715e"># 尝试重启次数(默认一直尝试重启)</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">window               </span> <span style="color:#75715e"># 检查重启是否成功之前的等待时间(即如果容器启动了, 隔多少秒之后去检测容器是否正常, 默认 0s)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">update_config        </span> <span style="color:#75715e"># 用于配置滚动更新配置</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">parallelism          </span> <span style="color:#75715e"># 一次性更新的容器数量</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">delay                </span> <span style="color:#75715e"># 更新一组容器之间的间隔时间</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">failure_action       </span> <span style="color:#75715e"># 定义更新失败的策略</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#ae81ff">continue             </span> <span style="color:#75715e"># 继续更新</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#ae81ff">rollback             </span> <span style="color:#75715e"># 回滚更新</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#ae81ff">pause                </span> <span style="color:#75715e"># 暂停更新(默认)</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">monitor               # 每次更新后的持续时间以监视更新是否失败(单位</span>: <span style="color:#ae81ff">ns|us|ms|s|m|h) (默认为0)</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">max_failure_ratio    </span> <span style="color:#75715e"># 回滚期间容忍的失败率(默认值为0)</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">order                </span> <span style="color:#75715e"># v3.4 版本中新增的参数, 回滚期间的操作顺序</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#ae81ff">stop-first           </span> <span style="color:#75715e">#旧任务在启动新任务之前停止(默认)</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#ae81ff">start-first          </span> <span style="color:#75715e">#首先启动新任务, 并且正在运行的任务暂时重叠</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">rollback_config      </span> <span style="color:#75715e"># v3.7 版本中新增的参数, 用于定义在 update_config 更新失败的回滚策略</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">parallelism          </span> <span style="color:#75715e"># 一次回滚的容器数, 如果设置为0, 则所有容器同时回滚</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">delay                </span> <span style="color:#75715e"># 每个组回滚之间的时间间隔(默认为0)</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">failure_action       </span> <span style="color:#75715e"># 定义回滚失败的策略</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#ae81ff">continue             </span> <span style="color:#75715e"># 继续回滚</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#ae81ff">pause                </span> <span style="color:#75715e"># 暂停回滚</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">monitor               # 每次回滚任务后的持续时间以监视失败(单位</span>: <span style="color:#ae81ff">ns|us|ms|s|m|h) (默认为0)</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">max_failure_ratio    </span> <span style="color:#75715e"># 回滚期间容忍的失败率(默认值0)</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">order                </span> <span style="color:#75715e"># 回滚期间的操作顺序</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#ae81ff">stop-first           </span> <span style="color:#75715e"># 旧任务在启动新任务之前停止(默认)</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#ae81ff">start-first          </span> <span style="color:#75715e"># 首先启动新任务, 并且正在运行的任务暂时重叠</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">注意：</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">支持 docker-compose up 和 docker-compose run 但不支持 docker stack deploy 的子选项</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">security_opt  container_name  devices  tmpfs  stop_signal  links    cgroup_parent</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">network_mode  external_links  restart  build  userns_mode  sysctls</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">devices              </span> <span style="color:#75715e"># 指定设备映射列表 (等同于 docker run --device 的作用)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">depends_on           </span> <span style="color:#75715e"># 定义容器启动顺序 (此选项解决了容器之间的依赖关系， 此选项在 v3 版本中 使用 swarm 部署时将忽略该选项)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">示例：</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">docker-compose up 以依赖顺序启动服务，下面例子中 redis 和 db 服务在 web 启动前启动</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">默认情况下使用 docker-compose up web 这样的方式启动 web 服务时，也会启动 redis 和 db 两个服务，因为在配置文件中定义了依赖关系</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">version</span>: <span style="color:#e6db74">&#39;3&#39;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">services</span>:
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">web</span>:
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">build</span>: <span style="color:#ae81ff">.</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">depends_on</span>:
+</span></span><span style="display:flex;"><span>                            - <span style="color:#ae81ff">db      </span>
+</span></span><span style="display:flex;"><span>                            - <span style="color:#ae81ff">redis  </span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">redis</span>:
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">image</span>: <span style="color:#ae81ff">redis</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">db</span>:
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">image</span>: <span style="color:#ae81ff">postgres                             </span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">dns                  </span> <span style="color:#75715e"># 设置 DNS 地址(等同于 docker run --dns 的作用)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">dns_search           </span> <span style="color:#75715e"># 设置 DNS 搜索域(等同于 docker run --dns-search 的作用)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">tmpfs                </span> <span style="color:#75715e"># v2 版本以上, 挂载目录到容器中, 作为容器的临时文件系统(等同于 docker run --tmpfs 的作用, 在使用 swarm 部署时将忽略该选项)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">entrypoint           </span> <span style="color:#75715e"># 覆盖容器的默认 entrypoint 指令 (等同于 docker run --entrypoint 的作用)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">env_file             </span> <span style="color:#75715e"># 从指定文件中读取变量设置为容器中的环境变量, 可以是单个值或者一个文件列表, 如果多个文件中的变量重名则后面的变量覆盖前面的变量, environment 的值覆盖 env_file 的值</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">文件格式：</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">RACK_ENV=development </span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">environment          </span> <span style="color:#75715e"># 设置环境变量， environment 的值可以覆盖 env_file 的值 (等同于 docker run --env 的作用)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">expose               </span> <span style="color:#75715e"># 暴露端口, 但是不能和宿主机建立映射关系, 类似于 Dockerfile 的 EXPOSE 指令</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">external_links       </span> <span style="color:#75715e"># 连接不在 docker-compose.yml 中定义的容器或者不在 compose 管理的容器(docker run 启动的容器, 在 v3 版本中使用 swarm 部署时将忽略该选项)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">extra_hosts          </span> <span style="color:#75715e"># 添加 host 记录到容器中的 /etc/hosts 中 (等同于 docker run --add-host 的作用)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">healthcheck          </span> <span style="color:#75715e"># v2.1 以上版本, 定义容器健康状态检查, 类似于 Dockerfile 的 HEALTHCHECK 指令</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">计算机科学                 </span> <span style="color:#75715e"># 检查容器检查状态的命令, 该选项必须是一个字符串或者列表, 第一项必须是 NONE, CMD 或 CMD-SHELL, 如果其是一个字符串则相当于 CMD-SHELL 加该字符串</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">NONE                 </span> <span style="color:#75715e"># 禁用容器的健康状态检测</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">CMD                   # 计算机科学</span>: [<span style="color:#e6db74">&#34;CMD&#34;</span>, <span style="color:#e6db74">&#34;curl&#34;</span>, <span style="color:#e6db74">&#34;-f&#34;</span>, <span style="color:#e6db74">&#34;http://localhost&#34;</span>]
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">CMD-SHELL             # 计算机科学</span>: [<span style="color:#e6db74">&#34;CMD-SHELL&#34;</span>, <span style="color:#e6db74">&#34;curl -f http://localhost || exit 1&#34;</span><span style="color:#f92672">] 或者　计算机科学</span>: <span style="color:#ae81ff">curl -f https://localhost || exit 1</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">interval</span>: <span style="color:#ae81ff">1m30s      </span> <span style="color:#75715e"># 每次检查之间的间隔时间</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">timeout</span>: <span style="color:#ae81ff">10s         </span> <span style="color:#75715e"># 运行命令的超时时间</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">retries</span>: <span style="color:#ae81ff">3</span>            <span style="color:#75715e"># 重试次数</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">start_period</span>: <span style="color:#ae81ff">40s    </span> <span style="color:#75715e"># v3.4 以上新增的选项, 定义容器启动时间间隔</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">disable: true         # true 或 false, 表示是否禁用健康状态检测和　计算机科学</span>: <span style="color:#ae81ff">NONE 相同</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">image                </span> <span style="color:#75715e"># 指定 docker 镜像, 可以是远程仓库镜像、本地镜像</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">init                 </span> <span style="color:#75715e"># v3.7 中新增的参数, true 或 false 表示是否在容器中运行一个 init, 它接收信号并传递给进程</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">isolation            </span> <span style="color:#75715e"># 隔离容器技术, 在 Linux 中仅支持 default 值</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">labels               </span> <span style="color:#75715e"># 使用 Docker 标签将元数据添加到容器, 与 Dockerfile 中的 LABELS 类似</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">links                </span> <span style="color:#75715e"># 链接到其它服务中的容器, 该选项是 docker 历史遗留的选项, 目前已被用户自定义网络名称空间取代, 最终有可能被废弃 (在使用 swarm 部署时将忽略该选项)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">logging              </span> <span style="color:#75715e"># 设置容器日志服务</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">driver               </span> <span style="color:#75715e"># 指定日志记录驱动程序, 默认 json-file (等同于 docker run --log-driver 的作用)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">options              </span> <span style="color:#75715e"># 指定日志的相关参数 (等同于 docker run --log-opt 的作用)</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">max-size             </span> <span style="color:#75715e"># 设置单个日志文件的大小, 当到达这个值后会进行日志滚动操作</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">max-file             </span> <span style="color:#75715e"># 日志文件保留的数量</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">network_mode         </span> <span style="color:#75715e"># 指定网络模式 (等同于 docker run --net 的作用, 在使用 swarm 部署时将忽略该选项)         </span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">networks             </span> <span style="color:#75715e"># 将容器加入指定网络 (等同于 docker network connect 的作用), networks 可以位于 compose 文件顶级键和 services 键的二级键</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">aliases              </span> <span style="color:#75715e"># 同一网络上的容器可以使用服务名称或别名连接到其中一个服务的容器</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">ipv4_address     </span> <span style="color:#75715e"># IP V4 格式</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">ipv6_address     </span> <span style="color:#75715e"># IP V6 格式</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">示例</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">version</span>: <span style="color:#e6db74">&#39;3.7&#39;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">services</span>: 
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">test</span>: 
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">image</span>: <span style="color:#ae81ff">nginx:1.14-alpine</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">container_name</span>: <span style="color:#ae81ff">mynginx</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">command</span>: <span style="color:#ae81ff">ifconfig</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">networks</span>: 
+</span></span><span style="display:flex;"><span>                            <span style="color:#f92672">app_net</span>:                                <span style="color:#75715e"># 调用下面 networks 定义的 app_net 网络</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#f92672">ipv4_address</span>: <span style="color:#ae81ff">172.16.238.10</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">networks</span>:
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">app_net</span>:
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">driver</span>: <span style="color:#ae81ff">bridge</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">ipam</span>:
+</span></span><span style="display:flex;"><span>                            <span style="color:#f92672">driver</span>: <span style="color:#ae81ff">default</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#f92672">config</span>:
+</span></span><span style="display:flex;"><span>                                - <span style="color:#f92672">subnet</span>: <span style="color:#ae81ff">172.16.238.0</span><span style="color:#ae81ff">/24</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">pid</span>: <span style="color:#e6db74">&#39;host&#39;</span>           <span style="color:#75715e"># 共享宿主机的 进程空间(PID)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">ports                </span> <span style="color:#75715e"># 建立宿主机和容器之间的端口映射关系, ports 支持两种语法格式</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">SHORT 语法格式示例</span>:
+</span></span><span style="display:flex;"><span>                - <span style="color:#e6db74">&#34;3000&#34;</span>                            <span style="color:#75715e"># 暴露容器的 3000 端口, 宿主机的端口由 docker 随机映射一个没有被占用的端口</span>
+</span></span><span style="display:flex;"><span>                - <span style="color:#e6db74">&#34;3000-3005&#34;</span>                       <span style="color:#75715e"># 暴露容器的 3000 到 3005 端口, 宿主机的端口由 docker 随机映射没有被占用的端口</span>
+</span></span><span style="display:flex;"><span>                - <span style="color:#e6db74">&#34;8000:8000&#34;</span>                       <span style="color:#75715e"># 容器的 8000 端口和宿主机的 8000 端口建立映射关系</span>
+</span></span><span style="display:flex;"><span>                - <span style="color:#e6db74">&#34;9090-9091:8080-8081&#34;</span>
+</span></span><span style="display:flex;"><span>                - <span style="color:#e6db74">&#34;127.0.0.1:8001:8001&#34;</span>             <span style="color:#75715e"># 指定映射宿主机的指定地址的</span>
+</span></span><span style="display:flex;"><span>                - <span style="color:#e6db74">&#34;127.0.0.1:5000-5010:5000-5010&#34;</span>   
+</span></span><span style="display:flex;"><span>                - <span style="color:#e6db74">&#34;6060:6060/udp&#34;</span>                   <span style="color:#75715e"># 指定协议</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">LONG 语法格式示例:(v3.2 新增的语法格式)</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">ports</span>:
+</span></span><span style="display:flex;"><span>                    - <span style="color:#f92672">target</span>: <span style="color:#ae81ff">80</span>                    <span style="color:#75715e"># 容器端口</span>
+</span></span><span style="display:flex;"><span>                      <span style="color:#f92672">published</span>: <span style="color:#ae81ff">8080</span>               <span style="color:#75715e"># 宿主机端口</span>
+</span></span><span style="display:flex;"><span>                      <span style="color:#f92672">protocol</span>: <span style="color:#ae81ff">tcp                </span> <span style="color:#75715e"># 协议类型</span>
+</span></span><span style="display:flex;"><span>                      <span style="color:#f92672">mode</span>: <span style="color:#ae81ff">host                   </span> <span style="color:#75715e"># host 在每个节点上发布主机端口,  ingress 对于群模式端口进行负载均衡</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">secrets              </span> <span style="color:#75715e"># 不知道怎么用</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">security_opt         </span> <span style="color:#75715e"># 为每个容器覆盖默认的标签 (在使用 swarm 部署时将忽略该选项)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">stop_grace_period    </span> <span style="color:#75715e"># 指定在发送了 SIGTERM 信号之后, 容器等待多少秒之后退出(默认 10s)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">stop_signal          </span> <span style="color:#75715e"># 指定停止容器发送的信号 (默认为 SIGTERM 相当于 kill PID; SIGKILL 相当于 kill -9 PID; 在使用 swarm 部署时将忽略该选项)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">sysctls              </span> <span style="color:#75715e"># 设置容器中的内核参数 (在使用 swarm 部署时将忽略该选项)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">ulimits              </span> <span style="color:#75715e"># 设置容器的 limit</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">userns_mode          </span> <span style="color:#75715e"># 如果Docker守护程序配置了用户名称空间, 则禁用此服务的用户名称空间 (在使用 swarm 部署时将忽略该选项)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">volumes              </span> <span style="color:#75715e"># 定义容器和宿主机的卷映射关系, 其和 networks 一样可以位于 services 键的二级键和 compose 顶级键, 如果需要跨服务间使用则在顶级键定义, 在 services 中引用</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">SHORT 语法格式示例</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">volumes</span>:
+</span></span><span style="display:flex;"><span>                    - <span style="color:#ae81ff">/var/lib/mysql               </span> <span style="color:#75715e"># 映射容器内的 /var/lib/mysql 到宿主机的一个随机目录中</span>
+</span></span><span style="display:flex;"><span>                    - <span style="color:#ae81ff">/opt/data:/var/lib/mysql     </span> <span style="color:#75715e"># 映射容器内的 /var/lib/mysql 到宿主机的 /opt/data</span>
+</span></span><span style="display:flex;"><span>                    - <span style="color:#ae81ff">./cache:/tmp/cache           </span> <span style="color:#75715e"># 映射容器内的 /var/lib/mysql 到宿主机 compose 文件所在的位置</span>
+</span></span><span style="display:flex;"><span>                    - <span style="color:#ae81ff">~/configs:/etc/configs/:ro   </span> <span style="color:#75715e"># 映射容器宿主机的目录到容器中去, 权限只读</span>
+</span></span><span style="display:flex;"><span>                    - <span style="color:#ae81ff">datavolume:/var/lib/mysql    </span> <span style="color:#75715e"># datavolume 为 volumes 顶级键定义的目录, 在此处直接调用</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">LONG 语法格式示例:(v3.2 新增的语法格式)</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">version</span>: <span style="color:#e6db74">&#34;3.2&#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">services</span>:
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">web</span>:
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">image</span>: <span style="color:#ae81ff">nginx:alpine</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">ports</span>:
+</span></span><span style="display:flex;"><span>                            - <span style="color:#e6db74">&#34;80:80&#34;</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">volumes</span>:
+</span></span><span style="display:flex;"><span>                            - <span style="color:#f92672">type</span>: <span style="color:#ae81ff">volume                 </span> <span style="color:#75715e"># mount 的类型, 必须是 bind、volume 或 tmpfs</span>
+</span></span><span style="display:flex;"><span>                                <span style="color:#f92672">source</span>: <span style="color:#ae81ff">mydata             </span> <span style="color:#75715e"># 宿主机目录</span>
+</span></span><span style="display:flex;"><span>                                <span style="color:#f92672">target</span>: <span style="color:#ae81ff">/data              </span> <span style="color:#75715e"># 容器目录</span>
+</span></span><span style="display:flex;"><span>                                <span style="color:#f92672">volume</span>:                     <span style="color:#75715e"># 配置额外的选项, 其 key 必须和 type 的值相同</span>
+</span></span><span style="display:flex;"><span>                                    <span style="color:#f92672">nocopy</span>: <span style="color:#66d9ef">true</span>                <span style="color:#75715e"># volume 额外的选项, 在创建卷时禁用从容器复制数据</span>
+</span></span><span style="display:flex;"><span>                            - <span style="color:#f92672">type</span>: <span style="color:#ae81ff">bind                   </span> <span style="color:#75715e"># volume 模式只指定容器路径即可, 宿主机路径随机生成; bind 需要指定容器和数据机的映射路径</span>
+</span></span><span style="display:flex;"><span>                                <span style="color:#f92672">source</span>: <span style="color:#ae81ff">./static</span>
+</span></span><span style="display:flex;"><span>                                <span style="color:#f92672">target</span>: <span style="color:#ae81ff">/opt/app/static</span>
+</span></span><span style="display:flex;"><span>                                <span style="color:#f92672">read_only</span>: <span style="color:#66d9ef">true</span>             <span style="color:#75715e"># 设置文件系统为只读文件系统</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">volumes</span>:
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">mydata</span>:                                 <span style="color:#75715e"># 定义在 volume, 可在所有服务中调用</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">restart              </span> <span style="color:#75715e"># 定义容器重启策略(在使用 swarm 部署时将忽略该选项, 在 swarm 使用 restart_policy 代替 restart)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">no</span>                    <span style="color:#75715e"># 禁止自动重启容器(默认)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">always               </span> <span style="color:#75715e"># 无论如何容器都会重启</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">on</span>-<span style="color:#ae81ff">failure           </span> <span style="color:#75715e"># 当出现 on-failure 报错时, 容器重新启动</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">其他选项：</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">domainname, hostname, ipc, mac_address, privileged, read_only, shm_size, stdin_open, tty, user, working_dir</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">上面这些选项都只接受单个值和 docker run 的对应参数类似</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">对于值为时间的可接受的值：</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">2.</span><span style="color:#ae81ff">5s</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">10s</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">1m30s</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">2h32m</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">5h34m56s</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">时间单位</span>: <span style="color:#ae81ff">us, ms, s, m， h</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">对于值为大小的可接受的值：</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">2b</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">1024kb</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">2048k</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">300m</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">1gb</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">单位</span>: <span style="color:#ae81ff">b, k, m, g 或者 kb, mb, gb</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">networks         </span> <span style="color:#75715e"># 定义 networks 信息</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">driver               </span> <span style="color:#75715e"># 指定网络模式, 大多数情况下, 它 bridge 于单个主机和 overlay Swarm 上</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">bridge               </span> <span style="color:#75715e"># Docker 默认使用 bridge 连接单个主机上的网络</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">overlay              </span> <span style="color:#75715e"># overlay 驱动程序创建一个跨多个节点命名的网络</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">host                 </span> <span style="color:#75715e"># 共享主机网络名称空间(等同于 docker run --net=host)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">none                 </span> <span style="color:#75715e"># 等同于 docker run --net=none</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">driver_opts          </span> <span style="color:#75715e"># v3.2以上版本, 传递给驱动程序的参数, 这些参数取决于驱动程序</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">attachable           </span> <span style="color:#75715e"># driver 为 overlay 时使用, 如果设置为 true 则除了服务之外，独立容器也可以附加到该网络; 如果独立容器连接到该网络，则它可以与其他 Docker 守护进程连接到的该网络的服务和独立容器进行通信</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">ipam                 </span> <span style="color:#75715e"># 自定义 IPAM 配置. 这是一个具有多个属性的对象, 每个属性都是可选的</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">driver               </span> <span style="color:#75715e"># IPAM 驱动程序, bridge 或者 default</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">config               </span> <span style="color:#75715e"># 配置项</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">subnet               </span> <span style="color:#75715e"># CIDR格式的子网，表示该网络的网段</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">external             </span> <span style="color:#75715e"># 外部网络, 如果设置为 true 则 docker-compose up 不会尝试创建它, 如果它不存在则引发错误</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">name                 </span> <span style="color:#75715e"># v3.5 以上版本, 为此网络设置名称</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">文件格式示例：</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">version</span>: <span style="color:#e6db74">&#34;3&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">services</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">redis</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">image</span>: <span style="color:#ae81ff">redis:alpine</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">ports</span>:
+</span></span><span style="display:flex;"><span>          - <span style="color:#e6db74">&#34;6379&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">networks</span>:
+</span></span><span style="display:flex;"><span>          - <span style="color:#ae81ff">frontend</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">deploy</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">update_config</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">parallelism</span>: <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">delay</span>: <span style="color:#ae81ff">10s</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">restart_policy</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">condition</span>: <span style="color:#66d9ef">on</span>-<span style="color:#ae81ff">failure</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">db</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">image</span>: <span style="color:#ae81ff">postgres:9.4</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">volumes</span>:
+</span></span><span style="display:flex;"><span>          - <span style="color:#ae81ff">db-data:/var/lib/postgresql/data</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">networks</span>:
+</span></span><span style="display:flex;"><span>          - <span style="color:#ae81ff">backend</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">deploy</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">placement</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">constraints</span>: [<span style="color:#ae81ff">node.role == manager]</span>
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>Buy me a coffee</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>Alipay
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>WeChat
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
+    <i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://xuzhijvn.github.io/en/zh-cn/posts/cicd/docker-compose%E7%9A%84%E6%96%B9%E5%BC%8F%E5%90%AF%E5%8A%A8jenkins/">docker-compose的方式启动jenkins
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://xuzhijvn.github.io/en/zh-cn/posts/other/css%E4%B8%AD%E5%86%85%E8%81%94svg/">CSS中内联SVG
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div></div>
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">Copyright</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title">Comments</h2>
+  </div>
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    <section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony" src="https://xuzhijvn.github.io/images/profile.webp" loading="lazy"
+   width="400" height="400"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div></div>
+  </div>
+</section>
+  <section class="recent-posts row card component">
+  <div class="card-header">
+    <h2 class="card-title">Recent Posts</h2>
+  </div>
+  <div class="card-body">
+    <ul class="post-list"></ul>
+  </div>
+</section><section class="series-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/series">Series</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/series/manual/" class="badge rounded post-taxonomy" title="Manual">
+            Manual</a><a href="https://xuzhijvn.github.io/en/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/en/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/en/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/en/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a><a href="https://xuzhijvn.github.io/en/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a></div>
+      </div>
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/categories">Categories</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/en/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/en/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/en/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/en/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/en/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/en/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a><a href="https://xuzhijvn.github.io/en/categories/%E5%AE%B9%E5%99%A8/" class="badge rounded post-taxonomy" title="容器">
+            容器</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/tags">Tags</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/tags/java/" class="badge rounded post-taxonomy" title="Java">
+            Java</a><a href="https://xuzhijvn.github.io/en/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/en/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/en/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/en/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/en/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/en/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/en/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/en/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/en/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/en/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/en/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/en/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/en/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/en/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/en/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/en/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/en/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/en/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/en/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/en/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/en/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/en/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/en/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/en/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/en/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/en/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/en/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/en/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/en/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/en/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/en/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/en/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/en/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/en/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/en/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/en/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/en/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/en/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/en/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/en/tags/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a><a href="https://xuzhijvn.github.io/en/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/en/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
+      </div>
+    </section>
+    <section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=783175223&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></body>
+</html>

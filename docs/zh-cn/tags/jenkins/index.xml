@@ -15,9 +15,8 @@
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cicd/docker-compose%E7%9A%84%E6%96%B9%E5%BC%8F%E5%90%AF%E5%8A%A8jenkins/</guid>
       <description>docker-compose的方式启动jenkins
 jenkins官网提供了多种安装方式，唯独没有提供docker compose的教程！咱也不知道为啥，所以自己动手丰衣足食。
-1. 编写docker-compose.yml version: &amp;#39;3&amp;#39; services: jenkins: image: jenkinsci/blueocean container_name: jenkins user: root ports: - &amp;#39;8080:8080&amp;#39; - &amp;#39;50000:50000&amp;#39; volumes: - &amp;#39;/docker/volumes/jenkins:/var/jenkins_home&amp;#39; - &amp;#39;/var/run/docker.sock:/var/run/docker.sock&amp;#39; - &amp;#39;/usr/local/jdk1.8.0_241:/usr/local/jdk1.8.0_241&amp;#39; - &amp;#39;/usr/local/apache-maven-3.6.3:/usr/local/apache-maven-3.6.3&amp;#39; restart: always 2. 启动jenkins docker-compose up -d jenkins &amp;amp;&amp;amp; docker logs -f jenkins ==jenkins 启动时，一直处在 Please wait while Jenkins is getting ready to work &amp;hellip;== 需要更新hudson.model.UpdateCenter.xml的url：
-&amp;lt;?xml version=&amp;#39;1.1&amp;#39; encoding=&amp;#39;UTF-8&amp;#39;?&amp;gt; &amp;lt;sites&amp;gt; &amp;lt;site&amp;gt; &amp;lt;id&amp;gt;default&amp;lt;/id&amp;gt; &amp;lt;url&amp;gt;https://updates.jenkins.io/update-center.json&amp;lt;/url&amp;gt; &amp;lt;/site&amp;gt; &amp;lt;/sites&amp;gt; 更新为：
-&amp;lt;?xml version=&amp;#39;1.1&amp;#39; encoding=&amp;#39;UTF-8&amp;#39;?&amp;gt; &amp;lt;sites&amp;gt; &amp;lt;site&amp;gt; &amp;lt;id&amp;gt;default&amp;lt;/id&amp;gt; &amp;lt;url&amp;gt;http://mirror.</description>
+1. 编写docker-compose.yml version: &amp;#39;3&amp;#39; services:  jenkins:  image: jenkinsci/blueocean  container_name: jenkins  user: root  ports:  - &amp;#39;8080:8080&amp;#39;  - &amp;#39;50000:50000&amp;#39;  volumes:  - &amp;#39;/docker/volumes/jenkins:/var/jenkins_home&amp;#39;  - &amp;#39;/var/run/docker.sock:/var/run/docker.sock&amp;#39;  - &amp;#39;/usr/local/jdk1.8.0_241:/usr/local/jdk1.8.0_241&amp;#39;  - &amp;#39;/usr/local/apache-maven-3.6.3:/usr/local/apache-maven-3.6.3&amp;#39;  restart: always 2. 启动jenkins docker-compose up -d jenkins &amp;amp;&amp;amp; docker logs -f jenkins ==jenkins 启动时，一直处在 Please wait while Jenkins is getting ready to work &amp;hellip;== 需要更新hudson.model.UpdateCenter.xml的url：
+&amp;lt;?xml version=&amp;#39;1.1&amp;#39; encoding=&amp;#39;UTF-8&amp;#39;?</description>
     </item>
     
     <item>
@@ -40,29 +39,12 @@ Github webhooks+Jenkins搭建持续集成环境 第一章节，意在教您通�
 5. 配置jenkins运行环境 这里的环境取决与你的项目需要的环境。
 如果你的jenkins是直接运行在机器上，那么指定对应环境的路径即可。如果是运行在容器里面，容器启动的时候把宿主机的环境映射到容器即可。
 6. 新建一个maven项目 本小节以一个maven项目为例子，下一个小节我还补充了vue项目的例子。
-请按图操作：
-请按图操作：
+请按图操作： 请按图操作：
 请按图操作：
 这里对上图解释一下：上图的含义是，当maven构建完项目之后，制作docker镜像，并推送到远程容器仓库。当然，你也可以构建完项目之后，直接java -jar本地运行，这一切取决于你的需求！！！
 7. 新建一个vue项目 你的前端可能是通过vue实现前后端分离的，那么你肯定也存在对vue编译构建的需求。
 这里大部分配置和第5小节是一样的，不再赘述，需要注意的是：
 上图中command的含义是: 1. 构建项目 2. 运行项目 3. 制作镜像 4，推送镜像到仓库。同第5节的maven项目一样，需要哪些步骤取决于你的需求。</description>
-    </item>
-    
-    <item>
-      <title>Jenkins使用使用注意事项</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/cicd/jenkins%E4%BD%BF%E7%94%A8%E4%BD%BF%E7%94%A8%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/cicd/jenkins%E4%BD%BF%E7%94%A8%E4%BD%BF%E7%94%A8%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/</guid>
-      <description>Jenkins使用使用注意事项
-1. 无法通过execute shell启动进程 这是因为Jenkins默认会在Build结束后Kill掉所有的衍生进程。
-在执行shell前需要设置BUILD_ID=dontKillMe
-BUILD_ID=dontKillMe cd /data/wwwroot/yxshop chmod +x ./*.sh nohup ./restart.sh &amp;gt;/data/wwwroot/yxshop/nohup.out 2&amp;gt;&amp;amp;1 &amp;amp; 2. github向jenkins deliver失败 一开始填写的Payload URL形如，
-Payload URL = https://xxx.com/github-webhook
-无论怎么修改再redeliver都失败，后来修改为形如，
-Payload URL = https://xxx.com/github-webhook/
-仅仅是在后面加了“/”。</description>
     </item>
     
     <item>
@@ -82,6 +64,22 @@ Payload URL = https://xxx.com/github-webhook/
 $ sed -i &amp;#39;s/http:\/\/updates.jenkins-ci.org\/download/https:\/\/mirrors.tuna.tsinghua.edu.cn\/jenkins/g&amp;#39; default.json &amp;amp;&amp;amp; sed -i &amp;#39;s/http:\/\/www.google.com/https:\/\/www.baidu.com/g&amp;#39; default.json 这是直接修改的配置文件，如果前边Jenkins用sudo启动的话，那么这里的两个sed前均需要加上sudo
 重启Jenkins，安装插件试试，简直超速！！
 https://www.cnblogs.com/hellxz/p/jenkins_install_plugins_faster.html</description>
+    </item>
+    
+    <item>
+      <title>Jenkins使用使用注意事项</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/cicd/jenkins%E4%BD%BF%E7%94%A8%E4%BD%BF%E7%94%A8%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/cicd/jenkins%E4%BD%BF%E7%94%A8%E4%BD%BF%E7%94%A8%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/</guid>
+      <description>Jenkins使用使用注意事项
+1. 无法通过execute shell启动进程 这是因为Jenkins默认会在Build结束后Kill掉所有的衍生进程。
+在执行shell前需要设置BUILD_ID=dontKillMe
+BUILD_ID=dontKillMe cd /data/wwwroot/yxshop chmod +x ./*.sh nohup ./restart.sh &amp;gt;/data/wwwroot/yxshop/nohup.out 2&amp;gt;&amp;amp;1 &amp;amp; 2. github向jenkins deliver失败 一开始填写的Payload URL形如，
+Payload URL = https://xxx.com/github-webhook
+无论怎么修改再redeliver都失败，后来修改为形如，
+Payload URL = https://xxx.com/github-webhook/
+仅仅是在后面加了“/”。</description>
     </item>
     
   </channel>

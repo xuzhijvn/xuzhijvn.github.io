@@ -51,6 +51,29 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
     </item>
     
     <item>
+      <title>redis分布式锁和zk分布式锁的对比</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8Czk%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AF%B9%E6%AF%94/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8Czk%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AF%B9%E6%AF%94/</guid>
+      <description>redis 分布式锁，其实需要自己不断去尝试获取锁，比较消耗性能。 zk 分布式锁，获取不到锁，注册个监听器即可，不需要不断主动尝试获取锁，性能开销较小。  另外一点就是，如果是 Redis 获取锁的那个客户端 出现 bug 挂了，那么只能等待超时时间之后才能释放锁；而 zk 的话，因为创建的是临时 znode，只要客户端挂了，znode 就没了，此时就自动释放锁。
+Redis 分布式锁大家没发现好麻烦吗？遍历上锁，计算时间等等&amp;hellip;&amp;hellip;zk 的分布式锁语义清晰实现简单。
+所以先不分析太多的东西，就说这两点，我个人实践认为 zk 的分布式锁比 Redis 的分布式锁牢靠、而且模型简单易用。
+参考 一般实现分布式锁都有哪些方式？使用 Redis 如何设计分布式锁？使用 zk 来设计分布式锁可以吗？这两种分布式锁的实现方式哪种效率比较高？</description>
+    </item>
+    
+    <item>
+      <title>Redis配置指南</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</guid>
+      <description>1. 安装 $ wget http://download.redis.io/releases/redis-5.0.8.tar.gz $ tar xzf redis-5.0.8.tar.gz $ cd redis-5.0.8 $ make 2.配置  注释掉bind 127.0.0.1 protected-mode yes requirepass xxxpassword daemonize yes  3. 启动 cd src ./redis-server 或者
+cd src ./redis-server ../redis.conf 4. 停止 cd src ./redis-cli auth xxxpassword shutdown exit 5. 卸载 find / -name &amp;#34;redis*&amp;#34; | xargs rm -rf 6.远程连接 window连接远程redis:
+redis-cli -h 193.112.37.xxx -p 6379 -a xxxpassword </description>
+    </item>
+    
+    <item>
       <title>Redis主从复制</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
@@ -92,48 +115,6 @@ Redis服务器启动后，直接通过客户端执行命令：slaveof  ，则该
     </item>
     
     <item>
-      <title>redis分布式锁和zk分布式锁的对比</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8Czk%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AF%B9%E6%AF%94/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8Czk%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AF%B9%E6%AF%94/</guid>
-      <description>redis 分布式锁，其实需要自己不断去尝试获取锁，比较消耗性能。 zk 分布式锁，获取不到锁，注册个监听器即可，不需要不断主动尝试获取锁，性能开销较小。  另外一点就是，如果是 Redis 获取锁的那个客户端 出现 bug 挂了，那么只能等待超时时间之后才能释放锁；而 zk 的话，因为创建的是临时 znode，只要客户端挂了，znode 就没了，此时就自动释放锁。
-Redis 分布式锁大家没发现好麻烦吗？遍历上锁，计算时间等等&amp;hellip;&amp;hellip;zk 的分布式锁语义清晰实现简单。
-所以先不分析太多的东西，就说这两点，我个人实践认为 zk 的分布式锁比 Redis 的分布式锁牢靠、而且模型简单易用。
-参考 一般实现分布式锁都有哪些方式？使用 Redis 如何设计分布式锁？使用 zk 来设计分布式锁可以吗？这两种分布式锁的实现方式哪种效率比较高？</description>
-    </item>
-    
-    <item>
-      <title>Redis配置指南</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</guid>
-      <description>1. 安装 $ wget http://download.redis.io/releases/redis-5.0.8.tar.gz $ tar xzf redis-5.0.8.tar.gz $ cd redis-5.0.8 $ make 2.配置  注释掉bind 127.0.0.1 protected-mode yes requirepass xxxpassword daemonize yes  3. 启动 cd src ./redis-server 或者
-cd src ./redis-server ../redis.conf 4. 停止 cd src ./redis-cli auth xxxpassword shutdown exit 5. 卸载 find / -name &amp;#34;redis*&amp;#34; | xargs rm -rf 6.远程连接 window连接远程redis:
-redis-cli -h 193.112.37.xxx -p 6379 -a xxxpassword </description>
-    </item>
-    
-    <item>
-      <title>基于Redis的分布式锁实现</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</guid>
-      <description>使用 set key value ex/px 秒/毫秒 xx/nx 的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是多锁，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（RedissonPriorityDeque）和分布式同步工具（RedissonCountDownLatch, RedissonSemaphore）
-前言 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
-分布式锁概览 在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
-实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
-比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
-分布式锁的特点 分布式锁一般有如下的特点：
- 互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒  分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
- 基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
-Redis的分布式锁实现 1. 利用setnx+expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
-因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx+expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.</description>
-    </item>
-    
-    <item>
       <title>底层数据结构</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
@@ -159,22 +140,35 @@ Redis源码分析-压缩列表ziplist</description>
     </item>
     
     <item>
-      <title>数据库和缓存双写一致性</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%BC%93%E5%AD%98%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7/</link>
+      <title>缓存雪崩和缓存穿透</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%92%8C%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%BC%93%E5%AD%98%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7/</guid>
-      <description>数据库与缓存双写可以有4种顺序： 更新缓存-&amp;gt;更新db、更新db-&amp;gt;更新缓存、删除缓存-&amp;gt;更新db、更新db-&amp;gt;删除缓存
-前两种顺序有显著的缺陷：
- 后更新的数据源失败，因为无法将先更新的数据源回滚（redis）或者不知道该不该回滚（超时）导致数据不一致； 多并发（大于两个并发请求，不一定需要高并发）场景下，因为双写不是原子操作，就有可能发生数据不一致； 读少写多的场景下，大量缓存一直在被更新，却没有被读，一直在做无用功。  后两种顺序也存在在多并发数据场景下数据不一致的情形，但是它们都可以通过 异步延迟双删+失败删除重试机制 解决，其中更新db-&amp;gt;删除缓存 发生不一致的概率更低，所以应该首先最后一种顺序实施双写。
-首先，缓存由于其高并发和高性能的特性，已经在项目中被广泛使用。在读取缓存方面，大家没啥疑问，都是按照下图的流程来进行业务操作。
-、
-双写可分为：更新缓存-&amp;gt;更新db、更新db-&amp;gt;更新缓存、删除缓存-&amp;gt;更新db、更新db-&amp;gt;删除缓存 四种策略。
-并发事务时，前两种策略不仅存在数据不一致的，而且在写多读少的场景下会白白消耗缓存的性能（因为数据还没被读就又被更新了，尤其是在更新的缓存需要通过复杂计算才能得到时，这种消耗更加严重）。后两种策略情况相似，只是更新db-&amp;gt;删除缓存相较于删除缓存-&amp;gt;更新db发生数据不一致的概率更低（因为只有在写操作先于读操作完成才会不一致，而一般来说一个写操作是要比读操作慢的），为防止不一致发生，它们都采用异步延迟双删+删除重试机制的策略，下面详述常见删除重试机制。
-重试机制：方案一 流程如下所示 （1）更新数据库数据； （2）缓存因为种种问题删除失败 （3）将需要删除的key发送至消息队列 （4）自己消费消息，获得需要删除的key （5）继续重试删除操作，直到成功 然而，该方案有一个缺点，对业务线代码造成大量的侵入。于是有了方案二，在方案二中，启动一个订阅程序去订阅数据库的binlog，获得需要操作的数据。在应用程序中，另起一段程序，获得这个订阅程序传来的信息，进行删除缓存操作。
-重试机制：方案二 流程如下图所示： （1）更新数据库数据 （2）数据库会将操作信息写入binlog日志当中 （3）订阅程序提取出所需要的数据以及key （4）另起一段非业务代码，获得该信息 （5）尝试删除缓存操作，发现删除失败 （6）将这些信息发送至消息队列 （7）重新从消息队列中获得该数据，重试操作。
-上述的订阅binlog程序在mysql中有现成的中间件叫canal，可以完成订阅binlog日志的功能。至于oracle中，博主目前不知道有没有现成中间件可以使用。另外，重试机制，博主是采用的是消息队列的方式。如果对一致性要求不是很高，直接在程序中另起一个线程，每隔一段时间去重试即可，这些大家可以灵活自由发挥，只是提供一个思路。
-参考链接： 分布式之数据库和缓存双写一致性方案解析</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%92%8C%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/</guid>
+      <description>1. 缓存雪崩 1.1 什么是缓存雪崩？ 简介：缓存同一时间大面积的失效，所以，后面的请求都会落到数据库上，造成数据库短时间内承受大量请求而崩掉。
+1.2 有哪些解决办法？  事前：尽量保证整个 redis 集群的高可用性，发现机器宕机尽快补上。选择合适的内存淘汰策略。 事中：本地ehcache缓存 + hystrix限流&amp;amp;降级，避免MySQL崩掉 事后：利用 redis 持久化机制保存的数据尽快恢复缓存  2. 缓存穿透 2.1 什么是缓存穿透？ 缓存穿透说简单点就是大量请求的 key 根本不存在于缓存中，导致请求直接到了数据库上，根本没有经过缓存这一层。举个例子：某个黑客故意制造我们缓存中不存在的 key 发起大量请求，导致大量请求落到数据库。
+2.1 有哪些解决办法？ 最基本的就是首先做好参数校验，一些不合法的参数请求直接抛出异常信息返回给客户端。比如查询的数据库 id 不能小于 0、传入的邮箱格式不对的时候直接返回错误消息给客户端等等。
+ 缓存无效 key（解决请求的 key 变化不频繁的情况） : 如果缓存和数据库都查不到某个 key 的数据就写一个到 redis 中去并设置过期时间，具体命令如下：SET key value EX 10086。这种方式可以解决请求的 key 变化不频繁的情况，如果黑客恶意攻击，每次构建的不同的请求key，会导致 redis 中缓存大量无效的 key 。很明显，这种方案并不能从根本上解决此问题。如果非要用这种方式来解决穿透问题的话，尽量将无效的 key 的过期时间设置短一点比如 1 分钟。 布隆过滤器（解决请求的 key 变化频繁且key非法）：布隆过滤器是一个非常神奇的数据结构，通过它我们可以非常方便地判断一个给定数据是否存在与海量数据中。我们需要的就是判断 key 是否合法，有没有感觉布隆过滤器就是我们想要找的那个“人”。具体是这样做的：把所有可能存在的请求的值都存放在布隆过滤器中，当用户请求过来，我会先判断用户发来的请求的值是否存在于布隆过滤器中。不存在的话，直接返回请求参数错误信息给客户端，存在的话才会走下面的流程。总结一下就是下面这张图(这张图片不是我画的，为了省事直接在网上找的)：  但是，需要注意的是布隆过滤器可能会存在误判的情况。总结来说就是： 布隆过滤器说某个元素存在，小概率会误判。布隆过滤器说某个元素不在，那么这个元素一定不在。
+ 缓存预热（解决请求的 key 变化频繁且key合法）：提前将需要做缓存的数据放入redis，即缓存预热。  3.</description>
+    </item>
+    
+    <item>
+      <title>基于Redis的分布式锁实现</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</guid>
+      <description>使用 set key value ex/px 秒/毫秒 xx/nx 的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是多锁，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（RedissonPriorityDeque）和分布式同步工具（RedissonCountDownLatch, RedissonSemaphore）
+前言 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
+分布式锁概览 在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
+实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
+比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
+分布式锁的特点 分布式锁一般有如下的特点：
+ 互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒  分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
+ 基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
+Redis的分布式锁实现 1. 利用setnx+expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
+因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx+expire命令的核心代码如下：
+public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.</description>
     </item>
     
     <item>
@@ -220,16 +214,22 @@ Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点�
     </item>
     
     <item>
-      <title>缓存雪崩和缓存穿透</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%92%8C%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/</link>
+      <title>数据库和缓存双写一致性</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%BC%93%E5%AD%98%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%92%8C%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/</guid>
-      <description>1. 缓存雪崩 1.1 什么是缓存雪崩？ 简介：缓存同一时间大面积的失效，所以，后面的请求都会落到数据库上，造成数据库短时间内承受大量请求而崩掉。
-1.2 有哪些解决办法？  事前：尽量保证整个 redis 集群的高可用性，发现机器宕机尽快补上。选择合适的内存淘汰策略。 事中：本地ehcache缓存 + hystrix限流&amp;amp;降级，避免MySQL崩掉 事后：利用 redis 持久化机制保存的数据尽快恢复缓存  2. 缓存穿透 2.1 什么是缓存穿透？ 缓存穿透说简单点就是大量请求的 key 根本不存在于缓存中，导致请求直接到了数据库上，根本没有经过缓存这一层。举个例子：某个黑客故意制造我们缓存中不存在的 key 发起大量请求，导致大量请求落到数据库。
-2.1 有哪些解决办法？ 最基本的就是首先做好参数校验，一些不合法的参数请求直接抛出异常信息返回给客户端。比如查询的数据库 id 不能小于 0、传入的邮箱格式不对的时候直接返回错误消息给客户端等等。
- 缓存无效 key（解决请求的 key 变化不频繁的情况） : 如果缓存和数据库都查不到某个 key 的数据就写一个到 redis 中去并设置过期时间，具体命令如下：SET key value EX 10086。这种方式可以解决请求的 key 变化不频繁的情况，如果黑客恶意攻击，每次构建的不同的请求key，会导致 redis 中缓存大量无效的 key 。很明显，这种方案并不能从根本上解决此问题。如果非要用这种方式来解决穿透问题的话，尽量将无效的 key 的过期时间设置短一点比如 1 分钟。 布隆过滤器（解决请求的 key 变化频繁且key非法）：布隆过滤器是一个非常神奇的数据结构，通过它我们可以非常方便地判断一个给定数据是否存在与海量数据中。我们需要的就是判断 key 是否合法，有没有感觉布隆过滤器就是我们想要找的那个“人”。具体是这样做的：把所有可能存在的请求的值都存放在布隆过滤器中，当用户请求过来，我会先判断用户发来的请求的值是否存在于布隆过滤器中。不存在的话，直接返回请求参数错误信息给客户端，存在的话才会走下面的流程。总结一下就是下面这张图(这张图片不是我画的，为了省事直接在网上找的)：  但是，需要注意的是布隆过滤器可能会存在误判的情况。总结来说就是： 布隆过滤器说某个元素存在，小概率会误判。布隆过滤器说某个元素不在，那么这个元素一定不在。
- 缓存预热（解决请求的 key 变化频繁且key合法）：提前将需要做缓存的数据放入redis，即缓存预热。  3.</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%BC%93%E5%AD%98%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7/</guid>
+      <description>数据库与缓存双写可以有4种顺序： 更新缓存-&amp;gt;更新db、更新db-&amp;gt;更新缓存、删除缓存-&amp;gt;更新db、更新db-&amp;gt;删除缓存
+前两种顺序有显著的缺陷：
+ 后更新的数据源失败，因为无法将先更新的数据源回滚（redis）或者不知道该不该回滚（超时）导致数据不一致； 多并发（大于两个并发请求，不一定需要高并发）场景下，因为双写不是原子操作，就有可能发生数据不一致； 读少写多的场景下，大量缓存一直在被更新，却没有被读，一直在做无用功。  后两种顺序也存在在多并发数据场景下数据不一致的情形，但是它们都可以通过 异步延迟双删+失败删除重试机制 解决，其中更新db-&amp;gt;删除缓存 发生不一致的概率更低，所以应该首先最后一种顺序实施双写。
+首先，缓存由于其高并发和高性能的特性，已经在项目中被广泛使用。在读取缓存方面，大家没啥疑问，都是按照下图的流程来进行业务操作。
+、
+双写可分为：更新缓存-&amp;gt;更新db、更新db-&amp;gt;更新缓存、删除缓存-&amp;gt;更新db、更新db-&amp;gt;删除缓存 四种策略。
+并发事务时，前两种策略不仅存在数据不一致的，而且在写多读少的场景下会白白消耗缓存的性能（因为数据还没被读就又被更新了，尤其是在更新的缓存需要通过复杂计算才能得到时，这种消耗更加严重）。后两种策略情况相似，只是更新db-&amp;gt;删除缓存相较于删除缓存-&amp;gt;更新db发生数据不一致的概率更低（因为只有在写操作先于读操作完成才会不一致，而一般来说一个写操作是要比读操作慢的），为防止不一致发生，它们都采用异步延迟双删+删除重试机制的策略，下面详述常见删除重试机制。
+重试机制：方案一 流程如下所示 （1）更新数据库数据； （2）缓存因为种种问题删除失败 （3）将需要删除的key发送至消息队列 （4）自己消费消息，获得需要删除的key （5）继续重试删除操作，直到成功 然而，该方案有一个缺点，对业务线代码造成大量的侵入。于是有了方案二，在方案二中，启动一个订阅程序去订阅数据库的binlog，获得需要操作的数据。在应用程序中，另起一段程序，获得这个订阅程序传来的信息，进行删除缓存操作。
+重试机制：方案二 流程如下图所示： （1）更新数据库数据 （2）数据库会将操作信息写入binlog日志当中 （3）订阅程序提取出所需要的数据以及key （4）另起一段非业务代码，获得该信息 （5）尝试删除缓存操作，发现删除失败 （6）将这些信息发送至消息队列 （7）重新从消息队列中获得该数据，重试操作。
+上述的订阅binlog程序在mysql中有现成的中间件叫canal，可以完成订阅binlog日志的功能。至于oracle中，博主目前不知道有没有现成中间件可以使用。另外，重试机制，博主是采用的是消息队列的方式。如果对一致性要求不是很高，直接在程序中另起一个线程，每隔一段时间去重试即可，这些大家可以灵活自由发挥，只是提供一个思路。
+参考链接： 分布式之数据库和缓存双写一致性方案解析</description>
     </item>
     
   </channel>

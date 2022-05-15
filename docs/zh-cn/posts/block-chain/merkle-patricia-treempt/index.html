@@ -106,8 +106,8 @@ Merkle树具有下列特性:
 首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -473,7 +473,7 @@ Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太�
 <li>Hex编码(扩展的16进制编码)</li>
 <li>Hex-Prefix编码(16进制前缀编码)</li>
 </ol>
-<pre><code>Raw编码
+<pre tabindex="0"><code>Raw编码
 
 Raw编码就是原生的key值，不做任何改变。这种编码方式的key，是MPT对外提供接口的默认编码方式。
 例如key为”dog”，value为”puppy”的数据项，其key的Raw编码就是[‘d’, ‘o’, ‘g’]，换成ASCII表示方式就是[64, 6f, 67] : dog =&gt; ‘puppy’
@@ -530,40 +530,40 @@ Hex-Prefix编码
 </tr>
 </tbody>
 </table>
-<pre><code>4. 如果输入key的长度是偶数，则在之前的四元组后再添加一个四元组0x0
+<pre tabindex="0"><code>4. 如果输入key的长度是偶数，则在之前的四元组后再添加一个四元组0x0
 5. 将原来的key内容压缩，将分离的两个byte以高四位低四位进行合并
 </code></pre><p>这里有个名词解释下，四元组是四个bit位的组合(例如二进制表达的0010就是一个四元组)，其中Nibble就是一个四元组，是key的基本单元。</p>
-<pre><code>例如key为”dog”，value为”puppy”的数据项，则首先对dog进行Hex编码[ 6, 4, 6, 15, 6, 7, 16 ]，然后按照上面的步骤进行编码，dog的Hex编码末尾是16，去掉终止符为[ 6, 4, 6, 15, 6, 7 ]，准备在key前补四元组，dog为叶子节点并且编码之后的长度为6是偶数，所以四元组为0010(0x2)，此时到了第4步，key编码之后的长度是偶数，则在前一个四元组(0x2)之后再添加一个四元组0x0，最终的前缀为0x20。最后将原来的key内容进行高低四位合并，最终的Hex-Prefix编码是[ 0x20, 0x64, 0x6f, 0x67 ]
+<pre tabindex="0"><code>例如key为”dog”，value为”puppy”的数据项，则首先对dog进行Hex编码[ 6, 4, 6, 15, 6, 7, 16 ]，然后按照上面的步骤进行编码，dog的Hex编码末尾是16，去掉终止符为[ 6, 4, 6, 15, 6, 7 ]，准备在key前补四元组，dog为叶子节点并且编码之后的长度为6是偶数，所以四元组为0010(0x2)，此时到了第4步，key编码之后的长度是偶数，则在前一个四元组(0x2)之后再添加一个四元组0x0，最终的前缀为0x20。最后将原来的key内容进行高低四位合并，最终的Hex-Prefix编码是[ 0x20, 0x64, 0x6f, 0x67 ]
 </code></pre><p>以上三种编码方式的转换关系为：</p>
-<pre><code>Raw编码: 原生的key编码，是MPT对外提供接口中使用的编码方式，当数据项被插入到树中时，Raw编码被转换成Hex编码
+<pre tabindex="0"><code>Raw编码: 原生的key编码，是MPT对外提供接口中使用的编码方式，当数据项被插入到树中时，Raw编码被转换成Hex编码
 Hex编码: 16进制扩展编码，用于对内存中树节点key进行编码，当树节点被持久化到数据库时，Hex编码被转换成HP编码
 HP编码: 16进制前缀编码，用于对数据库中树节点key进行编码，当树节点被加载到内存时，HP编码被转换成Hex编码
 </code></pre><h4 id="构造过程">构造过程<a class="anchor ms-1" href="#构造过程"><i class="fas fa-link"></i></a></h4>
 <p>接下来我们就实际操作下：
 假设我们有一个树有这样一些kv对(‘dog’, ‘puppy’), (‘horse’, ‘stallion’), (‘do’, ‘verb’), (‘doge’, ‘coin’)。
 首先，我们将key转成Hex编码，如下：</p>
-<pre><code># 64 6f
-[ 6, 4, 6, 15, 16 ] : do =&gt; 'verb'
+<pre tabindex="0"><code># 64 6f
+[ 6, 4, 6, 15, 16 ] : do =&gt; &#39;verb&#39;
 #64 6f 67
-[ 6, 4, 6, 15, 6, 7, 16 ] : dog =&gt; 'puppy'
+[ 6, 4, 6, 15, 6, 7, 16 ] : dog =&gt; &#39;puppy&#39;
 #64 6f 67 65
-[ 6, 4, 6, 15, 6, 7, 6, 5, 16 ] : doge =&gt; 'coin'
+[ 6, 4, 6, 15, 6, 7, 6, 5, 16 ] : doge =&gt; &#39;coin&#39;
 #68 6f 72 73 65
-[ 6, 8, 6, 15, 7, 2, 7, 3, 6, 5, 16 ] : horse =&gt; 'stallion'
+[ 6, 8, 6, 15, 7, 2, 7, 3, 6, 5, 16 ] : horse =&gt; &#39;stallion&#39;
 </code></pre><p>其构造MPT树如图：</p>
 <p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/mpt-1024x972.png" loading="lazy"
   
    />
 
  MPT</p>
-<pre><code>rootHash: [ &lt;16&gt;, hashA ]
+<pre tabindex="0"><code>rootHash: [ &lt;16&gt;, hashA ]
 hashA:    [ &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, hashB, &lt;&gt;, &lt;&gt;, &lt;&gt;, hashC, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt; ]
-hashC:    [ &lt;20 6f 72 73 65&gt;, 'stallion' ]
+hashC:    [ &lt;20 6f 72 73 65&gt;, &#39;stallion&#39; ]
 hashB:    [ &lt;00 6f&gt;, hashD ]
-hashD:    [ &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, hashE, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, 'verb' ]
+hashD:    [ &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, hashE, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &#39;verb&#39; ]
 hashE:    [ &lt;17&gt;, hashF ]
-hashF:    [ &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, hashG, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, 'puppy' ]
-hashG:    [ &lt;35&gt;, 'coin' ]
+hashF:    [ &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, hashG, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &lt;&gt;, &#39;puppy&#39; ]
+hashG:    [ &lt;35&gt;, &#39;coin&#39; ]
 </code></pre><p>构造过程为 假设插入第一个kv对是do-&gt;verb，key根据Hex-Prefix编码为[‘0x20’, ‘0x64’, ‘0x6f’]，MPT树为：</p>
 <ol>
 <li>假设插入第一个kv对是do-&gt;verb，key根据Hex-Prefix编码为[‘0x20’, ‘0x64’, ‘0x6f’]，MPT树为：</li>
@@ -712,6 +712,9 @@ hashG:    [ &lt;35&gt;, 'coin' ]
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/yshop-k8s/">Yshop K8s
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E7%9A%84%E5%8D%B8%E8%BD%BD/">JVM类的卸载
 </a>
       </li><li>
@@ -723,9 +726,6 @@ hashG:    [ &lt;35&gt;, 'coin' ]
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">Like查询优化
 </a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/">Redis队列
-</a>
       </li></ul>
   </div>
 </section><section class="series-taxonomies row card component">
@@ -736,9 +736,9 @@ hashG:    [ &lt;35&gt;, 'coin' ]
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
-            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
-            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
             算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
             istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
             rpc</a></div>
@@ -854,8 +854,8 @@ hashG:    [ &lt;35&gt;, 'coin' ]
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

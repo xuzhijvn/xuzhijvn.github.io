@@ -87,7 +87,7 @@
       <pubDate>Sat, 09 Oct 2021 14:38:30 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/topk/</guid>
-      <description>public static int topK(int[] arr, int k) { if (arr == null || k &amp;gt; arr.length || arr.length == 0 || k &amp;lt;= 0) { return -1; } PriorityQueue&amp;lt;Integer&amp;gt; queue = new PriorityQueue&amp;lt;&amp;gt;(k, Comparator.reverseOrder()); for (int i = 0; i &amp;lt; k; i++) { queue.add(arr[i]); } for (int i = k; i &amp;lt; arr.length; i++) { if (queue.peek() &amp;gt; arr[i]) { queue.poll(); queue.add(arr[i]); } } return queue.peek(); } </description>
+      <description>public static int topK(int[] arr, int k) {  if (arr == null || k &amp;gt; arr.length || arr.length == 0 || k &amp;lt;= 0) {  return -1;  }  PriorityQueue&amp;lt;Integer&amp;gt; queue = new PriorityQueue&amp;lt;&amp;gt;(k, Comparator.reverseOrder());  for (int i = 0; i &amp;lt; k; i++) {  queue.add(arr[i]);  }  for (int i = k; i &amp;lt; arr.length; i++) {  if (queue.peek() &amp;gt; arr[i]) {  queue.</description>
     </item>
     
     <item>
@@ -96,7 +96,7 @@
       <pubDate>Sat, 09 Oct 2021 14:38:30 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/%E6%95%B0%E7%BB%84%E8%BD%AC%E6%A0%91/</guid>
-      <description>private TreeNode buildTree(Integer[] array, int index) { TreeNode treeNode; if (index &amp;lt; array.length) { Integer value = array[index]; if (value == null) { return null; } treeNode = new TreeNode(value); treeNode.left = buildTree(array, 2 * index + 1); treeNode.right = buildTree(array, 2 * index + 2); return treeNode; } return null; } </description>
+      <description>private TreeNode buildTree(Integer[] array, int index) {  TreeNode treeNode;  if (index &amp;lt; array.length) {  Integer value = array[index];  if (value == null) {  return null;  }  treeNode = new TreeNode(value);  treeNode.left = buildTree(array, 2 * index + 1);  treeNode.right = buildTree(array, 2 * index + 2);  return treeNode;  }  return null; } </description>
     </item>
     
     <item>
@@ -105,7 +105,7 @@
       <pubDate>Sat, 09 Oct 2021 14:24:56 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/lrucache/</guid>
-      <description>public class LRUCache&amp;lt;K,V&amp;gt;{ private final int cap; private final Map&amp;lt;K,V&amp;gt; map; private final LinkedList&amp;lt;K&amp;gt; list; public LRUCache(int cap) { this.cap = cap; map = new HashMap&amp;lt;&amp;gt;(cap); list = new LinkedList&amp;lt;&amp;gt;(); } public void put(K key, V value) { if (map.size() == cap){ K first = list.removeFirst(); map.remove(first); } list.addLast(key); map.put(key, value); } public V get(K key) { V value = map.get(key); if (value == null){ return null; }else { list.remove(key); list.</description>
+      <description>public class LRUCache&amp;lt;K,V&amp;gt;{   private final int cap;  private final Map&amp;lt;K,V&amp;gt; map;  private final LinkedList&amp;lt;K&amp;gt; list;   public LRUCache(int cap) {  this.cap = cap;  map = new HashMap&amp;lt;&amp;gt;(cap);  list = new LinkedList&amp;lt;&amp;gt;();  }   public void put(K key, V value) {  if (map.size() == cap){  K first = list.removeFirst();  map.remove(first);  }  list.addLast(key);  map.put(key, value);  }   public V get(K key) {  V value = map.</description>
     </item>
     
     <item>
@@ -190,14 +190,14 @@
       <description>&lt;p&gt;JVM volatile用于保证程序&lt;code&gt;可见性&lt;/code&gt;、&lt;code&gt;顺序性&lt;/code&gt;，但是不保证&lt;code&gt;原子性&lt;/code&gt;。volatile实现原理是通过在操作变量之前，多加一个&lt;code&gt;lock前缀指令&lt;/code&gt;，通过汇编可以看到这个前缀指令。&lt;/p&gt;
 &lt;p&gt;当谈到顺序性时常会提到&lt;code&gt;内存屏障&lt;/code&gt;，常见的硬件层面&lt;code&gt;内存屏障&lt;/code&gt;有：&lt;code&gt;sfence&lt;/code&gt;    &lt;code&gt;lfence&lt;/code&gt;     &lt;code&gt;mfence&lt;/code&gt; ，&lt;code&gt;lock前缀指令&lt;/code&gt;不是内存屏障，而是一种锁，执行时会锁住内存子系统来确保执行顺序，甚至跨多个CPU，JVM利用lock前缀指令的特点实现了&lt;code&gt;可见性&lt;/code&gt; 和 &lt;code&gt;顺序性&lt;/code&gt;，lock前缀指令实现可见性比较好理解，主要是利用CPU提供的缓存一致性协议（例如Intel的MESI）,当然更差一点的还有lock总线的方式（限制CPU访问内存）。&lt;/p&gt;
 &lt;p&gt;JMM层面为了实现&lt;code&gt;顺序性&lt;/code&gt;，又抽象出四个&lt;code&gt;内存屏障&lt;/code&gt;的概念：&lt;code&gt;LoadLoad&lt;/code&gt;     &lt;code&gt;StoreStore&lt;/code&gt;    &lt;code&gt;LoadStore&lt;/code&gt;    &lt;code&gt;StoreLoad&lt;/code&gt;，字节码层面并没有&lt;code&gt;内存屏障&lt;/code&gt;的指令，JVM的C++代码会有四个同名函数与之对应，JVM遇到volatile变量便会在其前后执行对应的函数，从而实现内存屏障，具体来说：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;LoadLoadBarrier
-&lt;span style=&#34;color:#66d9ef&#34;&gt;volatile&lt;/span&gt; 读操作
-LoadStoreBarrier
-
-StoreStoreBarrier
-&lt;span style=&#34;color:#66d9ef&#34;&gt;volatile&lt;/span&gt; 写操作
-StoreLoadBarrie
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;LoadLoadBarrier
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;volatile&lt;/span&gt; 读操作
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;LoadStoreBarrier
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;StoreStoreBarrier
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;volatile&lt;/span&gt; 写操作
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;StoreLoadBarrie
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
     </item>
     
     <item>
@@ -305,7 +305,7 @@ StoreLoadBarrie
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/300.-%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97/</guid>
-      <description>class Solution { public int lengthOfLIS(int[] nums) { if (nums == null || nums.length == 0){return 0;} int[] dp = new int[nums.length]; Arrays.fill(dp,1); for (int i = 0; i &amp;lt; nums.length; i++) { for (int j = 0; j &amp;lt; i; j++) { if(nums[i] &amp;gt; nums[j] &amp;amp;&amp;amp; dp[j] + 1 &amp;gt; dp[i]){ dp[i] = dp[j] + 1; } } } return Arrays.stream(dp).max().getAsInt(); } } 300. 最长递增子序列</description>
+      <description>class Solution {  public int lengthOfLIS(int[] nums) {  if (nums == null || nums.length == 0){return 0;}  int[] dp = new int[nums.length];  Arrays.fill(dp,1);  for (int i = 0; i &amp;lt; nums.length; i++) {  for (int j = 0; j &amp;lt; i; j++) {  if(nums[i] &amp;gt; nums[j] &amp;amp;&amp;amp; dp[j] + 1 &amp;gt; dp[i]){  dp[i] = dp[j] + 1;  }  }  }  return Arrays.</description>
     </item>
     
     <item>
@@ -315,7 +315,7 @@ StoreLoadBarrie
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/nginx/400-bad-request/</guid>
       <description>需要设置 proxy_set_header Host $host:$server_port;
-location ^~/gateway/ { proxy_set_header Host $host:$server_port; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; proxy_pass http://k8s_yshop-gateway-svc/; } </description>
+location ^~/gateway/ {  proxy_set_header Host $host:$server_port;  proxy_set_header X-Real-IP $remote_addr;  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  proxy_set_header X-NginX-Proxy true;  proxy_pass http://k8s_yshop-gateway-svc/; } </description>
     </item>
     
     <item>
@@ -331,11 +331,11 @@ CLH：Craig, Landin, and Hagersten队列，是单向链表，AQS中的队列是C
 主要原理图如下：
 AQS使用一个Volatile的int类型的成员变量state来表示同步状态，通过内置的FIFO队列来完成资源获取的排队工作，通过CAS完成对State值的修改。
 获得锁 acquire()是独占模式下线程获取共享资源的顶层入口。如果获取到资源，线程直接返回，否则进入等待队列，直到获取到资源为止，且整个过程忽略中断的影响。获取到资源后，线程就可以去执行其临界区代码了。
-public final void acquire(int arg) { if (!tryAcquire(arg) &amp;amp;&amp;amp; acquireQueued(addWaiter(Node.EXCLUSIVE), arg)) selfInterrupt(); } 如果再有线程要获取锁，依次在队列中往后排队即可。
+public final void acquire(int arg) {  if (!tryAcquire(arg) &amp;amp;&amp;amp;  acquireQueued(addWaiter(Node.EXCLUSIVE), arg))  selfInterrupt(); } 如果再有线程要获取锁，依次在队列中往后排队即可。
 tryAcquire()方法尝试去获取独占资源。如果获取成功，则直接返回true，否则直接返回false。需自定义同步器去实现
-protected boolean tryAcquire(int arg) { throw new UnsupportedOperationException(); } AQS只是一个框架，具体资源的获取/释放方式交由自定义同步器去实现吗。AQS这里只定义了一个接口，具体资源的获取交由自定义同步器去实现了（通过state的get/set/CAS）！！！至于能不能重入，能不能加塞，那就看具体的自定义同步器怎么去设计了！！
+protected boolean tryAcquire(int arg) {  throw new UnsupportedOperationException(); } AQS只是一个框架，具体资源的获取/释放方式交由自定义同步器去实现吗。AQS这里只定义了一个接口，具体资源的获取交由自定义同步器去实现了（通过state的get/set/CAS）！！！至于能不能重入，能不能加塞，那就看具体的自定义同步器怎么去设计了！！
 addWaiter(Node)此方法用于将当前线程加入到等待队列的队尾，并返回当前线程所在的结点。
-private Node addWaiter(Node mode) { //以给定模式构造结点。mode有两种：EXCLUSIVE（独占）和SHARED（共享）  Node node = new Node(Thread.currentThread(), mode); //尝试快速方式直接放到队尾。  Node pred = tail; if (pred !</description>
+private Node addWaiter(Node mode) {  //以给定模式构造结点。mode有两种：EXCLUSIVE（独占）和SHARED（共享）  Node node = new Node(Thread.currentThread(), mode);   //尝试快速方式直接放到队尾。  Node pred = tail;  if (pred !</description>
     </item>
     
     <item>
@@ -357,7 +357,7 @@ springboot利用@Async提升API接口并发能力</description>
       <description>BeanFactoryPostProcessor工作在Bean实例化之前，BeanPostProcessor工作在Bean初始化方法前后。
 BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：
 1. BeanFactoryPostProcessor接口 该接口的定义如下：
-@FunctionalInterface public interface BeanFactoryPostProcessor { /** * Modify the application context&amp;#39;s internal bean factory after its standard * initialization. All bean definitions will have been loaded, but no beans * will have been instantiated yet. This allows for overriding or adding * properties even to eager-initializing beans. * @param beanFactory the bean factory used by the application context * @throws org.springframework.beans.BeansException in case of errors */ void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException; } 实现该接口，可以在spring的bean创建之前，修改bean的定义属性。也就是说，Spring允许BeanFactoryPostProcessor在容器实例化任何其它bean之前读取配置元数据，并可以根据需要进行修改，例如可以把bean的scope从singleton改为prototype，也可以把property的值给修改掉。可以同时配置多个BeanFactoryPostProcessor，并通过设置&amp;rsquo;order&amp;rsquo;属性来控制各个BeanFactoryPostProcessor的执行次序。</description>
+@FunctionalInterface public interface BeanFactoryPostProcessor {  	/** * Modify the application context&amp;#39;s internal bean factory after its standard * initialization. All bean definitions will have been loaded, but no beans * will have been instantiated yet. This allows for overriding or adding * properties even to eager-initializing beans. * @param beanFactory the bean factory used by the application context * @throws org.springframework.beans.BeansException in case of errors */ 	void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException;  } 实现该接口，可以在spring的bean创建之前，修改bean的定义属性。也就是说，Spring允许BeanFactoryPostProcessor在容器实例化任何其它bean之前读取配置元数据，并可以根据需要进行修改，例如可以把bean的scope从singleton改为prototype，也可以把property的值给修改掉。可以同时配置多个BeanFactoryPostProcessor，并通过设置&amp;rsquo;order&amp;rsquo;属性来控制各个BeanFactoryPostProcessor的执行次序。</description>
     </item>
     
     <item>
@@ -400,7 +400,7 @@ Spring Bean的生命周期（非常详细）</description>
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/completablefuture%E4%BD%BF%E7%94%A8%E8%AF%A6%E8%A7%A3/</guid>
       <description>1. runAsync 和 supplyAsync方法 CompletableFuture 提供了四个静态方法来创建一个异步操作。
 public static CompletableFuture&amp;lt;Void&amp;gt; runAsync(Runnable runnable) public static CompletableFuture&amp;lt;Void&amp;gt; runAsync(Runnable runnable, Executor executor) public static &amp;lt;U&amp;gt; CompletableFuture&amp;lt;U&amp;gt; supplyAsync(Supplier&amp;lt;U&amp;gt; supplier) public static &amp;lt;U&amp;gt; CompletableFuture&amp;lt;U&amp;gt; supplyAsync(Supplier&amp;lt;U&amp;gt; supplier, Executor executor) 没有指定Executor的方法会使用ForkJoinPool.commonPool() 作为它的线程池执行异步代码。如果指定线程池，则使用指定的线程池运行。以下所有的方法都类同。
- runAsync方法不支持返回值。 supplyAsync可以支持返回值。  示例 //无返回值 public static void runAsync() throws Exception { CompletableFuture&amp;lt;Void&amp;gt; future = CompletableFuture.runAsync(() -&amp;gt; { try { TimeUnit.SECONDS.sleep(1); } catch (InterruptedException e) { } System.out.println(&amp;#34;run end ...&amp;#34;); }); future.get(); } //有返回值 public static void supplyAsync() throws Exception { CompletableFuture&amp;lt;Long&amp;gt; future = CompletableFuture.</description>
+ runAsync方法不支持返回值。 supplyAsync可以支持返回值。  示例 //无返回值 public static void runAsync() throws Exception {  CompletableFuture&amp;lt;Void&amp;gt; future = CompletableFuture.runAsync(() -&amp;gt; {  try {  TimeUnit.SECONDS.sleep(1);  } catch (InterruptedException e) {  }  System.out.println(&amp;#34;run end .</description>
     </item>
     
     <item>
@@ -409,8 +409,7 @@ public static CompletableFuture&amp;lt;Void&amp;gt; runAsync(Runnable runnable) 
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/maven/dockerfile-maven-plugin%E4%BD%BF%E7%94%A8/</guid>
-      <description>&amp;lt;properties&amp;gt; &amp;lt;docker.image.prefix&amp;gt;anaham-docker.pkg.coding.net/cereshop/ceres&amp;lt;/docker.image.prefix&amp;gt; &amp;lt;anaham-docker.username&amp;gt;用户名&amp;lt;/anaham-docker.username&amp;gt; &amp;lt;anaham-docker.password&amp;gt;密码&amp;lt;/anaham-docker.password&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;build&amp;gt; &amp;lt;plugins&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;executions&amp;gt; &amp;lt;execution&amp;gt; &amp;lt;goals&amp;gt; &amp;lt;goal&amp;gt;repackage&amp;lt;/goal&amp;gt; &amp;lt;/goals&amp;gt; &amp;lt;/execution&amp;gt; &amp;lt;/executions&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;!-- docker打包插件 --&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;com.spotify&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;dockerfile-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${dockerfile-maven-plugin.version}&amp;lt;/version&amp;gt; &amp;lt;configuration&amp;gt; &amp;lt;username&amp;gt;${anaham-docker.username}&amp;lt;/username&amp;gt; &amp;lt;password&amp;gt;${anaham-docker.password}&amp;lt;/password&amp;gt; &amp;lt;repository&amp;gt;${docker.image.prefix}/${project.artifactId}&amp;lt;/repository&amp;gt; &amp;lt;tag&amp;gt;${ceres.version}&amp;lt;/tag&amp;gt; &amp;lt;!-- 不指定tag默认为latest --&amp;gt; &amp;lt;buildArgs&amp;gt; &amp;lt;JAR_FILE&amp;gt;target/${project.build.finalName}.jar&amp;lt;/JAR_FILE&amp;gt; &amp;lt;/buildArgs&amp;gt; &amp;lt;/configuration&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;/plugins&amp;gt; &amp;lt;/build&amp;gt;  构建镜像  mvn clean package -Dmaven.计算机科学.skip=true dockerfile:build -Ddockerfile.tag=latest 因为上面pom.xml已经指定了tag，也可以直接使用：mvn dockerfile:build 会优先选择pom.xml配置的tag
-上传镜像  mvn dockerfile:push -Ddockerfile.username=[镜像仓库账号] -Ddockerfile.password=[镜像仓库密码] 因为上面pom.xml已经指定了username和password，也可以直接使用：mvn dockerfile:push</description>
+      <description>&amp;lt;properties&amp;gt;  &amp;lt;docker.image.prefix&amp;gt;anaham-docker.pkg.coding.net/cereshop/ceres&amp;lt;/docker.image.prefix&amp;gt;  &amp;lt;anaham-docker.username&amp;gt;用户名&amp;lt;/anaham-docker.username&amp;gt;  &amp;lt;anaham-docker.password&amp;gt;密码&amp;lt;/anaham-docker.password&amp;gt; &amp;lt;/properties&amp;gt;  &amp;lt;build&amp;gt;  &amp;lt;plugins&amp;gt;  &amp;lt;plugin&amp;gt;  &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt;  &amp;lt;artifactId&amp;gt;spring-boot-maven-plugin&amp;lt;/artifactId&amp;gt;  &amp;lt;executions&amp;gt;  &amp;lt;execution&amp;gt;  &amp;lt;goals&amp;gt;  &amp;lt;goal&amp;gt;repackage&amp;lt;/goal&amp;gt;  &amp;lt;/goals&amp;gt;  &amp;lt;/execution&amp;gt;  &amp;lt;/executions&amp;gt;  &amp;lt;/plugin&amp;gt;  &amp;lt;!-- docker打包插件 --&amp;gt;  &amp;lt;plugin&amp;gt;  &amp;lt;groupId&amp;gt;com.spotify&amp;lt;/groupId&amp;gt;  &amp;lt;artifactId&amp;gt;dockerfile-maven-plugin&amp;lt;/artifactId&amp;gt;  &amp;lt;version&amp;gt;${dockerfile-maven-plugin.version}&amp;lt;/version&amp;gt;  &amp;lt;configuration&amp;gt;  &amp;lt;username&amp;gt;${anaham-docker.username}&amp;lt;/username&amp;gt;  &amp;lt;password&amp;gt;${anaham-docker.password}&amp;lt;/password&amp;gt;  &amp;lt;repository&amp;gt;${docker.image.prefix}/${project.artifactId}&amp;lt;/repository&amp;gt;  &amp;lt;tag&amp;gt;${ceres.version}&amp;lt;/tag&amp;gt; &amp;lt;!-- 不指定tag默认为latest --&amp;gt;  &amp;lt;buildArgs&amp;gt;  &amp;lt;JAR_FILE&amp;gt;target/${project.build.finalName}.jar&amp;lt;/JAR_FILE&amp;gt;  &amp;lt;/buildArgs&amp;gt;  &amp;lt;/configuration&amp;gt;  &amp;lt;/plugin&amp;gt;  &amp;lt;/plugins&amp;gt; &amp;lt;/build&amp;gt;  构建镜像  mvn clean package -Dmaven.</description>
     </item>
     
     <item>
@@ -442,7 +441,7 @@ fatal: unable to access &amp;#39;https://github.com/xuzhijvn/tony-demo.git/&amp;
   退出SSR
   使用蓝灯代理
   设置git代理（61885是我蓝灯代理的端口）
-  git config --global --list git config --global https.proxy &amp;#39;127.0.0.1:61885&amp;#39; git config --global http.proxy &amp;#39;127.0.0.1:61885&amp;#39; git config --global --list 禁用git代理  git config --global --list git config --global --unset http.proxy git config --global --list networksetup -setv6off Wi-Fi  以上方法全部不好使，折腾了一下午心态崩了💔💔</description>
+  git config --global --list  git config --global https.proxy &amp;#39;127.0.0.1:61885&amp;#39; git config --global http.proxy &amp;#39;127.0.0.1:61885&amp;#39;  git config --global --list 禁用git代理  git config --global --list  git config --global --unset http.proxy  git config --global --list networksetup -setv6off Wi-Fi  以上方法全部不好使，折腾了一下午心态崩了💔💔</description>
     </item>
     
     <item>
@@ -544,7 +543,7 @@ attach实现动态注入的原理如下：
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/java-switch%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%94%AF%E6%8C%81%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/</guid>
-      <description>switch(expression){ case value : //语句  break; //可选  case value : //语句  break; //可选  //你可以有任意数量的case语句  default : //可选  //语句 } 这里的 expression 支持：
+      <description>switch(expression){  case value :  //语句  break; //可选  case value :  //语句  break; //可选  //你可以有任意数量的case语句  default : //可选  //语句 } 这里的 expression 支持：
 1、基本数据类型：byte, short, char, int
 2、包装数据类型：Byte, Short, Character, Integer
 3、枚举类型：Enum
@@ -552,35 +551,47 @@ attach实现动态注入的原理如下：
 为什么不支持long、float、double数据类型？
 switch 底层是使用 int 型 来进行判断的，即使是枚举、String类型，最终也是转变成 int 型。由于 long、float、double 型表示范围大于 int 型，因此不支持 long、float、double 类型。 （String类型最终是转成了int类型的hashCode；枚举最终转成了枚举对象的定义顺序，即 ordinal值）
 下面举一个使用包装类型和枚举的，其实也不难，注意只能用在 switch 块里面
-// 使用包装类型 Integer value = 5; switch (value) { case 3: System.</description>
+// 使用包装类型 Integer value = 5; switch (value) {  case 3:  System.</description>
     </item>
     
     <item>
-      <title>Java协程</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%8D%8F%E7%A8%8B/</link>
+      <title>Java安装指南</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%8D%8F%E7%A8%8B/</guid>
-      <description>1. 现状 时至今日，JDK17已经正式发布，Java也没有在语言层面对协程提供原生支持。
-一定要在Java中使用协程的话，可以使用诸如quasar, kilim, coroutines 第三方库感受一下，它们的原理基本都是字节码增强 + Java Agent机制，这种做法一是对性能影响很大，对JIT编译器的影响也非常大，另外这些库都几年前就不在更新了，远达不到生产使用的标准。
-还可以使用Kotlin混合编程，Kotlin中的协程本质上还是一套基于原生Java Thread API 的封装，和Go中的协程完全不是一个东西，不要混淆，更谈不上什么性能更好，Kotlin中的协程最大的价值是写起来比RxJava的线程切换还要方便，几乎就是用阻塞的写法来完成非阻塞的任务。
-openjdk也有正在孵化的官方协程项目loom，其能否release还需拭目以待。
-2. 成因 是什么原因导致Oracle一直不着急推出对协程的支持呢？
-先返回到问题的本源。当我们希望引入协程，我们想解决什么问题。我想不外乎下面几点：
-  节省资源：节省内存、节省分配线程的开销（创建和销毁线程要各做一次syscall）、节省大量线程切换带来的开销
-  与NIO配合实现非阻塞的编程，提高系统的吞吐
-  使用起来更加舒服顺畅，同步的编程风格编写异步程序
-  2.1 节省资源 1. 节省内存 我们以常见的Java Web举例，spingboot分配给tomcat的线程池大小默认值是200，即使按照1M线程大小计算，200M的内存占用对于动辄几个G的Java Web应用并不算什么。
-即使是IM的场景，有数百万的长链接需要维护，也可以使用NIO+Worker线程应对。
-还可以调整线程栈占用内存大小（-Xss1024k 或者 -XX:ThreadStackSize=1024k）
-2. 节省线程分配开销 线程池
-3. 节省线程切换开销 我们仍然以Java Web举例，大量的线程大部分时间实际上因为IO（发请求/读DB）而挂起，根本不会参与OS的线程切换，现实当中一个最大200线程的服务器可能同一时刻的“活跃线程”总数只有数十而已。其开销没有想象的那么大。
-2.2 非阻塞编程 nio 👉 netty
-2.3 优雅异步编程 响应式编程库
-可见Java对于引入协程机制并不那么紧迫；并且Java不像Golang等新语言，没有历史包袱，它们可以不提供线程只提供协程编程，但是Java如果没有thread，也没有ThreadLocal，@Transactional不起作用了，又没有等价的工具，是不是很郁闷？
-参考 为什么 Java 坚持多线程不选择协程？
-Kotlin 协程真的比 Java 线程更高效吗？
-硬核系列 | 深入剖析 Java 协程</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/</guid>
+      <description>1. 下载JDK 进入Oracle 官方网站下载合适的 JDK 版本，准备安装。
+2. 创建目录 执行如下命令，在 /usr/ 目录下创建 java 目录。
+mkdir /usr/java cd /usr/java 将下载的文件 jdk-8u151-linux-x64.tar.gz 复制到 /usr/java/ 目录下。
+3. 解压 JDK tar -zxvf jdk-8u151-linux-x64.tar.gz 4. 设置环境变量 set java environment JAVA_HOME=/usr/java/jdk1.8.0_151 JRE_HOME=/usr/java/jdk1.8.0_151/jre CLASS_PATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin export JAVA_HOME JRE_HOME CLASS_PATH PATH 使修改生效：
+source /etc/profile 5. 测试 执行如下命令进行测试。
+java -version 若显示 Java 版本信息，则说明 JDK 安装成功：
+java version &amp;#34;1.8.0_151&amp;#34; Java(TM) SE Runtime Environment (build 1.8.0_151-b12) Java HotSpot(TM) 64-Bit Server VM (build 25.</description>
+    </item>
+    
+    <item>
+      <title>Java堆外内存溢出</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%A0%86%E5%A4%96%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%A0%86%E5%A4%96%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA/</guid>
+      <description>前段时间在做一个实时人脸抓拍项目的时候，遇到了一个堆外内存OOM的问题，现在把思路好好整理一下。
+项目中用opencv通过rtsp协议，实时的读取通用网络摄像头的视频帧。因为项目中多处用到了org.opencv.core.Mat这个对象，而Mat对象的构造是通过调用native方法实现的，也就是说构造Mat对象的时候，会在堆外分配内存：
+ //  // C++: Mat::Mat()  //   // javadoc: Mat::Mat()  public Mat()  {   nativeObj = n_Mat();   return;  }  // C++: Mat::Mat()  private static native long n_Mat(); 堆外分配的内存不受JVM的内存管理。由于又没有主动调用Mat.realse()去释放堆外内存，导致堆外内存OOM。
+其实解决的办法很简单，可以在Mat对象使用完毕后直接调用Mat.realse()释放堆外内存。（没有试过，本人使用的下面的方式）
+但是，Mat对象充斥着整个项目，要跟踪Mat对象的生命周期显得有点复杂，而且因为太多地方使用了Mat对象，很有可能遗漏调用Mat.realse()释放内存。因此，还是想把这部分内存的释放交由JVM来做，具体的方式是：定期的调用System.gc()执行垃圾回收（很多人说System.gc()只是建议JVM执行垃圾回收，并不是命令，是否执行取决去JVM自己，但是，经我实测，每次调用System.gc()都会触发垃圾回收。），JVM在垃圾回收前会执行每个**空java对象（null）**的finalize()方法，而Mat对象的finalize()方法正好实现了释放内存的逻辑：
+ @Override  protected void finalize() throws Throwable {  n_delete(nativeObj);  super.finalize();  }  // native support for java finalize()  private static native void n_delete(long nativeObj); 因为会定时的调用System.</description>
+    </item>
+    
+    <item>
+      <title>Java对象的hashCode方法</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%AF%B9%E8%B1%A1%E7%9A%84hashcode%E6%96%B9%E6%B3%95/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%AF%B9%E8%B1%A1%E7%9A%84hashcode%E6%96%B9%E6%B3%95/</guid>
+      <description>java中的Object类的hashCode方法是一个native方法，查看native源码过于困难，所以暂且认为 Object类的hashCode生成规则是：hash(对象的内存地址+一些其他信息)
+java中String类的 hashCode方法 比较直观，源码如下：
+ public int hashCode() {  int h = hash;  if (h == 0 &amp;amp;&amp;amp; value.length &amp;gt; 0) {  char val[] = value;   for (int i = 0; i &amp;lt; value.length; i++) {  h = 31 * h + val[i];  }  hash = h;  }  return h;  } 生成规则：s[0]*31^(n-1) + s[1]*31^(n-2) + &amp;hellip; + s[n-1]</description>
     </item>
     
     <item>
@@ -593,25 +604,6 @@ Kotlin 协程真的比 Java 线程更高效吗？
 通常，class在编译期间就确定，JVM在运行时通过类加载器加载确定的class。如果在运行时才确定需要加载什么类，就需要利用java反射。java反射使得程序更加灵活，类似spring的框架将类以全限定名的形成配置在配置文件，然后再通过反射实例化。
 参考：
 https://blog.csdn.net/Appleyk/article/details/77879073</description>
-    </item>
-    
-    <item>
-      <title>Java堆外内存溢出</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%A0%86%E5%A4%96%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%A0%86%E5%A4%96%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA/</guid>
-      <description>前段时间在做一个实时人脸抓拍项目的时候，遇到了一个堆外内存OOM的问题，现在把思路好好整理一下。
-项目中用opencv通过rtsp协议，实时的读取通用网络摄像头的视频帧。因为项目中多处用到了org.opencv.core.Mat这个对象，而Mat对象的构造是通过调用native方法实现的，也就是说构造Mat对象的时候，会在堆外分配内存：
-//  // C++: Mat::Mat()  //  // javadoc: Mat::Mat()  public Mat() { nativeObj = n_Mat(); return; } // C++: Mat::Mat()  private static native long n_Mat(); 堆外分配的内存不受JVM的内存管理。由于又没有主动调用Mat.realse()去释放堆外内存，导致堆外内存OOM。
-其实解决的办法很简单，可以在Mat对象使用完毕后直接调用Mat.realse()释放堆外内存。（没有试过，本人使用的下面的方式）
-但是，Mat对象充斥着整个项目，要跟踪Mat对象的生命周期显得有点复杂，而且因为太多地方使用了Mat对象，很有可能遗漏调用Mat.realse()释放内存。因此，还是想把这部分内存的释放交由JVM来做，具体的方式是：定期的调用System.gc()执行垃圾回收（很多人说System.gc()只是建议JVM执行垃圾回收，并不是命令，是否执行取决去JVM自己，但是，经我实测，每次调用System.gc()都会触发垃圾回收。），JVM在垃圾回收前会执行每个**空java对象（null）**的finalize()方法，而Mat对象的finalize()方法正好实现了释放内存的逻辑：
-@Override protected void finalize() throws Throwable { n_delete(nativeObj); super.finalize(); } // native support for java finalize()  private static native void n_delete(long nativeObj); 因为会定时的调用System.gc()触发Full GC, 而Full GC的之前会调用那些不再被引用的Mat对象的finalize()方法释放它的堆外内存，所以间接的实现了由JVM释放堆外内存的目的。
-但是，这种做法并不好，因为通过System.gc()强制定期执行Full GC，势必会影响java应用本身。
-为何一定要复制到DirectByteBuffer来读写（系统调用）？
-GC会回收无用对象，同时还会进行碎片整理，移动对象在内存中的位置，来减少内存碎片。DirectByteBuffer不受GC控制。如果不用DirectByteBuffer而是用HeapByteBuffer，如果在调用系统调用时，发生了GC，导致HeapByteBuffer内存位置发生了变化，但是内核态并不能感知到这个变化导致系统调用读取或者写入错误的数据。所以一定要通过不受GC影响的DirectByteBuffer来进行IO系统调用。
-假设我们要从网络中读入一段数据，再把这段数据发送出去的话，采用Non-direct ByteBuffer的流程是这样的：
-网络 –&amp;gt; 临时的DirectByteBuffer –&amp;gt; 应用 Non-direct ByteBuffer –&amp;gt; 临时的Direct ByteBuffer –&amp;gt; 网络 这种方式是直接在堆外分配一个内存(即，native memory)来存储数据， 程序通过JNI直接将数据读/写到堆外内存中。因为数据直接写入到了堆外内存中，所以这种方式就不会再在JVM管控的堆内再分配内存来存储数据了，也就不存在堆内内存和堆外内存数据拷贝的操作了。这样在进行I/O操作时，只需要将这个堆外内存地址传给JNI的I/O的函数就好了。</description>
     </item>
     
     <item>
@@ -653,32 +645,31 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
     </item>
     
     <item>
-      <title>Java安装指南</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/</link>
+      <title>Java协程</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%8D%8F%E7%A8%8B/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/</guid>
-      <description>1. 下载JDK 进入Oracle 官方网站下载合适的 JDK 版本，准备安装。
-2. 创建目录 执行如下命令，在 /usr/ 目录下创建 java 目录。
-mkdir /usr/java cd /usr/java 将下载的文件 jdk-8u151-linux-x64.tar.gz 复制到 /usr/java/ 目录下。
-3. 解压 JDK tar -zxvf jdk-8u151-linux-x64.tar.gz 4. 设置环境变量 set java environment JAVA_HOME=/usr/java/jdk1.8.0_151 JRE_HOME=/usr/java/jdk1.8.0_151/jre CLASS_PATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin export JAVA_HOME JRE_HOME CLASS_PATH PATH 使修改生效：
-source /etc/profile 5. 测试 执行如下命令进行测试。
-java -version 若显示 Java 版本信息，则说明 JDK 安装成功：
-java version &amp;#34;1.8.0_151&amp;#34; Java(TM) SE Runtime Environment (build 1.8.0_151-b12) Java HotSpot(TM) 64-Bit Server VM (build 25.</description>
-    </item>
-    
-    <item>
-      <title>Java对象的hashCode方法</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%AF%B9%E8%B1%A1%E7%9A%84hashcode%E6%96%B9%E6%B3%95/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%AF%B9%E8%B1%A1%E7%9A%84hashcode%E6%96%B9%E6%B3%95/</guid>
-      <description>java中的Object类的hashCode方法是一个native方法，查看native源码过于困难，所以暂且认为 Object类的hashCode生成规则是：hash(对象的内存地址+一些其他信息)
-java中String类的 hashCode方法 比较直观，源码如下：
-public int hashCode() { int h = hash; if (h == 0 &amp;amp;&amp;amp; value.length &amp;gt; 0) { char val[] = value; for (int i = 0; i &amp;lt; value.length; i++) { h = 31 * h + val[i]; } hash = h; } return h; } 生成规则：s[0]*31^(n-1) + s[1]*31^(n-2) + &amp;hellip; + s[n-1]
-为什么是素数31？
-素数：根据素数的特点，一个数与素数相乘，得到结果只能被1、这个数、素数本身整除。因此，按照 s[0]*31^(n-1) + s[1]*31^(n-2) + &amp;hellip; + s[n-1] 生成的hashCode越不容易发生碰撞。
-31：哈希计算速度快。可用移位和减法来代替乘法。现代的VM可以自动完成这种优化，如31 * i = (i &amp;laquo; 5) - i。</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%8D%8F%E7%A8%8B/</guid>
+      <description>1. 现状 时至今日，JDK17已经正式发布，Java也没有在语言层面对协程提供原生支持。
+一定要在Java中使用协程的话，可以使用诸如quasar, kilim, coroutines 第三方库感受一下，它们的原理基本都是字节码增强 + Java Agent机制，这种做法一是对性能影响很大，对JIT编译器的影响也非常大，另外这些库都几年前就不在更新了，远达不到生产使用的标准。
+还可以使用Kotlin混合编程，Kotlin中的协程本质上还是一套基于原生Java Thread API 的封装，和Go中的协程完全不是一个东西，不要混淆，更谈不上什么性能更好，Kotlin中的协程最大的价值是写起来比RxJava的线程切换还要方便，几乎就是用阻塞的写法来完成非阻塞的任务。
+openjdk也有正在孵化的官方协程项目loom，其能否release还需拭目以待。
+2. 成因 是什么原因导致Oracle一直不着急推出对协程的支持呢？
+先返回到问题的本源。当我们希望引入协程，我们想解决什么问题。我想不外乎下面几点：
+  节省资源：节省内存、节省分配线程的开销（创建和销毁线程要各做一次syscall）、节省大量线程切换带来的开销
+  与NIO配合实现非阻塞的编程，提高系统的吞吐
+  使用起来更加舒服顺畅，同步的编程风格编写异步程序
+  2.1 节省资源 1. 节省内存 我们以常见的Java Web举例，spingboot分配给tomcat的线程池大小默认值是200，即使按照1M线程大小计算，200M的内存占用对于动辄几个G的Java Web应用并不算什么。
+即使是IM的场景，有数百万的长链接需要维护，也可以使用NIO+Worker线程应对。
+还可以调整线程栈占用内存大小（-Xss1024k 或者 -XX:ThreadStackSize=1024k）
+2. 节省线程分配开销 线程池
+3. 节省线程切换开销 我们仍然以Java Web举例，大量的线程大部分时间实际上因为IO（发请求/读DB）而挂起，根本不会参与OS的线程切换，现实当中一个最大200线程的服务器可能同一时刻的“活跃线程”总数只有数十而已。其开销没有想象的那么大。
+2.2 非阻塞编程 nio 👉 netty
+2.3 优雅异步编程 响应式编程库
+可见Java对于引入协程机制并不那么紧迫；并且Java不像Golang等新语言，没有历史包袱，它们可以不提供线程只提供协程编程，但是Java如果没有thread，也没有ThreadLocal，@Transactional不起作用了，又没有等价的工具，是不是很郁闷？
+参考 为什么 Java 坚持多线程不选择协程？
+Kotlin 协程真的比 Java 线程更高效吗？
+硬核系列 | 深入剖析 Java 协程</description>
     </item>
     
     <item>
@@ -724,9 +715,9 @@ A-&amp;gt;C-&amp;gt;Y(2.0)
 递归依赖的关系列的算是比较清楚了，每行都是一个jar包，根据缩进可以看到依赖的关系。
 最后写着compile的就是编译成功的。
 最后写着omitted for duplicate的就是有jar包被重复依赖了，但是jar包的版本是一样的。
-最后写着omitted for conflict with xxxx的，说明和别的jar包版本冲突了，而该行的jar包不会被引入。比如上面有一行最后写着omitted for conflict with 3.4.6，那么该行的zookeeper:jar:3.4.8不会被引入，会引入3.4.6版本
+最后写着omitted for conflict with xxxx的，说明和别的jar包版本冲突了，而该行的jar包不会被引入。比如上面有一行最后写着omitted for conflict with 3.4.6，那么该行的zookeeper🫙3.4.8不会被引入，会引入3.4.6版本
 最后写着version managed from 2.3 ;omitted for duplicate ,表示最终使用commons-pool2最终会使用2.4.2，拒绝使用中声明的2.3版本
-最后写着version managed from 1.16.8 ;表示最终使用lombok:jar:1.16.22版本
+最后写着version managed from 1.16.8 ;表示最终使用lombok🫙1.16.22版本
 4. 如何人工进行依赖冲突解决，达到使用目的？ 解决重复依赖和冲突的方法：</description>
     </item>
     
@@ -750,12 +741,12 @@ mall整合Mongodb实现文档操作</description>
 随着分布式服务架构的流行与普及，原来在单体应用中执行的多个逻辑操作，现在被拆分成了多个服务之间的远程调用。虽然服务化为我们的系统带来了水平伸缩的能力，然而随之而来挑战就是分布式事务问题，多个服务之间使用自己单独维护的数据库，它们彼此之间不在同一个事务中，假如A执行成功了，B执行却失败了，而A的事务此时已经提交，无法回滚，那么最终就会导致两边数据不一致性的问题；尽管很早之前就有基于两阶段提交的XA分布式事务，但是这类方案因为需要资源的全局锁定，导致性能极差；因此后面就逐渐衍生出了消息最终一致性、TCC等柔性事务的分布式事务方案，本文主要分析的是基于消息的最终一致性方案。
 0\. 简单RPC处理存在的一致性问题 在正式开始讲述正题之前，我们先看一下，不依赖任何分布式事务手段，单纯将本地业务逻辑和远程调用逻辑放在同一个本地事务中会有什么问题。
 我们以订单创建为例，订单系统先创建订单(本地事务)，然后RPC调用库存扣减服务。
-@Transactionnal public void processOrder() { try{ // 订单处理(业务操作)  orderService.process(); // 库存扣减（RPC远程调用）  storageService.deduction(); }catch(Exception e){ 事务回滚; } } 如果库存服务由于DB数据量比较大，导致处理超时，订单服务在出现超时异常后，直接回滚本地事务，从而导致订单服务这边没数据，而库存服务那边数据却已经写入了，最终导致两边业务数据的不一致。
+@Transactionnal public void processOrder() {  try{  // 订单处理(业务操作)  orderService.process();  // 库存扣减（RPC远程调用）  storageService.deduction();  }catch(Exception e){  事务回滚;  } } 如果库存服务由于DB数据量比较大，导致处理超时，订单服务在出现超时异常后，直接回滚本地事务，从而导致订单服务这边没数据，而库存服务那边数据却已经写入了，最终导致两边业务数据的不一致。
 即使不存在 “DB数据量比较大” 这种特殊情况，也一定会存在因为网络抖动，订单服务调用库存服务超时而本地回滚，但是库存服务实际操作成功的情况。
 其根本的原因就在于：远程调用，结果最终可能为成功、失败、超时；而对于超时的情况，处理方最终的结果可能是成功，也可能是失败，调用方是无法知晓的。
 1\. 普通消息的处理流程  消息生成者发送消息 MQ收到消息，将消息进行持久化，在存储中新增一条记录 返回ACK给生产者 MQ push 消息给对应的消费者，然后等待消费者返回ACK 如果消息消费者在指定时间内成功返回ack，那么MQ认为消息消费成功，在存储中删除消息，即执行第6步；如果MQ在指定时间内没有收到ACK，则认为消息消费失败，会尝试重新push消息,重复执行4、5、6步骤 MQ删除消息  1.2 普通消息处理存在的一致性问题 我们还是以订单创建为例，订单系统先创建订单(本地事务)，再发送消息给下游处理；如果订单创建成功，然而消息没有发送出去，那么下游所有系统都无法感知到这个事件，会出现脏数据；
-public void processOrder() { // 订单处理(业务操作)  orderService.process(); // 发送订单处理成功消息(发送消息)  sendBizMsg (); } 如果先发送订单消息，再创建订单；那么就有可能消息发送成功，但是在订单创建的时候却失败了，此时下游系统却认为这个订单已经创建，也会出现脏数据。
-public void processOrder() { // 发送订单处理成功消息(发送消息)  sendBizMsg (); // 订单处理(业务操作)  orderService.</description>
+public void processOrder() {  // 订单处理(业务操作)  orderService.process();  // 发送订单处理成功消息(发送消息)  sendBizMsg (); } 如果先发送订单消息，再创建订单；那么就有可能消息发送成功，但是在订单创建的时候却失败了，此时下游系统却认为这个订单已经创建，也会出现脏数据。
+public void processOrder() {  // 发送订单处理成功消息(发送消息)  sendBizMsg ();  // 订单处理(业务操作)  orderService.</description>
     </item>
     
     <item>
@@ -829,7 +820,7 @@ Topic 实现了发布和订阅，当你发布一个消息，所有订阅这个 T
   今天主要来聊聊 MySQL 中索引的工作原理，这一部分的知识，在工作中经常被使用到，在面试中也几乎是必问的。所以，不管是面试造火箭，还是工作拧螺丝，掌握索引的工作原理，都是十分有必要的。
 首先需要说明的是，本文的所有讨论均是基于 InnoDB 存储引擎为前提。
 示例表 为了方便说明，我们先创建一个示例表。建表语句如下
-CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR ( 64 ) COMMENT &amp;#39;姓名&amp;#39;, `age` INT ( 4 ) COMMENT &amp;#39;年龄&amp;#39;, PRIMARY KEY ( `id` ), INDEX ( NAME ) ) ENGINE = INNODB COMMENT &amp;#39;用户表&amp;#39;; INSERT INTO `user` ( `name`, `age` ) VALUES ( &amp;#39;AA&amp;#39;, 30 ),( &amp;#39;BB&amp;#39;, 33 ),( &amp;#39;CC&amp;#39;, 31 ),( &amp;#39;DD&amp;#39;, 30 ),( &amp;#39;EE&amp;#39;, 29 ) 在上面的 SQL 语句中，创建了一张 user 表，表中有三个字段，id 是主键，name 和 age 分别表示用户的姓名和年龄，同时还为字段 name 创建了一个普通索引。为了方便后面描述，因此还向表中插入了 5 条数据，由于主键 id 是自增的，所以这五行数据的 id 值分为是 1~5。</description>
+CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR ( 64 ) COMMENT &amp;#39;姓名&amp;#39;, `age` INT ( 4 ) COMMENT &amp;#39;年龄&amp;#39;, PRIMARY KEY ( `id` ), INDEX ( NAME ) ) ENGINE = INNODB COMMENT &amp;#39;用户表&amp;#39;;  INSERT INTO `user` ( `name`, `age` ) VALUES ( &amp;#39;AA&amp;#39;, 30 ),( &amp;#39;BB&amp;#39;, 33 ),( &amp;#39;CC&amp;#39;, 31 ),( &amp;#39;DD&amp;#39;, 30 ),( &amp;#39;EE&amp;#39;, 29 ) 在上面的 SQL 语句中，创建了一张 user 表，表中有三个字段，id 是主键，name 和 age 分别表示用户的姓名和年龄，同时还为字段 name 创建了一个普通索引。为了方便后面描述，因此还向表中插入了 5 条数据，由于主键 id 是自增的，所以这五行数据的 id 值分为是 1~5。</description>
     </item>
     
     <item>
@@ -840,8 +831,8 @@ CREATE TABLE user ( `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT, `name` VARCHAR (
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/nginx/nginx%E6%8E%88%E6%9D%83%E7%99%BB%E9%99%86%E6%8A%A5403%E9%97%AE%E9%A2%98/</guid>
       <description>在给nginx加上授权模块后，再访问应用报403访问禁止的错误。
 一开始是这样：
-1. 生成密码文件 printf &amp;#34;yourusername:$(openssl passwd -apr1)&amp;#34; &amp;gt; /etc/nginx/passwords 2. nginx配置 server { # ... auth_basic &amp;#34;Protected&amp;#34;; auth_basic_user_file passwords; # ... } [v_error]auth_basic_user_file 后面跟的是相对路径，这样配置很容易导致nginx找不到文件，因此改成绝对路径就万事大吉了：[/v_error]
-server{	listen 443 ssl; server_name netdata.6and.ltd; #listen [::]:81 default_server ipv6only=on; #ssl on; ssl_certificate httpssl/1_netdata.6and.ltd_bundle.crt; ssl_certificate_key httpssl/2_netdata.6and.ltd.key; ssl_session_timeout 5m; ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4; ssl_protocols TLSv1 TLSv1.1 TLSv1.2; ssl_prefer_server_ciphers on; #index index.html index.htm index.php; #root /home/wwwroot/; #error_page 404 /404.html; #include enable-php.conf; auth_basic &amp;#34;Protected&amp;#34;; auth_basic_user_file /usr/local/nginx/passwords; location / { proxy_pass http://127.</description>
+1. 生成密码文件 printf &amp;#34;yourusername:$(openssl passwd -apr1)&amp;#34; &amp;gt; /etc/nginx/passwords 2. nginx配置 server {  # ...  auth_basic &amp;#34;Protected&amp;#34;;  auth_basic_user_file passwords;  # ... } [v_error]auth_basic_user_file 后面跟的是相对路径，这样配置很容易导致nginx找不到文件，因此改成绝对路径就万事大吉了：[/v_error]
+server{		listen 443 ssl; 	server_name netdata.6and.ltd;  #listen [::]:81 default_server ipv6only=on; 	#ssl on; 	ssl_certificate httpssl/1_netdata.6and.ltd_bundle.crt; 	ssl_certificate_key httpssl/2_netdata.6and.ltd.key; 	ssl_session_timeout 5m; 	ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;  ssl_protocols TLSv1 TLSv1.1 TLSv1.2; 	ssl_prefer_server_ciphers on; 	#index index.html index.htm index.php; 	#root /home/wwwroot/;  	#error_page 404 /404.</description>
     </item>
     
     <item>
@@ -851,8 +842,8 @@ server{	listen 443 ssl; server_name netdata.6and.ltd; #listen [::]:81 default_se
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/oom%E5%AE%9E%E6%88%98/</guid>
       <description>《深入理解Java虚拟机》中将OOM划分为: Java堆溢出、虚拟机栈和本地方法栈溢出、方法区和运行时常量池溢出、本机直接内存溢出
-1. Java堆溢出 /** * JDK1.6/JDK1.8 * * Java堆内存溢出异常测试 * * VM Args: -Xms20m -Xmx20m -XX:+HeapDumpOnOutOfMemoryError * * @author xuzhijun.online * @date 2019年4月22日 */ public class HeapOOM { static class OOMObject{ } public static void main(String[] args) { List&amp;lt;OOMObject&amp;gt; list = new ArrayList&amp;lt;OOMObject&amp;gt;(); while(true) { list.add(new OOMObject()); } } } 运行结果：
-java.lang.OutOfMemoryError: Java heap space Dumping heap to java_pid3404.hprof ... Heap dump file created [22045981 bytes in 0.663 secs] 处理方法：</description>
+1. Java堆溢出 /** * JDK1.6/JDK1.8 * * Java堆内存溢出异常测试 * * VM Args: -Xms20m -Xmx20m -XX:+HeapDumpOnOutOfMemoryError * * @author xuzhijun.online * @date 2019年4月22日 */ public class HeapOOM {   static class OOMObject{   }   public static void main(String[] args) {  List&amp;lt;OOMObject&amp;gt; list = new ArrayList&amp;lt;OOMObject&amp;gt;();  while(true) {  list.add(new OOMObject());  }  }  } 运行结果：
+java.lang.OutOfMemoryError: Java heap space Dumping heap to java_pid3404.</description>
     </item>
     
     <item>
@@ -876,6 +867,29 @@ java.lang.OutOfMemoryError: Java heap space Dumping heap to java_pid3404.hprof .
 写在前面 在了解分布式锁具体实现方案之前，我们应该先思考一下使用分布式锁必须要考虑的一些问题。
  互斥性：在任意时刻，只能有一个进程持有锁。 防死锁：即使有一个进程在持有锁的期间崩溃而未能主动释放锁，要有其他方式去释放锁从而保证其他进程能获取到锁。 加锁和解锁的必须是同一个进程。 锁的续期问题。  常见的分布式锁实现方案  基于 Redis 实现分布式锁 基于 Zookeeper 实现分布式锁  本文采用第一种方案，也就是基于 Redis 的分布式锁实现方案。
 Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 Redis 中，指定一个 唯一的用户标识 作为 value。 当 key 不存在时才能设置值，确保同一时间只有一个客户端进程获得锁，满足 互斥性 特性。 设置一个过期时间，防止因系统异常导致没能删除这个 key，满足 防死锁 特性。 当处理完业务之后需要清除这个 key 来释放锁，清除 key 时需要校验 value 值，需要满足 只有加锁的人才能释放锁 。   特别注意：以上实现步骤考虑到了使用分布式锁需要考虑的互斥性、防死锁、加锁和解锁必须为同一个进程等问题，但是锁的续期无法实现。所以，博主采用 Redisson 实现 Redis 的分布式锁，借助 Redisson 的 WatchDog 机制 能够很好的解决锁续期的问题，同样 Redisson 也是 Redis 官方推荐分布式锁实现方案，实现起来较为简单。</description>
+    </item>
+    
+    <item>
+      <title>redis分布式锁和zk分布式锁的对比</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8Czk%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AF%B9%E6%AF%94/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8Czk%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AF%B9%E6%AF%94/</guid>
+      <description>redis 分布式锁，其实需要自己不断去尝试获取锁，比较消耗性能。 zk 分布式锁，获取不到锁，注册个监听器即可，不需要不断主动尝试获取锁，性能开销较小。  另外一点就是，如果是 Redis 获取锁的那个客户端 出现 bug 挂了，那么只能等待超时时间之后才能释放锁；而 zk 的话，因为创建的是临时 znode，只要客户端挂了，znode 就没了，此时就自动释放锁。
+Redis 分布式锁大家没发现好麻烦吗？遍历上锁，计算时间等等&amp;hellip;&amp;hellip;zk 的分布式锁语义清晰实现简单。
+所以先不分析太多的东西，就说这两点，我个人实践认为 zk 的分布式锁比 Redis 的分布式锁牢靠、而且模型简单易用。
+参考 一般实现分布式锁都有哪些方式？使用 Redis 如何设计分布式锁？使用 zk 来设计分布式锁可以吗？这两种分布式锁的实现方式哪种效率比较高？</description>
+    </item>
+    
+    <item>
+      <title>Redis配置指南</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</guid>
+      <description>1. 安装 $ wget http://download.redis.io/releases/redis-5.0.8.tar.gz $ tar xzf redis-5.0.8.tar.gz $ cd redis-5.0.8 $ make 2.配置  注释掉bind 127.0.0.1 protected-mode yes requirepass xxxpassword daemonize yes  3. 启动 cd src ./redis-server 或者
+cd src ./redis-server ../redis.conf 4. 停止 cd src ./redis-cli auth xxxpassword shutdown exit 5. 卸载 find / -name &amp;#34;redis*&amp;#34; | xargs rm -rf 6.远程连接 window连接远程redis:
+redis-cli -h 193.112.37.xxx -p 6379 -a xxxpassword </description>
     </item>
     
     <item>
@@ -920,29 +934,6 @@ Redis服务器启动后，直接通过客户端执行命令：slaveof  ，则该
     </item>
     
     <item>
-      <title>redis分布式锁和zk分布式锁的对比</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8Czk%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AF%B9%E6%AF%94/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8Czk%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AF%B9%E6%AF%94/</guid>
-      <description>redis 分布式锁，其实需要自己不断去尝试获取锁，比较消耗性能。 zk 分布式锁，获取不到锁，注册个监听器即可，不需要不断主动尝试获取锁，性能开销较小。  另外一点就是，如果是 Redis 获取锁的那个客户端 出现 bug 挂了，那么只能等待超时时间之后才能释放锁；而 zk 的话，因为创建的是临时 znode，只要客户端挂了，znode 就没了，此时就自动释放锁。
-Redis 分布式锁大家没发现好麻烦吗？遍历上锁，计算时间等等&amp;hellip;&amp;hellip;zk 的分布式锁语义清晰实现简单。
-所以先不分析太多的东西，就说这两点，我个人实践认为 zk 的分布式锁比 Redis 的分布式锁牢靠、而且模型简单易用。
-参考 一般实现分布式锁都有哪些方式？使用 Redis 如何设计分布式锁？使用 zk 来设计分布式锁可以吗？这两种分布式锁的实现方式哪种效率比较高？</description>
-    </item>
-    
-    <item>
-      <title>Redis配置指南</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97/</guid>
-      <description>1. 安装 $ wget http://download.redis.io/releases/redis-5.0.8.tar.gz $ tar xzf redis-5.0.8.tar.gz $ cd redis-5.0.8 $ make 2.配置  注释掉bind 127.0.0.1 protected-mode yes requirepass xxxpassword daemonize yes  3. 启动 cd src ./redis-server 或者
-cd src ./redis-server ../redis.conf 4. 停止 cd src ./redis-cli auth xxxpassword shutdown exit 5. 卸载 find / -name &amp;#34;redis*&amp;#34; | xargs rm -rf 6.远程连接 window连接远程redis:
-redis-cli -h 193.112.37.xxx -p 6379 -a xxxpassword </description>
-    </item>
-    
-    <item>
       <title>Spring Security第一次登录失败，第二次登录成功</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/code/exception/spring-security%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%99%BB%E5%BD%95%E5%A4%B1%E8%B4%A5%E7%AC%AC%E4%BA%8C%E6%AC%A1%E7%99%BB%E5%BD%95%E6%88%90%E5%8A%9F/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
@@ -960,10 +951,9 @@ spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.web.servlet.
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/springaop%E6%96%B9%E6%B3%95%E5%86%85%E9%83%A8%E8%B0%83%E7%94%A8%E4%B8%8D%E7%94%9F%E6%95%88/</guid>
       <description>假设一个接口里面有两个方法：
-package demo.long; public interface CustomerService { public void doSomething1(); public void doSomething2(); } 接口实现类如下：
-package demo.long.impl; import demo.long.CustomerService; public class CustomerServiceImpl implements CustomerService { public void doSomething1() { System.out.println(&amp;#34;CustomerServiceImpl.doSomething1()&amp;#34;); doSomething2(); } public void doSomething2() { System.out.println(&amp;#34;CustomerServiceImpl.doSomething2()&amp;#34;); } } 现在我需要在CustomerService接口的每个方法被调用时都在方法前执行一些逻辑，所以需要配置一个拦截器：
-package demo.long; import org.aspectj.lang.annotation.Aspect; import org.aspectj.lang.annotation.Before; @Aspect public class CustomerServiceInterceptor { @Before(&amp;#34;execution(* demo.long..*.*(..))&amp;#34;) public void doBefore() { System.out.println(&amp;#34;do some important things before...&amp;#34;); } } 把Bean加到Spring配置中
-&amp;lt;aop:aspectj-autoproxy /&amp;gt; &amp;lt;bean id=&amp;#34;customerService&amp;#34; class=&amp;#34;demo.long.impl.CustomerServiceImpl&amp;#34; /&amp;gt; &amp;lt;bean id=&amp;#34;customerServiceInterceptor&amp;#34; class=&amp;#34;demo.</description>
+package demo.long;  public interface CustomerService {  public void doSomething1();  public void doSomething2(); } 接口实现类如下：
+package demo.long.impl;  import demo.long.CustomerService;  public class CustomerServiceImpl implements CustomerService {   public void doSomething1() {  System.out.println(&amp;#34;CustomerServiceImpl.doSomething1()&amp;#34;);  doSomething2();  }   public void doSomething2() {  System.out.println(&amp;#34;CustomerServiceImpl.doSomething2()&amp;#34;);  }  } 现在我需要在CustomerService接口的每个方法被调用时都在方法前执行一些逻辑，所以需要配置一个拦截器：
+package demo.long;  import org.aspectj.lang.annotation.Aspect; import org.aspectj.lang.annotation.Before;  @Aspect public class CustomerServiceInterceptor {   @Before(&amp;#34;execution(* demo.</description>
     </item>
     
     <item>
@@ -995,7 +985,7 @@ Spring MVC【入门】就这一篇！</description>
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/spring%E4%BA%8B%E5%8A%A1/</guid>
       <description>Spring事务可简单的理解为由PlatformTransactionManager, TransactionDefinition, TransactionStatus 构成
 PlatformTransactionManager 其中 org.springframework.transaction.PlatformTransactionManager 接口定义如下：
-public interface PlatformTransactionManager extends TransactionManager { // Return a currently active transaction or create a new one, according to the specified propagation behavior（根据指定的传播行为，返回当前活动的事务或创建一个新事务。）  TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException; // Commit the given transaction, with regard to its status（使用事务目前的状态提交事务）  Void commit(TransactionStatus status) throws TransactionException; // Perform a rollback of the given transaction（对执行的事务进行回滚）  Void rollback(TransactionStatus status) throws TransactionException; } Spring并不直接管理事务，它只提供接口抽象，事务管理器的具体实现由持久化框架自己实现，例如：DataSourceTransactionManager (JDBC / MyBatis),</description>
+public interface PlatformTransactionManager extends TransactionManager {  // Return a currently active transaction or create a new one, according to the specified propagation behavior（根据指定的传播行为，返回当前活动的事务或创建一个新事务。）  TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException;  // Commit the given transaction, with regard to its status（使用事务目前的状态提交事务）  Void commit(TransactionStatus status) throws TransactionException;  // Perform a rollback of the given transaction（对执行的事务进行回滚）  Void rollback(TransactionStatus status) throws TransactionException; } Spring并不直接管理事务，它只提供接口抽象，事务管理器的具体实现由持久化框架自己实现，例如：DataSourceTransactionManager (JDBC / MyBatis),</description>
     </item>
     
     <item>
@@ -1005,11 +995,11 @@ public interface PlatformTransactionManager extends TransactionManager { // Retu
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/spring%E4%BC%98%E9%9B%85%E7%9A%84%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/</guid>
       <description>SpringBoot的WEB异常捕获，如果是WEB项目的话，可以直接处理Controller中的异常。如果不是WEB项目的话，就需要使用AspectJ来做切面。
-1. web项目 package com.test.handler; import lombok.extern.log4j.Log4j2; import org.springframework.ui.Model; import org.springframework.web.bind.annotation.ControllerAdvice; import org.springframework.web.bind.annotation.ExceptionHandler; @ControllerAdvice @Log4j2 public class GlobalExceptionHandler { @ExceptionHandler(value = Exception.class) public String exception(Exception e, Model model){ log.error(&amp;#34;find exception:e={}&amp;#34;,e.getMessage()); model.addAttribute(&amp;#34;mes&amp;#34;,e.getMessage()); return &amp;#34;pages/500&amp;#34;; } } 参考链接：
+1. web项目 package com.test.handler;  import lombok.extern.log4j.Log4j2; import org.springframework.ui.Model; import org.springframework.web.bind.annotation.ControllerAdvice; import org.springframework.web.bind.annotation.ExceptionHandler;   @ControllerAdvice @Log4j2 public class GlobalExceptionHandler {  @ExceptionHandler(value = Exception.class)  public String exception(Exception e, Model model){  log.error(&amp;#34;find exception:e={}&amp;#34;,e.getMessage());  model.addAttribute(&amp;#34;mes&amp;#34;,e.getMessage());  return &amp;#34;pages/500&amp;#34;;  } } 参考链接：
 SpringBootWEB项目和非Web项目的全局异常捕获
 SpringBoot 处理异常的几种常见姿势
 使用枚举简单封装一个优雅的 Spring Boot 全局异常处理！
-2. 非web项目 package com.test.syncbackend.handler; import lombok.extern.log4j.Log4j2; import org.aspectj.lang.ProceedingJoinPoint; import org.aspectj.lang.annotation.Around; import org.aspectj.lang.annotation.Aspect; import org.aspectj.lang.annotation.Pointcut; import org.springframework.stereotype.Component; @Component @Aspect @Log4j2 public class GlobalExceptionHandler { @Pointcut(&amp;#34;execution(* com.test.syncbackend.scheduleds.*.*(..))&amp;#34;) public void pointCut() { } @Around(&amp;#34;pointCut()&amp;#34;) public Object handlerException(ProceedingJoinPoint proceedingJoinPoint) { try { return proceedingJoinPoint.</description>
+2. 非web项目 package com.test.syncbackend.handler;  import lombok.extern.log4j.Log4j2; import org.aspectj.lang.ProceedingJoinPoint; import org.aspectj.lang.annotation.Around; import org.aspectj.lang.annotation.Aspect; import org.aspectj.lang.annotation.Pointcut; import org.springframework.stereotype.Component;  @Component @Aspect @Log4j2 public class GlobalExceptionHandler {   @Pointcut(&amp;#34;execution(* com.</description>
     </item>
     
     <item>
@@ -1021,12 +1011,12 @@ SpringBoot 处理异常的几种常见姿势
       <description>ThreadLocal 是一个线程的本地变量，也就意味着这个变量是线程独有的，是不能与其他线程共享的，这样就可以避免资源竞争带来的多线程的问题，这种解决多线程的安全问题和lock(这里的lock 指通过synchronized 或者Lock 等实现的锁) 是有本质的区别的:
  lock 的资源是多个线程共享的，所以访问的时候需要加锁。 ThreadLocal 是每个线程都有一个副本，是不需要加锁的。 lock 是通过时间换空间的做法。 ThreadLocal 是典型的通过空间换时间的做法。  当然他们的使用场景也是不同的，关键看你的资源是需要多线程之间共享的还是单线程内部共享的。
 ThreadLocal 的使用是非常简单的，看下面的代码：
-public class Test { public static void main(String[] args) { ThreadLocal&amp;lt;String&amp;gt; local = new ThreadLocal&amp;lt;&amp;gt;(); //设置值  local.set(&amp;#34;hello word&amp;#34;); //获取刚刚设置的值  System.out.println(local.get()); } } ThreadLocal的数据结构 为什么ThreadLocalMap 采用开放地址法来解决哈希冲突? ThreadLocal 往往存放的数据量不会特别大，这个时候开放地址法简单的结构会显得更省空间（链地址法需要额外的指针空间）
+public class Test {   public static void main(String[] args) {  ThreadLocal&amp;lt;String&amp;gt; local = new ThreadLocal&amp;lt;&amp;gt;();  //设置值  local.set(&amp;#34;hello word&amp;#34;);  //获取刚刚设置的值  System.out.println(local.get());  } } ThreadLocal的数据结构 为什么ThreadLocalMap 采用开放地址法来解决哈希冲突? ThreadLocal 往往存放的数据量不会特别大，这个时候开放地址法简单的结构会显得更省空间（链地址法需要额外的指针空间）
 常用的hash解决方法有：拉链法（HashMap，指针需要占用空间）、开发地址（如果发生冲突，那就基于冲突位置再次探测寻址，直至不冲突，适用于记录总数可以预知的场景，如果位桶不够用就得扩容，扩容影响性能）、再hash（如果第1个hash函数冲突，那就使用第2个，多次hash是有时间成本的）
 ThreadLocal应用场景 传递参数 ThreadLocal用于传递参数及优势
 保证线程安全 SimpleDateFormat是线程不安全的，例如下面的写法会报错：
 日期转换的一个工具类
-public class DateUtil { private static final SimpleDateFormat sdf = new SimpleDateFormat(&amp;#34;yyyy-MM-dd HH:mm:ss&amp;#34;); public static Date parse(String dateStr) { Date date = null; try { date = sdf.</description>
+public class DateUtil {   private static final SimpleDateFormat sdf =  new SimpleDateFormat(&amp;#34;yyyy-MM-dd HH:mm:ss&amp;#34;);   public static Date parse(String dateStr) {  Date date = null;  try {  date = sdf.</description>
     </item>
     
     <item>
@@ -1036,8 +1026,7 @@ public class DateUtil { private static final SimpleDateFormat sdf = new SimpleDa
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/threadlocal%E7%BA%BF%E7%A8%8B%E5%8D%95%E4%BE%8B/</guid>
       <description>ThreadLocal 保证的是单个线程内部访问的是同一个实例，不同线程访问的不是同一个实例。
-package test; public class Singleton { private static final ThreadLocal&amp;lt;Singleton&amp;gt; singleton = new ThreadLocal&amp;lt;Singleton&amp;gt;() { @Override protected Singleton initialValue() { return new Singleton(); } }; public static Singleton getInstance() { return singleton.get(); } private Singleton() { } } package test; public class T implements Runnable { @Override public void run() { Singleton instance = Singleton.getInstance(); System.out.println(instance); } } 测试类：
-package test; public class Test { public static void main(String[] args){ System.</description>
+package test;  public class Singleton {  private static final ThreadLocal&amp;lt;Singleton&amp;gt; singleton = new ThreadLocal&amp;lt;Singleton&amp;gt;() {  @Override  protected Singleton initialValue() {  return new Singleton();  }  };   public static Singleton getInstance() {  return singleton.get();  }   private Singleton() {  } } package test;  public class T implements Runnable {  @Override  public void run() {  Singleton instance = Singleton.</description>
     </item>
     
     <item>
@@ -1047,21 +1036,19 @@ package test; public class Test { public static void main(String[] args){ System
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/threadpoolexecutor/</guid>
       <description>如果采用有界BlockingQueue，队列满后启用maximumPoolSize，达到maximumPoolSize上限后走RejectedExecutionHandler的逻辑；如果采用无界BlockingQueue，maximumPoolSize设置无效。
-构造方法 public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue&amp;lt;Runnable&amp;gt; workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) { if (corePoolSize &amp;lt; 0 || maximumPoolSize &amp;lt;= 0 || maximumPoolSize &amp;lt; corePoolSize || keepAliveTime &amp;lt; 0) throw new IllegalArgumentException(); if (workQueue == null || threadFactory == null || handler == null) throw new NullPointerException(); this.acc = System.getSecurityManager() == null ? null : AccessController.getContext(); this.corePoolSize = corePoolSize; this.maximumPoolSize = maximumPoolSize; this.workQueue = workQueue; this.</description>
+构造方法 public ThreadPoolExecutor(int corePoolSize,  int maximumPoolSize,  long keepAliveTime,  TimeUnit unit,  BlockingQueue&amp;lt;Runnable&amp;gt; workQueue,  ThreadFactory threadFactory,  RejectedExecutionHandler handler) {  if (corePoolSize &amp;lt; 0 ||  maximumPoolSize &amp;lt;= 0 ||  maximumPoolSize &amp;lt; corePoolSize ||  keepAliveTime &amp;lt; 0)  throw new IllegalArgumentException();  if (workQueue == null || threadFactory == null || handler == null)  throw new NullPointerException();  this.acc = System.getSecurityManager() == null ?</description>
     </item>
     
     <item>
-      <title>Zookeeper应用场景</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/</link>
+      <title>ZooKeeper的stat结构</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E7%9A%84stat%E7%BB%93%E6%9E%84/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/</guid>
-      <description>大致来说，zookeeper 的使用场景如下，我就举几个简单的，大家能说几个就好了：
- 分布式协调 分布式锁 元数据/配置信息管理 HA 高可用性  分布式协调 这个其实是 zookeeper 很经典的一个用法，简单来说，就好比，你 A 系统发送个请求到 mq，然后 B 系统消息消费之后处理了。那 A 系统如何知道 B 系统的处理结果？用 zookeeper 就可以实现分布式系统之间的协调工作。A 系统发送请求之后可以在 zookeeper 上对某个节点的值注册个监听器，一旦 B 系统处理完了就修改 zookeeper 那个节点的值，A 系统立马就可以收到通知，完美解决。
-分布式锁 举个栗子。对某一个数据连续发出两个修改操作，两台机器同时收到了请求，但是只能一台机器先执行完另外一个机器再执行。那么此时就可以使用 zookeeper 分布式锁，一个机器接收到了请求之后先获取 zookeeper 上的一把分布式锁，就是可以去创建一个 znode，接着执行操作；然后另外一个机器也尝试去创建那个 znode，结果发现自己创建不了，因为被别人创建了，那只能等着，等第一个机器执行完了自己再执行。
-元数据/配置信息管理 zookeeper 可以用作很多系统的配置信息的管理，比如 kafka、storm 等等很多分布式系统都会选用 zookeeper 来做一些元数据、配置信息的管理，包括 dubbo 注册中心不也支持 zookeeper 么？
-HA 高可用性 这个应该是很常见的，比如 hadoop、hdfs、yarn 等很多大数据系统，都选择基于 zookeeper 来开发 HA 高可用机制，就是一个重要进程一般会做主备两个，主进程挂了立马通过 zookeeper 感知到切换到备用进程。
-参考 zookeeper 都有哪些使用场景？</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E7%9A%84stat%E7%BB%93%E6%9E%84/</guid>
+      <description>ZooKeeper命名空间中的每个znode都有一个与之关联的stat结构，类似于Unix/Linux文件系统中文件的stat结构。 znode的stat结构中的字段显示如下，各自的含义如下：
+ cZxid：这是导致创建znode更改的事务ID。 mZxid：这是最后修改znode更改的事务ID。 pZxid：这是用于添加或删除子节点的znode更改的事务ID。 ctime：表示从1970-01-01T00:00:00Z开始以毫秒为单位的znode创建时间。 mtime：表示从1970-01-01T00:00:00Z开始以毫秒为单位的znode最近修改时间。 dataVersion：表示对该znode的数据所做的更改次数。 cversion：这表示对此znode的子节点进行的更改次数。 aclVersion：表示对此znode的ACL进行更改的次数。 ephemeralOwner：如果znode是ephemeral类型节点，则这是znode所有者的 session ID。 如果znode不是ephemeral节点，则该字段设置为零。 dataLength：这是znode数据字段的长度。 numChildren：这表示znode的子节点的数量。  在ZooKeeper Java shell中，可以使用stat或ls2命令查看znode的stat结构。 具体说明如下：
+使用stat命令查看znode的stat结构：
+[zk: localhost(CONNECTED) 0] stat /zookeeper cZxid = 0x0 ctime = Thu Jan 01 05:30:00 IST 1970 mZxid = 0x0 mtime = Thu Jan 01 05:30:00 IST 1970 pZxid = 0x0 cversion = -1 dataVersion = 0 aclVersion = 0 ephemeralOwner = 0x0 dataLength = 0 numChildren = 1 使用ls2命令查看znode的stat结构：</description>
     </item>
     
     <item>
@@ -1105,18 +1092,6 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
     </item>
     
     <item>
-      <title>ZooKeeper的stat结构</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E7%9A%84stat%E7%BB%93%E6%9E%84/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E7%9A%84stat%E7%BB%93%E6%9E%84/</guid>
-      <description>ZooKeeper命名空间中的每个znode都有一个与之关联的stat结构，类似于Unix/Linux文件系统中文件的stat结构。 znode的stat结构中的字段显示如下，各自的含义如下：
- cZxid：这是导致创建znode更改的事务ID。 mZxid：这是最后修改znode更改的事务ID。 pZxid：这是用于添加或删除子节点的znode更改的事务ID。 ctime：表示从1970-01-01T00:00:00Z开始以毫秒为单位的znode创建时间。 mtime：表示从1970-01-01T00:00:00Z开始以毫秒为单位的znode最近修改时间。 dataVersion：表示对该znode的数据所做的更改次数。 cversion：这表示对此znode的子节点进行的更改次数。 aclVersion：表示对此znode的ACL进行更改的次数。 ephemeralOwner：如果znode是ephemeral类型节点，则这是znode所有者的 session ID。 如果znode不是ephemeral节点，则该字段设置为零。 dataLength：这是znode数据字段的长度。 numChildren：这表示znode的子节点的数量。  在ZooKeeper Java shell中，可以使用stat或ls2命令查看znode的stat结构。 具体说明如下：
-使用stat命令查看znode的stat结构：
-[zk: localhost(CONNECTED) 0] stat /zookeeper cZxid = 0x0 ctime = Thu Jan 01 05:30:00 IST 1970 mZxid = 0x0 mtime = Thu Jan 01 05:30:00 IST 1970 pZxid = 0x0 cversion = -1 dataVersion = 0 aclVersion = 0 ephemeralOwner = 0x0 dataLength = 0 numChildren = 1 使用ls2命令查看znode的stat结构：</description>
-    </item>
-    
-    <item>
       <title>ZooKeeper能做什么</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E8%83%BD%E5%81%9A%E4%BB%80%E4%B9%88/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
@@ -1140,242 +1115,59 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
     </item>
     
     <item>
-      <title>一个SQL执行的很慢</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E4%B8%80%E4%B8%AAsql%E6%89%A7%E8%A1%8C%E7%9A%84%E5%BE%88%E6%85%A2/</link>
+      <title>Zookeeper应用场景</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E4%B8%80%E4%B8%AAsql%E6%89%A7%E8%A1%8C%E7%9A%84%E5%BE%88%E6%85%A2/</guid>
-      <description>一个SQL执行的很慢，我们要分两种情况讨论：
-大多数情况下很正常，偶尔很慢  数据库在刷新脏页，例如 redo log 写满了需要同步到磁盘。  当我们要往数据库插入一条数据、或者要更新一条数据的时候，我们知道数据库会在内存中把对应字段的数据更新了，但是更新之后，这些更新的字段并不会马上同步持久化到磁盘中去，而是把这些更新的记录写入到 redo log 日记中去，等到空闲的时候，在通过 redo log 里的日记把最新的数据同步到磁盘中去。写redo log是顺序io
- 执行的时候，遇到锁，如表锁、行锁。  这条 SQL 语句一直执行的很慢  没有用上索引：例如该字段没有索引；由于对字段进行运算、函数操作导致无法用索引。 数据库选错了索引。  参考 腾讯面试：一条SQL语句执行得很慢的原因有哪些？&amp;mdash;不看后悔系列</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/</guid>
+      <description>大致来说，zookeeper 的使用场景如下，我就举几个简单的，大家能说几个就好了：
+ 分布式协调 分布式锁 元数据/配置信息管理 HA 高可用性  分布式协调 这个其实是 zookeeper 很经典的一个用法，简单来说，就好比，你 A 系统发送个请求到 mq，然后 B 系统消息消费之后处理了。那 A 系统如何知道 B 系统的处理结果？用 zookeeper 就可以实现分布式系统之间的协调工作。A 系统发送请求之后可以在 zookeeper 上对某个节点的值注册个监听器，一旦 B 系统处理完了就修改 zookeeper 那个节点的值，A 系统立马就可以收到通知，完美解决。
+分布式锁 举个栗子。对某一个数据连续发出两个修改操作，两台机器同时收到了请求，但是只能一台机器先执行完另外一个机器再执行。那么此时就可以使用 zookeeper 分布式锁，一个机器接收到了请求之后先获取 zookeeper 上的一把分布式锁，就是可以去创建一个 znode，接着执行操作；然后另外一个机器也尝试去创建那个 znode，结果发现自己创建不了，因为被别人创建了，那只能等着，等第一个机器执行完了自己再执行。
+元数据/配置信息管理 zookeeper 可以用作很多系统的配置信息的管理，比如 kafka、storm 等等很多分布式系统都会选用 zookeeper 来做一些元数据、配置信息的管理，包括 dubbo 注册中心不也支持 zookeeper 么？
+HA 高可用性 这个应该是很常见的，比如 hadoop、hdfs、yarn 等很多大数据系统，都选择基于 zookeeper 来开发 HA 高可用机制，就是一个重要进程一般会做主备两个，主进程挂了立马通过 zookeeper 感知到切换到备用进程。
+参考 zookeeper 都有哪些使用场景？</description>
     </item>
     
     <item>
-      <title>为什么需要protobuf</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/other/%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81protobuf/</link>
+      <title>悲观锁和乐观锁</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E6%82%B2%E8%A7%82%E9%94%81%E5%92%8C%E4%B9%90%E8%A7%82%E9%94%81/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/other/%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81protobuf/</guid>
-      <description>为什么需要protobuf  protobuf采用字节编码，而json, xml都是字符编码，字节编码更加节省空间 采用了varint编码，进一步降低了编码后的空间大小  Varint就是一种对数字进行编码的方法，编码后二进制数据是不定长的，数值越小的数字使用的字节数越少。例如对于int32_t，采用Varint编码后需要1~5个bytes，小的数字使用1个byte，大的数字使用5个bytes。基于实际场景中小数字的使用远远多于大数字，因此通过Varint编码对于大部分场景都可以起到一个压缩的效果。</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E6%82%B2%E8%A7%82%E9%94%81%E5%92%8C%E4%B9%90%E8%A7%82%E9%94%81/</guid>
+      <description>悲观锁 共享锁、排他锁
+ 共享锁，也就是其他事务可以并发读（其他事务也需要加共享锁），但是不能写。
+排它锁，其他事务不能并发写也不能并发读。
+ 乐观锁 乐观锁其实也不是实际的锁，甚至没有用到锁来实现并发控制，而是采取其他方式来判断能否修改数据。乐观锁一般是用户自己实现的一种锁机制，虽然没有用到实际的锁，但是能产生加锁的效果。
+乐观锁基本都是基于 CAS（Compare and swap）算法来实现的。
+主要有以下几种方式：
+ 版本号标记：在表中新增一个字段：version，用于保存版本号。获取数据的时候同时获取版本号，然后更新数据的时候用以下命令:update xxx set version=version+1,… where … version=&amp;quot;old version&amp;quot; and ....。这时候通过判断返回结果的影响行数是否为0来判断是否更新成功，更新失败则说明有其他请求已经更新了数据了。 时间戳标记：和版本号一样，只是通过时间戳来判断。一般来说很多数据表都会有更新时间这一个字段，通过这个字段来判断就不用再新增一个字段了。 待更新字段：如果没有时间戳字段，而且不想新增字段，那可以考虑用待更新字段来判断，因为更新数据一般都会发生变化，那更新前可以拿要更新的字段的旧值和数据库的现值进行比对，没有变化则更新。 所有字段标记：数据表所有字段都用来判断。这种相当于就、不仅仅对某几个字段做加锁了，而是对整个数据行加锁，只要本行数据发生变化，就不进行更新。  总结 悲观锁和乐观锁大部分场景下差异不大，一些独特场景下有一些差别，一般我们可以从如下几个方面来判断：
+1.响应速度：如果需要非常高的响应速度，建议采用乐观锁方案，成功就执行，不成功就失败，不需要等待其他并发去释放锁
+2.冲突频率：如果冲突频率非常高，建议采用悲观锁，保证成功率，如果冲突频率大，乐观锁会需要多次重试才能成功，代价比较大
+3.重试代价：如果重试代价大，建议采用悲观锁
+参考链接： 乐观锁与悲观锁各自适用场景是什么？
+一文读懂数据库中的乐观锁和悲观锁和MVCC</description>
     </item>
     
     <item>
-      <title>事务传播实战</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E5%AE%9E%E6%88%98/</link>
+      <title>部署vue项目</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/nginx/%E9%83%A8%E7%BD%B2vue%E9%A1%B9%E7%9B%AE/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E5%AE%9E%E6%88%98/</guid>
-      <description>参考链接： 手把手带你实战下Spring的七种事务传播行为
-Spring的PROPAGATION_NESTED和PROPAGATION_REQUIRES_NEW的区别？</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/nginx/%E9%83%A8%E7%BD%B2vue%E9%A1%B9%E7%9B%AE/</guid>
+      <description>时常我们想通过path来区分项目，例如通过 http://xxxx/admin 访问我们的后台，如果vue是的mode是history，请注意如下配置：
+ 修改vue-config.js文件配置  module.exports = {publicPath: &amp;#34;&amp;#34;}; 修改路由route/index  const router = new Router({  base: &amp;#39;/admin/&amp;#39;, //路由模式为history模式时，base必须要加上;路由模式为hash模式时，base可加可不加  mode: &amp;#39;history&amp;#39;,  routes: [] } 此时，请求是形如 http://xxxx/admin/xxx.css，从而避免出现形如http://xxxx/xxx.css找不到资源的情况。</description>
     </item>
     
     <item>
-      <title>事务隔离级别和实现原理</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E5%92%8C%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/</link>
+      <title>查找重复元素</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/nowcoder/%E6%9F%A5%E6%89%BE%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E5%92%8C%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/</guid>
-      <description>事务具有原子性（Atomicity）、一致性（Consistency）、隔离性（Isolation）、持久性（Durability）四个特性，简称 ACID，缺一不可。原子性由undo log保证，持久性由redo log保证，今天要说的就是隔离性。
-标准SQL通过行共享锁、行排他锁、表共享锁、表排他锁实现四种事务隔离级别，InnoDB事务在RU, S 两种隔离级别实现原理和标准SQL差不多，在RC级别它通过MVCC提前标准SQL一个级别解决了不可重复读，在RR级别通过间隙锁提前标准SQL一个隔离级别解决了幻读。（MVCC: 为了不加锁解决读写冲突的问题）
-1. 概念说明 以下几个概念是事务隔离级别要实际解决的问题，所以需要搞清楚都是什么意思。
-脏读 脏读指的是读到了其他事务未提交的数据，未提交意味着这些数据可能会回滚，也就是可能最终不会存到数据库中，也就是不存在的数据。读到了并一定最终存在的数据，这就是脏读。
-可重复读 可重复读指的是在一个事务内，最开始读到的数据和事务结束前的任意时刻读到的同一批数据都是一致的。通常针对数据**更新（UPDATE）**操作。
-不可重复读 对比可重复读，不可重复读指的是在同一事务内，不同的时刻读到的同一批数据可能是不一样的，可能会受到其他事务的影响，比如其他事务改了这批数据并提交了。通常针对数据**更新（UPDATE）**操作。
-幻读 幻读是针对数据**插入（INSERT）**操作来说的。假设事务A对某些行的内容作了更改，但是还未提交，此时事务B插入了与事务A更改前的记录相同的记录行，并且在事务A提交之前先提交了，而这时，在事务A中查询，会发现好像刚刚的更改对于某些数据未起作用，但其实是事务B刚插入进来的，让用户感觉很魔幻，感觉出现了幻觉，这就叫幻读。
-2. 事务隔离级别 SQL 标准定义了四种隔离级别，MySQL 全都支持。这四种隔离级别分别是：
- 读未提交（READ UNCOMMITTED） 读提交 （READ COMMITTED） 可重复读 （REPEATABLE READ） 串行化 （SERIALIZABLE）  从上往下，隔离强度逐渐增强，性能逐渐变差。采用哪种隔离级别要根据系统需求权衡决定，其中，可重复读是 MySQL 的默认级别。
-事务隔离其实就是为了解决上面提到的脏读、不可重复读、幻读这几个问题，下面展示了 4 种隔离级别对这三个问题的解决程度。
-只有串行化的隔离级别解决了全部这 3 个问题，其他的 3 个隔离级别都有缺陷。
-3. 标准SQL事务隔离级别实现原理 我们上面遇到的问题其实就是并发事务下的控制问题，解决并发事务的最常见方式就是悲观并发控制了（也就是数据库中的锁）。标准SQL事务隔离级别的实现是依赖锁的，我们来看下具体是怎么实现的：
-   事务隔离级别 实现方式     未提交读（RU） 事务对当前被读取的数据不加锁；事务在更新某数据的瞬间（就是发生更新的瞬间），必须先对其加行级共享锁，直到事务结束才释放。   提交读（RC） 事务对当前被读取的数据加行级共享锁（当读到时才加锁），一旦读完该行，立即释放该行级共享锁；事务在更新某数据的瞬间（就是发生更新的瞬间），必须先对其加行级排他锁，直到事务结束才释放。   可重复读（RR） 事务在读取某数据的瞬间（就是开始读取的瞬间），必须先对其加行级共享锁，直到事务结束才释放；事务在更新某数据的瞬间（就是发生更新的瞬间），必须先对其加行级排他锁，直到事务结束才释放。   序列化读（S） 事务在读取数据时，必须先对其加表级共享锁 ，直到事务结束才释放；事务在更新数据时，必须先对其加表级排他锁 ，直到事务结束才释放。    可以看到，在只使用锁来实现隔离级别的控制的时候，需要频繁的加锁解锁，而且很容易发生读写的冲突（例如在RC级别下，事务A更新了数据行1，事务B则在事务A提交前读取数据行1都要等待事务A提交并释放锁）。</description>
-    </item>
-    
-    <item>
-      <title>你了解的可见性可能是错的</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E4%BD%A0%E4%BA%86%E8%A7%A3%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7%E5%8F%AF%E8%83%BD%E6%98%AF%E9%94%99%E7%9A%84/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E4%BD%A0%E4%BA%86%E8%A7%A3%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7%E5%8F%AF%E8%83%BD%E6%98%AF%E9%94%99%E7%9A%84/</guid>
-      <description>背景 这篇文章最开始再我的群里面有讨论过，当时想写的这篇文章的，但是因为一些时间的关系所以便没有写。最近阅读微信文章的时候发现了一篇零度写的一篇文章《分享一道阿里Java并发面试题》，对于有关Java并发性技术的文章我一般还是挺感兴趣的，于是阅读了一下，整体来说还是挺不错的，但是其中犯了一个验证可见性的问题。由于微信文章回复不方便讨论，于是我便把之前一些和群友的讨论在这里写出来。
-如何测试可见性问题 因为在群里面我们习惯的有每周一问，也就由我或者群友发现一些由意思的问题然后提问给大家，让大家参与讨论，当时我提出了一个如何测试vlolatile可见性的问题，首先在Effective Java给出了一个测试volatile可见性的例子:
-import java.util.concurrent.*; public class Test { private static /*volatile*/ boolean stop = false; public static void main(String[] args) throws Exception { Thread t = new Thread(new Runnable() { public void run() { int i = 0; while (!stop) { i++; // System.out.println(&amp;#34;hello&amp;#34;);  } } }); t.start(); Thread.sleep(1000); TimeUnit.SECONDS.sleep(1); System.out.println(&amp;#34;Stop Thread&amp;#34;); stop = true; } } 这里大家可以复制上面的代码，你会发现这里程序永远不会结束，在零度的那篇文章中也给出了一个测试可见性的例子:
-public class ThreadSafeCache { int result; public int getResult() { return result; } public synchronized void setResult(int result) { this.</description>
-    </item>
-    
-    <item>
-      <title>全文索引</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/other/%E5%85%A8%E6%96%87%E7%B4%A2%E5%BC%95/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/other/%E5%85%A8%E6%96%87%E7%B4%A2%E5%BC%95/</guid>
-      <description>全文索引 参考 什么是全文索引，为什么要使用全文索引
-MySQL 之全文索引
-浅谈mysql fulltext全文索引优缺点</description>
-    </item>
-    
-    <item>
-      <title>剑指 Offer 09. 用两个栈实现队列</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-09.-%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-09.-%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/</guid>
-      <description>class CQueue { Stack&amp;lt;Integer&amp;gt; stack1; Stack&amp;lt;Integer&amp;gt; stack2; public CQueue() { stack1 = new Stack(); stack2 = new Stack(); } public void appendTail(int value) { stack1.push(value); } public int deleteHead() { if(stack2.isEmpty()){ while(stack1.isEmpty() == false){ stack2.push(stack1.pop()); } } if(stack2.isEmpty()){ return -1; }else{ return stack2.pop(); } } } /** * Your CQueue object will be instantiated and called as such: * CQueue obj = new CQueue(); * obj.appendTail(value); * int param_2 = obj.</description>
-    </item>
-    
-    <item>
-      <title>剑指 Offer 18. 删除链表的节点</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-18.-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E8%8A%82%E7%82%B9/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-18.-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E8%8A%82%E7%82%B9/</guid>
-      <description>class Solution { public ListNode deleteNode(ListNode head, int val) { ListNode myHead = new ListNode(-1); myHead.next = head; ListNode pos1 = head; ListNode pos2 = myHead; //定位  while (pos1.val != val) { pos2 = pos1; pos1 = pos1.next; } //删除  pos2.next = pos1.next; return myHead.next; } } 剑指 Offer 18. 删除链表的节点</description>
-    </item>
-    
-    <item>
-      <title>剑指 Offer 27. 二叉树的镜像</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-27.-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%95%9C%E5%83%8F/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-27.-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%95%9C%E5%83%8F/</guid>
-      <description>剑指 Offer 27. 二叉树的镜像
-/** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution { public TreeNode mirrorTree(TreeNode root) { if(root == null){ return root; } //TreeNode posL = root.left;  //TreeNode posR = root.right;  //root.left = posR;  //root.right = posL;  TreeNode tmp = null; tmp = root.</description>
-    </item>
-    
-    <item>
-      <title>剑指 Offer 28. 对称的二叉树</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-28.-%E5%AF%B9%E7%A7%B0%E7%9A%84%E4%BA%8C%E5%8F%89%E6%A0%91/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-28.-%E5%AF%B9%E7%A7%B0%E7%9A%84%E4%BA%8C%E5%8F%89%E6%A0%91/</guid>
-      <description>/** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution { public boolean isSymmetric(TreeNode root) { if(root == null){return true;} return isSymmetric2(root.left, root.right); } private boolean isSymmetric2(TreeNode left, TreeNode right){ if (left == null &amp;amp;&amp;amp; right == null){return true;} if ((left == null &amp;amp;&amp;amp; right !</description>
-    </item>
-    
-    <item>
-      <title>剑指 Offer 30. 包含min函数的栈</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-30.-%E5%8C%85%E5%90%ABmin%E5%87%BD%E6%95%B0%E7%9A%84%E6%A0%88/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-30.-%E5%8C%85%E5%90%ABmin%E5%87%BD%E6%95%B0%E7%9A%84%E6%A0%88/</guid>
-      <description>剑指 Offer 30. 包含min函数的栈
-class MinStack { Stack&amp;lt;Integer&amp;gt; stack1; Stack&amp;lt;Integer&amp;gt; stack2; /** initialize your data structure here. */ public MinStack() { stack1 = new Stack(); stack2 = new Stack(); } public void push(int x) { stack1.push(x); if(stack2.isEmpty()){ stack2.push(x); }else if(x &amp;gt; stack2.peek()){ stack2.push(stack2.peek()); }else{ stack2.push(x); } } public void pop() { stack1.pop(); stack2.pop(); } public int top() { return stack1.peek(); } public int min() { return stack2.peek(); } } /** * Your MinStack object will be instantiated and called as such: * MinStack obj = new MinStack(); * obj.</description>
-    </item>
-    
-    <item>
-      <title>剑指 Offer 32 - I. 从上到下打印二叉树</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-i.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-i.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91/</guid>
-      <description>/** * Definition for singly-linked list. * public class ListNode { * int val; * ListNode next; * ListNode(int x) { val = x; } * } */ class Solution { public static int[] levelOrder(TreeNode root) { ArrayList&amp;lt;Integer&amp;gt; list = new ArrayList&amp;lt;Integer&amp;gt;(); if (root == null) { return new int[]{}; } Queue&amp;lt;TreeNode&amp;gt; queue=new LinkedList&amp;lt;TreeNode&amp;gt;(); queue.add(root); while(!queue.isEmpty()){ TreeNode node=queue.poll(); list.add(node.val); if(node.left!=null){ queue.add(node.left); } if(node.right!=null){ queue.add(node.right); } } //list.stream().mapToInt(Integer::intValue).toArray();  int[] res = new int[list.</description>
-    </item>
-    
-    <item>
-      <title>剑指 Offer 32 - II. 从上到下打印二叉树 II</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-ii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-ii/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-ii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-ii/</guid>
-      <description>剑指 Offer 32 - II. 从上到下打印二叉树 II
-class Solution { public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; levelOrder(TreeNode root) { Queue&amp;lt;TreeNode&amp;gt; queue = new LinkedList&amp;lt;&amp;gt;(); List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; res = new ArrayList&amp;lt;&amp;gt;(); if(root != null) queue.add(root); while(!queue.isEmpty()) { List&amp;lt;Integer&amp;gt; tmp = new ArrayList&amp;lt;&amp;gt;(); for(int i = queue.size(); i &amp;gt; 0; i--) { TreeNode node = queue.poll(); tmp.add(node.val); if(node.left != null) queue.add(node.left); if(node.right != null) queue.add(node.right); } res.add(tmp); } return res; } } 这种方法，要用到两个队列，但是思路比较清晰，也记录一下
-class Solution { LinkedList&amp;lt;TreeNode&amp;gt; queue1 = new LinkedList&amp;lt;&amp;gt;(); LinkedList&amp;lt;TreeNode&amp;gt; queue2 = new LinkedList&amp;lt;&amp;gt;(); public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; levelOrder(TreeNode root) { List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; res = new ArrayList&amp;lt;&amp;gt;(); if (root !</description>
-    </item>
-    
-    <item>
-      <title>剑指 Offer 32 - III. 从上到下打印二叉树 III</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-iii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-iii/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-iii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-iii/</guid>
-      <description>剑指 Offer 32 - III. 从上到下打印二叉树 III
-/** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution { public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; levelOrder(TreeNode root) { LinkedList&amp;lt;TreeNode&amp;gt; queue = new LinkedList&amp;lt;&amp;gt;(); if (root != null){ queue.add(root); } List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; res = new ArrayList&amp;lt;&amp;gt;(); while (!queue.isEmpty()) { LinkedList&amp;lt;Integer&amp;gt; deque = new LinkedList&amp;lt;&amp;gt;(); for (int i = queue.</description>
-    </item>
-    
-    <item>
-      <title>去除请求path前缀</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/nginx/%E5%8E%BB%E9%99%A4%E8%AF%B7%E6%B1%82path%E5%89%8D%E7%BC%80/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/nginx/%E5%8E%BB%E9%99%A4%E8%AF%B7%E6%B1%82path%E5%89%8D%E7%BC%80/</guid>
-      <description>1. proxy_pass后面加根路径/ location ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; proxy_pass http://user/; } ^~/user/表示匹配前缀是user的请求，proxy_pass的结尾有/， 则会把/user/*后面的路径直接拼接到后面，即移除user。
-2. 使用rewrite location ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; rewrite ^/user/(.*)$ /$1 break; proxy_pass http://user; } 注意到proxy_pass结尾没有/， rewrite重写了url。
-参考链接： Nginx代理proxy pass配置去除前缀
-Nginx 转发域名地址报 400 Bad Request</description>
-    </item>
-    
-    <item>
-      <title>基于aspect实现注解</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E5%9F%BA%E4%BA%8Easpect%E5%AE%9E%E7%8E%B0%E6%B3%A8%E8%A7%A3/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E5%9F%BA%E4%BA%8Easpect%E5%AE%9E%E7%8E%B0%E6%B3%A8%E8%A7%A3/</guid>
-      <description>在工作中，我们有时候需要将一些公共的功能封装，比如操作日志的存储，防重复提交等等。这些功能有些接口会用到，为了便于其他接口和方法的使用，做成自定义注解，侵入性更低一点。别人用的话直接注解就好。下面就来讲讲自定义注解这些事情。
-1. @Target、@Retention、@Documented简介 java自定义注解的注解位于包：java.lang.annotation下。包含三个元注解@Target、@Retention、@Documented，即注解的注解。
-@Target @Target:注解的作用目标。和枚举ElementType共同起作用
-根据源码知道，可以配置多个作用目标。
-@Documented @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.ANNOTATION_TYPE) public @interface Target { /** * Returns an array of the kinds of elements an annotation type * can be applied to. * @return an array of the kinds of elements an annotation type * can be applied to */ ElementType[] value(); } 复制代码 ElementType的类型如下：
-* @author Joshua Bloch * @since 1.5 * @jls 9.6.4.1 @Target * @jls 4.1 The Kinds of Types and Values */ public enum ElementType { /** 类, 接口 (包括注解类型), 或 枚举 声明 */ TYPE, /** 字段声明（包括枚举常量） */ FIELD, /** 方法声明(Method declaration) */ METHOD, /** 正式的参数声明 */ PARAMETER, /** 构造函数声明 */ CONSTRUCTOR, /** 局部变量声明 */ LOCAL_VARIABLE, /** 注解类型声明 */ ANNOTATION_TYPE, /** 包声明 */ PACKAGE, /** * 类型参数声明 * * @since 1.</description>
-    </item>
-    
-    <item>
-      <title>基于Redis的分布式锁实现</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</guid>
-      <description>使用 set key value ex/px 秒/毫秒 xx/nx 的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是多锁，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（RedissonPriorityDeque）和分布式同步工具（RedissonCountDownLatch, RedissonSemaphore）
-前言 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
-分布式锁概览 在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
-实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
-比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
-分布式锁的特点 分布式锁一般有如下的特点：
- 互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒  分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
- 基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
-Redis的分布式锁实现 1. 利用setnx+expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
-因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx+expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.</description>
-    </item>
-    
-    <item>
-      <title>如何解决MySQL主从同步的延时问题</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3mysql%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E7%9A%84%E5%BB%B6%E6%97%B6%E9%97%AE%E9%A2%98/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3mysql%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E7%9A%84%E5%BB%B6%E6%97%B6%E9%97%AE%E9%A2%98/</guid>
-      <description>你们有没有做 MySQL 读写分离？如何实现 MySQL 的读写分离？MySQL 主从复制原理的是啥？如何解决 MySQL 主从同步的延时问题？
-如何实现 MySQL 的读写分离？ 其实很简单，就是基于主从复制架构，简单来说，就搞一个主库，挂多个从库，然后我们就单单只是写主库，然后主库会自动把数据给同步到从库上去。
-MySQL 主从复制原理的是啥？ 主库将变更写入 binlog 日志，然后从库连接到主库之后，从库有一个 IO 线程，将主库的 binlog 日志拷贝到自己本地，写入一个 relay 中继日志中。接着从库中有一个 SQL 线程会从中继日志读取 binlog，然后执行 binlog 日志中的内容，也就是在自己本地再次执行一遍 SQL，这样就可以保证自己跟主库的数据是一样的。
-这里有一个非常重要的一点，就是从库同步主库数据的过程是串行化的，也就是说主库上并行的操作，在从库上会串行执行。所以这就是一个非常重要的点了，由于从库从主库拷贝日志以及串行执行 SQL 的特点，在高并发场景下，从库的数据一定会比主库慢一些，是有延时的。所以经常出现，刚写入主库的数据可能是读不到的，要过几十毫秒，甚至几百毫秒才能读取到。
-而且这里还有另外一个问题，就是如果主库突然宕机，然后恰好数据还没同步到从库，那么有些数据可能在从库上是没有的，有些数据可能就丢失了。
-所以 MySQL 实际上在这一块有两个机制，一个是半同步复制，用来解决主库数据丢失问题；一个是并行复制，用来解决主从同步延时问题。
-这个所谓半同步复制，也叫 semi-sync 复制，指的就是主库写入 binlog 日志之后，就会将强制此时立即将数据同步到从库，从库将日志写入自己本地的 relay log 之后，接着会返回一个 ack 给主库，主库接收到至少一个从库的 ack 之后才会认为写操作完成了。
-所谓并行复制，指的是从库开启多个线程，并行读取 relay log 中不同库的日志，然后并行重放不同库的日志，这是库级别的并行。
-MySQL 主从同步延时问题（精华） 以前线上确实处理过因为主从同步延时问题而导致的线上的 bug，属于小型的生产事故。
-是这个么场景。有个同学是这样写代码逻辑的。先插入一条数据，再把它查出来，然后更新这条数据。在生产环境高峰期，写并发达到了 2000/s，这个时候，主从复制延时大概是在小几十毫秒。线上会发现，每天总有那么一些数据，我们期望更新一些重要的数据状态，但在高峰期时候却没更新。用户跟客服反馈，而客服就会反馈给我们。
-我们通过 MySQL 命令：
-show slave status 查看 Seconds_Behind_Master ，可以看到从库复制主库的数据落后了几 ms。
-一般来说，如果主从延迟较为严重，有以下解决方案：
- 分库，将一个主库拆分为多个主库，每个主库的写并发就减少了几倍，此时主从延迟可以忽略不计。（主库压力大导致延时） 打开 MySQL 支持的并行复制，多个库并行复制。如果说某个库的写入并发就是特别高，单库写并发达到了 2000/s，并行复制还是没意义。（从库压力大导致延时） 重写代码，写代码的同学，要慎重，插入数据时立马查询可能查不到。（主从复制无法避免的延时） 如果确实是存在必须先插入，立马要求就查询到，然后立马就要反过来执行一些操作，对这个查询设置直连主库。不推荐这种方法，你要是这么搞，读写分离的意义就丧失了。（主从复制无法避免的延时）  参考 你们有没有做 MySQL 读写分离？如何实现 MySQL 的读写分离？MySQL 主从复制原理的是啥？如何解决 MySQL 主从同步的延时问题？</description>
-    </item>
-    
-    <item>
-      <title>实现线程超时的几种方式</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E8%B6%85%E6%97%B6%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E8%B6%85%E6%97%B6%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/</guid>
-      <description>1. 基于线程的join(long millis)方法 其实这个方法比较牵强，因为它主要作用是用来多个线程之间进行同步的。但因为它提供了这个带参数的方法（所以这也给了我们一个更广泛的思路，就是一般带有超时参数的方法我们都可以尝试着用它来实现超时结束任务），所以我们可以用它来实现。注意这里的参数的单位是固定的毫秒，不同于接下来的带单位的函数。具体用法请看示例：
-public class JoinTest { public static void main(String[] args) { Task task1 = new Task(&amp;#34;one&amp;#34;, 4); Task task2 = new Task(&amp;#34;two&amp;#34;, 2); Thread t1 = new Thread(task1); Thread t2 = new Thread(task2); t1.start(); try { t1.join(2000); // 在主线程中等待t1执行2秒  } catch (InterruptedException e) { System.out.println(&amp;#34;t1 interrupted when waiting join&amp;#34;); e.printStackTrace(); } t1.interrupt(); // 这里很重要，一定要打断t1,因为它已经执行了2秒。  t2.start(); try { t2.join(1000); } catch (InterruptedException e) { System.out.println(&amp;#34;t2 interrupted when waiting join&amp;#34;); e.</description>
-    </item>
-    
-    <item>
-      <title>对象初始化顺序</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%AF%B9%E8%B1%A1%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%BA%E5%BA%8F/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%AF%B9%E8%B1%A1%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%BA%E5%BA%8F/</guid>
-      <description>父类静态成员变量、父类静态代码块 👉🏿 子类静态成员变量、子类静态代码块 👉🏿 父类成员变量、父类代码块 👉🏿 父类构造方法 👉🏿 子类成员变量、子类代码块 👉🏿 子类构造方法
-Java中类及方法的加载顺序
-Java类加载顺序</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/nowcoder/%E6%9F%A5%E6%89%BE%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0/</guid>
+      <description>找出数组 arr 中重复出现过的元素（不用考虑返回顺序）
+示例1
+输入 [1, 2, 4, 4, 3, 3, 1, 5, 3] 输出 [1, 3, 4] 将传入的数组arr中的每一个元素value当作另外一个新数组b的key，然后遍历arr去访问b[value]，若b[value]不存在，则将b[value]设置为1，若b[value]存在，则将其加1。可以想象，若arr中数组没有重复的元素，则b数组中所有元素均为1；若arr数组中存在重复的元素，则在第二次访问该b[value]时，b[value]会加1，其值就为2了。最后遍历b数组，将其值大于1的元素的key存入另一个数组a中，就得到了arr中重复的元素。
+function duplicates(arr) {  //声明两个数组，a数组用来存放结果，b数组用来存放arr中每个元素的个数  var a = [],b = [];  //遍历arr，如果以arr中元素为下标的的b元素已存在，则该b元素加1，否则设置为1  for(var i = 0; i &amp;lt; arr.length; i++){  if(!b[arr[i]]){  b[arr[i]] = 1;  continue;  }  b[arr[i]]++;  }  //遍历b数组，将其中元素值大于1的元素下标存入a数组中  for(var i = 0; i &amp;lt; b.length; i++){  if(b[i] &amp;gt; 1){  a.</description>
     </item>
     
     <item>
@@ -1413,35 +1205,26 @@ Redis源码分析-压缩列表ziplist</description>
     </item>
     
     <item>
-      <title>悲观锁和乐观锁</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E6%82%B2%E8%A7%82%E9%94%81%E5%92%8C%E4%B9%90%E8%A7%82%E9%94%81/</link>
+      <title>调整Spring HandlerMapping的顺序</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E8%B0%83%E6%95%B4spring-handlermapping%E7%9A%84%E9%A1%BA%E5%BA%8F/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E6%82%B2%E8%A7%82%E9%94%81%E5%92%8C%E4%B9%90%E8%A7%82%E9%94%81/</guid>
-      <description>悲观锁 共享锁、排他锁
- 共享锁，也就是其他事务可以并发读（其他事务也需要加共享锁），但是不能写。
-排它锁，其他事务不能并发写也不能并发读。
- 乐观锁 乐观锁其实也不是实际的锁，甚至没有用到锁来实现并发控制，而是采取其他方式来判断能否修改数据。乐观锁一般是用户自己实现的一种锁机制，虽然没有用到实际的锁，但是能产生加锁的效果。
-乐观锁基本都是基于 CAS（Compare and swap）算法来实现的。
-主要有以下几种方式：
- 版本号标记：在表中新增一个字段：version，用于保存版本号。获取数据的时候同时获取版本号，然后更新数据的时候用以下命令:update xxx set version=version+1,… where … version=&amp;quot;old version&amp;quot; and ....。这时候通过判断返回结果的影响行数是否为0来判断是否更新成功，更新失败则说明有其他请求已经更新了数据了。 时间戳标记：和版本号一样，只是通过时间戳来判断。一般来说很多数据表都会有更新时间这一个字段，通过这个字段来判断就不用再新增一个字段了。 待更新字段：如果没有时间戳字段，而且不想新增字段，那可以考虑用待更新字段来判断，因为更新数据一般都会发生变化，那更新前可以拿要更新的字段的旧值和数据库的现值进行比对，没有变化则更新。 所有字段标记：数据表所有字段都用来判断。这种相当于就、不仅仅对某几个字段做加锁了，而是对整个数据行加锁，只要本行数据发生变化，就不进行更新。  总结 悲观锁和乐观锁大部分场景下差异不大，一些独特场景下有一些差别，一般我们可以从如下几个方面来判断：
-1.响应速度：如果需要非常高的响应速度，建议采用乐观锁方案，成功就执行，不成功就失败，不需要等待其他并发去释放锁
-2.冲突频率：如果冲突频率非常高，建议采用悲观锁，保证成功率，如果冲突频率大，乐观锁会需要多次重试才能成功，代价比较大
-3.重试代价：如果重试代价大，建议采用悲观锁
-参考链接： 乐观锁与悲观锁各自适用场景是什么？
-一文读懂数据库中的乐观锁和悲观锁和MVCC</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E8%B0%83%E6%95%B4spring-handlermapping%E7%9A%84%E9%A1%BA%E5%BA%8F/</guid>
+      <description>当请求形如：/opendoc/jquery-1.10.2.min.js 的静态资源时，如果恰好存在匹配这个请求的Controller时，默认情况下，这个静态资源请求会被 RequestMappingHandlerMapping 分配给这个Controller处理，从而可能找不到静态资源，例如存在下面这样的Controller：
+ @RequestMapping(value = &amp;#34;/{name}/{version}&amp;#34;, method = {RequestMethod.POST, RequestMethod.GET})  public void rest3(@PathVariable(&amp;#34;name&amp;#34;) String name, @PathVariable(&amp;#34;version&amp;#34;) String version,  HttpServletRequest request, HttpServletResponse response) {  this.doRest(name, version, request, response);  } 为了能正确匹配的静态资源，我们可以调整Spring HandlerMapping的顺序，让SimpleUrlHandlerMapping先于RequestMappingHandlerMapping去匹配请求，SimpleUrlHandlerMapping会返回一个用于加载静态资源的ResourceHttpRequestHandler
+默认情况下RequestMappingHandlerMapping 先于SimpleUrlHandlerMapping匹配请求，DispatcherServlet中初始化HandlerMapping的顺序源码如下所示：
+ 	/** * Initialize the HandlerMappings used by this class. * &amp;lt;p&amp;gt;If no HandlerMapping beans are defined in the BeanFactory for this namespace, * we default to BeanNameUrlHandlerMapping. */ 	private void initHandlerMappings(ApplicationContext context) { 	this.</description>
     </item>
     
     <item>
-      <title>查找重复元素</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/nowcoder/%E6%9F%A5%E6%89%BE%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0/</link>
+      <title>对象初始化顺序</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%AF%B9%E8%B1%A1%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%BA%E5%BA%8F/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/nowcoder/%E6%9F%A5%E6%89%BE%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0/</guid>
-      <description>找出数组 arr 中重复出现过的元素（不用考虑返回顺序）
-示例1
-输入 [1, 2, 4, 4, 3, 3, 1, 5, 3] 输出 [1, 3, 4] 将传入的数组arr中的每一个元素value当作另外一个新数组b的key，然后遍历arr去访问b[value]，若b[value]不存在，则将b[value]设置为1，若b[value]存在，则将其加1。可以想象，若arr中数组没有重复的元素，则b数组中所有元素均为1；若arr数组中存在重复的元素，则在第二次访问该b[value]时，b[value]会加1，其值就为2了。最后遍历b数组，将其值大于1的元素的key存入另一个数组a中，就得到了arr中重复的元素。
-function duplicates(arr) { //声明两个数组，a数组用来存放结果，b数组用来存放arr中每个元素的个数  var a = [],b = []; //遍历arr，如果以arr中元素为下标的的b元素已存在，则该b元素加1，否则设置为1  for(var i = 0; i &amp;lt; arr.length; i++){ if(!b[arr[i]]){ b[arr[i]] = 1; continue; } b[arr[i]]++; } //遍历b数组，将其中元素值大于1的元素下标存入a数组中  for(var i = 0; i &amp;lt; b.length; i++){ if(b[i] &amp;gt; 1){ a.push(i); } } return a; } 查找重复元素</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%AF%B9%E8%B1%A1%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%BA%E5%BA%8F/</guid>
+      <description>父类静态成员变量、父类静态代码块 👉🏿 子类静态成员变量、子类静态代码块 👉🏿 父类成员变量、父类代码块 👉🏿 父类构造方法 👉🏿 子类成员变量、子类代码块 👉🏿 子类构造方法
+Java中类及方法的加载顺序
+Java类加载顺序</description>
     </item>
     
     <item>
@@ -1459,7 +1242,7 @@ function duplicates(arr) { //声明两个数组，a数组用来存放结果，b�
 类型擦除 在泛型类被类型擦除的时候，之前泛型类中的类型参数部分如果没有指定上限，如 &amp;lt;T&amp;gt;则会被转译成普通的 Object 类型，如果指定了上限如 &amp;lt;T extends String&amp;gt;则类型参数就被替换成类型上限。
 类型擦除带来的局限性 正常情况下，因为泛型的限制，编译器不让最后一行代码编译通过，因为类似不匹配，但是，基于对类型擦除的了解，利用反射，我们可以绕过这个限制。
 那么，利用反射，我们绕过编译器去调用 add 方法。
-public class ToolTest { public static void main(String[] args) { List&amp;lt;Integer&amp;gt; ls = new ArrayList&amp;lt;&amp;gt;(); ls.add(23); //	ls.add(&amp;#34;text&amp;#34;);  try { Method method = ls.getClass().getDeclaredMethod(&amp;#34;add&amp;#34;,Object.class); method.invoke(ls,&amp;#34;test&amp;#34;); method.invoke(ls,42.9f); } catch (NoSuchMethodException e) { // TODO Auto-generated catch block  e.</description>
+public class ToolTest {    public static void main(String[] args) {  List&amp;lt;Integer&amp;gt; ls = new ArrayList&amp;lt;&amp;gt;();  ls.add(23); //	ls.add(&amp;#34;text&amp;#34;);  try {  Method method = ls.</description>
     </item>
     
     <item>
@@ -1472,6 +1255,245 @@ public class ToolTest { public static void main(String[] args) { List&amp;lt;Int
  单精度浮点数 float 总共包含 32 位，其中 1 位表示符号、8 位表示指数，最后 23 位表示小数； 双精度浮点数 double 总共包含 64 位，其中 1 位表示符号，11 位表示指数，最后 52 位表示小数；  我们以单精度浮点数 0.15625 为例:
 通过上图中的公式 (sign * 2^{exp}* (1+fraction))可以将浮点数的二进制表示转换成十进制的小数。0.15625 虽然还可以用单精度的浮点数精确表示，但是 0.1 和 0.2 只能使用浮点数表示近似的值：
 因为 0.2 和 0.1 只是指数稍有不同，所以上图中只展示了 0.1 对应的单精度浮点数，从上图的结果我们可以看出，0.1 和 0.2 在浮点数中只能用近似值来代替，精度十分有限，因为单精度浮点数的小数位为 23，双精度的小数位为 52，同时都隐式地包含首位的 1，所以它们的精度在十进制中分别是(log_{10}(2^{24})\approx 7.</description>
+    </item>
+    
+    <item>
+      <title>高性能无锁队列Disruptor</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/other/%E9%AB%98%E6%80%A7%E8%83%BD%E6%97%A0%E9%94%81%E9%98%9F%E5%88%97disruptor/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/other/%E9%AB%98%E6%80%A7%E8%83%BD%E6%97%A0%E9%94%81%E9%98%9F%E5%88%97disruptor/</guid>
+      <description>1. JDK中的队列 在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:
+   队列名字 是否加锁 数据结构 关键技术点 是否有锁 是否有界     ArrayBlockingQueue 是 数组array ReentrantLock 有锁 有界   LinkedBlockingQueue 是 链表 ReentrantLock 有锁 有界   LinkedTransferQueue 否 链表 CAS 无锁 无界   ConcurrentLinkedQueue 否 链表 CAS 无锁 无界    我们可以看见，我们无锁的队列是无界的，有锁的队列是有界的，这里就会涉及到一个问题，我们在真正的线上环境中，无界的队列，对我们系统的影响比较大，有可能会导致我们内存直接溢出，所以我们首先得排除无界队列，当然并不是无界队列就没用了，只是在某些场景下得排除。其次还剩下ArrayBlockingQueue，LinkedBlockingQueue两个队列，他们两个都是用ReentrantLock控制的线程安全，他们两个的区别一个是数组，一个是链表，在队列中，一般获取这个队列元素之后紧接着会获取下一个元素，或者一次获取多个队列元素都有可能，而数组在内存中地址是连续的，在操作系统中会有缓存的优化(下面也会介绍缓存行)，所以访问的速度会略胜一筹，我们也会尽量去选择ArrayBlockingQueue。而事实证明在很多第三方的框架中，比如早期的log4j异步，都是选择的ArrayBlockingQueue。
+当然ArrayBlockingQueue，也有自己的弊端，就是性能比较低，为什么jdk会增加一些无锁的队列，其实就是为了增加性能，很苦恼，又需要无锁，又需要有界，这个时候恐怕会忍不住说一句你咋不上天呢？但是还真有人上天了。
+2.Disruptor Disruptor就是上面说的那个天，Disruptor是英国外汇交易公司LMAX开发的一个高性能队列，并且是一个开源的并发框架，并获得2011Duke’s程序框架创新奖。能够在无锁的情况下实现网络的Queue并发操作，基于Disruptor开发的系统单线程能支撑每秒600万订单。目前，包括Apache Storm、Camel、Log4j2等等知名的框架都在内部集成了Disruptor用来替代jdk的队列，以此来获得高性能。
+3.1为什么这么牛逼？ 上面已经把Disruptor吹出了花了，你肯定会产生疑问，他真的能有这么牛逼吗，我的回答是当然的，在Disruptor中有三大杀器:
+  CAS
+  消除伪共享
+  RingBuffer
+  有了这三大杀器，Disruptor才变得如此牛逼。
+3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现</description>
+    </item>
+    
+    <item>
+      <title>缓存雪崩和缓存穿透</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%92%8C%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%92%8C%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/</guid>
+      <description>1. 缓存雪崩 1.1 什么是缓存雪崩？ 简介：缓存同一时间大面积的失效，所以，后面的请求都会落到数据库上，造成数据库短时间内承受大量请求而崩掉。
+1.2 有哪些解决办法？  事前：尽量保证整个 redis 集群的高可用性，发现机器宕机尽快补上。选择合适的内存淘汰策略。 事中：本地ehcache缓存 + hystrix限流&amp;amp;降级，避免MySQL崩掉 事后：利用 redis 持久化机制保存的数据尽快恢复缓存  2. 缓存穿透 2.1 什么是缓存穿透？ 缓存穿透说简单点就是大量请求的 key 根本不存在于缓存中，导致请求直接到了数据库上，根本没有经过缓存这一层。举个例子：某个黑客故意制造我们缓存中不存在的 key 发起大量请求，导致大量请求落到数据库。
+2.1 有哪些解决办法？ 最基本的就是首先做好参数校验，一些不合法的参数请求直接抛出异常信息返回给客户端。比如查询的数据库 id 不能小于 0、传入的邮箱格式不对的时候直接返回错误消息给客户端等等。
+ 缓存无效 key（解决请求的 key 变化不频繁的情况） : 如果缓存和数据库都查不到某个 key 的数据就写一个到 redis 中去并设置过期时间，具体命令如下：SET key value EX 10086。这种方式可以解决请求的 key 变化不频繁的情况，如果黑客恶意攻击，每次构建的不同的请求key，会导致 redis 中缓存大量无效的 key 。很明显，这种方案并不能从根本上解决此问题。如果非要用这种方式来解决穿透问题的话，尽量将无效的 key 的过期时间设置短一点比如 1 分钟。 布隆过滤器（解决请求的 key 变化频繁且key非法）：布隆过滤器是一个非常神奇的数据结构，通过它我们可以非常方便地判断一个给定数据是否存在与海量数据中。我们需要的就是判断 key 是否合法，有没有感觉布隆过滤器就是我们想要找的那个“人”。具体是这样做的：把所有可能存在的请求的值都存放在布隆过滤器中，当用户请求过来，我会先判断用户发来的请求的值是否存在于布隆过滤器中。不存在的话，直接返回请求参数错误信息给客户端，存在的话才会走下面的流程。总结一下就是下面这张图(这张图片不是我画的，为了省事直接在网上找的)：  但是，需要注意的是布隆过滤器可能会存在误判的情况。总结来说就是： 布隆过滤器说某个元素存在，小概率会误判。布隆过滤器说某个元素不在，那么这个元素一定不在。
+ 缓存预热（解决请求的 key 变化频繁且key合法）：提前将需要做缓存的数据放入redis，即缓存预热。  3.</description>
+    </item>
+    
+    <item>
+      <title>基于aspect实现注解</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E5%9F%BA%E4%BA%8Easpect%E5%AE%9E%E7%8E%B0%E6%B3%A8%E8%A7%A3/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E5%9F%BA%E4%BA%8Easpect%E5%AE%9E%E7%8E%B0%E6%B3%A8%E8%A7%A3/</guid>
+      <description>在工作中，我们有时候需要将一些公共的功能封装，比如操作日志的存储，防重复提交等等。这些功能有些接口会用到，为了便于其他接口和方法的使用，做成自定义注解，侵入性更低一点。别人用的话直接注解就好。下面就来讲讲自定义注解这些事情。
+1. @Target、@Retention、@Documented简介 java自定义注解的注解位于包：java.lang.annotation下。包含三个元注解@Target、@Retention、@Documented，即注解的注解。
+@Target @Target:注解的作用目标。和枚举ElementType共同起作用
+根据源码知道，可以配置多个作用目标。
+@Documented @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.ANNOTATION_TYPE) public @interface Target {  /** * Returns an array of the kinds of elements an annotation type * can be applied to. * @return an array of the kinds of elements an annotation type * can be applied to */  ElementType[] value(); } 复制代码 ElementType的类型如下：
+* @author Joshua Bloch  * @since 1.5  * @jls 9.6.4.1 @Target  * @jls 4.</description>
+    </item>
+    
+    <item>
+      <title>基于Redis的分布式锁实现</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</guid>
+      <description>使用 set key value ex/px 秒/毫秒 xx/nx 的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是多锁，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（RedissonPriorityDeque）和分布式同步工具（RedissonCountDownLatch, RedissonSemaphore）
+前言 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
+分布式锁概览 在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
+实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
+比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
+分布式锁的特点 分布式锁一般有如下的特点：
+ 互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒  分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
+ 基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
+Redis的分布式锁实现 1. 利用setnx+expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
+因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx+expire命令的核心代码如下：
+public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.</description>
+    </item>
+    
+    <item>
+      <title>剑指 Offer 09. 用两个栈实现队列</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-09.-%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-09.-%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/</guid>
+      <description>class CQueue {  Stack&amp;lt;Integer&amp;gt; stack1;  Stack&amp;lt;Integer&amp;gt; stack2;   public CQueue() {  stack1 = new Stack();  stack2 = new Stack();  }   public void appendTail(int value) {  stack1.push(value);  }   public int deleteHead() {  if(stack2.isEmpty()){  while(stack1.isEmpty() == false){  stack2.push(stack1.pop());  }  }  if(stack2.isEmpty()){  return -1;  }else{  return stack2.pop();  }  } }  /** * Your CQueue object will be instantiated and called as such: * CQueue obj = new CQueue(); * obj.</description>
+    </item>
+    
+    <item>
+      <title>剑指 Offer 18. 删除链表的节点</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-18.-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E8%8A%82%E7%82%B9/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-18.-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E8%8A%82%E7%82%B9/</guid>
+      <description>class Solution {  public ListNode deleteNode(ListNode head, int val) {   ListNode myHead = new ListNode(-1);  myHead.next = head;   ListNode pos1 = head;  ListNode pos2 = myHead;   //定位  while (pos1.val != val) {  pos2 = pos1;  pos1 = pos1.next;  }  //删除  pos2.next = pos1.next;  return myHead.next;  } } 剑指 Offer 18. 删除链表的节点</description>
+    </item>
+    
+    <item>
+      <title>剑指 Offer 27. 二叉树的镜像</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-27.-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%95%9C%E5%83%8F/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-27.-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%95%9C%E5%83%8F/</guid>
+      <description>剑指 Offer 27. 二叉树的镜像
+/** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution {  public TreeNode mirrorTree(TreeNode root) {  if(root == null){  return root;  }  //TreeNode posL = root.left;  //TreeNode posR = root.right;  //root.left = posR;  //root.</description>
+    </item>
+    
+    <item>
+      <title>剑指 Offer 28. 对称的二叉树</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-28.-%E5%AF%B9%E7%A7%B0%E7%9A%84%E4%BA%8C%E5%8F%89%E6%A0%91/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-28.-%E5%AF%B9%E7%A7%B0%E7%9A%84%E4%BA%8C%E5%8F%89%E6%A0%91/</guid>
+      <description>/** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution {  public boolean isSymmetric(TreeNode root) {  if(root == null){return true;}  return isSymmetric2(root.left, root.right);  }  private boolean isSymmetric2(TreeNode left, TreeNode right){  if (left == null &amp;amp;&amp;amp; right == null){return true;}  if ((left == null &amp;amp;&amp;amp; right !</description>
+    </item>
+    
+    <item>
+      <title>剑指 Offer 30. 包含min函数的栈</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-30.-%E5%8C%85%E5%90%ABmin%E5%87%BD%E6%95%B0%E7%9A%84%E6%A0%88/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-30.-%E5%8C%85%E5%90%ABmin%E5%87%BD%E6%95%B0%E7%9A%84%E6%A0%88/</guid>
+      <description>剑指 Offer 30. 包含min函数的栈
+class MinStack {   Stack&amp;lt;Integer&amp;gt; stack1;  Stack&amp;lt;Integer&amp;gt; stack2;   /** initialize your data structure here. */  public MinStack() {  stack1 = new Stack();  stack2 = new Stack();  }   public void push(int x) {  stack1.push(x);  if(stack2.isEmpty()){  stack2.push(x);  }else if(x &amp;gt; stack2.peek()){  stack2.push(stack2.peek());  }else{  stack2.push(x);  }  }   public void pop() {  stack1.</description>
+    </item>
+    
+    <item>
+      <title>剑指 Offer 32 - I. 从上到下打印二叉树</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-i.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-i.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91/</guid>
+      <description>/** * Definition for singly-linked list. * public class ListNode { * int val; * ListNode next; * ListNode(int x) { val = x; } * } */ class Solution {  public static int[] levelOrder(TreeNode root) {  ArrayList&amp;lt;Integer&amp;gt; list = new ArrayList&amp;lt;Integer&amp;gt;();  if (root == null) {  return new int[]{};  }  Queue&amp;lt;TreeNode&amp;gt; queue=new LinkedList&amp;lt;TreeNode&amp;gt;();  queue.add(root);  while(!queue.isEmpty()){  TreeNode node=queue.poll();  list.add(node.val);  if(node.</description>
+    </item>
+    
+    <item>
+      <title>剑指 Offer 32 - II. 从上到下打印二叉树 II</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-ii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-ii/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-ii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-ii/</guid>
+      <description>剑指 Offer 32 - II. 从上到下打印二叉树 II
+class Solution {  public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; levelOrder(TreeNode root) {  Queue&amp;lt;TreeNode&amp;gt; queue = new LinkedList&amp;lt;&amp;gt;();  List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; res = new ArrayList&amp;lt;&amp;gt;();  if(root != null) queue.add(root);  while(!queue.isEmpty()) {  List&amp;lt;Integer&amp;gt; tmp = new ArrayList&amp;lt;&amp;gt;();  for(int i = queue.size(); i &amp;gt; 0; i--) {  TreeNode node = queue.poll();  tmp.add(node.val);  if(node.left != null) queue.add(node.left);  if(node.right != null) queue.add(node.right);  }  res.</description>
+    </item>
+    
+    <item>
+      <title>剑指 Offer 32 - III. 从上到下打印二叉树 III</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-iii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-iii/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-32-iii.-%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91-iii/</guid>
+      <description>剑指 Offer 32 - III. 从上到下打印二叉树 III
+/** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution {  public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; levelOrder(TreeNode root) {   LinkedList&amp;lt;TreeNode&amp;gt; queue = new LinkedList&amp;lt;&amp;gt;();  if (root != null){  queue.add(root);  }  List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; res = new ArrayList&amp;lt;&amp;gt;();  while (!</description>
+    </item>
+    
+    <item>
+      <title>脚手架</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E8%84%9A%E6%89%8B%E6%9E%B6/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E8%84%9A%E6%89%8B%E6%9E%B6/</guid>
+      <description>1. 什么是java脚手架 其实就是java工程模板，你可以把一些通用的组件抽象成一个模板，下次开发的时候基于这个模板开发，避免重复造轮子。像apache默认就提供了很多模板（archetype）
+2. 创建archetype 假如你已经有了一个maven项目，想给该项目创建一个archetype模板。你需要cd 到项目根目录下执行(pom.xml同级目录)。
+mvn archetype:create-from-project 执行完后，生成的target类似这样：
+3. 生成archetype模板 先cd target/generated-sources/archetype/ 然后执行：
+mvn install 执行成功后，执行crawl命令：
+mvn archetype:crawl 在本地仓库的根目录生成archetype-catalog.xml骨架配置文件:
+来看一看它里面的内容:
+4. 使用archetype模板 执行mvn archetype:generate -DarchetypeCatalog=local从本地archetype模板中创建项目。
+mvn archetype:generate -DarchetypeCatalog=local 然后会让你选择模板序号和groupId artifactId version和package信息：
+至此，项目创建成功!
+当然，也可以使用IDEA来帮我们用图形界面使用archetype模板创建项目：
+这里的信息根据archetype-catalog.xml中的填写，如果是本地导入Repository可以不填或者填&amp;rsquo;local&amp;rsquo;。既然提到本地，那么自然可以想到，可以将脚手架发布到nexus私服。发布到私服可以参看这里：https://www.cnblogs.com/woshimrf/p/maven-artifact-demo.html</description>
+    </item>
+    
+    <item>
+      <title>零拷贝</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E9%9B%B6%E6%8B%B7%E8%B4%9D/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E9%9B%B6%E6%8B%B7%E8%B4%9D/</guid>
+      <description>简介 零拷贝的“零”是指用户态和内核态间copy数据的次数为零。
+传统的数据copy（文件到文件、client到server等）涉及到四次用户态内核态切换、四次copy。四次copy中，两次在用户态和内核态间copy需要CPU参与、两次在内核态与IO设备间copy为DMA方式不需要CPU参与。零拷贝避免了用户态和内核态间的copy、减少了Java零拷贝机制解析核态间的切换。
+ DMA(Direct Memory Access，直接内存存取) 是所有现代电脑的重要特色，它允许不同速度的硬件装置来沟通，而不需要依赖于CPU 的大量中断负载。 DMA控制器，接管了数据读写请求，减少CPU的负担。这样一来，CPU能高效工作了。 现代硬盘基本都支持DMA。
+ 使用Zero Copy前后对比：
+使用前：
+使用后：
+Linux支持的(常见)零拷贝 mmap内存映射 sendfile Sendfile With DMA Scatter/Gather Copy splice
+无论是传统IO方式，还是引入零拷贝之后，2次DMA copy 是都少不了的。因为两次DMA都是依赖硬件完成的。
+实际上，零拷贝时有广义和狭义之分的。 广义零拷贝： 能减少拷贝次数，减少不必要的数据拷贝，就算作“零拷贝”。 这是目前，对零拷贝最为广泛的定义，我们需要知道的是，这是广义上的零拷贝，并不是操作系统 意义上的零拷贝。
+Java零拷贝机制解析 Linux提供的领拷贝技术 Java并不是全支持，支持2种(内存映射mmap、sendfile)；
+NIO提供的内存映射：MappedByteBuffer
+NIO提供的sendfile：FileChannel.transferTo() FileChannel.transferFrom()
+适用场景 数据不需要应用程序计算处理的场景，例如：访问静态资源
+参考 Java中的零拷贝
+Java零拷贝</description>
+    </item>
+    
+    <item>
+      <title>你了解的可见性可能是错的</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E4%BD%A0%E4%BA%86%E8%A7%A3%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7%E5%8F%AF%E8%83%BD%E6%98%AF%E9%94%99%E7%9A%84/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E4%BD%A0%E4%BA%86%E8%A7%A3%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7%E5%8F%AF%E8%83%BD%E6%98%AF%E9%94%99%E7%9A%84/</guid>
+      <description>背景 这篇文章最开始再我的群里面有讨论过，当时想写的这篇文章的，但是因为一些时间的关系所以便没有写。最近阅读微信文章的时候发现了一篇零度写的一篇文章《分享一道阿里Java并发面试题》，对于有关Java并发性技术的文章我一般还是挺感兴趣的，于是阅读了一下，整体来说还是挺不错的，但是其中犯了一个验证可见性的问题。由于微信文章回复不方便讨论，于是我便把之前一些和群友的讨论在这里写出来。
+如何测试可见性问题 因为在群里面我们习惯的有每周一问，也就由我或者群友发现一些由意思的问题然后提问给大家，让大家参与讨论，当时我提出了一个如何测试vlolatile可见性的问题，首先在Effective Java给出了一个测试volatile可见性的例子:
+import java.util.concurrent.*;  public class Test {  private static /*volatile*/ boolean stop = false;  public static void main(String[] args) throws Exception {  Thread t = new Thread(new Runnable() {  public void run() {  int i = 0;  while (!stop) {  i++; // System.out.println(&amp;#34;hello&amp;#34;);  }  }  });  t.start();   Thread.sleep(1000);  TimeUnit.SECONDS.sleep(1);  System.out.println(&amp;#34;Stop Thread&amp;#34;);  stop = true;  } } 这里大家可以复制上面的代码，你会发现这里程序永远不会结束，在零度的那篇文章中也给出了一个测试可见性的例子:</description>
+    </item>
+    
+    <item>
+      <title>去除请求path前缀</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/nginx/%E5%8E%BB%E9%99%A4%E8%AF%B7%E6%B1%82path%E5%89%8D%E7%BC%80/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/nginx/%E5%8E%BB%E9%99%A4%E8%AF%B7%E6%B1%82path%E5%89%8D%E7%BC%80/</guid>
+      <description>1. proxy_pass后面加根路径/ location ^~/user/ {  proxy_set_header Host $host;  proxy_set_header X-Real-IP $remote_addr;  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  proxy_set_header X-NginX-Proxy true;   proxy_pass http://user/; } ^~/user/表示匹配前缀是user的请求，proxy_pass的结尾有/， 则会把/user/*后面的路径直接拼接到后面，即移除user。
+2. 使用rewrite location ^~/user/ {  proxy_set_header Host $host;  proxy_set_header X-Real-IP $remote_addr;  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  proxy_set_header X-NginX-Proxy true;   rewrite ^/user/(.*)$ /$1 break;  proxy_pass http://user; } 注意到proxy_pass结尾没有/， rewrite重写了url。
+参考链接： Nginx代理proxy pass配置去除前缀
+Nginx 转发域名地址报 400 Bad Request</description>
+    </item>
+    
+    <item>
+      <title>全文索引</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/other/%E5%85%A8%E6%96%87%E7%B4%A2%E5%BC%95/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/other/%E5%85%A8%E6%96%87%E7%B4%A2%E5%BC%95/</guid>
+      <description>全文索引 参考 什么是全文索引，为什么要使用全文索引
+MySQL 之全文索引
+浅谈mysql fulltext全文索引优缺点</description>
+    </item>
+    
+    <item>
+      <title>如何解决MySQL主从同步的延时问题</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3mysql%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E7%9A%84%E5%BB%B6%E6%97%B6%E9%97%AE%E9%A2%98/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3mysql%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E7%9A%84%E5%BB%B6%E6%97%B6%E9%97%AE%E9%A2%98/</guid>
+      <description>你们有没有做 MySQL 读写分离？如何实现 MySQL 的读写分离？MySQL 主从复制原理的是啥？如何解决 MySQL 主从同步的延时问题？
+如何实现 MySQL 的读写分离？ 其实很简单，就是基于主从复制架构，简单来说，就搞一个主库，挂多个从库，然后我们就单单只是写主库，然后主库会自动把数据给同步到从库上去。
+MySQL 主从复制原理的是啥？ 主库将变更写入 binlog 日志，然后从库连接到主库之后，从库有一个 IO 线程，将主库的 binlog 日志拷贝到自己本地，写入一个 relay 中继日志中。接着从库中有一个 SQL 线程会从中继日志读取 binlog，然后执行 binlog 日志中的内容，也就是在自己本地再次执行一遍 SQL，这样就可以保证自己跟主库的数据是一样的。
+这里有一个非常重要的一点，就是从库同步主库数据的过程是串行化的，也就是说主库上并行的操作，在从库上会串行执行。所以这就是一个非常重要的点了，由于从库从主库拷贝日志以及串行执行 SQL 的特点，在高并发场景下，从库的数据一定会比主库慢一些，是有延时的。所以经常出现，刚写入主库的数据可能是读不到的，要过几十毫秒，甚至几百毫秒才能读取到。
+而且这里还有另外一个问题，就是如果主库突然宕机，然后恰好数据还没同步到从库，那么有些数据可能在从库上是没有的，有些数据可能就丢失了。
+所以 MySQL 实际上在这一块有两个机制，一个是半同步复制，用来解决主库数据丢失问题；一个是并行复制，用来解决主从同步延时问题。
+这个所谓半同步复制，也叫 semi-sync 复制，指的就是主库写入 binlog 日志之后，就会将强制此时立即将数据同步到从库，从库将日志写入自己本地的 relay log 之后，接着会返回一个 ack 给主库，主库接收到至少一个从库的 ack 之后才会认为写操作完成了。
+所谓并行复制，指的是从库开启多个线程，并行读取 relay log 中不同库的日志，然后并行重放不同库的日志，这是库级别的并行。
+MySQL 主从同步延时问题（精华） 以前线上确实处理过因为主从同步延时问题而导致的线上的 bug，属于小型的生产事故。
+是这个么场景。有个同学是这样写代码逻辑的。先插入一条数据，再把它查出来，然后更新这条数据。在生产环境高峰期，写并发达到了 2000/s，这个时候，主从复制延时大概是在小几十毫秒。线上会发现，每天总有那么一些数据，我们期望更新一些重要的数据状态，但在高峰期时候却没更新。用户跟客服反馈，而客服就会反馈给我们。
+我们通过 MySQL 命令：
+show slave status 查看 Seconds_Behind_Master ，可以看到从库复制主库的数据落后了几 ms。
+一般来说，如果主从延迟较为严重，有以下解决方案：
+ 分库，将一个主库拆分为多个主库，每个主库的写并发就减少了几倍，此时主从延迟可以忽略不计。（主库压力大导致延时） 打开 MySQL 支持的并行复制，多个库并行复制。如果说某个库的写入并发就是特别高，单库写并发达到了 2000/s，并行复制还是没意义。（从库压力大导致延时） 重写代码，写代码的同学，要慎重，插入数据时立马查询可能查不到。（主从复制无法避免的延时） 如果确实是存在必须先插入，立马要求就查询到，然后立马就要反过来执行一些操作，对这个查询设置直连主库。不推荐这种方法，你要是这么搞，读写分离的意义就丧失了。（主从复制无法避免的延时）  参考 你们有没有做 MySQL 读写分离？如何实现 MySQL 的读写分离？MySQL 主从复制原理的是啥？如何解决 MySQL 主从同步的延时问题？</description>
     </item>
     
     <item>
@@ -1539,13 +1561,73 @@ Redis Cluster其实采取的是类似于一致性哈希的算法来实现节点�
     </item>
     
     <item>
+      <title>实现线程超时的几种方式</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E8%B6%85%E6%97%B6%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E8%B6%85%E6%97%B6%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/</guid>
+      <description>1. 基于线程的join(long millis)方法 其实这个方法比较牵强，因为它主要作用是用来多个线程之间进行同步的。但因为它提供了这个带参数的方法（所以这也给了我们一个更广泛的思路，就是一般带有超时参数的方法我们都可以尝试着用它来实现超时结束任务），所以我们可以用它来实现。注意这里的参数的单位是固定的毫秒，不同于接下来的带单位的函数。具体用法请看示例：
+public class JoinTest {  public static void main(String[] args) {  Task task1 = new Task(&amp;#34;one&amp;#34;, 4);  Task task2 = new Task(&amp;#34;two&amp;#34;, 2);  Thread t1 = new Thread(task1);  Thread t2 = new Thread(task2);  t1.start();  try {  t1.join(2000); // 在主线程中等待t1执行2秒  } catch (InterruptedException e) {  System.out.println(&amp;#34;t1 interrupted when waiting join&amp;#34;);  e.printStackTrace();  }  t1.interrupt(); // 这里很重要，一定要打断t1,因为它已经执行了2秒。  t2.</description>
+    </item>
+    
+    <item>
+      <title>事务传播实战</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E5%AE%9E%E6%88%98/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E5%AE%9E%E6%88%98/</guid>
+      <description>参考链接： 手把手带你实战下Spring的七种事务传播行为
+Spring的PROPAGATION_NESTED和PROPAGATION_REQUIRES_NEW的区别？</description>
+    </item>
+    
+    <item>
+      <title>事务隔离级别和实现原理</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E5%92%8C%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E5%92%8C%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/</guid>
+      <description>事务具有原子性（Atomicity）、一致性（Consistency）、隔离性（Isolation）、持久性（Durability）四个特性，简称 ACID，缺一不可。原子性由undo log保证，持久性由redo log保证，今天要说的就是隔离性。
+标准SQL通过行共享锁、行排他锁、表共享锁、表排他锁实现四种事务隔离级别，InnoDB事务在RU, S 两种隔离级别实现原理和标准SQL差不多，在RC级别它通过MVCC提前标准SQL一个级别解决了不可重复读，在RR级别通过间隙锁提前标准SQL一个隔离级别解决了幻读。（MVCC: 为了不加锁解决读写冲突的问题）
+1. 概念说明 以下几个概念是事务隔离级别要实际解决的问题，所以需要搞清楚都是什么意思。
+脏读 脏读指的是读到了其他事务未提交的数据，未提交意味着这些数据可能会回滚，也就是可能最终不会存到数据库中，也就是不存在的数据。读到了并一定最终存在的数据，这就是脏读。
+可重复读 可重复读指的是在一个事务内，最开始读到的数据和事务结束前的任意时刻读到的同一批数据都是一致的。通常针对数据**更新（UPDATE）**操作。
+不可重复读 对比可重复读，不可重复读指的是在同一事务内，不同的时刻读到的同一批数据可能是不一样的，可能会受到其他事务的影响，比如其他事务改了这批数据并提交了。通常针对数据**更新（UPDATE）**操作。
+幻读 幻读是针对数据**插入（INSERT）**操作来说的。假设事务A对某些行的内容作了更改，但是还未提交，此时事务B插入了与事务A更改前的记录相同的记录行，并且在事务A提交之前先提交了，而这时，在事务A中查询，会发现好像刚刚的更改对于某些数据未起作用，但其实是事务B刚插入进来的，让用户感觉很魔幻，感觉出现了幻觉，这就叫幻读。
+2. 事务隔离级别 SQL 标准定义了四种隔离级别，MySQL 全都支持。这四种隔离级别分别是：
+ 读未提交（READ UNCOMMITTED） 读提交 （READ COMMITTED） 可重复读 （REPEATABLE READ） 串行化 （SERIALIZABLE）  从上往下，隔离强度逐渐增强，性能逐渐变差。采用哪种隔离级别要根据系统需求权衡决定，其中，可重复读是 MySQL 的默认级别。
+事务隔离其实就是为了解决上面提到的脏读、不可重复读、幻读这几个问题，下面展示了 4 种隔离级别对这三个问题的解决程度。
+只有串行化的隔离级别解决了全部这 3 个问题，其他的 3 个隔离级别都有缺陷。
+3. 标准SQL事务隔离级别实现原理 我们上面遇到的问题其实就是并发事务下的控制问题，解决并发事务的最常见方式就是悲观并发控制了（也就是数据库中的锁）。标准SQL事务隔离级别的实现是依赖锁的，我们来看下具体是怎么实现的：
+   事务隔离级别 实现方式     未提交读（RU） 事务对当前被读取的数据不加锁；事务在更新某数据的瞬间（就是发生更新的瞬间），必须先对其加行级共享锁，直到事务结束才释放。   提交读（RC） 事务对当前被读取的数据加行级共享锁（当读到时才加锁），一旦读完该行，立即释放该行级共享锁；事务在更新某数据的瞬间（就是发生更新的瞬间），必须先对其加行级排他锁，直到事务结束才释放。   可重复读（RR） 事务在读取某数据的瞬间（就是开始读取的瞬间），必须先对其加行级共享锁，直到事务结束才释放；事务在更新某数据的瞬间（就是发生更新的瞬间），必须先对其加行级排他锁，直到事务结束才释放。   序列化读（S） 事务在读取数据时，必须先对其加表级共享锁 ，直到事务结束才释放；事务在更新数据时，必须先对其加表级排他锁 ，直到事务结束才释放。    可以看到，在只使用锁来实现隔离级别的控制的时候，需要频繁的加锁解锁，而且很容易发生读写的冲突（例如在RC级别下，事务A更新了数据行1，事务B则在事务A提交前读取数据行1都要等待事务A提交并释放锁）。</description>
+    </item>
+    
+    <item>
+      <title>锁</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E9%94%81/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E9%94%81/</guid>
+      <description>阿里面试，问了我乐观锁、悲观锁、AQS、sync和Lock，这个回答让我拿了offer
+阿里面试官：说一下公平锁和非公平锁的区别？</description>
+    </item>
+    
+    <item>
+      <title>为什么需要protobuf</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/other/%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81protobuf/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/other/%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81protobuf/</guid>
+      <description>为什么需要protobuf  protobuf采用字节编码，而json, xml都是字符编码，字节编码更加节省空间 采用了varint编码，进一步降低了编码后的空间大小  Varint就是一种对数字进行编码的方法，编码后二进制数据是不定长的，数值越小的数字使用的字节数越少。例如对于int32_t，采用Varint编码后需要1~5个bytes，小的数字使用1个byte，大的数字使用5个bytes。基于实际场景中小数字的使用远远多于大数字，因此通过Varint编码对于大部分场景都可以起到一个压缩的效果。</description>
+    </item>
+    
+    <item>
       <title>线程安全的单例的几种实现方法</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E7%9A%84%E5%8D%95%E4%BE%8B%E7%9A%84%E5%87%A0%E7%A7%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%B3%95/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E7%9A%84%E5%8D%95%E4%BE%8B%E7%9A%84%E5%87%A0%E7%A7%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%B3%95/</guid>
       <description>1. 使用synchronized 饱汉：双重检查锁定、饿汉、静态内部类、枚举 都属于利用synchronized同步原理实现
-1.1 饱汉：双重检查锁定（double-checked locking） public class SingleTon { // 静态实例变量加上volatile  private static volatile SingleTon instance; // 私有化构造函数  private SingleTon() {} // 双重检查锁  public static SingleTon getInstance() { if (instance == null) { synchronized(SingleTon.class){ if(instance == null){ instance = new SingleTon(); } } } return instance; } 1.2 饿汉 public class Singleton { private static Singleton instance = new Singleton(); private Singleton() { } public static Singleton getInstance() { return instance; } } 1.</description>
+1.1 饱汉：双重检查锁定（double-checked locking） public class SingleTon {   // 静态实例变量加上volatile  private static volatile SingleTon instance;   // 私有化构造函数  private SingleTon() {}   // 双重检查锁  public static SingleTon getInstance() {  if (instance == null) {  synchronized(SingleTon.class){  if(instance == null){  instance = new SingleTon();  }  }  }  return instance;  } 1.2 饿汉 public class Singleton {  private static Singleton instance = new Singleton();   private Singleton() {  }   public static Singleton getInstance() {  return instance;  } } 1.</description>
     </item>
     
     <item>
@@ -1569,109 +1651,14 @@ wait方法只能在同步方法和同步代码块中使用
     </item>
     
     <item>
-      <title>缓存雪崩和缓存穿透</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%92%8C%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/</link>
+      <title>一个SQL执行的很慢</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E4%B8%80%E4%B8%AAsql%E6%89%A7%E8%A1%8C%E7%9A%84%E5%BE%88%E6%85%A2/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%92%8C%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/</guid>
-      <description>1. 缓存雪崩 1.1 什么是缓存雪崩？ 简介：缓存同一时间大面积的失效，所以，后面的请求都会落到数据库上，造成数据库短时间内承受大量请求而崩掉。
-1.2 有哪些解决办法？  事前：尽量保证整个 redis 集群的高可用性，发现机器宕机尽快补上。选择合适的内存淘汰策略。 事中：本地ehcache缓存 + hystrix限流&amp;amp;降级，避免MySQL崩掉 事后：利用 redis 持久化机制保存的数据尽快恢复缓存  2. 缓存穿透 2.1 什么是缓存穿透？ 缓存穿透说简单点就是大量请求的 key 根本不存在于缓存中，导致请求直接到了数据库上，根本没有经过缓存这一层。举个例子：某个黑客故意制造我们缓存中不存在的 key 发起大量请求，导致大量请求落到数据库。
-2.1 有哪些解决办法？ 最基本的就是首先做好参数校验，一些不合法的参数请求直接抛出异常信息返回给客户端。比如查询的数据库 id 不能小于 0、传入的邮箱格式不对的时候直接返回错误消息给客户端等等。
- 缓存无效 key（解决请求的 key 变化不频繁的情况） : 如果缓存和数据库都查不到某个 key 的数据就写一个到 redis 中去并设置过期时间，具体命令如下：SET key value EX 10086。这种方式可以解决请求的 key 变化不频繁的情况，如果黑客恶意攻击，每次构建的不同的请求key，会导致 redis 中缓存大量无效的 key 。很明显，这种方案并不能从根本上解决此问题。如果非要用这种方式来解决穿透问题的话，尽量将无效的 key 的过期时间设置短一点比如 1 分钟。 布隆过滤器（解决请求的 key 变化频繁且key非法）：布隆过滤器是一个非常神奇的数据结构，通过它我们可以非常方便地判断一个给定数据是否存在与海量数据中。我们需要的就是判断 key 是否合法，有没有感觉布隆过滤器就是我们想要找的那个“人”。具体是这样做的：把所有可能存在的请求的值都存放在布隆过滤器中，当用户请求过来，我会先判断用户发来的请求的值是否存在于布隆过滤器中。不存在的话，直接返回请求参数错误信息给客户端，存在的话才会走下面的流程。总结一下就是下面这张图(这张图片不是我画的，为了省事直接在网上找的)：  但是，需要注意的是布隆过滤器可能会存在误判的情况。总结来说就是： 布隆过滤器说某个元素存在，小概率会误判。布隆过滤器说某个元素不在，那么这个元素一定不在。
- 缓存预热（解决请求的 key 变化频繁且key合法）：提前将需要做缓存的数据放入redis，即缓存预热。  3.</description>
-    </item>
-    
-    <item>
-      <title>脚手架</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E8%84%9A%E6%89%8B%E6%9E%B6/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E8%84%9A%E6%89%8B%E6%9E%B6/</guid>
-      <description>1. 什么是java脚手架 其实就是java工程模板，你可以把一些通用的组件抽象成一个模板，下次开发的时候基于这个模板开发，避免重复造轮子。像apache默认就提供了很多模板（archetype）
-2. 创建archetype 假如你已经有了一个maven项目，想给该项目创建一个archetype模板。你需要cd 到项目根目录下执行(pom.xml同级目录)。
-mvn archetype:create-from-project 执行完后，生成的target类似这样：
-3. 生成archetype模板 先cd target/generated-sources/archetype/ 然后执行：
-mvn install 执行成功后，执行crawl命令：
-mvn archetype:crawl 在本地仓库的根目录生成archetype-catalog.xml骨架配置文件:
-来看一看它里面的内容:
-4. 使用archetype模板 执行mvn archetype:generate -DarchetypeCatalog=local从本地archetype模板中创建项目。
-mvn archetype:generate -DarchetypeCatalog=local 然后会让你选择模板序号和groupId artifactId version和package信息：
-至此，项目创建成功!
-当然，也可以使用IDEA来帮我们用图形界面使用archetype模板创建项目：
-这里的信息根据archetype-catalog.xml中的填写，如果是本地导入Repository可以不填或者填&amp;rsquo;local&#39;。既然提到本地，那么自然可以想到，可以将脚手架发布到nexus私服。发布到私服可以参看这里：https://www.cnblogs.com/woshimrf/p/maven-artifact-demo.html</description>
-    </item>
-    
-    <item>
-      <title>调整Spring HandlerMapping的顺序</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E8%B0%83%E6%95%B4spring-handlermapping%E7%9A%84%E9%A1%BA%E5%BA%8F/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E8%B0%83%E6%95%B4spring-handlermapping%E7%9A%84%E9%A1%BA%E5%BA%8F/</guid>
-      <description>当请求形如：/opendoc/jquery-1.10.2.min.js 的静态资源时，如果恰好存在匹配这个请求的Controller时，默认情况下，这个静态资源请求会被 RequestMappingHandlerMapping 分配给这个Controller处理，从而可能找不到静态资源，例如存在下面这样的Controller：
-@RequestMapping(value = &amp;#34;/{name}/{version}&amp;#34;, method = {RequestMethod.POST, RequestMethod.GET}) public void rest3(@PathVariable(&amp;#34;name&amp;#34;) String name, @PathVariable(&amp;#34;version&amp;#34;) String version, HttpServletRequest request, HttpServletResponse response) { this.doRest(name, version, request, response); } 为了能正确匹配的静态资源，我们可以调整Spring HandlerMapping的顺序，让SimpleUrlHandlerMapping先于RequestMappingHandlerMapping去匹配请求，SimpleUrlHandlerMapping会返回一个用于加载静态资源的ResourceHttpRequestHandler
-默认情况下RequestMappingHandlerMapping 先于SimpleUrlHandlerMapping匹配请求，DispatcherServlet中初始化HandlerMapping的顺序源码如下所示：
-/** * Initialize the HandlerMappings used by this class. * &amp;lt;p&amp;gt;If no HandlerMapping beans are defined in the BeanFactory for this namespace, * we default to BeanNameUrlHandlerMapping. */ private void initHandlerMappings(ApplicationContext context) { this.handlerMappings = null; if (this.</description>
-    </item>
-    
-    <item>
-      <title>部署vue项目</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/nginx/%E9%83%A8%E7%BD%B2vue%E9%A1%B9%E7%9B%AE/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/nginx/%E9%83%A8%E7%BD%B2vue%E9%A1%B9%E7%9B%AE/</guid>
-      <description>时常我们想通过path来区分项目，例如通过 http://xxxx/admin 访问我们的后台，如果vue是的mode是history，请注意如下配置：
- 修改vue-config.js文件配置  module.exports = {publicPath: &amp;#34;&amp;#34;}; 修改路由route/index  const router = new Router({ base: &amp;#39;/admin/&amp;#39;, //路由模式为history模式时，base必须要加上;路由模式为hash模式时，base可加可不加  mode: &amp;#39;history&amp;#39;, routes: [] } 此时，请求是形如 http://xxxx/admin/xxx.css，从而避免出现形如http://xxxx/xxx.css找不到资源的情况。</description>
-    </item>
-    
-    <item>
-      <title>锁</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E9%94%81/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E9%94%81/</guid>
-      <description>阿里面试，问了我乐观锁、悲观锁、AQS、sync和Lock，这个回答让我拿了offer
-阿里面试官：说一下公平锁和非公平锁的区别？</description>
-    </item>
-    
-    <item>
-      <title>零拷贝</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E9%9B%B6%E6%8B%B7%E8%B4%9D/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/java/%E9%9B%B6%E6%8B%B7%E8%B4%9D/</guid>
-      <description>简介 零拷贝的“零”是指用户态和内核态间copy数据的次数为零。
-传统的数据copy（文件到文件、client到server等）涉及到四次用户态内核态切换、四次copy。四次copy中，两次在用户态和内核态间copy需要CPU参与、两次在内核态与IO设备间copy为DMA方式不需要CPU参与。零拷贝避免了用户态和内核态间的copy、减少了Java零拷贝机制解析核态间的切换。
- DMA(Direct Memory Access，直接内存存取) 是所有现代电脑的重要特色，它允许不同速度的硬件装置来沟通，而不需要依赖于CPU 的大量中断负载。 DMA控制器，接管了数据读写请求，减少CPU的负担。这样一来，CPU能高效工作了。 现代硬盘基本都支持DMA。
- 使用Zero Copy前后对比：
-使用前：
-使用后：
-Linux支持的(常见)零拷贝 mmap内存映射 sendfile Sendfile With DMA Scatter/Gather Copy splice
-无论是传统IO方式，还是引入零拷贝之后，2次DMA copy 是都少不了的。因为两次DMA都是依赖硬件完成的。
-实际上，零拷贝时有广义和狭义之分的。 广义零拷贝： 能减少拷贝次数，减少不必要的数据拷贝，就算作“零拷贝”。 这是目前，对零拷贝最为广泛的定义，我们需要知道的是，这是广义上的零拷贝，并不是操作系统 意义上的零拷贝。
-Java零拷贝机制解析 Linux提供的领拷贝技术 Java并不是全支持，支持2种(内存映射mmap、sendfile)；
-NIO提供的内存映射：MappedByteBuffer
-NIO提供的sendfile：FileChannel.transferTo() FileChannel.transferFrom()
-适用场景 数据不需要应用程序计算处理的场景，例如：访问静态资源
-参考 Java中的零拷贝
-Java零拷贝</description>
-    </item>
-    
-    <item>
-      <title>高性能无锁队列Disruptor</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/other/%E9%AB%98%E6%80%A7%E8%83%BD%E6%97%A0%E9%94%81%E9%98%9F%E5%88%97disruptor/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/other/%E9%AB%98%E6%80%A7%E8%83%BD%E6%97%A0%E9%94%81%E9%98%9F%E5%88%97disruptor/</guid>
-      <description>1. JDK中的队列 在jdk中的队列都实现了java.util.Queue接口，在队列中又分为两类，一类是线程不安全的，ArrayDeque，LinkedList等等，还有一类都在java.util.concurrent包下属于线程安全，而在我们真实的环境中，我们的机器都是属于多线程，当多线程对同一个队列进行排队操作的时候，如果使用线程不安全会出现，覆盖数据，数据丢失等无法预测的事情，所以我们这个时候只能选择线程安全的队列。在jdk中提供的线程安全的队列下面简单列举部分队列:
-   队列名字 是否加锁 数据结构 关键技术点 是否有锁 是否有界     ArrayBlockingQueue 是 数组array ReentrantLock 有锁 有界   LinkedBlockingQueue 是 链表 ReentrantLock 有锁 有界   LinkedTransferQueue 否 链表 CAS 无锁 无界   ConcurrentLinkedQueue 否 链表 CAS 无锁 无界    我们可以看见，我们无锁的队列是无界的，有锁的队列是有界的，这里就会涉及到一个问题，我们在真正的线上环境中，无界的队列，对我们系统的影响比较大，有可能会导致我们内存直接溢出，所以我们首先得排除无界队列，当然并不是无界队列就没用了，只是在某些场景下得排除。其次还剩下ArrayBlockingQueue，LinkedBlockingQueue两个队列，他们两个都是用ReentrantLock控制的线程安全，他们两个的区别一个是数组，一个是链表，在队列中，一般获取这个队列元素之后紧接着会获取下一个元素，或者一次获取多个队列元素都有可能，而数组在内存中地址是连续的，在操作系统中会有缓存的优化(下面也会介绍缓存行)，所以访问的速度会略胜一筹，我们也会尽量去选择ArrayBlockingQueue。而事实证明在很多第三方的框架中，比如早期的log4j异步，都是选择的ArrayBlockingQueue。
-当然ArrayBlockingQueue，也有自己的弊端，就是性能比较低，为什么jdk会增加一些无锁的队列，其实就是为了增加性能，很苦恼，又需要无锁，又需要有界，这个时候恐怕会忍不住说一句你咋不上天呢？但是还真有人上天了。
-2.Disruptor Disruptor就是上面说的那个天，Disruptor是英国外汇交易公司LMAX开发的一个高性能队列，并且是一个开源的并发框架，并获得2011Duke’s程序框架创新奖。能够在无锁的情况下实现网络的Queue并发操作，基于Disruptor开发的系统单线程能支撑每秒600万订单。目前，包括Apache Storm、Camel、Log4j2等等知名的框架都在内部集成了Disruptor用来替代jdk的队列，以此来获得高性能。
-3.1为什么这么牛逼？ 上面已经把Disruptor吹出了花了，你肯定会产生疑问，他真的能有这么牛逼吗，我的回答是当然的，在Disruptor中有三大杀器:
-  CAS
-  消除伪共享
-  RingBuffer
-  有了这三大杀器，Disruptor才变得如此牛逼。
-3.1.1 锁和CAS CAS实现无锁队列可以参考👉无锁队列的实现</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E4%B8%80%E4%B8%AAsql%E6%89%A7%E8%A1%8C%E7%9A%84%E5%BE%88%E6%85%A2/</guid>
+      <description>一个SQL执行的很慢，我们要分两种情况讨论：
+大多数情况下很正常，偶尔很慢  数据库在刷新脏页，例如 redo log 写满了需要同步到磁盘。  当我们要往数据库插入一条数据、或者要更新一条数据的时候，我们知道数据库会在内存中把对应字段的数据更新了，但是更新之后，这些更新的字段并不会马上同步持久化到磁盘中去，而是把这些更新的记录写入到 redo log 日记中去，等到空闲的时候，在通过 redo log 里的日记把最新的数据同步到磁盘中去。写redo log是顺序io
+ 执行的时候，遇到锁，如表锁、行锁。  这条 SQL 语句一直执行的很慢  没有用上索引：例如该字段没有索引；由于对字段进行运算、函数操作导致无法用索引。 数据库选错了索引。  参考 腾讯面试：一条SQL语句执行得很慢的原因有哪些？&amp;mdash;不看后悔系列</description>
     </item>
     
   </channel>

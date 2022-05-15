@@ -35,7 +35,7 @@ springboot利用@Async提升API接口并发能力</description>
       <description>BeanFactoryPostProcessor工作在Bean实例化之前，BeanPostProcessor工作在Bean初始化方法前后。
 BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：
 1. BeanFactoryPostProcessor接口 该接口的定义如下：
-@FunctionalInterface public interface BeanFactoryPostProcessor { /** * Modify the application context&amp;#39;s internal bean factory after its standard * initialization. All bean definitions will have been loaded, but no beans * will have been instantiated yet. This allows for overriding or adding * properties even to eager-initializing beans. * @param beanFactory the bean factory used by the application context * @throws org.springframework.beans.BeansException in case of errors */ void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException; } 实现该接口，可以在spring的bean创建之前，修改bean的定义属性。也就是说，Spring允许BeanFactoryPostProcessor在容器实例化任何其它bean之前读取配置元数据，并可以根据需要进行修改，例如可以把bean的scope从singleton改为prototype，也可以把property的值给修改掉。可以同时配置多个BeanFactoryPostProcessor，并通过设置&amp;rsquo;order&amp;rsquo;属性来控制各个BeanFactoryPostProcessor的执行次序。</description>
+@FunctionalInterface public interface BeanFactoryPostProcessor {  	/** * Modify the application context&amp;#39;s internal bean factory after its standard * initialization. All bean definitions will have been loaded, but no beans * will have been instantiated yet. This allows for overriding or adding * properties even to eager-initializing beans. * @param beanFactory the bean factory used by the application context * @throws org.springframework.beans.BeansException in case of errors */ 	void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException;  } 实现该接口，可以在spring的bean创建之前，修改bean的定义属性。也就是说，Spring允许BeanFactoryPostProcessor在容器实例化任何其它bean之前读取配置元数据，并可以根据需要进行修改，例如可以把bean的scope从singleton改为prototype，也可以把property的值给修改掉。可以同时配置多个BeanFactoryPostProcessor，并通过设置&amp;rsquo;order&amp;rsquo;属性来控制各个BeanFactoryPostProcessor的执行次序。</description>
     </item>
     
     <item>
@@ -67,10 +67,9 @@ spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.web.servlet.
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/springaop%E6%96%B9%E6%B3%95%E5%86%85%E9%83%A8%E8%B0%83%E7%94%A8%E4%B8%8D%E7%94%9F%E6%95%88/</guid>
       <description>假设一个接口里面有两个方法：
-package demo.long; public interface CustomerService { public void doSomething1(); public void doSomething2(); } 接口实现类如下：
-package demo.long.impl; import demo.long.CustomerService; public class CustomerServiceImpl implements CustomerService { public void doSomething1() { System.out.println(&amp;#34;CustomerServiceImpl.doSomething1()&amp;#34;); doSomething2(); } public void doSomething2() { System.out.println(&amp;#34;CustomerServiceImpl.doSomething2()&amp;#34;); } } 现在我需要在CustomerService接口的每个方法被调用时都在方法前执行一些逻辑，所以需要配置一个拦截器：
-package demo.long; import org.aspectj.lang.annotation.Aspect; import org.aspectj.lang.annotation.Before; @Aspect public class CustomerServiceInterceptor { @Before(&amp;#34;execution(* demo.long..*.*(..))&amp;#34;) public void doBefore() { System.out.println(&amp;#34;do some important things before...&amp;#34;); } } 把Bean加到Spring配置中
-&amp;lt;aop:aspectj-autoproxy /&amp;gt; &amp;lt;bean id=&amp;#34;customerService&amp;#34; class=&amp;#34;demo.long.impl.CustomerServiceImpl&amp;#34; /&amp;gt; &amp;lt;bean id=&amp;#34;customerServiceInterceptor&amp;#34; class=&amp;#34;demo.</description>
+package demo.long;  public interface CustomerService {  public void doSomething1();  public void doSomething2(); } 接口实现类如下：
+package demo.long.impl;  import demo.long.CustomerService;  public class CustomerServiceImpl implements CustomerService {   public void doSomething1() {  System.out.println(&amp;#34;CustomerServiceImpl.doSomething1()&amp;#34;);  doSomething2();  }   public void doSomething2() {  System.out.println(&amp;#34;CustomerServiceImpl.doSomething2()&amp;#34;);  }  } 现在我需要在CustomerService接口的每个方法被调用时都在方法前执行一些逻辑，所以需要配置一个拦截器：
+package demo.long;  import org.aspectj.lang.annotation.Aspect; import org.aspectj.lang.annotation.Before;  @Aspect public class CustomerServiceInterceptor {   @Before(&amp;#34;execution(* demo.</description>
     </item>
     
     <item>
@@ -91,7 +90,7 @@ Spring MVC【入门】就这一篇！</description>
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/spring%E4%BA%8B%E5%8A%A1/</guid>
       <description>Spring事务可简单的理解为由PlatformTransactionManager, TransactionDefinition, TransactionStatus 构成
 PlatformTransactionManager 其中 org.springframework.transaction.PlatformTransactionManager 接口定义如下：
-public interface PlatformTransactionManager extends TransactionManager { // Return a currently active transaction or create a new one, according to the specified propagation behavior（根据指定的传播行为，返回当前活动的事务或创建一个新事务。）  TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException; // Commit the given transaction, with regard to its status（使用事务目前的状态提交事务）  Void commit(TransactionStatus status) throws TransactionException; // Perform a rollback of the given transaction（对执行的事务进行回滚）  Void rollback(TransactionStatus status) throws TransactionException; } Spring并不直接管理事务，它只提供接口抽象，事务管理器的具体实现由持久化框架自己实现，例如：DataSourceTransactionManager (JDBC / MyBatis),</description>
+public interface PlatformTransactionManager extends TransactionManager {  // Return a currently active transaction or create a new one, according to the specified propagation behavior（根据指定的传播行为，返回当前活动的事务或创建一个新事务。）  TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException;  // Commit the given transaction, with regard to its status（使用事务目前的状态提交事务）  Void commit(TransactionStatus status) throws TransactionException;  // Perform a rollback of the given transaction（对执行的事务进行回滚）  Void rollback(TransactionStatus status) throws TransactionException; } Spring并不直接管理事务，它只提供接口抽象，事务管理器的具体实现由持久化框架自己实现，例如：DataSourceTransactionManager (JDBC / MyBatis),</description>
     </item>
     
     <item>
@@ -101,21 +100,23 @@ public interface PlatformTransactionManager extends TransactionManager { // Retu
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/spring%E4%BC%98%E9%9B%85%E7%9A%84%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/</guid>
       <description>SpringBoot的WEB异常捕获，如果是WEB项目的话，可以直接处理Controller中的异常。如果不是WEB项目的话，就需要使用AspectJ来做切面。
-1. web项目 package com.test.handler; import lombok.extern.log4j.Log4j2; import org.springframework.ui.Model; import org.springframework.web.bind.annotation.ControllerAdvice; import org.springframework.web.bind.annotation.ExceptionHandler; @ControllerAdvice @Log4j2 public class GlobalExceptionHandler { @ExceptionHandler(value = Exception.class) public String exception(Exception e, Model model){ log.error(&amp;#34;find exception:e={}&amp;#34;,e.getMessage()); model.addAttribute(&amp;#34;mes&amp;#34;,e.getMessage()); return &amp;#34;pages/500&amp;#34;; } } 参考链接：
+1. web项目 package com.test.handler;  import lombok.extern.log4j.Log4j2; import org.springframework.ui.Model; import org.springframework.web.bind.annotation.ControllerAdvice; import org.springframework.web.bind.annotation.ExceptionHandler;   @ControllerAdvice @Log4j2 public class GlobalExceptionHandler {  @ExceptionHandler(value = Exception.class)  public String exception(Exception e, Model model){  log.error(&amp;#34;find exception:e={}&amp;#34;,e.getMessage());  model.addAttribute(&amp;#34;mes&amp;#34;,e.getMessage());  return &amp;#34;pages/500&amp;#34;;  } } 参考链接：
 SpringBootWEB项目和非Web项目的全局异常捕获
 SpringBoot 处理异常的几种常见姿势
 使用枚举简单封装一个优雅的 Spring Boot 全局异常处理！
-2. 非web项目 package com.test.syncbackend.handler; import lombok.extern.log4j.Log4j2; import org.aspectj.lang.ProceedingJoinPoint; import org.aspectj.lang.annotation.Around; import org.aspectj.lang.annotation.Aspect; import org.aspectj.lang.annotation.Pointcut; import org.springframework.stereotype.Component; @Component @Aspect @Log4j2 public class GlobalExceptionHandler { @Pointcut(&amp;#34;execution(* com.test.syncbackend.scheduleds.*.*(..))&amp;#34;) public void pointCut() { } @Around(&amp;#34;pointCut()&amp;#34;) public Object handlerException(ProceedingJoinPoint proceedingJoinPoint) { try { return proceedingJoinPoint.</description>
+2. 非web项目 package com.test.syncbackend.handler;  import lombok.extern.log4j.Log4j2; import org.aspectj.lang.ProceedingJoinPoint; import org.aspectj.lang.annotation.Around; import org.aspectj.lang.annotation.Aspect; import org.aspectj.lang.annotation.Pointcut; import org.springframework.stereotype.Component;  @Component @Aspect @Log4j2 public class GlobalExceptionHandler {   @Pointcut(&amp;#34;execution(* com.</description>
     </item>
     
     <item>
-      <title>事务传播实战</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E5%AE%9E%E6%88%98/</link>
+      <title>调整Spring HandlerMapping的顺序</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E8%B0%83%E6%95%B4spring-handlermapping%E7%9A%84%E9%A1%BA%E5%BA%8F/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E5%AE%9E%E6%88%98/</guid>
-      <description>参考链接： 手把手带你实战下Spring的七种事务传播行为
-Spring的PROPAGATION_NESTED和PROPAGATION_REQUIRES_NEW的区别？</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E8%B0%83%E6%95%B4spring-handlermapping%E7%9A%84%E9%A1%BA%E5%BA%8F/</guid>
+      <description>当请求形如：/opendoc/jquery-1.10.2.min.js 的静态资源时，如果恰好存在匹配这个请求的Controller时，默认情况下，这个静态资源请求会被 RequestMappingHandlerMapping 分配给这个Controller处理，从而可能找不到静态资源，例如存在下面这样的Controller：
+ @RequestMapping(value = &amp;#34;/{name}/{version}&amp;#34;, method = {RequestMethod.POST, RequestMethod.GET})  public void rest3(@PathVariable(&amp;#34;name&amp;#34;) String name, @PathVariable(&amp;#34;version&amp;#34;) String version,  HttpServletRequest request, HttpServletResponse response) {  this.doRest(name, version, request, response);  } 为了能正确匹配的静态资源，我们可以调整Spring HandlerMapping的顺序，让SimpleUrlHandlerMapping先于RequestMappingHandlerMapping去匹配请求，SimpleUrlHandlerMapping会返回一个用于加载静态资源的ResourceHttpRequestHandler
+默认情况下RequestMappingHandlerMapping 先于SimpleUrlHandlerMapping匹配请求，DispatcherServlet中初始化HandlerMapping的顺序源码如下所示：
+ 	/** * Initialize the HandlerMappings used by this class. * &amp;lt;p&amp;gt;If no HandlerMapping beans are defined in the BeanFactory for this namespace, * we default to BeanNameUrlHandlerMapping. */ 	private void initHandlerMappings(ApplicationContext context) { 	this.</description>
     </item>
     
     <item>
@@ -128,20 +129,18 @@ Spring的PROPAGATION_NESTED和PROPAGATION_REQUIRES_NEW的区别？</description>
 1. @Target、@Retention、@Documented简介 java自定义注解的注解位于包：java.lang.annotation下。包含三个元注解@Target、@Retention、@Documented，即注解的注解。
 @Target @Target:注解的作用目标。和枚举ElementType共同起作用
 根据源码知道，可以配置多个作用目标。
-@Documented @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.ANNOTATION_TYPE) public @interface Target { /** * Returns an array of the kinds of elements an annotation type * can be applied to. * @return an array of the kinds of elements an annotation type * can be applied to */ ElementType[] value(); } 复制代码 ElementType的类型如下：
-* @author Joshua Bloch * @since 1.5 * @jls 9.6.4.1 @Target * @jls 4.1 The Kinds of Types and Values */ public enum ElementType { /** 类, 接口 (包括注解类型), 或 枚举 声明 */ TYPE, /** 字段声明（包括枚举常量） */ FIELD, /** 方法声明(Method declaration) */ METHOD, /** 正式的参数声明 */ PARAMETER, /** 构造函数声明 */ CONSTRUCTOR, /** 局部变量声明 */ LOCAL_VARIABLE, /** 注解类型声明 */ ANNOTATION_TYPE, /** 包声明 */ PACKAGE, /** * 类型参数声明 * * @since 1.</description>
+@Documented @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.ANNOTATION_TYPE) public @interface Target {  /** * Returns an array of the kinds of elements an annotation type * can be applied to. * @return an array of the kinds of elements an annotation type * can be applied to */  ElementType[] value(); } 复制代码 ElementType的类型如下：
+* @author Joshua Bloch  * @since 1.5  * @jls 9.6.4.1 @Target  * @jls 4.</description>
     </item>
     
     <item>
-      <title>调整Spring HandlerMapping的顺序</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E8%B0%83%E6%95%B4spring-handlermapping%E7%9A%84%E9%A1%BA%E5%BA%8F/</link>
+      <title>事务传播实战</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E5%AE%9E%E6%88%98/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E8%B0%83%E6%95%B4spring-handlermapping%E7%9A%84%E9%A1%BA%E5%BA%8F/</guid>
-      <description>当请求形如：/opendoc/jquery-1.10.2.min.js 的静态资源时，如果恰好存在匹配这个请求的Controller时，默认情况下，这个静态资源请求会被 RequestMappingHandlerMapping 分配给这个Controller处理，从而可能找不到静态资源，例如存在下面这样的Controller：
-@RequestMapping(value = &amp;#34;/{name}/{version}&amp;#34;, method = {RequestMethod.POST, RequestMethod.GET}) public void rest3(@PathVariable(&amp;#34;name&amp;#34;) String name, @PathVariable(&amp;#34;version&amp;#34;) String version, HttpServletRequest request, HttpServletResponse response) { this.doRest(name, version, request, response); } 为了能正确匹配的静态资源，我们可以调整Spring HandlerMapping的顺序，让SimpleUrlHandlerMapping先于RequestMappingHandlerMapping去匹配请求，SimpleUrlHandlerMapping会返回一个用于加载静态资源的ResourceHttpRequestHandler
-默认情况下RequestMappingHandlerMapping 先于SimpleUrlHandlerMapping匹配请求，DispatcherServlet中初始化HandlerMapping的顺序源码如下所示：
-/** * Initialize the HandlerMappings used by this class. * &amp;lt;p&amp;gt;If no HandlerMapping beans are defined in the BeanFactory for this namespace, * we default to BeanNameUrlHandlerMapping. */ private void initHandlerMappings(ApplicationContext context) { this.handlerMappings = null; if (this.</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E5%AE%9E%E6%88%98/</guid>
+      <description>参考链接： 手把手带你实战下Spring的七种事务传播行为
+Spring的PROPAGATION_NESTED和PROPAGATION_REQUIRES_NEW的区别？</description>
     </item>
     
   </channel>

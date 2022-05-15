@@ -58,7 +58,7 @@
  这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念
   Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
  从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
-[root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0  使用 hostnamectl 或者 cat /proc/version 可以查看内核版本：</description>
+[root@k8s-node3 ~]# free -m  total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0  使用 hostnamectl 或者 cat /proc/version 可以查看内核版本：</description>
     </item>
     
     <item>
@@ -202,23 +202,6 @@ http://www.ruanyifeng.com/blog/2014/09/illustration-ssl.html</description>
     </item>
     
     <item>
-      <title>TCP协议</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/tcp%E5%8D%8F%E8%AE%AE/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/tcp%E5%8D%8F%E8%AE%AE/</guid>
-      <description>简介 数据在TCP层称为流（Stream），数据分组称为分段（Segment）。作为比较，数据在IP层称为Datagram，数据分组称为分片（Fragment）。 UDP 中分组称为Message。
-TCP 数据包的大小 以太网数据包（packet）的大小是固定的，最初是1518字节，后来增加到1522字节。其中， 1500 字节是负载（payload），22字节是头信息（head）。 IP 数据包在以太网数据包的负载里面，它也有自己的头信息，最少需要20字节，所以 IP 数据包的负载最多为1480字节。
-（图片说明：IP 数据包在以太网数据包里面，TCP 数据包在 IP 数据包里面。)
-TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20字节，因此 TCP 数据包的最大负载是 1480 - 20 = 1460 字节。由于 IP 和 TCP 协议往往有额外的头信息，所以 TCP 负载实际为1400字节左右。
-因此，一条1500字节的信息需要两个 TCP 数据包。HTTP/2 协议的一大改进， 就是压缩 HTTP 协议的头信息，使得一个 HTTP 请求可以放在一个 TCP 数据包里面，而不是分成多个，这样就提高了速度。
-创建连接 TCP用三次握手（或称三路握手，three-way handshake）过程创建一个连接。在连接创建过程中，很多参数要被初始化，例如序号被初始化以保证按序传输和连接的强壮性。 一对终端同时初始化一个它们之间的连接是可能的。但通常是由一端打开一个套接字（socket）然后监听来自另一方的连接，这就是通常所指的被动打开（passive open）。服务器端被被动打开以后，用户端就能开始创建主动打开（active open）。
- 客户端通过向服务器端发送一个SYN来创建一个主动打开，作为三次握手的一部分。客户端把这段连接的序号设定为随机数A。 服务器端应当为一个合法的SYN回送一个SYN/ACK。ACK的确认码应为A+1，SYN/ACK包本身又有一个随机产生的序号B。 最后，客户端再发送一个ACK。此时包的序号被设定为A+1，而ACK的确认码则为B+1。当服务端收到这个ACK的时候，就完成了三次握手，并进入了连接创建状态。  注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的
-注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的
-如果服务器端接到了客户端发的SYN后回了SYN-ACK后客户端掉线了，服务器端没有收到客户端回来的ACK，那么，这个连接处于一个中间状态，即没成功，也没失败。于是，服务器端如果在一定时间内没有收到的TCP会重发SYN-ACK。在Linux下，默认重试次数为5次，重试的间隔时间从1s开始每次都翻倍，5次的重试时间间隔为1s, 2s, 4s, 8s, 16s，总共31s，第5次发出后还要等32s才知道第5次也超时了，所以，总共需要 1s + 2s + 4s+ 8s+ 16s + 32s = 63s，TCP才会断开这个连接。使用三个TCP参数来调整行为：tcp_synack_retries 减少重试次数；tcp_max_syn_backlog，增大SYN连接数；tcp_abort_on_overflow决定超出能力时的行为。</description>
-    </item>
-    
-    <item>
       <title>TCP常见知识点</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/tcp%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
@@ -238,6 +221,35 @@ ECE：若其值为 1 则会通知对方，从对方到这边的网络有阻塞�
     </item>
     
     <item>
+      <title>TCP协议</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/tcp%E5%8D%8F%E8%AE%AE/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/tcp/tcp%E5%8D%8F%E8%AE%AE/</guid>
+      <description>简介 数据在TCP层称为流（Stream），数据分组称为分段（Segment）。作为比较，数据在IP层称为Datagram，数据分组称为分片（Fragment）。 UDP 中分组称为Message。
+TCP 数据包的大小 以太网数据包（packet）的大小是固定的，最初是1518字节，后来增加到1522字节。其中， 1500 字节是负载（payload），22字节是头信息（head）。 IP 数据包在以太网数据包的负载里面，它也有自己的头信息，最少需要20字节，所以 IP 数据包的负载最多为1480字节。
+（图片说明：IP 数据包在以太网数据包里面，TCP 数据包在 IP 数据包里面。)
+TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20字节，因此 TCP 数据包的最大负载是 1480 - 20 = 1460 字节。由于 IP 和 TCP 协议往往有额外的头信息，所以 TCP 负载实际为1400字节左右。
+因此，一条1500字节的信息需要两个 TCP 数据包。HTTP/2 协议的一大改进， 就是压缩 HTTP 协议的头信息，使得一个 HTTP 请求可以放在一个 TCP 数据包里面，而不是分成多个，这样就提高了速度。
+创建连接 TCP用三次握手（或称三路握手，three-way handshake）过程创建一个连接。在连接创建过程中，很多参数要被初始化，例如序号被初始化以保证按序传输和连接的强壮性。 一对终端同时初始化一个它们之间的连接是可能的。但通常是由一端打开一个套接字（socket）然后监听来自另一方的连接，这就是通常所指的被动打开（passive open）。服务器端被被动打开以后，用户端就能开始创建主动打开（active open）。
+ 客户端通过向服务器端发送一个SYN来创建一个主动打开，作为三次握手的一部分。客户端把这段连接的序号设定为随机数A。 服务器端应当为一个合法的SYN回送一个SYN/ACK。ACK的确认码应为A+1，SYN/ACK包本身又有一个随机产生的序号B。 最后，客户端再发送一个ACK。此时包的序号被设定为A+1，而ACK的确认码则为B+1。当服务端收到这个ACK的时候，就完成了三次握手，并进入了连接创建状态。  注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的
+注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的
+如果服务器端接到了客户端发的SYN后回了SYN-ACK后客户端掉线了，服务器端没有收到客户端回来的ACK，那么，这个连接处于一个中间状态，即没成功，也没失败。于是，服务器端如果在一定时间内没有收到的TCP会重发SYN-ACK。在Linux下，默认重试次数为5次，重试的间隔时间从1s开始每次都翻倍，5次的重试时间间隔为1s, 2s, 4s, 8s, 16s，总共31s，第5次发出后还要等32s才知道第5次也超时了，所以，总共需要 1s + 2s + 4s+ 8s+ 16s + 32s = 63s，TCP才会断开这个连接。使用三个TCP参数来调整行为：tcp_synack_retries 减少重试次数；tcp_max_syn_backlog，增大SYN连接数；tcp_abort_on_overflow决定超出能力时的行为。</description>
+    </item>
+    
+    <item>
+      <title>常用缓存淘汰算法</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E5%B8%B8%E7%94%A8%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AE%97%E6%B3%95/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E5%B8%B8%E7%94%A8%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AE%97%E6%B3%95/</guid>
+      <description>常见类型包括LFU、LRU、ARC、FIFO、MRU。
+ 最不经常使用算法（LFU, Least Frequently Used）：  这个缓存算法使用一个计数器来记录条目被访问的频率。通过使用LFU缓存算法，最低访问数的条目首先被移除。这个方法并不经常使用，因为它无法对一个拥有最初高访问率之后长时间没有被访问的条目缓存负责。
+ 最近最少使用算法（LRU, Least Recently Used）  LRU是首先淘汰最长时间未被使用的页面。这种算法把近期最久没有被访问过的页面作为被替换的页面。它把LFU算法中要记录数量上的&amp;quot;多&amp;quot;与&amp;quot;少&amp;quot;简化成判断&amp;quot;有&amp;quot;与&amp;quot;无&amp;quot;，因此，实现起来比较容易。
+注意：LRU的淘汰规则是基于访问时间，而LFU是基于访问次数的 </description>
+    </item>
+    
+    <item>
       <title>分布式ID生成方式</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E5%88%86%E5%B8%83%E5%BC%8Fid%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
@@ -251,11 +263,11 @@ ECE：若其值为 1 则会通知对方，从对方到这边的网络有阻塞�
  UUID 数据库自增ID 数据库多主模式 号段模式 Redis 雪花算法（SnowFlake） 滴滴出品（TinyID） 百度 （Uidgenerator） 美团（Leaf）  那么它们都是如何实现？以及各自有什么优缺点？我们往下看
  以上图片源自网络，如有侵权联系删除
  1、基于UUID 在Java的世界里，想要得到一个具有唯一性的ID，首先被想到可能就是UUID，毕竟它有着全球唯一的特性。那么UUID可以做分布式ID吗？答案是可以的，但是并不推荐！
-public static void main(String[] args) { String uuid = UUID.randomUUID().toString().replaceAll(&amp;#34;-&amp;#34;,&amp;#34;&amp;#34;); System.out.println(uuid); } UUID的生成简单到只有一行代码，输出结果 c2b8c2b9e46c47e3b30dca3b0d447718，但UUID却并不适用于实际的业务需求。像用作订单号UUID这样的字符串没有丝毫的意义，看不出和订单相关的有用信息；而对于数据库来说用作业务主键ID，它不仅是太长还是字符串，存储性能差查询也很耗时，所以不推荐用作分布式ID。
+public static void main(String[] args) {  String uuid = UUID.randomUUID().toString().replaceAll(&amp;#34;-&amp;#34;,&amp;#34;&amp;#34;);  System.out.println(uuid);  } UUID的生成简单到只有一行代码，输出结果 c2b8c2b9e46c47e3b30dca3b0d447718，但UUID却并不适用于实际的业务需求。像用作订单号UUID这样的字符串没有丝毫的意义，看不出和订单相关的有用信息；而对于数据库来说用作业务主键ID，它不仅是太长还是字符串，存储性能差查询也很耗时，所以不推荐用作分布式ID。
 优点：
  生成足够简单，本地生成无网络消耗，具有唯一性  缺点：
  无序的字符串，不具备趋势自增特性 没有具体的业务含义 长度过长16 字节128位，36位长度的字符串，存储以及查询对MySQL的性能消耗较大，MySQL官方明确建议主键要尽量越短越好，作为数据库主键 UUID 的无序性会导致数据位置频繁变动，严重影响性能。  2、基于数据库自增ID 基于数据库的auto_increment自增ID完全可以充当分布式ID，具体实现：需要一个单独的MySQL实例用来生成ID，建表结构如下：
-CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.SEQUENCE_ID ( id bigint(20) unsigned NOT NULL auto_increment, value char(10) NOT NULL default &amp;#39;&amp;#39;, PRIMARY KEY (id), ) ENGINE=MyISAM; insert into SEQUENCE_ID(value) VALUES (&amp;#39;values&amp;#39;); 当我们需要一个ID的时候，向表中插入一条记录返回主键ID，但这种方式有一个比较致命的缺点，访问量激增时MySQL本身就是系统的瓶颈，用它来实现分布式服务风险比较大，不推荐！</description>
+CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.</description>
     </item>
     
     <item>
@@ -288,36 +300,12 @@ CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.SEQUENCE_ID ( id bigint(20) unsigne
     </item>
     
     <item>
-      <title>常用缓存淘汰算法</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E5%B8%B8%E7%94%A8%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AE%97%E6%B3%95/</link>
+      <title>服务之间的调用为啥不直接用 HTTP 而用 RPC？</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E7%9A%84%E8%B0%83%E7%94%A8%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E7%94%A8-http-%E8%80%8C%E7%94%A8-rpc/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E5%B8%B8%E7%94%A8%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AE%97%E6%B3%95/</guid>
-      <description>常见类型包括LFU、LRU、ARC、FIFO、MRU。
- 最不经常使用算法（LFU, Least Frequently Used）：  这个缓存算法使用一个计数器来记录条目被访问的频率。通过使用LFU缓存算法，最低访问数的条目首先被移除。这个方法并不经常使用，因为它无法对一个拥有最初高访问率之后长时间没有被访问的条目缓存负责。
- 最近最少使用算法（LRU, Least Recently Used）  LRU是首先淘汰最长时间未被使用的页面。这种算法把近期最久没有被访问过的页面作为被替换的页面。它把LFU算法中要记录数量上的&amp;quot;多&amp;quot;与&amp;quot;少&amp;quot;简化成判断&amp;quot;有&amp;quot;与&amp;quot;无&amp;quot;，因此，实现起来比较容易。
-注意：LRU的淘汰规则是基于访问时间，而LFU是基于访问次数的 </description>
-    </item>
-    
-    <item>
-      <title>指令重排</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E6%8C%87%E4%BB%A4%E9%87%8D%E6%8E%92/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E6%8C%87%E4%BB%A4%E9%87%8D%E6%8E%92/</guid>
-      <description>我们知道java在运行的时候有两个地方可能用到重排序，一个是编译器编译的的时候，一个是处理器运行的时候。
-那么我们就应该问问为啥要用指令重排序呢？
-编译期重排序有啥好处？
-CPU计算的时候要访问值，如果常常利用到寄存器中已有的值就不用去内存读取了，比如说
-int a = 1; int b = 1; a = a + 1; b = b +1 ; 就可能没有
-int a = 1; a = a + 1; int b = 1; b = b +1 ; 性能好，因为后者的a或b可能在寄存器中了。
-处理器为啥要重排序？
-一条汇编指令的执行步骤：
-  取指 IF 译码和取寄存器操作 ID 执行或者有效地址计算 EX 存储器访问 MEM 写回 WB   在CPU工作中汇编指令分多步完成，每一部涉及到的硬件（寄存器）可能不同，于是有了流水线技术来执行指令。
-没有流水线技术前，如果同时两个指令过来执行 一个需要5秒，那么两个就需要10秒；有了流水线技术之后，可能就只要6秒。多个指令同时执行时性能显著提升。
- 流水线技术是一种将指令分解为多步，并让不同指令的各步操作重叠，从而实现几条指令并行处理。
-指令1 IF ID EX MEN WB
-指令2 IF ID EX MEN WB</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E7%9A%84%E8%B0%83%E7%94%A8%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E7%94%A8-http-%E8%80%8C%E7%94%A8-rpc/</guid>
+      <description> 使用自定义 TCP 协议进行传输就会避免上面这个问题，极大地减轻了传输数据的开销。 这也就是为什么通常会采用自定义 TCP 协议的 RPC 来进行进行服务调用的真正原因。 除此之外，成熟的 RPC 框架还提供好了“服务自动注册与发现”、&amp;ldquo;智能负载均衡&amp;rdquo;、“可视化的服务治理和运维”、“运行期流量调度”等等功能，这些也算是选择 RPC 进行服务注册和发现的一方面原因吧！  </description>
     </item>
     
     <item>
@@ -337,15 +325,6 @@ int a = 1; a = a + 1; int b = 1; b = b +1 ; 性能好，因为后者的a或b可�
 重试机制：方案二 流程如下图所示： （1）更新数据库数据 （2）数据库会将操作信息写入binlog日志当中 （3）订阅程序提取出所需要的数据以及key （4）另起一段非业务代码，获得该信息 （5）尝试删除缓存操作，发现删除失败 （6）将这些信息发送至消息队列 （7）重新从消息队列中获得该数据，重试操作。
 上述的订阅binlog程序在mysql中有现成的中间件叫canal，可以完成订阅binlog日志的功能。至于oracle中，博主目前不知道有没有现成中间件可以使用。另外，重试机制，博主是采用的是消息队列的方式。如果对一致性要求不是很高，直接在程序中另起一个线程，每隔一段时间去重试即可，这些大家可以灵活自由发挥，只是提供一个思路。
 参考链接： 分布式之数据库和缓存双写一致性方案解析</description>
-    </item>
-    
-    <item>
-      <title>服务之间的调用为啥不直接用 HTTP 而用 RPC？</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E7%9A%84%E8%B0%83%E7%94%A8%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E7%94%A8-http-%E8%80%8C%E7%94%A8-rpc/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E7%9A%84%E8%B0%83%E7%94%A8%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E7%94%A8-http-%E8%80%8C%E7%94%A8-rpc/</guid>
-      <description> 使用自定义 TCP 协议进行传输就会避免上面这个问题，极大地减轻了传输数据的开销。 这也就是为什么通常会采用自定义 TCP 协议的 RPC 来进行进行服务调用的真正原因。 除此之外，成熟的 RPC 框架还提供好了“服务自动注册与发现”、&amp;ldquo;智能负载均衡&amp;rdquo;、“可视化的服务治理和运维”、“运行期流量调度”等等功能，这些也算是选择 RPC 进行服务注册和发现的一方面原因吧！  </description>
     </item>
     
     <item>
@@ -371,6 +350,27 @@ MySQL中varchar最大长度是多少？
 5.GROUP BY: 根据group by子句中的列，对VT4中的记录进行分组操作，产生VT5.
 6.CUBE | ROLLUP: 对表VT5进行cube或者rollup操作，产生表VT6.
 7.HAVING： 对虚拟表VT6应用having过滤，只有符合的记录才会被 插入到虚拟表VT7中。</description>
+    </item>
+    
+    <item>
+      <title>指令重排</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E6%8C%87%E4%BB%A4%E9%87%8D%E6%8E%92/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E6%8C%87%E4%BB%A4%E9%87%8D%E6%8E%92/</guid>
+      <description>我们知道java在运行的时候有两个地方可能用到重排序，一个是编译器编译的的时候，一个是处理器运行的时候。
+那么我们就应该问问为啥要用指令重排序呢？
+编译期重排序有啥好处？
+CPU计算的时候要访问值，如果常常利用到寄存器中已有的值就不用去内存读取了，比如说
+int a = 1; int b = 1; a = a + 1; b = b +1 ; 就可能没有
+int a = 1; a = a + 1; int b = 1; b = b +1 ; 性能好，因为后者的a或b可能在寄存器中了。
+处理器为啥要重排序？
+一条汇编指令的执行步骤：
+  取指 IF 译码和取寄存器操作 ID 执行或者有效地址计算 EX 存储器访问 MEM 写回 WB   在CPU工作中汇编指令分多步完成，每一部涉及到的硬件（寄存器）可能不同，于是有了流水线技术来执行指令。
+没有流水线技术前，如果同时两个指令过来执行 一个需要5秒，那么两个就需要10秒；有了流水线技术之后，可能就只要6秒。多个指令同时执行时性能显著提升。
+ 流水线技术是一种将指令分解为多步，并让不同指令的各步操作重叠，从而实现几条指令并行处理。
+指令1 IF ID EX MEN WB
+指令2 IF ID EX MEN WB</description>
     </item>
     
   </channel>

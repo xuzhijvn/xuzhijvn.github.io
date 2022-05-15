@@ -1,0 +1,565 @@
+<!doctype html><html lang="en" data-palette="indigo"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>浮点数运算 - 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/icons/icon-180x180.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-16x16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
+<link rel="manifest" href="https://xuzhijvn.github.io/en/manifest.json">
+<meta name="keywords" content="" />
+<meta name="description" content="结论  Java中单精度和双精度采用IEEE 754表示，能有效运算的范围大致是小数点后7位和15位 如果Java中默认的float和double不能满足你的精度要求，可以用BigDecimal，理论上它的精度只受限制与机器内存 如果BigDecimal仍无法满足需求，例如是无限循环小数的运算，可考虑设计分数系统保证计算的精度  1. IEEE 754 精度上限 编程语言中的浮点数一般都是 32 位的单精度浮点数 float 和 64 位的双精度浮点数 double，部分语言会使用 float32 或者 float64 区分这两种不同精度的浮点数。想要使用有限的位数表示全部的实数是不可能的，不用说无限长度的小数和无理数，因为长度的限制，有限小数在浮点数中都无法精确的表示。
+ 单精度浮点数 float 总共包含 32 位，其中 1 位表示符号、8 位表示指数，最后 23 位表示小数； 双精度浮点数 double 总共包含 64 位，其中 1 位表示符号，11 位表示指数，最后 52 位表示小数；  我们以单精度浮点数 0.15625 为例:
+通过上图中的公式 (sign * 2^{exp}* (1&#43;fraction))可以将浮点数的二进制表示转换成十进制的小数。0.15625 虽然还可以用单精度的浮点数精确表示，但是 0.1 和 0.2 只能使用浮点数表示近似的值：
+因为 0.2 和 0.1 只是指数稍有不同，所以上图中只展示了 0.1 对应的单精度浮点数，从上图的结果我们可以看出，0.1 和 0.2 在浮点数中只能用近似值来代替，精度十分有限，因为单精度浮点数的小数位为 23，双精度的小数位为 52，同时都隐式地包含首位的 1，所以它们的精度在十进制中分别是(log_{10}(2^{24})\approx 7." /><meta itemprop="name" content="浮点数运算">
+<meta itemprop="description" content="结论  Java中单精度和双精度采用IEEE 754表示，能有效运算的范围大致是小数点后7位和15位 如果Java中默认的float和double不能满足你的精度要求，可以用BigDecimal，理论上它的精度只受限制与机器内存 如果BigDecimal仍无法满足需求，例如是无限循环小数的运算，可考虑设计分数系统保证计算的精度  1. IEEE 754 精度上限 编程语言中的浮点数一般都是 32 位的单精度浮点数 float 和 64 位的双精度浮点数 double，部分语言会使用 float32 或者 float64 区分这两种不同精度的浮点数。想要使用有限的位数表示全部的实数是不可能的，不用说无限长度的小数和无理数，因为长度的限制，有限小数在浮点数中都无法精确的表示。
+ 单精度浮点数 float 总共包含 32 位，其中 1 位表示符号、8 位表示指数，最后 23 位表示小数； 双精度浮点数 double 总共包含 64 位，其中 1 位表示符号，11 位表示指数，最后 52 位表示小数；  我们以单精度浮点数 0.15625 为例:
+通过上图中的公式 (sign * 2^{exp}* (1&#43;fraction))可以将浮点数的二进制表示转换成十进制的小数。0.15625 虽然还可以用单精度的浮点数精确表示，但是 0.1 和 0.2 只能使用浮点数表示近似的值：
+因为 0.2 和 0.1 只是指数稍有不同，所以上图中只展示了 0.1 对应的单精度浮点数，从上图的结果我们可以看出，0.1 和 0.2 在浮点数中只能用近似值来代替，精度十分有限，因为单精度浮点数的小数位为 23，双精度的小数位为 52，同时都隐式地包含首位的 1，所以它们的精度在十进制中分别是(log_{10}(2^{24})\approx 7."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="225">
+<meta itemprop="keywords" content="Java," /><meta property="og:title" content="浮点数运算" />
+<meta property="og:description" content="结论  Java中单精度和双精度采用IEEE 754表示，能有效运算的范围大致是小数点后7位和15位 如果Java中默认的float和double不能满足你的精度要求，可以用BigDecimal，理论上它的精度只受限制与机器内存 如果BigDecimal仍无法满足需求，例如是无限循环小数的运算，可考虑设计分数系统保证计算的精度  1. IEEE 754 精度上限 编程语言中的浮点数一般都是 32 位的单精度浮点数 float 和 64 位的双精度浮点数 double，部分语言会使用 float32 或者 float64 区分这两种不同精度的浮点数。想要使用有限的位数表示全部的实数是不可能的，不用说无限长度的小数和无理数，因为长度的限制，有限小数在浮点数中都无法精确的表示。
+ 单精度浮点数 float 总共包含 32 位，其中 1 位表示符号、8 位表示指数，最后 23 位表示小数； 双精度浮点数 double 总共包含 64 位，其中 1 位表示符号，11 位表示指数，最后 52 位表示小数；  我们以单精度浮点数 0.15625 为例:
+通过上图中的公式 (sign * 2^{exp}* (1&#43;fraction))可以将浮点数的二进制表示转换成十进制的小数。0.15625 虽然还可以用单精度的浮点数精确表示，但是 0.1 和 0.2 只能使用浮点数表示近似的值：
+因为 0.2 和 0.1 只是指数稍有不同，所以上图中只展示了 0.1 对应的单精度浮点数，从上图的结果我们可以看出，0.1 和 0.2 在浮点数中只能用近似值来代替，精度十分有限，因为单精度浮点数的小数位为 23，双精度的小数位为 52，同时都隐式地包含首位的 1，所以它们的精度在十进制中分别是(log_{10}(2^{24})\approx 7." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/java/%E6%B5%AE%E7%82%B9%E6%95%B0%E8%BF%90%E7%AE%97/" /><meta property="article:section" content="zh-cn" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="浮点数运算"/>
+<meta name="twitter:description" content="结论  Java中单精度和双精度采用IEEE 754表示，能有效运算的范围大致是小数点后7位和15位 如果Java中默认的float和double不能满足你的精度要求，可以用BigDecimal，理论上它的精度只受限制与机器内存 如果BigDecimal仍无法满足需求，例如是无限循环小数的运算，可考虑设计分数系统保证计算的精度  1. IEEE 754 精度上限 编程语言中的浮点数一般都是 32 位的单精度浮点数 float 和 64 位的双精度浮点数 double，部分语言会使用 float32 或者 float64 区分这两种不同精度的浮点数。想要使用有限的位数表示全部的实数是不可能的，不用说无限长度的小数和无理数，因为长度的限制，有限小数在浮点数中都无法精确的表示。
+ 单精度浮点数 float 总共包含 32 位，其中 1 位表示符号、8 位表示指数，最后 23 位表示小数； 双精度浮点数 double 总共包含 64 位，其中 1 位表示符号，11 位表示指数，最后 52 位表示小数；  我们以单精度浮点数 0.15625 为例:
+通过上图中的公式 (sign * 2^{exp}* (1&#43;fraction))可以将浮点数的二进制表示转换成十进制的小数。0.15625 虽然还可以用单精度的浮点数精确表示，但是 0.1 和 0.2 只能使用浮点数表示近似的值：
+因为 0.2 和 0.1 只是指数稍有不同，所以上图中只展示了 0.1 对应的单精度浮点数，从上图的结果我们可以看出，0.1 和 0.2 在浮点数中只能用近似值来代替，精度十分有限，因为单精度浮点数的小数位为 23，双精度的小数位为 52，同时都隐式地包含首位的 1，所以它们的精度在十进制中分别是(log_{10}(2^{24})\approx 7."/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/en/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+   width="400" height="400"
+   />
+👴🏻💪
+    </a>
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Share</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e6%b5%ae%e7%82%b9%e6%95%b0%e8%bf%90%e7%ae%97&url=https%3a%2f%2fxuzhijvn.github.io%2fen%2fzh-cn%2fposts%2fcode%2fjava%2f%25E6%25B5%25AE%25E7%2582%25B9%25E6%2595%25B0%25E8%25BF%2590%25E7%25AE%2597%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fxuzhijvn.github.io%2fen%2fzh-cn%2fposts%2fcode%2fjava%2f%25E6%25B5%25AE%25E7%2582%25B9%25E6%2595%25B0%25E8%25BF%2590%25E7%25AE%2597%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</div>
+    <button class="navbar-settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-ellipsis-v"></i>
+</button>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Settings</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-language"></i> Language</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="dropdown">
+        <a class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-cn/">简体中文</a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> Mode</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> Palette</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="Blue"
+        class="btn btn-sm w-100 palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="Blue Gray"
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="Brown"
+        class="btn btn-sm w-100 palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="Cyan"
+        class="btn btn-sm w-100 palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="Green"
+        class="btn btn-sm w-100 palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="Indigo"
+        class="btn btn-sm w-100 palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="Orange"
+        class="btn btn-sm w-100 palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="Pink"
+        class="btn btn-sm w-100 palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="Purple"
+        class="btn btn-sm w-100 palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="Red"
+        class="btn btn-sm w-100 palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="Teal"
+        class="btn btn-sm w-100 palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="Yellow"
+        class="btn btn-sm w-100 palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> Go back
+  </a>
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> Reload
+  </a>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> Copy URL
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> Share
+  </a></section>
+
+</div>
+</div>
+
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://xuzhijvn.github.io/en/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/en/en/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>Archives
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/en/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/categories">
+            <i class="fas fa-fw fa-folder"></i>Categories
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/tags">
+            <i class="fas fa-fw fa-tags"></i>Tags
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/series">
+            <i class="fas fa-fw fa-columns"></i>Series
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownProjects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Projects
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownProjects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap Theme
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 Admin
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/">Home</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/zh-cn/">Zh-cns</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">浮点数运算</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper">
+  <div class="d-flex flex-column component rounded post-panel">
+    
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="Buy me a coffee">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" href="#postTOC" aria-controls="Table of contents" role="button" title="Table of contents">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    
+  </div>
+</div>
+<article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title">浮点数运算
+</h1>
+  </div>
+  <div class="card-body"><div class="post-meta">
+  <span class="post-date" title="created on 2021-08-27 11:15:10 &#43;0800 CST.">
+    Aug 27, 2021
+  </span><span class="post-reading-time">
+    2 min read
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/en/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/en/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/en/tags/java/" class="badge post-taxonomy">Java</a></span>
+</div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><h2 id="结论">结论<a class="anchor ms-1" href="#结论"><i class="fas fa-link"></i></a></h2>
+<ol>
+<li>Java中单精度和双精度采用IEEE 754表示，能有效运算的范围大致是小数点后7位和15位</li>
+<li>如果Java中默认的float和double不能满足你的精度要求，可以用<code>BigDecimal</code>，理论上它的精度只受限制与机器内存</li>
+<li>如果<code>BigDecimal</code>仍无法满足需求，例如是无限循环小数的运算，可考虑设计分数系统保证计算的精度</li>
+</ol>
+<h2 id="1-ieee-754-精度上限">1. IEEE 754 精度上限<a class="anchor ms-1" href="#1-ieee-754-精度上限"><i class="fas fa-link"></i></a></h2>
+<p>编程语言中的浮点数一般都是 32 位的单精度浮点数 float 和 64 位的双精度浮点数 double，部分语言会使用 float32 或者 float64 区分这两种不同精度的浮点数。想要使用有限的位数表示全部的实数是不可能的，不用说无限长度的小数和无理数，因为长度的限制，有限小数在浮点数中都无法精确的表示。</p>
+<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5fffb936317de.png" alt="img" style="zoom: 50%;" />
+<ul>
+<li>单精度浮点数 <code>float</code> 总共包含 32 位，其中 1 位表示符号、8 位表示指数，最后 23 位表示小数；</li>
+<li>双精度浮点数 <code>double</code> 总共包含 64 位，其中 1 位表示符号，11 位表示指数，最后 52 位表示小数；</li>
+</ul>
+<p>我们以单精度浮点数 0.15625 为例:</p>
+<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5fffb9ee768b2.png" alt="img" style="zoom:50%;" />
+<p>通过上图中的公式 (sign * 2^{exp}* (1+fraction))可以将浮点数的二进制表示转换成十进制的小数。0.15625 虽然还可以用单精度的浮点数精确表示，但是 0.1 和 0.2 只能使用浮点数表示近似的值：</p>
+<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5fffba69c1ef6.png" alt="img" style="zoom:50%;" />
+<p>因为 0.2 和 0.1 只是指数稍有不同，所以上图中只展示了 0.1 对应的单精度浮点数，从上图的结果我们可以看出，0.1 和 0.2 在浮点数中只能用近似值来代替，精度十分有限，因为单精度浮点数的小数位为 23，双精度的小数位为 52，同时都隐式地包含首位的 1，所以它们的精度在十进制中分别是(log_{10}(2^{24})\approx 7.22) 和 (log_{10}(2^{53})\approx 15.95) 位。</p>
+<p>因为 0.1 和 0.2 使用单精度浮点数表示的实际值为 0.100000001490116119384765625 和 0.200000002980232238769531257，所以它们在相加后就得到的结果与我们在一开始看到的非常相似：</p>
+<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5fffba9850e3e.png" alt="img" style="zoom:50%;" />
+<p>上图只是使用单精度浮点数表示的数字，如果使用双精度浮点数，最终结果中的 3 和 4 之间会有更多的 0，但是小数出现的顺序是非常相似的。浮点数的运算法则相对来说比较复杂，感兴趣的读者可以自行搜索相关的资料，我们在这里不展开介绍了。</p>
+<h2 id="2-bigdecimal">2. BigDecimal<a class="anchor ms-1" href="#2-bigdecimal"><i class="fas fa-link"></i></a></h2>
+<p>为了解决浮点数的精度问题，一些编程语言引入了十进制的小数 Decimal。Decimal 在不同社区中都十分常见，如果编程语言没有原生支持 Decimal，我们在开源社区也一定能够找到使用特定语言实现的 Decimal 库。Java 通过 BigDecimal 提供了无限精度的小数，该类中包含三个关键的成员变量 intVal、scale 和 precision：</p>
+<pre tabindex="0"><code>public class BigDecimal extends Number implements Comparable&lt;BigDecimal&gt; {
+    private BigInteger intVal;
+    private int scale;
+    private int precision = 0;
+    ...
+}
+</code></pre><p>当我们使用 <code>BigDecimal</code> 表示 <code>1234.56</code> 时，<code>BigDecimal</code> 中的三个字段会分别以下的内容：</p>
+<ul>
+<li><code>intVal</code> 中存储的是去掉小数点后的全部数字，即 <code>123456</code>；</li>
+<li><code>scale</code> 中存储的是小数的位数，即 <code>2</code>；</li>
+<li><code>prevision</code> 中存储的是全部的有效位数，小数点前 4 位，小数点后 2 位，即 <code>6</code>；</li>
+</ul>
+<img src="http://106.55.152.92:30989/wp-content/uploads/2021/01/img_5fffbb0055d5e.png" alt="img" style="zoom:50%;" />
+<p>BigDecimal 这种使用多个整数的方法避开了二进制无法准确表示部分十进制小数的问题，因为 BigInteger 可以使用数组表示任意长度的整数，所以如果机器的内存资源是无限的，BigDecimal 在理论上也可以表示无限精度的小数。</p>
+<p>虽然部分编程语言实现了理论上无限精度的 BigDecimal，但是在实际应用中我们大多不需要无限的精度保证，C# 等编程语言通过 16 字节的 Decimal 提供的 28 ~ 29 位的精度，而在金融系统中使用 16 字节的 Decimal 一般就可以保证数据计算的准确性了。</p>
+<h2 id="有理数">有理数<a class="anchor ms-1" href="#有理数"><i class="fas fa-link"></i></a></h2>
+<p>使用 <code>Decimal</code> 和 <code>BigDecimal</code> 虽然可以在很大程度上解决浮点数的精度问题，但是它们在遇到无限小数时仍然无能为力，使用十进制的小数永远无法准确地表示 <code>1/3</code>，无论使用多少位小数都无法避免精度的损失：</p>
+<img src="https://picgo.6and.ltd/img/img_5fffbb6fb631b.png" alt="img" style="zoom:50%;" />
+<p>当我们遇到这种情况时，使用有理数（Rational）是解决类似问题的最好方法，使用分数可以准确的表示 <code>1/10</code>、<code>1/5</code> 和 <code>1/3</code></p>
+<p>这种解决精度问题的方法更接近原始的数学公式，分数的分子和分母是有理数结构体中的两个变量，多个分数的加减乘除操作与数学中对分数的计算没有任何区别，自然也就不会造成精度的损失，我们可以简单了解一下 Java 中有理数的实现<a href="https://draveness.me/whys-the-design-decimal-and-rational/#fn:7" target="_blank" rel="noopener noreferrer">7</a>：</p>
+<pre tabindex="0"><code>public class Rational implements Comparable&lt;Rational&gt; {
+    private int num;   // the numerator
+    private int den;   // the denominator
+    public double toDouble() {
+        return (double) num / den;
+    }
+    ...
+}
+</code></pre><p>上述类中的 <code>num</code> 和 <code>den</code> 分别表示分数的分子和分母，它提供的 <code>toDouble</code> 方法可以将当前有理数转换成浮点数，因为浮点数在软件工程中虽然更加常用，当我们需要严密的科学计算时，可以使用有理数完成绝大多数的计算，并在最后转换回浮点数以减少可能出现的误差。</p>
+<p>然而需要注意的是，这种使用有理数计算的方式不仅在使用上相对比较麻烦，它在性能上也无法与浮点数进行比较，<strong>一次常见的加减法就需要使用几倍于浮点数操作的汇编指令</strong>，所以在非必要的场景中一定要尽量避免。</p>
+<h3 id="参考链接">参考链接：<a class="anchor ms-1" href="#参考链接"><i class="fas fa-link"></i></a></h3>
+<p><a href="https://draveness.me/whys-the-design-decimal-and-rational/" target="_blank" rel="noopener noreferrer">为什么 0.1 + 0.2 = 0.3</a></p>
+<p><a href="https://draveness.me/whys-the-design-floating-point-arithmetic/" target="_blank" rel="noopener noreferrer">为什么 0.1 + 0.2 = 0.300000004</a></p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>Buy me a coffee</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>Alipay
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>WeChat
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
+    <i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://xuzhijvn.github.io/en/zh-cn/posts/code/redis/%E6%B7%B1%E5%BA%A6%E5%9B%BE%E8%A7%A3redis-cluster%E5%8E%9F%E7%90%86/">深度图解Redis Cluster原理
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://xuzhijvn.github.io/en/zh-cn/posts/code/java/%E6%B3%9B%E5%9E%8B/">泛型
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div></div>
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">Copyright</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title">Comments</h2>
+  </div>
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    <section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony" src="https://xuzhijvn.github.io/images/profile.webp" loading="lazy"
+   width="400" height="400"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div></div>
+  </div>
+</section>
+  <div class="post-toc row mb-4 card component" id="postTOC">
+  <div class="card-header">
+    <h2 class="card-title">Contents</h2>
+  </div>
+  <div class="card-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#结论">结论</a></li>
+    <li><a href="#1-ieee-754-精度上限">1. IEEE 754 精度上限</a></li>
+    <li><a href="#2-bigdecimal">2. BigDecimal</a></li>
+    <li><a href="#有理数">有理数</a>
+      <ul>
+        <li><a href="#参考链接">参考链接：</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div><section class="recent-posts row card component">
+  <div class="card-header">
+    <h2 class="card-title">Recent Posts</h2>
+  </div>
+  <div class="card-body">
+    <ul class="post-list"></ul>
+  </div>
+</section><section class="series-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/series">Series</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/series/manual/" class="badge rounded post-taxonomy" title="Manual">
+            Manual</a><a href="https://xuzhijvn.github.io/en/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/en/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/en/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/en/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a><a href="https://xuzhijvn.github.io/en/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a></div>
+      </div>
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/categories">Categories</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/en/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/en/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/en/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/en/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/en/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/en/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a><a href="https://xuzhijvn.github.io/en/categories/%E5%AE%B9%E5%99%A8/" class="badge rounded post-taxonomy" title="容器">
+            容器</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/tags">Tags</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/tags/java/" class="badge rounded post-taxonomy" title="Java">
+            Java</a><a href="https://xuzhijvn.github.io/en/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/en/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/en/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/en/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/en/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/en/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/en/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/en/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/en/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/en/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/en/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/en/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/en/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/en/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/en/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/en/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/en/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/en/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/en/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/en/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/en/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/en/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/en/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/en/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/en/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/en/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/en/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/en/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/en/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/en/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/en/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/en/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/en/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/en/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/en/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/en/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/en/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/en/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/en/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/en/tags/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a><a href="https://xuzhijvn.github.io/en/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/en/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
+      </div>
+    </section>
+    <section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=783175223&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></body>
+</html>

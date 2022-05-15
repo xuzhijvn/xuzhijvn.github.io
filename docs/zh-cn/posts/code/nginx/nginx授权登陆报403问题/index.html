@@ -11,19 +11,19 @@
 <meta name="keywords" content="" />
 <meta name="description" content="在给nginx加上授权模块后，再访问应用报403访问禁止的错误。
 一开始是这样：
-1. 生成密码文件 printf &#34;yourusername:$(openssl passwd -apr1)&#34; &gt; /etc/nginx/passwords 2. nginx配置 server { # ... auth_basic &#34;Protected&#34;; auth_basic_user_file passwords; # ... } [v_error]auth_basic_user_file 后面跟的是相对路径，这样配置很容易导致nginx找不到文件，因此改成绝对路径就万事大吉了：[/v_error]
-server{	listen 443 ssl; server_name netdata.6and.ltd; #listen [::]:81 default_server ipv6only=on; #ssl on; ssl_certificate httpssl/1_netdata.6and.ltd_bundle.crt; ssl_certificate_key httpssl/2_netdata.6and.ltd.key; ssl_session_timeout 5m; ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4; ssl_protocols TLSv1 TLSv1.1 TLSv1.2; ssl_prefer_server_ciphers on; #index index.html index.htm index.php; #root /home/wwwroot/; #error_page 404 /404.html; #include enable-php.conf; auth_basic &#34;Protected&#34;; auth_basic_user_file /usr/local/nginx/passwords; location / { proxy_pass http://127." /><meta itemprop="name" content="nginx授权登陆报403问题">
+1. 生成密码文件 printf &#34;yourusername:$(openssl passwd -apr1)&#34; &gt; /etc/nginx/passwords 2. nginx配置 server {  # ...  auth_basic &#34;Protected&#34;;  auth_basic_user_file passwords;  # ... } [v_error]auth_basic_user_file 后面跟的是相对路径，这样配置很容易导致nginx找不到文件，因此改成绝对路径就万事大吉了：[/v_error]
+server{		listen 443 ssl; 	server_name netdata.6and.ltd;  #listen [::]:81 default_server ipv6only=on; 	#ssl on; 	ssl_certificate httpssl/1_netdata.6and.ltd_bundle.crt; 	ssl_certificate_key httpssl/2_netdata.6and.ltd.key; 	ssl_session_timeout 5m; 	ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;  ssl_protocols TLSv1 TLSv1.1 TLSv1.2; 	ssl_prefer_server_ciphers on; 	#index index.html index.htm index.php; 	#root /home/wwwroot/;  	#error_page 404 /404." /><meta itemprop="name" content="nginx授权登陆报403问题">
 <meta itemprop="description" content="在给nginx加上授权模块后，再访问应用报403访问禁止的错误。
 一开始是这样：
-1. 生成密码文件 printf &#34;yourusername:$(openssl passwd -apr1)&#34; &gt; /etc/nginx/passwords 2. nginx配置 server { # ... auth_basic &#34;Protected&#34;; auth_basic_user_file passwords; # ... } [v_error]auth_basic_user_file 后面跟的是相对路径，这样配置很容易导致nginx找不到文件，因此改成绝对路径就万事大吉了：[/v_error]
-server{	listen 443 ssl; server_name netdata.6and.ltd; #listen [::]:81 default_server ipv6only=on; #ssl on; ssl_certificate httpssl/1_netdata.6and.ltd_bundle.crt; ssl_certificate_key httpssl/2_netdata.6and.ltd.key; ssl_session_timeout 5m; ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4; ssl_protocols TLSv1 TLSv1.1 TLSv1.2; ssl_prefer_server_ciphers on; #index index.html index.htm index.php; #root /home/wwwroot/; #error_page 404 /404.html; #include enable-php.conf; auth_basic &#34;Protected&#34;; auth_basic_user_file /usr/local/nginx/passwords; location / { proxy_pass http://127."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+1. 生成密码文件 printf &#34;yourusername:$(openssl passwd -apr1)&#34; &gt; /etc/nginx/passwords 2. nginx配置 server {  # ...  auth_basic &#34;Protected&#34;;  auth_basic_user_file passwords;  # ... } [v_error]auth_basic_user_file 后面跟的是相对路径，这样配置很容易导致nginx找不到文件，因此改成绝对路径就万事大吉了：[/v_error]
+server{		listen 443 ssl; 	server_name netdata.6and.ltd;  #listen [::]:81 default_server ipv6only=on; 	#ssl on; 	ssl_certificate httpssl/1_netdata.6and.ltd_bundle.crt; 	ssl_certificate_key httpssl/2_netdata.6and.ltd.key; 	ssl_session_timeout 5m; 	ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;  ssl_protocols TLSv1 TLSv1.1 TLSv1.2; 	ssl_prefer_server_ciphers on; 	#index index.html index.htm index.php; 	#root /home/wwwroot/;  	#error_page 404 /404."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="86">
 <meta itemprop="keywords" content="nginx," /><meta property="og:title" content="nginx授权登陆报403问题" />
 <meta property="og:description" content="在给nginx加上授权模块后，再访问应用报403访问禁止的错误。
 一开始是这样：
-1. 生成密码文件 printf &#34;yourusername:$(openssl passwd -apr1)&#34; &gt; /etc/nginx/passwords 2. nginx配置 server { # ... auth_basic &#34;Protected&#34;; auth_basic_user_file passwords; # ... } [v_error]auth_basic_user_file 后面跟的是相对路径，这样配置很容易导致nginx找不到文件，因此改成绝对路径就万事大吉了：[/v_error]
-server{	listen 443 ssl; server_name netdata.6and.ltd; #listen [::]:81 default_server ipv6only=on; #ssl on; ssl_certificate httpssl/1_netdata.6and.ltd_bundle.crt; ssl_certificate_key httpssl/2_netdata.6and.ltd.key; ssl_session_timeout 5m; ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4; ssl_protocols TLSv1 TLSv1.1 TLSv1.2; ssl_prefer_server_ciphers on; #index index.html index.htm index.php; #root /home/wwwroot/; #error_page 404 /404.html; #include enable-php.conf; auth_basic &#34;Protected&#34;; auth_basic_user_file /usr/local/nginx/passwords; location / { proxy_pass http://127." />
+1. 生成密码文件 printf &#34;yourusername:$(openssl passwd -apr1)&#34; &gt; /etc/nginx/passwords 2. nginx配置 server {  # ...  auth_basic &#34;Protected&#34;;  auth_basic_user_file passwords;  # ... } [v_error]auth_basic_user_file 后面跟的是相对路径，这样配置很容易导致nginx找不到文件，因此改成绝对路径就万事大吉了：[/v_error]
+server{		listen 443 ssl; 	server_name netdata.6and.ltd;  #listen [::]:81 default_server ipv6only=on; 	#ssl on; 	ssl_certificate httpssl/1_netdata.6and.ltd_bundle.crt; 	ssl_certificate_key httpssl/2_netdata.6and.ltd.key; 	ssl_session_timeout 5m; 	ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;  ssl_protocols TLSv1 TLSv1.1 TLSv1.2; 	ssl_prefer_server_ciphers on; 	#index index.html index.htm index.php; 	#root /home/wwwroot/;  	#error_page 404 /404." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/nginx/nginx%E6%8E%88%E6%9D%83%E7%99%BB%E9%99%86%E6%8A%A5403%E9%97%AE%E9%A2%98/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -34,12 +34,12 @@ server{	listen 443 ssl; server_name netdata.6and.ltd; #listen [::]:81 default_se
 <meta name="twitter:title" content="nginx授权登陆报403问题"/>
 <meta name="twitter:description" content="在给nginx加上授权模块后，再访问应用报403访问禁止的错误。
 一开始是这样：
-1. 生成密码文件 printf &#34;yourusername:$(openssl passwd -apr1)&#34; &gt; /etc/nginx/passwords 2. nginx配置 server { # ... auth_basic &#34;Protected&#34;; auth_basic_user_file passwords; # ... } [v_error]auth_basic_user_file 后面跟的是相对路径，这样配置很容易导致nginx找不到文件，因此改成绝对路径就万事大吉了：[/v_error]
-server{	listen 443 ssl; server_name netdata.6and.ltd; #listen [::]:81 default_server ipv6only=on; #ssl on; ssl_certificate httpssl/1_netdata.6and.ltd_bundle.crt; ssl_certificate_key httpssl/2_netdata.6and.ltd.key; ssl_session_timeout 5m; ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4; ssl_protocols TLSv1 TLSv1.1 TLSv1.2; ssl_prefer_server_ciphers on; #index index.html index.htm index.php; #root /home/wwwroot/; #error_page 404 /404.html; #include enable-php.conf; auth_basic &#34;Protected&#34;; auth_basic_user_file /usr/local/nginx/passwords; location / { proxy_pass http://127."/>
+1. 生成密码文件 printf &#34;yourusername:$(openssl passwd -apr1)&#34; &gt; /etc/nginx/passwords 2. nginx配置 server {  # ...  auth_basic &#34;Protected&#34;;  auth_basic_user_file passwords;  # ... } [v_error]auth_basic_user_file 后面跟的是相对路径，这样配置很容易导致nginx找不到文件，因此改成绝对路径就万事大吉了：[/v_error]
+server{		listen 443 ssl; 	server_name netdata.6and.ltd;  #listen [::]:81 default_server ipv6only=on; 	#ssl on; 	ssl_certificate httpssl/1_netdata.6and.ltd_bundle.crt; 	ssl_certificate_key httpssl/2_netdata.6and.ltd.key; 	ssl_session_timeout 5m; 	ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;  ssl_protocols TLSv1 TLSv1.1 TLSv1.2; 	ssl_prefer_server_ciphers on; 	#index index.html index.htm index.php; 	#root /home/wwwroot/;  	#error_page 404 /404."/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -323,47 +323,47 @@ server{	listen 443 ssl; server_name netdata.6and.ltd; #listen [::]:81 default_se
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>在给nginx加上授权模块后，再访问应用报403访问禁止的错误。</p>
 <p>一开始是这样：</p>
 <h3 id="1-生成密码文件">1. 生成密码文件<a class="anchor ms-1" href="#1-生成密码文件"><i class="fas fa-link"></i></a></h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">printf <span style="color:#e6db74">&#34;yourusername:</span><span style="color:#66d9ef">$(</span>openssl passwd -apr1<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span> &gt; /etc/nginx/passwords
-</code></pre></div><h3 id="2-nginx配置">2. nginx配置<a class="anchor ms-1" href="#2-nginx配置"><i class="fas fa-link"></i></a></h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">server <span style="color:#f92672">{</span>
-    <span style="color:#75715e"># ...</span>
-    auth_basic <span style="color:#e6db74">&#34;Protected&#34;</span>;
-    auth_basic_user_file passwords;
-    <span style="color:#75715e"># ...</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>[v_error]auth_basic_user_file 后面跟的是相对路径，这样配置很容易导致nginx找不到文件，因此改成绝对路径就万事大吉了：[/v_error]</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">server<span style="color:#f92672">{</span>	
-	listen <span style="color:#ae81ff">443</span> ssl;
-	server_name netdata.6and.ltd;
-        <span style="color:#75715e">#listen [::]:81 default_server ipv6only=on;</span>
-	<span style="color:#75715e">#ssl on;</span>
-	ssl_certificate httpssl/1_netdata.6and.ltd_bundle.crt;
-	ssl_certificate_key httpssl/2_netdata.6and.ltd.key;
-	ssl_session_timeout 5m;
-	ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
-   	ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-	ssl_prefer_server_ciphers on;
-	<span style="color:#75715e">#index index.html index.htm index.php;</span>
-	<span style="color:#75715e">#root /home/wwwroot/;</span>
-
-	<span style="color:#75715e">#error_page   404   /404.html;</span>
-	<span style="color:#75715e">#include enable-php.conf;</span>
-
-	auth_basic <span style="color:#e6db74">&#34;Protected&#34;</span>;
-	auth_basic_user_file /usr/local/nginx/passwords;
-   
-   	location / <span style="color:#f92672">{</span>
-		proxy_pass http://127.0.0.1:19999;
-	<span style="color:#f92672">}</span>
-	access_log  /data/wwwlogs/netdata.log;
-<span style="color:#f92672">}</span>
-server <span style="color:#f92672">{</span>
-	listen 80;
-	server_name netdata.6and.ltd;
-	<span style="color:#75715e">#把http的域名请求转成https</span>
-	<span style="color:#66d9ef">return</span> <span style="color:#ae81ff">301</span> https://$host$request_uri;
-<span style="color:#f92672">}</span>
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>printf <span style="color:#e6db74">&#34;yourusername:</span><span style="color:#66d9ef">$(</span>openssl passwd -apr1<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span> &gt; /etc/nginx/passwords
+</span></span></code></pre></div><h3 id="2-nginx配置">2. nginx配置<a class="anchor ms-1" href="#2-nginx配置"><i class="fas fa-link"></i></a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>server <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ...</span>
+</span></span><span style="display:flex;"><span>    auth_basic <span style="color:#e6db74">&#34;Protected&#34;</span>;
+</span></span><span style="display:flex;"><span>    auth_basic_user_file passwords;
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ...</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>[v_error]auth_basic_user_file 后面跟的是相对路径，这样配置很容易导致nginx找不到文件，因此改成绝对路径就万事大吉了：[/v_error]</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>server<span style="color:#f92672">{</span>	
+</span></span><span style="display:flex;"><span>	listen <span style="color:#ae81ff">443</span> ssl;
+</span></span><span style="display:flex;"><span>	server_name netdata.6and.ltd;
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#listen [::]:81 default_server ipv6only=on;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">#ssl on;</span>
+</span></span><span style="display:flex;"><span>	ssl_certificate httpssl/1_netdata.6and.ltd_bundle.crt;
+</span></span><span style="display:flex;"><span>	ssl_certificate_key httpssl/2_netdata.6and.ltd.key;
+</span></span><span style="display:flex;"><span>	ssl_session_timeout 5m;
+</span></span><span style="display:flex;"><span>	ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
+</span></span><span style="display:flex;"><span>   	ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+</span></span><span style="display:flex;"><span>	ssl_prefer_server_ciphers on;
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">#index index.html index.htm index.php;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">#root /home/wwwroot/;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">#error_page   404   /404.html;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">#include enable-php.conf;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	auth_basic <span style="color:#e6db74">&#34;Protected&#34;</span>;
+</span></span><span style="display:flex;"><span>	auth_basic_user_file /usr/local/nginx/passwords;
+</span></span><span style="display:flex;"><span>   
+</span></span><span style="display:flex;"><span>   	location / <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>		proxy_pass http://127.0.0.1:19999;
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>	access_log  /data/wwwlogs/netdata.log;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>server <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>	listen 80;
+</span></span><span style="display:flex;"><span>	server_name netdata.6and.ltd;
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">#把http的域名请求转成https</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#ae81ff">301</span> https://$host$request_uri;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -484,6 +484,9 @@ server <span style="color:#f92672">{</span>
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/yshop-k8s/">Yshop K8s
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E7%9A%84%E5%8D%B8%E8%BD%BD/">JVM类的卸载
 </a>
       </li><li>
@@ -495,9 +498,6 @@ server <span style="color:#f92672">{</span>
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">Like查询优化
 </a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/">Redis队列
-</a>
       </li></ul>
   </div>
 </section><section class="series-taxonomies row card component">
@@ -508,9 +508,9 @@ server <span style="color:#f92672">{</span>
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
-            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
-            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
             算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
             istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
             rpc</a></div>
@@ -626,8 +626,8 @@ server <span style="color:#f92672">{</span>
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

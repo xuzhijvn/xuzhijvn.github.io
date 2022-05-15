@@ -1,0 +1,686 @@
+<!doctype html><html lang="en" data-palette="indigo"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>常用的模型评估指标 - 🇨🇳🇨🇳🇨🇳🇨🇳🇨🇳</title><link rel="apple-touch-icon" href="https://xuzhijvn.github.io/images/icons/icon-180x180.png" sizes="180x180">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/icon-16x16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
+<link rel="manifest" href="https://xuzhijvn.github.io/en/manifest.json">
+<meta name="keywords" content="" />
+<meta name="description" content="“没有测量，就没有科学。”这是科学家门捷列夫的名言。在计算机科学中，特别是在机器学习的领域，对模型的测量和评估同样至关重要。只有选择与问题相匹配的评估方法，我们才能够快速的发现在模型选择和训练过程中可能出现的问题，迭代地对模型进行优化。本文将总结机器学习最常见的模型评估指标，其中包括：
+ precision recall F1-score PRC ROC和AUC IOU  从混淆矩阵谈起 看一看下面这个例子：假定瓜农拉来一车西瓜，我们用训练好的模型对这些西瓜进行判别，显然我们可以使用错误率来衡量有多少比例的瓜被判别错误。但如果我们关心的是“挑出的西瓜中有多少比例是好瓜”，或者“所有好瓜中有多少比例被挑出来了”，那么错误率显然就不够用了，这时我们需要引入新的评估指标，比如“查准率”和查全率更适合此类需求的性能度量。
+在引入查全率和查准率之前我们必须先理解到什么是混淆矩阵（Confusion matrix）。这个名字起得是真的好，初学者很容易被这个矩阵搞得晕头转向。下图a就是有名的混淆矩阵，而下图b则是由混淆矩阵推出的一些有名的评估指标。
+我们首先好好解读一下混淆矩阵里的一些名词和其意思。根据混淆矩阵我们可以得到TP,FN,FP,TN四个值，显然TP&#43;FP&#43;TN&#43;FN=样本总数。这四个值中都带两个字母，单纯记忆这四种情况很难记得牢，我们可以这样理解：第一个字母表示本次预测的正确性，T就是正确，F就是错误；第二个字母则表示由分类器预测的类别，P代表预测为正例，N代表预测为反例。比如TP我们就可以理解为分类器预测为正例（P），而且这次预测是对的（T），FN可以理解为分类器的预测是反例（N），而且这次预测是错误的（F），正确结果是正例，即一个正样本被错误预测为负样本。我们使用以上的理解方式来记住TP、FP、TN、FN的意思应该就不再困难了。，下面对混淆矩阵的四个值进行总结性讲解：
+ True Positive （真正，TP）被模型预测为正的正样本 True Negative（真负 , TN）被模型预测为负的负样本 False Positive （假正, FP）被模型预测为正的负样本 False Negative（假负 , FN）被模型预测为负的正样本  Precision、Recall、PRC、F1-score Precision指标在中文里可以称为查准率或者是精确率，Recall指标在中卫里常被称为查全率或者是召回率，查准率 P和查全率 R分别定义为：
+查准率P和查全率R的具体含义如下：
+  查准率(Precision）是指在所有系统判定的“真”的样本中，确实是真的的占比
+  查全率（Recall）是指在所有确实为真的样本中，被判为的“真”的占比
+  这里想强调一点，precision和accuracy（正确率）不一样的，accuracy针对所有样本，precision针对部分样本，即正确的预测/总的正反例：
+查准率和查全率是一对矛盾的度量，一般而言，查准率高时，查全率往往偏低；而查全率高时，查准率往往偏低。我们从直观理解确实如此：我们如果希望好瓜尽可能多地选出来，则可以通过增加选瓜的数量来实现，如果将所有瓜都选上了，那么所有好瓜也必然被选上，但是这样查准率就会越低；若希望选出的瓜中好瓜的比例尽可能高，则只选最有把握的瓜，但这样难免会漏掉不少好瓜，导致查全率较低。通常只有在一些简单任务中，才可能使查全率和查准率都很高。
+再说PRC， 其全称就是Precision Recall Curve，它以查准率为Y轴，、查全率为X轴做的图。它是综合评价整体结果的评估指标。所以，哪种类型（正或者负）样本多，权重就大。也就是通常说的『对样本不均衡敏感』，『容易被多的样品带走』。
+上图就是一幅P-R图，它能直观地显示出学习器在样本总体上的查全率和查准率，显然它是一条总体趋势是递减的曲线。在进行比较时，若一个学习器的PR曲线被另一个学习器的曲线完全包住，则可断言后者的性能优于前者，比如上图中A优于C。但是B和A谁更好呢？因为AB两条曲线交叉了，所以很难比较，这时比较合理的判据就是比较PR曲线下的面积，该指标在一定程度上表征了学习器在查准率和查全率上取得相对“双高”的比例。因为这个值不容易估算，所以人们引入“平衡点”(BEP)来度量，他表示“查准率=查全率”时的取值，值越大表明分类器性能越好，以此比较我们一下子就能判断A较B好。
+BEP还是有点简化了，更常用的是F1度量：
+F1-score 就是一个综合考虑precision和recall的指标，比BEP更为常用。
+ROC & AUC ROC全称是“受试者工作特征”（Receiver Operating Characteristic）曲线，ROC曲线以“真正例率”（TPR）为Y轴，以“假正例率”（FPR）为X轴，对角线对应于“随机猜测”模型，而（0,1）则对应“理想模型”。ROC形式如下图所示。
+TPR和FPR的定义如下：
+从形式上看TPR就是我们上面提到的查全率Recall，而FPR的含义就是：所有确实为“假”的样本中，被误判真的样本。
+进行学习器比较时，与PR图相似，若一个学习器的ROC曲线被另一个学习器的曲线包住，那么我们可以断言后者性能优于前者；若两个学习器的ROC曲线发生交叉，则难以一般性断言两者孰优孰劣。此时若要进行比较，那么可以比较ROC曲线下的面积，即AUC，面积大的曲线对应的分类器性能更好。
+AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性能极好，则AUC为1。但现实生活中尤其是工业界不会有如此完美的模型，一般AUC均在0.5到1之间，AUC越高，模型的区分能力越好，上图AUC为0.81。若AUC=0.5，即与上图中红线重合，表示模型的区分能力与随机猜测没有差别。若AUC真的小于0.5，请检查一下是不是好坏标签标反了，或者是模型真的很差。
+怎么选择评估指标？ 这种问题的答案当然是具体问题具体分析啦，单纯地回答谁好谁坏是没有意义的，我们需要结合实际场景给出合适的回答。
+考虑下面是两个场景，由此看出不同场景下我们关注的点是不一样的：
+ 对于地震的预测，我们希望的是Recall非常高，也就是说每次地震我们都希望预测出来。这个时候我们可以牺牲Precision。情愿发出1000次警报，把10次地震都预测正确了；也不要预测100次对了8次漏了两次。所以我们可以设定在合理的precision下，最高的recall作为最优点，找到这个对应的threshold点。 嫌疑人定罪基于不错怪一个好人的原则，对于嫌疑人的定罪我们希望是非常准确的。即使有时候放过了一些罪犯（Recall低），但也是值得的。  ROC和PRC在模型性能评估上效果都差不多，但需要注意的是，在正负样本分布得极不均匀(highly skewed datasets)的情况下，PRC比ROC能更有效地反应分类器的好坏。在数据极度不平衡的情况下，譬如说1万封邮件中只有1封垃圾邮件，那么如果我挑出10封，50封，100&hellip;封垃圾邮件（假设我们每次挑出的N封邮件中都包含真正的那封垃圾邮件），Recall都是100%，但是FPR分别是9/9999, 49/9999, 99/9999（数据都比较好看：FPR越低越好），而Precision却只有1/10，1/50， 1/100 （数据很差：Precision越高越好）。所以在数据非常不均衡的情况下，看ROC的AUC可能是看不出太多好坏的，而PR curve就要敏感的多。" /><meta itemprop="name" content="常用的模型评估指标">
+<meta itemprop="description" content="“没有测量，就没有科学。”这是科学家门捷列夫的名言。在计算机科学中，特别是在机器学习的领域，对模型的测量和评估同样至关重要。只有选择与问题相匹配的评估方法，我们才能够快速的发现在模型选择和训练过程中可能出现的问题，迭代地对模型进行优化。本文将总结机器学习最常见的模型评估指标，其中包括：
+ precision recall F1-score PRC ROC和AUC IOU  从混淆矩阵谈起 看一看下面这个例子：假定瓜农拉来一车西瓜，我们用训练好的模型对这些西瓜进行判别，显然我们可以使用错误率来衡量有多少比例的瓜被判别错误。但如果我们关心的是“挑出的西瓜中有多少比例是好瓜”，或者“所有好瓜中有多少比例被挑出来了”，那么错误率显然就不够用了，这时我们需要引入新的评估指标，比如“查准率”和查全率更适合此类需求的性能度量。
+在引入查全率和查准率之前我们必须先理解到什么是混淆矩阵（Confusion matrix）。这个名字起得是真的好，初学者很容易被这个矩阵搞得晕头转向。下图a就是有名的混淆矩阵，而下图b则是由混淆矩阵推出的一些有名的评估指标。
+我们首先好好解读一下混淆矩阵里的一些名词和其意思。根据混淆矩阵我们可以得到TP,FN,FP,TN四个值，显然TP&#43;FP&#43;TN&#43;FN=样本总数。这四个值中都带两个字母，单纯记忆这四种情况很难记得牢，我们可以这样理解：第一个字母表示本次预测的正确性，T就是正确，F就是错误；第二个字母则表示由分类器预测的类别，P代表预测为正例，N代表预测为反例。比如TP我们就可以理解为分类器预测为正例（P），而且这次预测是对的（T），FN可以理解为分类器的预测是反例（N），而且这次预测是错误的（F），正确结果是正例，即一个正样本被错误预测为负样本。我们使用以上的理解方式来记住TP、FP、TN、FN的意思应该就不再困难了。，下面对混淆矩阵的四个值进行总结性讲解：
+ True Positive （真正，TP）被模型预测为正的正样本 True Negative（真负 , TN）被模型预测为负的负样本 False Positive （假正, FP）被模型预测为正的负样本 False Negative（假负 , FN）被模型预测为负的正样本  Precision、Recall、PRC、F1-score Precision指标在中文里可以称为查准率或者是精确率，Recall指标在中卫里常被称为查全率或者是召回率，查准率 P和查全率 R分别定义为：
+查准率P和查全率R的具体含义如下：
+  查准率(Precision）是指在所有系统判定的“真”的样本中，确实是真的的占比
+  查全率（Recall）是指在所有确实为真的样本中，被判为的“真”的占比
+  这里想强调一点，precision和accuracy（正确率）不一样的，accuracy针对所有样本，precision针对部分样本，即正确的预测/总的正反例：
+查准率和查全率是一对矛盾的度量，一般而言，查准率高时，查全率往往偏低；而查全率高时，查准率往往偏低。我们从直观理解确实如此：我们如果希望好瓜尽可能多地选出来，则可以通过增加选瓜的数量来实现，如果将所有瓜都选上了，那么所有好瓜也必然被选上，但是这样查准率就会越低；若希望选出的瓜中好瓜的比例尽可能高，则只选最有把握的瓜，但这样难免会漏掉不少好瓜，导致查全率较低。通常只有在一些简单任务中，才可能使查全率和查准率都很高。
+再说PRC， 其全称就是Precision Recall Curve，它以查准率为Y轴，、查全率为X轴做的图。它是综合评价整体结果的评估指标。所以，哪种类型（正或者负）样本多，权重就大。也就是通常说的『对样本不均衡敏感』，『容易被多的样品带走』。
+上图就是一幅P-R图，它能直观地显示出学习器在样本总体上的查全率和查准率，显然它是一条总体趋势是递减的曲线。在进行比较时，若一个学习器的PR曲线被另一个学习器的曲线完全包住，则可断言后者的性能优于前者，比如上图中A优于C。但是B和A谁更好呢？因为AB两条曲线交叉了，所以很难比较，这时比较合理的判据就是比较PR曲线下的面积，该指标在一定程度上表征了学习器在查准率和查全率上取得相对“双高”的比例。因为这个值不容易估算，所以人们引入“平衡点”(BEP)来度量，他表示“查准率=查全率”时的取值，值越大表明分类器性能越好，以此比较我们一下子就能判断A较B好。
+BEP还是有点简化了，更常用的是F1度量：
+F1-score 就是一个综合考虑precision和recall的指标，比BEP更为常用。
+ROC & AUC ROC全称是“受试者工作特征”（Receiver Operating Characteristic）曲线，ROC曲线以“真正例率”（TPR）为Y轴，以“假正例率”（FPR）为X轴，对角线对应于“随机猜测”模型，而（0,1）则对应“理想模型”。ROC形式如下图所示。
+TPR和FPR的定义如下：
+从形式上看TPR就是我们上面提到的查全率Recall，而FPR的含义就是：所有确实为“假”的样本中，被误判真的样本。
+进行学习器比较时，与PR图相似，若一个学习器的ROC曲线被另一个学习器的曲线包住，那么我们可以断言后者性能优于前者；若两个学习器的ROC曲线发生交叉，则难以一般性断言两者孰优孰劣。此时若要进行比较，那么可以比较ROC曲线下的面积，即AUC，面积大的曲线对应的分类器性能更好。
+AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性能极好，则AUC为1。但现实生活中尤其是工业界不会有如此完美的模型，一般AUC均在0.5到1之间，AUC越高，模型的区分能力越好，上图AUC为0.81。若AUC=0.5，即与上图中红线重合，表示模型的区分能力与随机猜测没有差别。若AUC真的小于0.5，请检查一下是不是好坏标签标反了，或者是模型真的很差。
+怎么选择评估指标？ 这种问题的答案当然是具体问题具体分析啦，单纯地回答谁好谁坏是没有意义的，我们需要结合实际场景给出合适的回答。
+考虑下面是两个场景，由此看出不同场景下我们关注的点是不一样的：
+ 对于地震的预测，我们希望的是Recall非常高，也就是说每次地震我们都希望预测出来。这个时候我们可以牺牲Precision。情愿发出1000次警报，把10次地震都预测正确了；也不要预测100次对了8次漏了两次。所以我们可以设定在合理的precision下，最高的recall作为最优点，找到这个对应的threshold点。 嫌疑人定罪基于不错怪一个好人的原则，对于嫌疑人的定罪我们希望是非常准确的。即使有时候放过了一些罪犯（Recall低），但也是值得的。  ROC和PRC在模型性能评估上效果都差不多，但需要注意的是，在正负样本分布得极不均匀(highly skewed datasets)的情况下，PRC比ROC能更有效地反应分类器的好坏。在数据极度不平衡的情况下，譬如说1万封邮件中只有1封垃圾邮件，那么如果我挑出10封，50封，100&hellip;封垃圾邮件（假设我们每次挑出的N封邮件中都包含真正的那封垃圾邮件），Recall都是100%，但是FPR分别是9/9999, 49/9999, 99/9999（数据都比较好看：FPR越低越好），而Precision却只有1/10，1/50， 1/100 （数据很差：Precision越高越好）。所以在数据非常不均衡的情况下，看ROC的AUC可能是看不出太多好坏的，而PR curve就要敏感的多。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
+<meta itemprop="wordCount" content="78">
+<meta itemprop="keywords" content="CNN,AI," /><meta property="og:title" content="常用的模型评估指标" />
+<meta property="og:description" content="“没有测量，就没有科学。”这是科学家门捷列夫的名言。在计算机科学中，特别是在机器学习的领域，对模型的测量和评估同样至关重要。只有选择与问题相匹配的评估方法，我们才能够快速的发现在模型选择和训练过程中可能出现的问题，迭代地对模型进行优化。本文将总结机器学习最常见的模型评估指标，其中包括：
+ precision recall F1-score PRC ROC和AUC IOU  从混淆矩阵谈起 看一看下面这个例子：假定瓜农拉来一车西瓜，我们用训练好的模型对这些西瓜进行判别，显然我们可以使用错误率来衡量有多少比例的瓜被判别错误。但如果我们关心的是“挑出的西瓜中有多少比例是好瓜”，或者“所有好瓜中有多少比例被挑出来了”，那么错误率显然就不够用了，这时我们需要引入新的评估指标，比如“查准率”和查全率更适合此类需求的性能度量。
+在引入查全率和查准率之前我们必须先理解到什么是混淆矩阵（Confusion matrix）。这个名字起得是真的好，初学者很容易被这个矩阵搞得晕头转向。下图a就是有名的混淆矩阵，而下图b则是由混淆矩阵推出的一些有名的评估指标。
+我们首先好好解读一下混淆矩阵里的一些名词和其意思。根据混淆矩阵我们可以得到TP,FN,FP,TN四个值，显然TP&#43;FP&#43;TN&#43;FN=样本总数。这四个值中都带两个字母，单纯记忆这四种情况很难记得牢，我们可以这样理解：第一个字母表示本次预测的正确性，T就是正确，F就是错误；第二个字母则表示由分类器预测的类别，P代表预测为正例，N代表预测为反例。比如TP我们就可以理解为分类器预测为正例（P），而且这次预测是对的（T），FN可以理解为分类器的预测是反例（N），而且这次预测是错误的（F），正确结果是正例，即一个正样本被错误预测为负样本。我们使用以上的理解方式来记住TP、FP、TN、FN的意思应该就不再困难了。，下面对混淆矩阵的四个值进行总结性讲解：
+ True Positive （真正，TP）被模型预测为正的正样本 True Negative（真负 , TN）被模型预测为负的负样本 False Positive （假正, FP）被模型预测为正的负样本 False Negative（假负 , FN）被模型预测为负的正样本  Precision、Recall、PRC、F1-score Precision指标在中文里可以称为查准率或者是精确率，Recall指标在中卫里常被称为查全率或者是召回率，查准率 P和查全率 R分别定义为：
+查准率P和查全率R的具体含义如下：
+  查准率(Precision）是指在所有系统判定的“真”的样本中，确实是真的的占比
+  查全率（Recall）是指在所有确实为真的样本中，被判为的“真”的占比
+  这里想强调一点，precision和accuracy（正确率）不一样的，accuracy针对所有样本，precision针对部分样本，即正确的预测/总的正反例：
+查准率和查全率是一对矛盾的度量，一般而言，查准率高时，查全率往往偏低；而查全率高时，查准率往往偏低。我们从直观理解确实如此：我们如果希望好瓜尽可能多地选出来，则可以通过增加选瓜的数量来实现，如果将所有瓜都选上了，那么所有好瓜也必然被选上，但是这样查准率就会越低；若希望选出的瓜中好瓜的比例尽可能高，则只选最有把握的瓜，但这样难免会漏掉不少好瓜，导致查全率较低。通常只有在一些简单任务中，才可能使查全率和查准率都很高。
+再说PRC， 其全称就是Precision Recall Curve，它以查准率为Y轴，、查全率为X轴做的图。它是综合评价整体结果的评估指标。所以，哪种类型（正或者负）样本多，权重就大。也就是通常说的『对样本不均衡敏感』，『容易被多的样品带走』。
+上图就是一幅P-R图，它能直观地显示出学习器在样本总体上的查全率和查准率，显然它是一条总体趋势是递减的曲线。在进行比较时，若一个学习器的PR曲线被另一个学习器的曲线完全包住，则可断言后者的性能优于前者，比如上图中A优于C。但是B和A谁更好呢？因为AB两条曲线交叉了，所以很难比较，这时比较合理的判据就是比较PR曲线下的面积，该指标在一定程度上表征了学习器在查准率和查全率上取得相对“双高”的比例。因为这个值不容易估算，所以人们引入“平衡点”(BEP)来度量，他表示“查准率=查全率”时的取值，值越大表明分类器性能越好，以此比较我们一下子就能判断A较B好。
+BEP还是有点简化了，更常用的是F1度量：
+F1-score 就是一个综合考虑precision和recall的指标，比BEP更为常用。
+ROC & AUC ROC全称是“受试者工作特征”（Receiver Operating Characteristic）曲线，ROC曲线以“真正例率”（TPR）为Y轴，以“假正例率”（FPR）为X轴，对角线对应于“随机猜测”模型，而（0,1）则对应“理想模型”。ROC形式如下图所示。
+TPR和FPR的定义如下：
+从形式上看TPR就是我们上面提到的查全率Recall，而FPR的含义就是：所有确实为“假”的样本中，被误判真的样本。
+进行学习器比较时，与PR图相似，若一个学习器的ROC曲线被另一个学习器的曲线包住，那么我们可以断言后者性能优于前者；若两个学习器的ROC曲线发生交叉，则难以一般性断言两者孰优孰劣。此时若要进行比较，那么可以比较ROC曲线下的面积，即AUC，面积大的曲线对应的分类器性能更好。
+AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性能极好，则AUC为1。但现实生活中尤其是工业界不会有如此完美的模型，一般AUC均在0.5到1之间，AUC越高，模型的区分能力越好，上图AUC为0.81。若AUC=0.5，即与上图中红线重合，表示模型的区分能力与随机猜测没有差别。若AUC真的小于0.5，请检查一下是不是好坏标签标反了，或者是模型真的很差。
+怎么选择评估指标？ 这种问题的答案当然是具体问题具体分析啦，单纯地回答谁好谁坏是没有意义的，我们需要结合实际场景给出合适的回答。
+考虑下面是两个场景，由此看出不同场景下我们关注的点是不一样的：
+ 对于地震的预测，我们希望的是Recall非常高，也就是说每次地震我们都希望预测出来。这个时候我们可以牺牲Precision。情愿发出1000次警报，把10次地震都预测正确了；也不要预测100次对了8次漏了两次。所以我们可以设定在合理的precision下，最高的recall作为最优点，找到这个对应的threshold点。 嫌疑人定罪基于不错怪一个好人的原则，对于嫌疑人的定罪我们希望是非常准确的。即使有时候放过了一些罪犯（Recall低），但也是值得的。  ROC和PRC在模型性能评估上效果都差不多，但需要注意的是，在正负样本分布得极不均匀(highly skewed datasets)的情况下，PRC比ROC能更有效地反应分类器的好坏。在数据极度不平衡的情况下，譬如说1万封邮件中只有1封垃圾邮件，那么如果我挑出10封，50封，100&hellip;封垃圾邮件（假设我们每次挑出的N封邮件中都包含真正的那封垃圾邮件），Recall都是100%，但是FPR分别是9/9999, 49/9999, 99/9999（数据都比较好看：FPR越低越好），而Precision却只有1/10，1/50， 1/100 （数据很差：Precision越高越好）。所以在数据非常不均衡的情况下，看ROC的AUC可能是看不出太多好坏的，而PR curve就要敏感的多。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xuzhijvn.github.io/en/zh-cn/posts/ai/%E5%B8%B8%E7%94%A8%E7%9A%84%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87/" /><meta property="article:section" content="zh-cn" />
+<meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/mq%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/rabbitmq/rabbitmq%E6%B8%85%E7%A9%BA%E9%98%9F%E5%88%97%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/en/zh-cn/posts/gof/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E5%99%A8/" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="常用的模型评估指标"/>
+<meta name="twitter:description" content="“没有测量，就没有科学。”这是科学家门捷列夫的名言。在计算机科学中，特别是在机器学习的领域，对模型的测量和评估同样至关重要。只有选择与问题相匹配的评估方法，我们才能够快速的发现在模型选择和训练过程中可能出现的问题，迭代地对模型进行优化。本文将总结机器学习最常见的模型评估指标，其中包括：
+ precision recall F1-score PRC ROC和AUC IOU  从混淆矩阵谈起 看一看下面这个例子：假定瓜农拉来一车西瓜，我们用训练好的模型对这些西瓜进行判别，显然我们可以使用错误率来衡量有多少比例的瓜被判别错误。但如果我们关心的是“挑出的西瓜中有多少比例是好瓜”，或者“所有好瓜中有多少比例被挑出来了”，那么错误率显然就不够用了，这时我们需要引入新的评估指标，比如“查准率”和查全率更适合此类需求的性能度量。
+在引入查全率和查准率之前我们必须先理解到什么是混淆矩阵（Confusion matrix）。这个名字起得是真的好，初学者很容易被这个矩阵搞得晕头转向。下图a就是有名的混淆矩阵，而下图b则是由混淆矩阵推出的一些有名的评估指标。
+我们首先好好解读一下混淆矩阵里的一些名词和其意思。根据混淆矩阵我们可以得到TP,FN,FP,TN四个值，显然TP&#43;FP&#43;TN&#43;FN=样本总数。这四个值中都带两个字母，单纯记忆这四种情况很难记得牢，我们可以这样理解：第一个字母表示本次预测的正确性，T就是正确，F就是错误；第二个字母则表示由分类器预测的类别，P代表预测为正例，N代表预测为反例。比如TP我们就可以理解为分类器预测为正例（P），而且这次预测是对的（T），FN可以理解为分类器的预测是反例（N），而且这次预测是错误的（F），正确结果是正例，即一个正样本被错误预测为负样本。我们使用以上的理解方式来记住TP、FP、TN、FN的意思应该就不再困难了。，下面对混淆矩阵的四个值进行总结性讲解：
+ True Positive （真正，TP）被模型预测为正的正样本 True Negative（真负 , TN）被模型预测为负的负样本 False Positive （假正, FP）被模型预测为正的负样本 False Negative（假负 , FN）被模型预测为负的正样本  Precision、Recall、PRC、F1-score Precision指标在中文里可以称为查准率或者是精确率，Recall指标在中卫里常被称为查全率或者是召回率，查准率 P和查全率 R分别定义为：
+查准率P和查全率R的具体含义如下：
+  查准率(Precision）是指在所有系统判定的“真”的样本中，确实是真的的占比
+  查全率（Recall）是指在所有确实为真的样本中，被判为的“真”的占比
+  这里想强调一点，precision和accuracy（正确率）不一样的，accuracy针对所有样本，precision针对部分样本，即正确的预测/总的正反例：
+查准率和查全率是一对矛盾的度量，一般而言，查准率高时，查全率往往偏低；而查全率高时，查准率往往偏低。我们从直观理解确实如此：我们如果希望好瓜尽可能多地选出来，则可以通过增加选瓜的数量来实现，如果将所有瓜都选上了，那么所有好瓜也必然被选上，但是这样查准率就会越低；若希望选出的瓜中好瓜的比例尽可能高，则只选最有把握的瓜，但这样难免会漏掉不少好瓜，导致查全率较低。通常只有在一些简单任务中，才可能使查全率和查准率都很高。
+再说PRC， 其全称就是Precision Recall Curve，它以查准率为Y轴，、查全率为X轴做的图。它是综合评价整体结果的评估指标。所以，哪种类型（正或者负）样本多，权重就大。也就是通常说的『对样本不均衡敏感』，『容易被多的样品带走』。
+上图就是一幅P-R图，它能直观地显示出学习器在样本总体上的查全率和查准率，显然它是一条总体趋势是递减的曲线。在进行比较时，若一个学习器的PR曲线被另一个学习器的曲线完全包住，则可断言后者的性能优于前者，比如上图中A优于C。但是B和A谁更好呢？因为AB两条曲线交叉了，所以很难比较，这时比较合理的判据就是比较PR曲线下的面积，该指标在一定程度上表征了学习器在查准率和查全率上取得相对“双高”的比例。因为这个值不容易估算，所以人们引入“平衡点”(BEP)来度量，他表示“查准率=查全率”时的取值，值越大表明分类器性能越好，以此比较我们一下子就能判断A较B好。
+BEP还是有点简化了，更常用的是F1度量：
+F1-score 就是一个综合考虑precision和recall的指标，比BEP更为常用。
+ROC & AUC ROC全称是“受试者工作特征”（Receiver Operating Characteristic）曲线，ROC曲线以“真正例率”（TPR）为Y轴，以“假正例率”（FPR）为X轴，对角线对应于“随机猜测”模型，而（0,1）则对应“理想模型”。ROC形式如下图所示。
+TPR和FPR的定义如下：
+从形式上看TPR就是我们上面提到的查全率Recall，而FPR的含义就是：所有确实为“假”的样本中，被误判真的样本。
+进行学习器比较时，与PR图相似，若一个学习器的ROC曲线被另一个学习器的曲线包住，那么我们可以断言后者性能优于前者；若两个学习器的ROC曲线发生交叉，则难以一般性断言两者孰优孰劣。此时若要进行比较，那么可以比较ROC曲线下的面积，即AUC，面积大的曲线对应的分类器性能更好。
+AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性能极好，则AUC为1。但现实生活中尤其是工业界不会有如此完美的模型，一般AUC均在0.5到1之间，AUC越高，模型的区分能力越好，上图AUC为0.81。若AUC=0.5，即与上图中红线重合，表示模型的区分能力与随机猜测没有差别。若AUC真的小于0.5，请检查一下是不是好坏标签标反了，或者是模型真的很差。
+怎么选择评估指标？ 这种问题的答案当然是具体问题具体分析啦，单纯地回答谁好谁坏是没有意义的，我们需要结合实际场景给出合适的回答。
+考虑下面是两个场景，由此看出不同场景下我们关注的点是不一样的：
+ 对于地震的预测，我们希望的是Recall非常高，也就是说每次地震我们都希望预测出来。这个时候我们可以牺牲Precision。情愿发出1000次警报，把10次地震都预测正确了；也不要预测100次对了8次漏了两次。所以我们可以设定在合理的precision下，最高的recall作为最优点，找到这个对应的threshold点。 嫌疑人定罪基于不错怪一个好人的原则，对于嫌疑人的定罪我们希望是非常准确的。即使有时候放过了一些罪犯（Recall低），但也是值得的。  ROC和PRC在模型性能评估上效果都差不多，但需要注意的是，在正负样本分布得极不均匀(highly skewed datasets)的情况下，PRC比ROC能更有效地反应分类器的好坏。在数据极度不平衡的情况下，譬如说1万封邮件中只有1封垃圾邮件，那么如果我挑出10封，50封，100&hellip;封垃圾邮件（假设我们每次挑出的N封邮件中都包含真正的那封垃圾邮件），Recall都是100%，但是FPR分别是9/9999, 49/9999, 99/9999（数据都比较好看：FPR越低越好），而Precision却只有1/10，1/50， 1/100 （数据很差：Precision越高越好）。所以在数据非常不均衡的情况下，看ROC的AUC可能是看不出太多好坏的，而PR curve就要敏感的多。"/>
+<meta name="twitter:site" content="@razonyang"/>
+<meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button><a class="navbar-brand flex-grow-1 flex-lg-grow-0 text-center text-lg-start mx-auto me-lg-3" href="https://xuzhijvn.github.io/en/"><img class="logo" alt="Logo" src="https://xuzhijvn.github.io/images/logo.webp" loading="lazy"
+   width="400" height="400"
+   />
+👴🏻💪
+    </a>
+    <div class="offcanvas offcanvas-bottom surface" tabindex="-1" id="offcanvasSocialShare" aria-labelledby="offcanvasSocialShare">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Share</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e5%b8%b8%e7%94%a8%e7%9a%84%e6%a8%a1%e5%9e%8b%e8%af%84%e4%bc%b0%e6%8c%87%e6%a0%87&url=https%3a%2f%2fxuzhijvn.github.io%2fen%2fzh-cn%2fposts%2fai%2f%25E5%25B8%25B8%25E7%2594%25A8%25E7%259A%2584%25E6%25A8%25A1%25E5%259E%258B%25E8%25AF%2584%25E4%25BC%25B0%25E6%258C%2587%25E6%25A0%2587%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fxuzhijvn.github.io%2fen%2fzh-cn%2fposts%2fai%2f%25E5%25B8%25B8%25E7%2594%25A8%25E7%259A%2584%25E6%25A8%25A1%25E5%259E%258B%25E8%25AF%2584%25E4%25BC%25B0%25E6%258C%2587%25E6%25A0%2587%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</div>
+    <button class="navbar-settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-ellipsis-v"></i>
+</button>
+
+<div class="offcanvas offcanvas-end surface h-100" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">Settings</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column"><section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-language"></i> Language</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="dropdown">
+        <a class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-cn/">简体中文</a></li><li><a class="dropdown-item" href="https://xuzhijvn.github.io/zh-tw/"></a></li></ul>
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> Mode</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> Palette</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex justify-content-between visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="Blue"
+        class="btn btn-sm w-100 palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="Blue Gray"
+        class="btn btn-sm w-100 palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="Brown"
+        class="btn btn-sm w-100 palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="Cyan"
+        class="btn btn-sm w-100 palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="Green"
+        class="btn btn-sm w-100 palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="Indigo"
+        class="btn btn-sm w-100 palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="Orange"
+        class="btn btn-sm w-100 palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="Pink"
+        class="btn btn-sm w-100 palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="Purple"
+        class="btn btn-sm w-100 palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="Red"
+        class="btn btn-sm w-100 palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="Teal"
+        class="btn btn-sm w-100 palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="Yellow"
+        class="btn btn-sm w-100 palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting actions d-flex justify-content-around mt-auto overflow-auto">
+  <a role="button" class="action action-go-back" href="javascript: window.history.back();">
+    <span class="action-icon"><i class="fas fa-2x fa-arrow-left"></i></span> Go back
+  </a>
+  <a role="button" class="action action-reload-page">
+    <span class="action-icon"><i class="fas fa-2x fa-redo-alt"></i></span> Reload
+  </a>
+  <a role="button" class="action action-copy-url">
+    <span class="action-icon"><i class="fas fa-2x fa-link"></i></span> Copy URL
+  </a><a class="action action-social-share" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSocialShare"
+    aria-controls="offcanvasSocialShare" aria-label="Toggle social share">
+    <span class="action-icon"><i class="fas fa-2x fa-share-alt"></i></span> Share
+  </a></section>
+
+</div>
+</div>
+
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://xuzhijvn.github.io/en/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/en/en/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>Archives
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/en/zh-cn/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/categories">
+            <i class="fas fa-fw fa-folder"></i>Categories
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/tags">
+            <i class="fas fa-fw fa-tags"></i>Tags
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://xuzhijvn.github.io/series">
+            <i class="fas fa-fw fa-columns"></i>Series
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdownProjects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Projects
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownProjects"><li>
+              <a class="dropdown-item"
+                href="https://clevergo.tech/" target="_blank" rel="noopener noreferrer">
+                CleverGo
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://gopkgs.net/" target="_blank" rel="noopener noreferrer">
+                GOPKGS
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                Hugo Bootstrap Theme
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://admin.yii2.razonyang.com/" target="_blank" rel="noopener noreferrer">
+                Yii 2 Admin
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/">Home</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/zh-cn/">Zh-cns</a></li><li class="breadcrumb-item"><a href="https://xuzhijvn.github.io/en/zh-cn/posts/">文章</a></li><li class="breadcrumb-item active">常用的模型评估指标</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper">
+  <div class="d-flex flex-column component rounded post-panel">
+    
+    <a class="action action-panel-toggler" role="button" title="Panel toggler">
+      <i class="fas fa-fw fa-chevron-circle-down"></i>
+    </a>
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="Buy me a coffee">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    <a class="action" href="#postTOC" aria-controls="Table of contents" role="button" title="Table of contents">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    
+  </div>
+</div>
+<article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title">常用的模型评估指标
+</h1>
+  </div>
+  <div class="card-body"><div class="post-meta">
+  <span class="post-date" title="created on 2021-08-27 11:15:10 &#43;0800 CST.">
+    Aug 27, 2021
+  </span><span class="post-reading-time">
+    1 min read
+  </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge post-taxonomy">人工智能</a><a href="https://xuzhijvn.github.io/en/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/en/tags/cnn/" class="badge post-taxonomy">CNN</a><a href="https://xuzhijvn.github.io/en/tags/ai/" class="badge post-taxonomy">AI</a></span>
+</div>
+<div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>“没有测量，就没有科学。”这是科学家门捷列夫的名言。在计算机科学中，特别是在机器学习的领域，对模型的测量和评估同样至关重要。只有选择与问题相匹配的评估方法，我们才能够快速的发现在模型选择和训练过程中可能出现的问题，迭代地对模型进行优化。本文将总结机器学习最常见的模型评估指标，其中包括：</p>
+<ul>
+<li>precision</li>
+<li>recall</li>
+<li>F1-score</li>
+<li>PRC</li>
+<li>ROC和AUC</li>
+<li>IOU</li>
+</ul>
+<h2 id="从混淆矩阵谈起">从混淆矩阵谈起<a class="anchor ms-1" href="#从混淆矩阵谈起"><i class="fas fa-link"></i></a></h2>
+<p>看一看下面这个例子：假定瓜农拉来一车西瓜，我们用训练好的模型对这些西瓜进行判别，显然我们可以使用错误率来衡量有多少比例的瓜被判别错误。但如果我们关心的是“挑出的西瓜中有多少比例是好瓜”，或者“所有好瓜中有多少比例被挑出来了”，那么错误率显然就不够用了，这时我们需要引入新的评估指标，比如“查准率”和查全率更适合此类需求的性能度量。</p>
+<p>在引入查全率和查准率之前我们必须先理解到什么是混淆矩阵（Confusion matrix）。这个名字起得是真的好，初学者很容易被这个矩阵搞得晕头转向。下图a就是有名的混淆矩阵，而下图b则是由混淆矩阵推出的一些有名的评估指标。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/15752039601-20210606001019125.png" loading="lazy"
+  
+   />
+
+</p>
+<p>我们首先好好解读一下混淆矩阵里的一些名词和其意思。根据混淆矩阵我们可以得到TP,FN,FP,TN四个值，显然TP+FP+TN+FN=样本总数。这四个值中都带两个字母，单纯记忆这四种情况很难记得牢，我们可以这样理解：第一个字母表示本次预测的正确性，T就是正确，F就是错误；第二个字母则表示由分类器预测的类别，P代表预测为正例，N代表预测为反例。比如TP我们就可以理解为分类器预测为正例（P），而且这次预测是对的（T），FN可以理解为分类器的预测是反例（N），而且这次预测是错误的（F），正确结果是正例，即一个正样本被错误预测为负样本。我们使用以上的理解方式来记住TP、FP、TN、FN的意思应该就不再困难了。，下面对混淆矩阵的四个值进行总结性讲解：</p>
+<ul>
+<li>True Positive （真正，TP）被模型预测为正的正样本</li>
+<li>True Negative（真负 , TN）被模型预测为负的负样本</li>
+<li>False Positive （假正, FP）被模型预测为正的负样本</li>
+<li>False Negative（假负 , FN）被模型预测为负的正样本</li>
+</ul>
+<h2 id="precisionrecallprcf1-score">Precision、Recall、PRC、F1-score<a class="anchor ms-1" href="#precisionrecallprcf1-score"><i class="fas fa-link"></i></a></h2>
+<p>Precision指标在中文里可以称为查准率或者是精确率，Recall指标在中卫里常被称为查全率或者是召回率，查准率 P和查全率 R分别定义为：</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/15752040781-20210606001041338.png" loading="lazy"
+  
+   />
+
+</p>
+<p>查准率P和查全率R的具体含义如下：</p>
+<ul>
+<li>
+<p>查准率(Precision）是指在所有系统判定的“真”的样本中，确实是真的的占比</p>
+</li>
+<li>
+<p>查全率（Recall）是指在所有确实为真的样本中，被判为的“真”的占比</p>
+</li>
+</ul>
+<p>这里想强调一点，precision和accuracy（正确率）不一样的，accuracy针对所有样本，precision针对部分样本，即正确的预测/总的正反例：</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/15752041511-20210606001050674.png" loading="lazy"
+  
+   />
+
+</p>
+<p>查准率和查全率是一对矛盾的度量，一般而言，查准率高时，查全率往往偏低；而查全率高时，查准率往往偏低。我们从直观理解确实如此：我们如果希望好瓜尽可能多地选出来，则可以通过增加选瓜的数量来实现，如果将所有瓜都选上了，那么所有好瓜也必然被选上，但是这样查准率就会越低；若希望选出的瓜中好瓜的比例尽可能高，则只选最有把握的瓜，但这样难免会漏掉不少好瓜，导致查全率较低。通常只有在一些简单任务中，才可能使查全率和查准率都很高。</p>
+<p>再说PRC， 其全称就是Precision Recall Curve，它以查准率为Y轴，、查全率为X轴做的图。它是综合评价整体结果的评估指标。所以，哪种类型（正或者负）样本多，权重就大。也就是通常说的『对样本不均衡敏感』，『容易被多的样品带走』。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/15752042061-20210606001058431.png" loading="lazy"
+  
+   />
+
+</p>
+<p>上图就是一幅P-R图，它能直观地显示出学习器在样本总体上的查全率和查准率，显然它是一条总体趋势是递减的曲线。在进行比较时，若一个学习器的PR曲线被另一个学习器的曲线完全包住，则可断言后者的性能优于前者，比如上图中A优于C。但是B和A谁更好呢？因为AB两条曲线交叉了，所以很难比较，这时比较合理的判据就是比较PR曲线下的面积，该指标在一定程度上表征了学习器在查准率和查全率上取得相对“双高”的比例。因为这个值不容易估算，所以人们引入“平衡点”(BEP)来度量，他表示“查准率=查全率”时的取值，值越大表明分类器性能越好，以此比较我们一下子就能判断A较B好。</p>
+<p>BEP还是有点简化了，更常用的是F1度量：</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1093303-20180224205027586-434414606-20210606001107596.png" loading="lazy"
+  
+   />
+
+</p>
+<p>F1-score 就是一个综合考虑precision和recall的指标，比BEP更为常用。</p>
+<h2 id="roc--auc">ROC & AUC<a class="anchor ms-1" href="#roc--auc"><i class="fas fa-link"></i></a></h2>
+<p>ROC全称是“受试者工作特征”（Receiver Operating Characteristic）曲线，ROC曲线以“真正例率”（TPR）为Y轴，以“假正例率”（FPR）为X轴，对角线对应于“随机猜测”模型，而（0,1）则对应“理想模型”。ROC形式如下图所示。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1093303-20180224204355006-1724131879-20210606001115340.png" loading="lazy"
+  
+   />
+
+</p>
+<p>TPR和FPR的定义如下：</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1093303-20180224205043320-355960721-20210606001123917.png" loading="lazy"
+  
+   />
+
+</p>
+<p>从形式上看TPR就是我们上面提到的查全率Recall，而FPR的含义就是：所有确实为“假”的样本中，被误判真的样本。</p>
+<p>进行学习器比较时，与PR图相似，若一个学习器的ROC曲线被另一个学习器的曲线包住，那么我们可以断言后者性能优于前者；若两个学习器的ROC曲线发生交叉，则难以一般性断言两者孰优孰劣。此时若要进行比较，那么可以比较ROC曲线下的面积，即AUC，面积大的曲线对应的分类器性能更好。</p>
+<p>AUC（Area Under Curve）的值为ROC曲线下面的面积，若分类器的性能极好，则AUC为1。但现实生活中尤其是工业界不会有如此完美的模型，一般AUC均在0.5到1之间，AUC越高，模型的区分能力越好，上图AUC为0.81。若AUC=0.5，即与上图中红线重合，表示模型的区分能力与随机猜测没有差别。若AUC真的小于0.5，请检查一下是不是好坏标签标反了，或者是模型真的很差。</p>
+<h2 id="怎么选择评估指标">怎么选择评估指标？<a class="anchor ms-1" href="#怎么选择评估指标"><i class="fas fa-link"></i></a></h2>
+<p>这种问题的答案当然是具体问题具体分析啦，单纯地回答谁好谁坏是没有意义的，我们需要结合实际场景给出合适的回答。</p>
+<p>考虑下面是两个场景，由此看出不同场景下我们关注的点是不一样的：</p>
+<ol>
+<li>对于地震的预测，我们希望的是Recall非常高，也就是说每次地震我们都希望预测出来。这个时候我们可以牺牲Precision。情愿发出1000次警报，把10次地震都预测正确了；也不要预测100次对了8次漏了两次。所以我们可以设定在合理的precision下，最高的recall作为最优点，找到这个对应的threshold点。</li>
+<li>嫌疑人定罪基于不错怪一个好人的原则，对于嫌疑人的定罪我们希望是非常准确的。即使有时候放过了一些罪犯（Recall低），但也是值得的。</li>
+</ol>
+<p>ROC和PRC在模型性能评估上效果都差不多，但需要注意的是，在正负样本分布得极不均匀(highly skewed datasets)的情况下，PRC比ROC能更有效地反应分类器的好坏。在数据极度不平衡的情况下，譬如说1万封邮件中只有1封垃圾邮件，那么如果我挑出10封，50封，100&hellip;封垃圾邮件（假设我们每次挑出的N封邮件中都包含真正的那封垃圾邮件），Recall都是100%，但是FPR分别是9/9999, 49/9999, 99/9999（数据都比较好看：FPR越低越好），而Precision却只有1/10，1/50， 1/100 （数据很差：Precision越高越好）。所以在数据非常不均衡的情况下，看ROC的AUC可能是看不出太多好坏的，而PR curve就要敏感的多。</p>
+<h2 id="iou">IOU<a class="anchor ms-1" href="#iou"><i class="fas fa-link"></i></a></h2>
+<p>上面讨论的是分类任务中的评价指标，这里想简单讲讲目标检测任务中常用的评价指标：IOU（Intersection over Union），中文翻译为交并比。</p>
+<p>这里是一个实际例子：下图绿色框是真实感兴趣区域，红色框是预测区域，这种情况下交集确实是最大的，但是红色框并不能准确预测物体位置。因为预测区域总是试图覆盖目标物体而不是正好预测物体位置。这时如果我们能除以一个并集的大小，就可以规避这种问题。这就是IOU要解决的问题了。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1093303-20180224204408601-1945220368-20210606001133992.png" loading="lazy"
+  
+   />
+
+</p>
+<p>下图表示了IOU的具体意义，即：预测框与标注框的交集与并集之比，数值越大表示该检测器的性能越好。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1093303-20180224204418589-582088419-300x225-20210606001143340.png" loading="lazy"
+  
+   />
+
+</p>
+<p>使用IOU评价指标后，上面提到的问题一下子解决了：我们控制并集不要让并集太大，对准确预测是有益的，这就有效抑制了“一味地追求交集最大”的情况的发生。下图的2,3小图就是目标检测效果比较好的情况。</p>
+<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1093303-20180224204428523-871794088-20210606001152619.png" loading="lazy"
+  
+   />
+
+</p>
+<h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
+<p><a href="https://www.cnblogs.com/skyfsm/p/8467613.html" target="_blank" rel="noopener noreferrer">【深度学习】常用的模型评估指标</a></p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>Buy me a coffee</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>Alipay
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>WeChat
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://xuzhijvn.github.io/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+  <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
+    <i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://xuzhijvn.github.io/en/zh-cn/posts/cs/other/%E5%B8%B8%E7%94%A8%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AE%97%E6%B3%95/">常用缓存淘汰算法
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://xuzhijvn.github.io/en/zh-cn/posts/code/mq/kafka/%E5%B8%B8%E5%A4%87%E7%9F%A5%E8%AF%86%E7%82%B9/">常备知识点
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div></div>
+</article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title">Copyright</h2>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title">Comments</h2>
+  </div>
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="razonyang/blog"
+  issue-term="pathname"
+  label="comment"
+  theme="github-dark"
+  crossorigin="anonymous"
+  async>
+</script></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    <section class="ad row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Tony" src="https://xuzhijvn.github.io/images/profile.webp" loading="lazy"
+   width="400" height="400"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Tony</div><div class="profile-bio">💇🏻‍♀️👴🏻 发型总监 💇🏻‍♀️👴🏻</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>💈光头发廊💈</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>深圳</div></div>
+  </div>
+</section>
+  <div class="post-toc row mb-4 card component" id="postTOC">
+  <div class="card-header">
+    <h2 class="card-title">Contents</h2>
+  </div>
+  <div class="card-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#从混淆矩阵谈起">从混淆矩阵谈起</a></li>
+    <li><a href="#precisionrecallprcf1-score">Precision、Recall、PRC、F1-score</a></li>
+    <li><a href="#roc--auc">ROC &amp; AUC</a></li>
+    <li><a href="#怎么选择评估指标">怎么选择评估指标？</a></li>
+    <li><a href="#iou">IOU</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+  </div>
+</div><section class="recent-posts row card component">
+  <div class="card-header">
+    <h2 class="card-title">Recent Posts</h2>
+  </div>
+  <div class="card-body">
+    <ul class="post-list"></ul>
+  </div>
+</section><section class="series-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/series">Series</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/series/manual/" class="badge rounded post-taxonomy" title="Manual">
+            Manual</a><a href="https://xuzhijvn.github.io/en/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/en/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/en/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/en/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
+            istio实战</a><a href="https://xuzhijvn.github.io/en/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a></div>
+      </div>
+    </section><section class="categories-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/categories">Categories</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge rounded post-taxonomy" title="编程思想">
+            编程思想</a><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/en/categories/%E5%85%B6%E4%BB%96/" class="badge rounded post-taxonomy" title="其他">
+            其他</a><a href="https://xuzhijvn.github.io/en/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge rounded post-taxonomy" title="计算机科学">
+            计算机科学</a><a href="https://xuzhijvn.github.io/en/categories/%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B/" class="badge rounded post-taxonomy" title="架构演进">
+            架构演进</a><a href="https://xuzhijvn.github.io/en/categories/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E9%83%A8%E7%BD%B2/" class="badge rounded post-taxonomy" title="持续集成部署">
+            持续集成部署</a><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge rounded post-taxonomy" title="人工智能">
+            人工智能</a><a href="https://xuzhijvn.github.io/en/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="badge rounded post-taxonomy" title="设计模式">
+            设计模式</a><a href="https://xuzhijvn.github.io/en/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="badge rounded post-taxonomy" title="区块链">
+            区块链</a><a href="https://xuzhijvn.github.io/en/categories/%E5%AE%B9%E5%99%A8/" class="badge rounded post-taxonomy" title="容器">
+            容器</a></div>
+      </div>
+    </section><section class="tags-taxonomies row card component">
+      <div class="card-header">
+        <h2 class="card-title">
+          <a href="https://xuzhijvn.github.io/en/tags">Tags</a>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="py-2"><a href="https://xuzhijvn.github.io/en/tags/java/" class="badge rounded post-taxonomy" title="Java">
+            Java</a><a href="https://xuzhijvn.github.io/en/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" class="badge rounded post-taxonomy" title="云原生">
+            云原生</a><a href="https://xuzhijvn.github.io/en/tags/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/en/tags/cs/" class="badge rounded post-taxonomy" title="CS">
+            CS</a><a href="https://xuzhijvn.github.io/en/tags/other/" class="badge rounded post-taxonomy" title="Other">
+            Other</a><a href="https://xuzhijvn.github.io/en/tags/redis/" class="badge rounded post-taxonomy" title="redis">
+            redis</a><a href="https://xuzhijvn.github.io/en/tags/spring/" class="badge rounded post-taxonomy" title="spring">
+            spring</a><a href="https://xuzhijvn.github.io/en/tags/mysql/" class="badge rounded post-taxonomy" title="MySQL">
+            MySQL</a><a href="https://xuzhijvn.github.io/en/tags/sa/" class="badge rounded post-taxonomy" title="SA">
+            SA</a><a href="https://xuzhijvn.github.io/en/tags/jvm/" class="badge rounded post-taxonomy" title="JVM">
+            JVM</a><a href="https://xuzhijvn.github.io/en/tags/%E5%89%91%E6%8C%87offer/" class="badge rounded post-taxonomy" title="剑指offer">
+            剑指offer</a><a href="https://xuzhijvn.github.io/en/tags/wordpress/" class="badge rounded post-taxonomy" title="WordPress">
+            WordPress</a><a href="https://xuzhijvn.github.io/en/tags/istio/" class="badge rounded post-taxonomy" title="istio">
+            istio</a><a href="https://xuzhijvn.github.io/en/tags/mq/" class="badge rounded post-taxonomy" title="MQ">
+            MQ</a><a href="https://xuzhijvn.github.io/en/tags/nginx/" class="badge rounded post-taxonomy" title="nginx">
+            nginx</a><a href="https://xuzhijvn.github.io/en/tags/zk/" class="badge rounded post-taxonomy" title="ZK">
+            ZK</a><a href="https://xuzhijvn.github.io/en/tags/jenkins/" class="badge rounded post-taxonomy" title="Jenkins">
+            Jenkins</a><a href="https://xuzhijvn.github.io/en/tags/ai/" class="badge rounded post-taxonomy" title="AI">
+            AI</a><a href="https://xuzhijvn.github.io/en/tags/cnn/" class="badge rounded post-taxonomy" title="CNN">
+            CNN</a><a href="https://xuzhijvn.github.io/en/tags/docker/" class="badge rounded post-taxonomy" title="docker">
+            docker</a><a href="https://xuzhijvn.github.io/en/tags/gof/" class="badge rounded post-taxonomy" title="gof">
+            gof</a><a href="https://xuzhijvn.github.io/en/tags/http/" class="badge rounded post-taxonomy" title="http">
+            http</a><a href="https://xuzhijvn.github.io/en/tags/system/" class="badge rounded post-taxonomy" title="System">
+            System</a><a href="https://xuzhijvn.github.io/en/tags/tcp/" class="badge rounded post-taxonomy" title="TCP">
+            TCP</a><a href="https://xuzhijvn.github.io/en/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" class="badge rounded post-taxonomy" title="分布式">
+            分布式</a><a href="https://xuzhijvn.github.io/en/tags/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            算法</a><a href="https://xuzhijvn.github.io/en/tags/blockchain/" class="badge rounded post-taxonomy" title="BlockChain">
+            BlockChain</a><a href="https://xuzhijvn.github.io/en/tags/go/" class="badge rounded post-taxonomy" title="GO">
+            GO</a><a href="https://xuzhijvn.github.io/en/tags/maven/" class="badge rounded post-taxonomy" title="Maven">
+            Maven</a><a href="https://xuzhijvn.github.io/en/tags/clickhouse/" class="badge rounded post-taxonomy" title="ClickHouse">
+            ClickHouse</a><a href="https://xuzhijvn.github.io/en/tags/docker-compose/" class="badge rounded post-taxonomy" title="docker-compose">
+            docker-compose</a><a href="https://xuzhijvn.github.io/en/tags/es/" class="badge rounded post-taxonomy" title="ES">
+            ES</a><a href="https://xuzhijvn.github.io/en/tags/github/" class="badge rounded post-taxonomy" title="github">
+            github</a><a href="https://xuzhijvn.github.io/en/tags/io/" class="badge rounded post-taxonomy" title="IO">
+            IO</a><a href="https://xuzhijvn.github.io/en/tags/kafka/" class="badge rounded post-taxonomy" title="Kafka">
+            Kafka</a><a href="https://xuzhijvn.github.io/en/tags/leetcode/" class="badge rounded post-taxonomy" title="LeetCode">
+            LeetCode</a><a href="https://xuzhijvn.github.io/en/tags/mongodb/" class="badge rounded post-taxonomy" title="MongoDB">
+            MongoDB</a><a href="https://xuzhijvn.github.io/en/tags/mybatis/" class="badge rounded post-taxonomy" title="MyBatis">
+            MyBatis</a><a href="https://xuzhijvn.github.io/en/tags/openresty/" class="badge rounded post-taxonomy" title="openresty">
+            openresty</a><a href="https://xuzhijvn.github.io/en/tags/rabbitmq/" class="badge rounded post-taxonomy" title="RabbitMQ">
+            RabbitMQ</a><a href="https://xuzhijvn.github.io/en/tags/rpc/" class="badge rounded post-taxonomy" title="rpc">
+            rpc</a><a href="https://xuzhijvn.github.io/en/tags/springboot/" class="badge rounded post-taxonomy" title="SpringBoot">
+            SpringBoot</a><a href="https://xuzhijvn.github.io/en/tags/%E7%89%9B%E5%AE%A2/" class="badge rounded post-taxonomy" title="牛客">
+            牛客</a></div>
+      </div>
+    </section>
+    <section class="ad ad-sticky row surface justify-content-center">
+  <ins class="adsbygoogle sidebar-ad"
+    data-ad-client="ca-pub-7827859788508375"
+    data-ad-slot="5059539159"
+    data-ad-format="auto"
+    data-full-width-responsive="false"></ins>
+</section>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav justify-content-center mb-2"><a class="nav-link social-link" href="mailto:783175223@qq.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/xuzhijvn" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://gitlab.com/razonyang" title="GitLab" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-gitlab"></i>
+      </a><a class="nav-link social-link" target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=783175223&amp;site=qq&amp;menu=yes" title="QQ" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-qq"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/razonyang" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://twitter.com/razonyang" title="Twitter" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-twitter"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div><div class="mb-3">
+  <img src = 'https://xuzhijvn.github.io/icons/gongan.png' class = ' transparent'>
+  <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=44040302000341">粤公网安备44040302000341号</a>
+  |
+  <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
+</div>
+</footer>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?1748e454242a1146387e079e3bb3a92a";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script></body>
+</html>

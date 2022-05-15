@@ -34,8 +34,8 @@
 127.0.0.1:6379&gt; get name &#34;xumeili&#34; 127.0.0.1:6379&gt; get age &#34;28&#34; 127.0.0.1:6379&gt; get sex &#34;female&#34; 127.0.0.1:6379&gt; multi OK 127.0.0.1:6379&gt; set name xuzhijun QUEUED 127.0.0.1:6379&gt; set age (error) ERR wrong number of arguments for &#39;set&#39; command 127.0.0.1:6379&gt; set sex male QUEUED 127.0.0.1:6379&gt; exec (error) EXECABORT Transaction discarded because of previous errors. 127.0.0.1:6379&gt; get name &#34;xumeili&#34; 127.0.0.1:6379&gt; get age &#34;28&#34; 127.0.0.1:6379&gt; get sex &#34;female&#34; 2. 命令执行错误 这种错误redis无法在执行前发现，因此不影响这种错误的前后命令被提交。"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -325,87 +325,87 @@
 </ol>
 <h2 id="1-命令使用错误">1. 命令使用错误<a class="anchor ms-1" href="#1-命令使用错误"><i class="fas fa-link"></i></a></h2>
 <p>这种错误redis在执行前就能检查出来，因此整个事务都不执行。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">127.0.0.1:6379&gt; get name
-<span style="color:#e6db74">&#34;xumeili&#34;</span>
-127.0.0.1:6379&gt; get age
-<span style="color:#e6db74">&#34;28&#34;</span>
-127.0.0.1:6379&gt; get sex
-<span style="color:#e6db74">&#34;female&#34;</span>
-127.0.0.1:6379&gt; multi 
-OK
-127.0.0.1:6379&gt; set name xuzhijun
-QUEUED
-127.0.0.1:6379&gt; set age
-<span style="color:#f92672">(</span>error<span style="color:#f92672">)</span> ERR wrong number of arguments <span style="color:#66d9ef">for</span> <span style="color:#e6db74">&#39;set&#39;</span> command
-127.0.0.1:6379&gt; set sex male
-QUEUED
-127.0.0.1:6379&gt; exec
-<span style="color:#f92672">(</span>error<span style="color:#f92672">)</span> EXECABORT Transaction discarded because of previous errors.
-127.0.0.1:6379&gt; get name
-<span style="color:#e6db74">&#34;xumeili&#34;</span>
-127.0.0.1:6379&gt; get age
-<span style="color:#e6db74">&#34;28&#34;</span>
-127.0.0.1:6379&gt; get sex
-<span style="color:#e6db74">&#34;female&#34;</span>
-</code></pre></div><h2 id="2-命令执行错误">2. 命令执行错误<a class="anchor ms-1" href="#2-命令执行错误"><i class="fas fa-link"></i></a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>127.0.0.1:6379&gt; get name
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;xumeili&#34;</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get age
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;28&#34;</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get sex
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;female&#34;</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; multi 
+</span></span><span style="display:flex;"><span>OK
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; set name xuzhijun
+</span></span><span style="display:flex;"><span>QUEUED
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; set age
+</span></span><span style="display:flex;"><span><span style="color:#f92672">(</span>error<span style="color:#f92672">)</span> ERR wrong number of arguments <span style="color:#66d9ef">for</span> <span style="color:#e6db74">&#39;set&#39;</span> command
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; set sex male
+</span></span><span style="display:flex;"><span>QUEUED
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; exec
+</span></span><span style="display:flex;"><span><span style="color:#f92672">(</span>error<span style="color:#f92672">)</span> EXECABORT Transaction discarded because of previous errors.
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get name
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;xumeili&#34;</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get age
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;28&#34;</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get sex
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;female&#34;</span>
+</span></span></code></pre></div><h2 id="2-命令执行错误">2. 命令执行错误<a class="anchor ms-1" href="#2-命令执行错误"><i class="fas fa-link"></i></a></h2>
 <p>这种错误redis无法在执行前发现，因此不影响这种错误的前后命令被提交。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">127.0.0.1:6379&gt; get name
-<span style="color:#e6db74">&#34;xumeili&#34;</span>
-127.0.0.1:6379&gt; get age
-<span style="color:#e6db74">&#34;28&#34;</span>
-127.0.0.1:6379&gt; get sex
-<span style="color:#e6db74">&#34;female&#34;</span>
-127.0.0.1:6379&gt; multi
-OK
-127.0.0.1:6379&gt; set name tony
-QUEUED
-127.0.0.1:6379&gt; sadd age <span style="color:#ae81ff">100</span>
-QUEUED
-127.0.0.1:6379&gt; set sex male
-QUEUED
-127.0.0.1:6379&gt; exec
-1<span style="color:#f92672">)</span> OK
-2<span style="color:#f92672">)</span> <span style="color:#f92672">(</span>error<span style="color:#f92672">)</span> WRONGTYPE Operation against a key holding the wrong kind of value
-3<span style="color:#f92672">)</span> OK
-127.0.0.1:6379&gt; get name
-<span style="color:#e6db74">&#34;tony&#34;</span>
-127.0.0.1:6379&gt; get age
-<span style="color:#e6db74">&#34;28&#34;</span>
-127.0.0.1:6379&gt; get sex
-<span style="color:#e6db74">&#34;male&#34;</span>
-</code></pre></div><h2 id="3-使用watch">3. 使用watch<a class="anchor ms-1" href="#3-使用watch"><i class="fas fa-link"></i></a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>127.0.0.1:6379&gt; get name
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;xumeili&#34;</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get age
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;28&#34;</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get sex
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;female&#34;</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; multi
+</span></span><span style="display:flex;"><span>OK
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; set name tony
+</span></span><span style="display:flex;"><span>QUEUED
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; sadd age <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>QUEUED
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; set sex male
+</span></span><span style="display:flex;"><span>QUEUED
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; exec
+</span></span><span style="display:flex;"><span>1<span style="color:#f92672">)</span> OK
+</span></span><span style="display:flex;"><span>2<span style="color:#f92672">)</span> <span style="color:#f92672">(</span>error<span style="color:#f92672">)</span> WRONGTYPE Operation against a key holding the wrong kind of value
+</span></span><span style="display:flex;"><span>3<span style="color:#f92672">)</span> OK
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get name
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;tony&#34;</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get age
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;28&#34;</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get sex
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;male&#34;</span>
+</span></span></code></pre></div><h2 id="3-使用watch">3. 使用watch<a class="anchor ms-1" href="#3-使用watch"><i class="fas fa-link"></i></a></h2>
 <p>事务内key值发生变化，整个事务不提交。</p>
 <p>session1:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">127.0.0.1:6379&gt; get name
-<span style="color:#e6db74">&#34;xuzhijun&#34;</span>
-127.0.0.1:6379&gt; get age
-<span style="color:#e6db74">&#34;300&#34;</span>
-127.0.0.1:6379&gt; get sex
-<span style="color:#e6db74">&#34;female&#34;</span>
-127.0.0.1:6379&gt; watch age
-OK
-127.0.0.1:6379&gt; multi
-OK
-127.0.0.1:6379&gt; set name tony
-QUEUED
-127.0.0.1:6379&gt; set age <span style="color:#ae81ff">100</span>
-QUEUED
-127.0.0.1:6379&gt; set sex male
-QUEUED
-127.0.0.1:6379&gt; exec
-<span style="color:#f92672">(</span>nil<span style="color:#f92672">)</span>
-127.0.0.1:6379&gt; get name
-<span style="color:#e6db74">&#34;xuzhijun&#34;</span>
-127.0.0.1:6379&gt; get age
-<span style="color:#e6db74">&#34;28&#34;</span>
-127.0.0.1:6379&gt; get sex
-<span style="color:#e6db74">&#34;female&#34;</span>
-</code></pre></div><p>session2:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">127.0.0.1:6379&gt; set age <span style="color:#ae81ff">28</span>
-OK
-127.0.0.1:6379&gt; get age
-<span style="color:#e6db74">&#34;28&#34;</span>
-</code></pre></div><h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>127.0.0.1:6379&gt; get name
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;xuzhijun&#34;</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get age
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;300&#34;</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get sex
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;female&#34;</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; watch age
+</span></span><span style="display:flex;"><span>OK
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; multi
+</span></span><span style="display:flex;"><span>OK
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; set name tony
+</span></span><span style="display:flex;"><span>QUEUED
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; set age <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>QUEUED
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; set sex male
+</span></span><span style="display:flex;"><span>QUEUED
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; exec
+</span></span><span style="display:flex;"><span><span style="color:#f92672">(</span>nil<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get name
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;xuzhijun&#34;</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get age
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;28&#34;</span>
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get sex
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;female&#34;</span>
+</span></span></code></pre></div><p>session2:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>127.0.0.1:6379&gt; set age <span style="color:#ae81ff">28</span>
+</span></span><span style="display:flex;"><span>OK
+</span></span><span style="display:flex;"><span>127.0.0.1:6379&gt; get age
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;28&#34;</span>
+</span></span></code></pre></div><h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://redisbook.readthedocs.io/en/latest/feature/transaction.html" target="_blank" rel="noopener noreferrer">Redis 设计与实现</a></p>
 <p><a href="https://www.zhihu.com/question/60189169" target="_blank" rel="noopener noreferrer">redis事务一致性问题？？？</a></p>
 <p><a href="https://www.zhihu.com/question/31346392" target="_blank" rel="noopener noreferrer">如何理解数据库事务中的一致性的概念？</a></p>
@@ -538,6 +538,9 @@ OK
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/yshop-k8s/">Yshop K8s
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E7%9A%84%E5%8D%B8%E8%BD%BD/">JVM类的卸载
 </a>
       </li><li>
@@ -549,9 +552,6 @@ OK
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">Like查询优化
 </a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/">Redis队列
-</a>
       </li></ul>
   </div>
 </section><section class="series-taxonomies row card component">
@@ -562,9 +562,9 @@ OK
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
-            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
-            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
             算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
             istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
             rpc</a></div>
@@ -680,8 +680,8 @@ OK
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

@@ -70,8 +70,8 @@
  因为Innodb是以页为单位进行磁盘交互的，而一个事务很可能只修改一个数据页里面的几个字节，这个时候将完整的数据页刷到磁盘的话，太浪费资源了！ 一个事务可能涉及修改多个数据页，并且这些数据页在物理上并不连续，使用随机IO写入性能太差！  因此mysql设计了redo log，具体来说就是只记录事务对数据页做了哪些修改，这样就能完美地解决性能问题了(相对而言文件更小并且是顺序IO)。MySQL实战45讲中将redo log比作临时记账的粉板，实际数据页比作账本。"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -397,7 +397,7 @@
 <h3 id="22-redo-log基本概念">2.2 redo log基本概念<a class="anchor ms-1" href="#22-redo-log基本概念"><i class="fas fa-link"></i></a></h3>
 <p><code>redo log</code>包括两部分：一个是内存中的日志缓冲(<code>redo log buffer</code>)，另一个是磁盘上的日志文件(<code>redo log file</code>)。<code>mysql</code>每执行一条<code>DML</code>语句，先将记录写入<code>redo log buffer</code>，后续某个时间点再一次性将多个操作记录写到<code>redo log file</code>。这种<strong>先写日志，再写磁盘</strong>的技术就是<code>MySQL</code>里经常说到的<code>WAL(Write-Ahead Logging)</code> 技术。</p>
 <p>在计算机操作系统中，用户空间(<code>user space</code>)下的缓冲区数据一般情况下是无法直接写入磁盘的，中间必须经过操作系统内核空间(<code>kernel space</code>)缓冲区(<code>OS Buffer</code>)。因此，<code>redo log buffer</code>写入<code>redo log file</code>实际上是先写入<code>OS Buffer</code>，然后再通过系统调用<code>fsync()</code>将其刷到<code>redo log file</code>中，过程如下：</p>
-<p><img src="https://picgo.6and.ltd/img/v2-44c0e78a1222853dc2a99e596cf3fa13_r.jpg" alt="从redo log buffer写日志到磁盘的redo log file中" style="zoom:67%;" /></p>
+<img src="https://picgo.6and.ltd/img/v2-44c0e78a1222853dc2a99e596cf3fa13_r.jpg" alt="从redo log buffer写日志到磁盘的redo log file中" style="zoom:67%;" />
 <p><code>mysql</code>支持三种将<code>redo log buffer</code>写入<code>redo log file</code>的时机，可以通过<code>innodb_flush_log_at_trx_commit</code>参数配置，各参数值含义如下：</p>
 <table>
 <thead>
@@ -421,10 +421,10 @@
 </tr>
 </tbody>
 </table>
-<p><img src="https://picgo.6and.ltd/img/v2-6322074d51c4d1507be3c3159ab583bc_r-20210819145000945-20210819145044199.jpg" alt="自定义在commit时如何将log buffer中的日志刷log file中" style="zoom:67%;" /></p>
+<img src="https://picgo.6and.ltd/img/v2-6322074d51c4d1507be3c3159ab583bc_r-20210819145000945-20210819145044199.jpg" alt="自定义在commit时如何将log buffer中的日志刷log file中" style="zoom:67%;" />
 <h3 id="23-redo-log记录形式">2.3 redo log记录形式<a class="anchor ms-1" href="#23-redo-log记录形式"><i class="fas fa-link"></i></a></h3>
 <p>前面说过，<code>redo log</code>实际上记录数据页的变更，而这种变更记录是没必要全部保存，因此<code>redo log</code>实现上采用了大小固定，循环写入的方式，当写到结尾时，会回到开头循环写日志。如下图：</p>
-<p><img src="https://picgo.6and.ltd/img/image-20210819145133194.png" alt="redo log记录形式" style="zoom: 25%;" /></p>
+<img src="https://picgo.6and.ltd/img/image-20210819145133194.png" alt="redo log记录形式" style="zoom: 25%;" />
 <p>同时我们很容易得知，<strong>在innodb中，既有<code>redo log</code>需要刷盘，还有<code>数据页</code>也需要刷盘，<code>redo log</code>存在的意义主要就是降低对<code>数据页</code>刷盘的要求</strong>。在上图中，<code>write pos</code>表示<code>redo log</code>当前记录的<code>LSN</code>(逻辑序列号)位置，<code>check point</code>表示<strong>数据页更改记录</strong>刷盘后对应<code>redo log</code>所处的<code>LSN</code>(逻辑序列号)位置。<code>write pos</code>到<code>check point</code>之间的部分是<code>redo log</code>空着的部分，用于记录新的记录；<code>check point</code>到<code>write pos</code>之间是<code>redo log</code>待落盘的数据页更改记录。当<code>write pos</code>追上<code>check point</code>时，会先推动<code>check point</code>向前移动，空出位置再记录新的日志。</p>
 <p>启动<code>innodb</code>的时候，不管上次是正常关闭还是异常关闭，总是会进行恢复操作。因为<code>redo log</code>记录的是数据页的物理变化，因此恢复的时候速度比逻辑日志(如<code>binlog</code>)要快很多。 重启<code>innodb</code>时，首先会检查磁盘中数据页的<code>LSN</code>，如果数据页的<code>LSN</code>小于日志中的<code>LSN</code>，则会从<code>checkpoint</code>开始恢复。 还有一种情况，在宕机前正处于<code>checkpoint</code>的刷盘过程，且数据页的刷盘进度超过了日志页的刷盘进度，此时会出现数据页中记录的<code>LSN</code>大于日志中的<code>LSN</code>，这时超出日志进度的部分将不会重做，因为这本身就表示已经做过的事情，无需再重做。</p>
 <h3 id="24-redo-log与binlog区别">2.4 redo log与binlog区别<a class="anchor ms-1" href="#24-redo-log与binlog区别"><i class="fas fa-link"></i></a></h3>
@@ -468,12 +468,12 @@
 <p>数据库事务四大特性中有一个是 <code>原子性</code>，具体来说就是 <strong>原子性是指对数据库的一系列操作，要么全部成功，要么全部失败，不可能出现部分成功的情况</strong>。实际上，<strong>原子性</strong>底层就是通过<code>undo log</code>实现的。<code>undo log</code>主要记录了数据的逻辑变化，比如一条<code>INSERT</code>语句，对应一条<code>DELETE</code>的<code>undo log</code>，对于每个<code>UPDATE</code>语句，对应一条相反的<code>UPDATE</code>的<code>undo log</code>，这样在发生错误时，就能回滚到事务之前的数据状态。同时，<code>undo log</code>也是<code>MVCC</code>(多版本并发控制)实现的关键，这部分内容在<a href="https://juejin.cn/post/6855129007336521741" target="_blank" rel="noopener noreferrer">面试中的老大难-mysql事务和锁，一次性讲清楚！</a>中有介绍，不再赘述。</p>
 <h2 id="附件">附件<a class="anchor ms-1" href="#附件"><i class="fas fa-link"></i></a></h2>
 <h3 id="mysql-的逻辑架构图">MySQL 的逻辑架构图：<a class="anchor ms-1" href="#mysql-的逻辑架构图"><i class="fas fa-link"></i></a></h3>
-<p><img src="https://picgo.6and.ltd/img/0d2070e8f84c4801adbfa03bda1f98d9-20210819150540455.png" alt="MySQL 的逻辑架构图" style="zoom: 25%;" /></p>
+<img src="https://picgo.6and.ltd/img/0d2070e8f84c4801adbfa03bda1f98d9-20210819150540455.png" alt="MySQL 的逻辑架构图" style="zoom: 25%;" />
 <blockquote>
 <p>mysql8.0之后删除了查询缓存模块</p>
 </blockquote>
 <h3 id="update-语句执行流程">update 语句执行流程：<a class="anchor ms-1" href="#update-语句执行流程"><i class="fas fa-link"></i></a></h3>
-<p><img src="https://picgo.6and.ltd/img/20201124231528159.png" alt="update 语句执行流程" style="zoom: 25%;" /></p>
+<img src="https://picgo.6and.ltd/img/20201124231528159.png" alt="update 语句执行流程" style="zoom: 25%;" />
 <p>redo log的写入分成两个步骤prepare和commit，这就是<strong>两阶段提交</strong></p>
 <blockquote>
 <p>问：两阶段提交中，MySQL异常重启（crash），是如何保证数据完整性的？</p>
@@ -639,6 +639,9 @@
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/yshop-k8s/">Yshop K8s
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E7%9A%84%E5%8D%B8%E8%BD%BD/">JVM类的卸载
 </a>
       </li><li>
@@ -650,9 +653,6 @@
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">Like查询优化
 </a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/">Redis队列
-</a>
       </li></ul>
   </div>
 </section><section class="series-taxonomies row card component">
@@ -663,9 +663,9 @@
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
-            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
-            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
             算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
             istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
             rpc</a></div>
@@ -781,8 +781,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

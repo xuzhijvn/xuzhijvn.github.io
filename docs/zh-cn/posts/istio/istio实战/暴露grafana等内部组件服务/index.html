@@ -50,8 +50,8 @@ kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=pr
 2. 验证ingress gateway的网络模式 [root@k8s-master ~]# kubectl get svc -n Istio-system NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE grafana ClusterIP 10.101.122.19 &lt;none&gt; 3000/TCP 11h Istio-egressgateway ClusterIP 10.106.2.83 &lt;none&gt; 80/TCP,443/TCP,15443/TCP 11h Istio-ingressgateway LoadBalancer 10.110.238.41 &lt;pending&gt; 15020:31598/TCP,80:30299/TCP,443:31413/TCP,15029:30249/TCP,15030:32499/TCP,15031:31399/TCP,15032:32373/TCP,31400:30156/TCP,15443:30319/TCP 11h Istio-pilot ClusterIP 10.103.43.172 &lt;none&gt; 15010/TCP,15011/TCP,15012/TCP,8080/TCP,15014/TCP,443/TCP 11h istiod ClusterIP 10.105.251.21 &lt;none&gt; 15012/TCP,443/TCP 11h jaeger-agent ClusterIP None &lt;none&gt; 5775/UDP,6831/UDP,6832/UDP 11h jaeger-collector ClusterIP 10."/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -336,117 +336,117 @@ kubectl -n Istio-system port-forward $(kubectl -n Istio-system get pod -l app=pr
 <p>在安装完成istio后，默认状态下，集群外用户不能直接访问istio集群内的grafana等管理、监控服务。</p>
 <p>有两种方法可以将集群内服务开放出来。一种是使用port-forward方式将本地端口流量转发到pod端口，实现集群内服务的访问；另一种方式是采用istio gateway方式，将集群内服务暴露到外网。</p>
 <p>第一种方式（以暴露Prometheus为例，<a href="https://istio.io/latest/zh/docs/tasks/observability/metrics/querying-metrics/" target="_blank" rel="noopener noreferrer">官方教程</a>也是这种方式，这种方式极其反人类，推荐使用下面的第二种方式）：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl -n Istio-system port-forward <span style="color:#66d9ef">$(</span>kubectl -n Istio-system get pod -l app<span style="color:#f92672">=</span>prometheus -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.items[0].metadata.name}&#39;</span><span style="color:#66d9ef">)</span> 9090:9090 &amp;
-</code></pre></div><p>第二种方式需要将集群的默认网关服务ingressgateway的网络模式设置为LB/nodeport模式，作为代理实现对外服务。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl -n Istio-system port-forward <span style="color:#66d9ef">$(</span>kubectl -n Istio-system get pod -l app<span style="color:#f92672">=</span>prometheus -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.items[0].metadata.name}&#39;</span><span style="color:#66d9ef">)</span> 9090:9090 &amp;
+</span></span></code></pre></div><p>第二种方式需要将集群的默认网关服务ingressgateway的网络模式设置为LB/nodeport模式，作为代理实现对外服务。</p>
 <h2 id="1-设置ingress-gateway的工作模式">1. 设置ingress gateway的工作模式<a class="anchor ms-1" href="#1-设置ingress-gateway的工作模式"><i class="fas fa-link"></i></a></h2>
 <p>安装istio的时候默认就是LB的</p>
 <h2 id="2-验证ingress-gateway的网络模式">2. 验证ingress gateway的网络模式<a class="anchor ms-1" href="#2-验证ingress-gateway的网络模式"><i class="fas fa-link"></i></a></h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl get svc -n Istio-system</span>
-NAME                        TYPE           CLUSTER-IP       EXTERNAL-IP   PORT<span style="color:#f92672">(</span>S<span style="color:#f92672">)</span>                                                                                                                                      AGE
-grafana                     ClusterIP      10.101.122.19    &lt;none&gt;        3000/TCP                                                                                                                                     11h
-Istio-egressgateway         ClusterIP      10.106.2.83      &lt;none&gt;        80/TCP,443/TCP,15443/TCP                                                                                                                     11h
-Istio-ingressgateway        LoadBalancer   10.110.238.41    &lt;pending&gt;     15020:31598/TCP,80:30299/TCP,443:31413/TCP,15029:30249/TCP,15030:32499/TCP,15031:31399/TCP,15032:32373/TCP,31400:30156/TCP,15443:30319/TCP   11h
-Istio-pilot                 ClusterIP      10.103.43.172    &lt;none&gt;        15010/TCP,15011/TCP,15012/TCP,8080/TCP,15014/TCP,443/TCP                                                                                     11h
-istiod                      ClusterIP      10.105.251.21    &lt;none&gt;        15012/TCP,443/TCP                                                                                                                            11h
-jaeger-agent                ClusterIP      None             &lt;none&gt;        5775/UDP,6831/UDP,6832/UDP                                                                                                                   11h
-jaeger-collector            ClusterIP      10.99.197.254    &lt;none&gt;        14267/TCP,14268/TCP,14250/TCP                                                                                                                11h
-jaeger-collector-headless   ClusterIP      None             &lt;none&gt;        14250/TCP                                                                                                                                    11h
-jaeger-query                ClusterIP      10.110.152.152   &lt;none&gt;        16686/TCP                                                                                                                                    11h
-kiali                       ClusterIP      10.100.252.210   &lt;none&gt;        20001/TCP                                                                                                                                    11h
-prometheus                  ClusterIP      10.108.175.66    &lt;none&gt;        9090/TCP                                                                                                                                     11h
-tracing                     ClusterIP      10.102.204.150   &lt;none&gt;        80/TCP                                                                                                                                       11h
-zipkin                      ClusterIP      10.104.104.190   &lt;none&gt;        9411/TCP                                                                                                                                     11h
-</code></pre></div><h2 id="3-查看作为边界代理的ingress-gateway的端口映射情况">3. 查看作为边界代理的ingress-gateway的端口映射情况<a class="anchor ms-1" href="#3-查看作为边界代理的ingress-gateway的端口映射情况"><i class="fas fa-link"></i></a></h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl describe svc Istio-ingressgateway -n Istio-system</span>
-Name:                     Istio-ingressgateway
-Namespace:                Istio-system
-Labels:                   app<span style="color:#f92672">=</span>Istio-ingressgateway
-                          Istio<span style="color:#f92672">=</span>ingressgateway
-                          operator.Istio.io/component<span style="color:#f92672">=</span>IngressGateways
-                          operator.Istio.io/managed<span style="color:#f92672">=</span>Reconcile
-                          operator.Istio.io/version<span style="color:#f92672">=</span>1.5.10
-                          release<span style="color:#f92672">=</span>Istio
-Annotations:              Selector:  app<span style="color:#f92672">=</span>Istio-ingressgateway,Istio<span style="color:#f92672">=</span>ingressgateway
-Type:                     LoadBalancer
-IP:                       10.110.238.41
-Port:                     status-port  15020/TCP
-TargetPort:               15020/TCP
-NodePort:                 status-port  31598/TCP
-Endpoints:                10.109.131.26:15020
-Port:                     http2  80/TCP
-TargetPort:               80/TCP
-NodePort:                 http2  30299/TCP
-Endpoints:                10.109.131.26:80
-Port:                     https  443/TCP
-TargetPort:               443/TCP
-NodePort:                 https  31413/TCP
-Endpoints:                10.109.131.26:443
-Port:                     kiali  15029/TCP
-TargetPort:               15029/TCP
-NodePort:                 kiali  30249/TCP
-Endpoints:                10.109.131.26:15029
-Port:                     prometheus  15030/TCP
-TargetPort:               15030/TCP
-NodePort:                 prometheus  32499/TCP
-Endpoints:                10.109.131.26:15030
-Port:                     grafana  15031/TCP
-TargetPort:               15031/TCP
-NodePort:                 grafana  31399/TCP
-Endpoints:                10.109.131.26:15031
-Port:                     tracing  15032/TCP
-TargetPort:               15032/TCP
-NodePort:                 tracing  32373/TCP
-Endpoints:                10.109.131.26:15032
-Port:                     tcp  31400/TCP
-TargetPort:               31400/TCP
-NodePort:                 tcp  30156/TCP
-Endpoints:                10.109.131.26:31400
-Port:                     tls  15443/TCP
-TargetPort:               15443/TCP
-NodePort:                 tls  30319/TCP
-Endpoints:                10.109.131.26:15443
-Session Affinity:         None
-External Traffic Policy:  Cluster
-Events:                   &lt;none&gt;
-</code></pre></div><p>上图所示，ingressgateway创建时，自动预设了一些端口映射，其中https-grafana的15301端口映射到node的31399端口,我们将15031端口关联到grafana上，集群外就用户通过访问网关所在机器的31399端口访问到grafana服务。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl get svc -n Istio-system</span>
+</span></span><span style="display:flex;"><span>NAME                        TYPE           CLUSTER-IP       EXTERNAL-IP   PORT<span style="color:#f92672">(</span>S<span style="color:#f92672">)</span>                                                                                                                                      AGE
+</span></span><span style="display:flex;"><span>grafana                     ClusterIP      10.101.122.19    &lt;none&gt;        3000/TCP                                                                                                                                     11h
+</span></span><span style="display:flex;"><span>Istio-egressgateway         ClusterIP      10.106.2.83      &lt;none&gt;        80/TCP,443/TCP,15443/TCP                                                                                                                     11h
+</span></span><span style="display:flex;"><span>Istio-ingressgateway        LoadBalancer   10.110.238.41    &lt;pending&gt;     15020:31598/TCP,80:30299/TCP,443:31413/TCP,15029:30249/TCP,15030:32499/TCP,15031:31399/TCP,15032:32373/TCP,31400:30156/TCP,15443:30319/TCP   11h
+</span></span><span style="display:flex;"><span>Istio-pilot                 ClusterIP      10.103.43.172    &lt;none&gt;        15010/TCP,15011/TCP,15012/TCP,8080/TCP,15014/TCP,443/TCP                                                                                     11h
+</span></span><span style="display:flex;"><span>istiod                      ClusterIP      10.105.251.21    &lt;none&gt;        15012/TCP,443/TCP                                                                                                                            11h
+</span></span><span style="display:flex;"><span>jaeger-agent                ClusterIP      None             &lt;none&gt;        5775/UDP,6831/UDP,6832/UDP                                                                                                                   11h
+</span></span><span style="display:flex;"><span>jaeger-collector            ClusterIP      10.99.197.254    &lt;none&gt;        14267/TCP,14268/TCP,14250/TCP                                                                                                                11h
+</span></span><span style="display:flex;"><span>jaeger-collector-headless   ClusterIP      None             &lt;none&gt;        14250/TCP                                                                                                                                    11h
+</span></span><span style="display:flex;"><span>jaeger-query                ClusterIP      10.110.152.152   &lt;none&gt;        16686/TCP                                                                                                                                    11h
+</span></span><span style="display:flex;"><span>kiali                       ClusterIP      10.100.252.210   &lt;none&gt;        20001/TCP                                                                                                                                    11h
+</span></span><span style="display:flex;"><span>prometheus                  ClusterIP      10.108.175.66    &lt;none&gt;        9090/TCP                                                                                                                                     11h
+</span></span><span style="display:flex;"><span>tracing                     ClusterIP      10.102.204.150   &lt;none&gt;        80/TCP                                                                                                                                       11h
+</span></span><span style="display:flex;"><span>zipkin                      ClusterIP      10.104.104.190   &lt;none&gt;        9411/TCP                                                                                                                                     11h
+</span></span></code></pre></div><h2 id="3-查看作为边界代理的ingress-gateway的端口映射情况">3. 查看作为边界代理的ingress-gateway的端口映射情况<a class="anchor ms-1" href="#3-查看作为边界代理的ingress-gateway的端口映射情况"><i class="fas fa-link"></i></a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl describe svc Istio-ingressgateway -n Istio-system</span>
+</span></span><span style="display:flex;"><span>Name:                     Istio-ingressgateway
+</span></span><span style="display:flex;"><span>Namespace:                Istio-system
+</span></span><span style="display:flex;"><span>Labels:                   app<span style="color:#f92672">=</span>Istio-ingressgateway
+</span></span><span style="display:flex;"><span>                          Istio<span style="color:#f92672">=</span>ingressgateway
+</span></span><span style="display:flex;"><span>                          operator.Istio.io/component<span style="color:#f92672">=</span>IngressGateways
+</span></span><span style="display:flex;"><span>                          operator.Istio.io/managed<span style="color:#f92672">=</span>Reconcile
+</span></span><span style="display:flex;"><span>                          operator.Istio.io/version<span style="color:#f92672">=</span>1.5.10
+</span></span><span style="display:flex;"><span>                          release<span style="color:#f92672">=</span>Istio
+</span></span><span style="display:flex;"><span>Annotations:              Selector:  app<span style="color:#f92672">=</span>Istio-ingressgateway,Istio<span style="color:#f92672">=</span>ingressgateway
+</span></span><span style="display:flex;"><span>Type:                     LoadBalancer
+</span></span><span style="display:flex;"><span>IP:                       10.110.238.41
+</span></span><span style="display:flex;"><span>Port:                     status-port  15020/TCP
+</span></span><span style="display:flex;"><span>TargetPort:               15020/TCP
+</span></span><span style="display:flex;"><span>NodePort:                 status-port  31598/TCP
+</span></span><span style="display:flex;"><span>Endpoints:                10.109.131.26:15020
+</span></span><span style="display:flex;"><span>Port:                     http2  80/TCP
+</span></span><span style="display:flex;"><span>TargetPort:               80/TCP
+</span></span><span style="display:flex;"><span>NodePort:                 http2  30299/TCP
+</span></span><span style="display:flex;"><span>Endpoints:                10.109.131.26:80
+</span></span><span style="display:flex;"><span>Port:                     https  443/TCP
+</span></span><span style="display:flex;"><span>TargetPort:               443/TCP
+</span></span><span style="display:flex;"><span>NodePort:                 https  31413/TCP
+</span></span><span style="display:flex;"><span>Endpoints:                10.109.131.26:443
+</span></span><span style="display:flex;"><span>Port:                     kiali  15029/TCP
+</span></span><span style="display:flex;"><span>TargetPort:               15029/TCP
+</span></span><span style="display:flex;"><span>NodePort:                 kiali  30249/TCP
+</span></span><span style="display:flex;"><span>Endpoints:                10.109.131.26:15029
+</span></span><span style="display:flex;"><span>Port:                     prometheus  15030/TCP
+</span></span><span style="display:flex;"><span>TargetPort:               15030/TCP
+</span></span><span style="display:flex;"><span>NodePort:                 prometheus  32499/TCP
+</span></span><span style="display:flex;"><span>Endpoints:                10.109.131.26:15030
+</span></span><span style="display:flex;"><span>Port:                     grafana  15031/TCP
+</span></span><span style="display:flex;"><span>TargetPort:               15031/TCP
+</span></span><span style="display:flex;"><span>NodePort:                 grafana  31399/TCP
+</span></span><span style="display:flex;"><span>Endpoints:                10.109.131.26:15031
+</span></span><span style="display:flex;"><span>Port:                     tracing  15032/TCP
+</span></span><span style="display:flex;"><span>TargetPort:               15032/TCP
+</span></span><span style="display:flex;"><span>NodePort:                 tracing  32373/TCP
+</span></span><span style="display:flex;"><span>Endpoints:                10.109.131.26:15032
+</span></span><span style="display:flex;"><span>Port:                     tcp  31400/TCP
+</span></span><span style="display:flex;"><span>TargetPort:               31400/TCP
+</span></span><span style="display:flex;"><span>NodePort:                 tcp  30156/TCP
+</span></span><span style="display:flex;"><span>Endpoints:                10.109.131.26:31400
+</span></span><span style="display:flex;"><span>Port:                     tls  15443/TCP
+</span></span><span style="display:flex;"><span>TargetPort:               15443/TCP
+</span></span><span style="display:flex;"><span>NodePort:                 tls  30319/TCP
+</span></span><span style="display:flex;"><span>Endpoints:                10.109.131.26:15443
+</span></span><span style="display:flex;"><span>Session Affinity:         None
+</span></span><span style="display:flex;"><span>External Traffic Policy:  Cluster
+</span></span><span style="display:flex;"><span>Events:                   &lt;none&gt;
+</span></span></code></pre></div><p>上图所示，ingressgateway创建时，自动预设了一些端口映射，其中https-grafana的15301端口映射到node的31399端口,我们将15031端口关联到grafana上，集群外就用户通过访问网关所在机器的31399端口访问到grafana服务。</p>
 <h2 id="4-gateway方式暴露集群内服务">4. gateway方式暴露集群内服务<a class="anchor ms-1" href="#4-gateway方式暴露集群内服务"><i class="fas fa-link"></i></a></h2>
 <p>需要创建服务的gateway和virtual service资源如下：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
-<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Gateway</span>
-<span style="color:#f92672">metadata</span>:
-  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">grafana-gateway</span>
-<span style="color:#f92672">spec</span>:
-  <span style="color:#f92672">selector</span>:
-    <span style="color:#f92672">istio</span>: <span style="color:#ae81ff">ingressgateway</span> <span style="color:#75715e"># use istio default controller</span>
-  <span style="color:#f92672">servers</span>:
-  - <span style="color:#f92672">port</span>:
-      <span style="color:#f92672">number</span>: <span style="color:#ae81ff">15031</span>
-      <span style="color:#f92672">name</span>: <span style="color:#ae81ff">http</span>
-      <span style="color:#f92672">protocol</span>: <span style="color:#ae81ff">HTTP</span>
-    <span style="color:#f92672">hosts</span>:
-    - <span style="color:#e6db74">&#34;*&#34;</span>
----
-<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
-<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService</span>
-<span style="color:#f92672">metadata</span>:
-  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">grafana-vs</span>
-<span style="color:#f92672">spec</span>:
-  <span style="color:#f92672">hosts</span>:
-  - <span style="color:#e6db74">&#34;*&#34;</span>
-  <span style="color:#f92672">gateways</span>:
-  - <span style="color:#ae81ff">grafana-gateway</span>
-  <span style="color:#f92672">http</span>:
-  - <span style="color:#f92672">route</span>:
-    - <span style="color:#f92672">destination</span>:
-        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">grafana</span>
-        <span style="color:#f92672">port</span>:
-          <span style="color:#f92672">number</span>: <span style="color:#ae81ff">3000</span>
-</code></pre></div><p>执行：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl apply -f grafana-gateway.yaml -n Istio-system
-</code></pre></div><p>特别需要注意：后面的<code>namespace</code>是<code>istio-system</code>，因为grafana等内部组件都是这个namespace的。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Gateway</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">grafana-gateway</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">selector</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">istio</span>: <span style="color:#ae81ff">ingressgateway</span> <span style="color:#75715e"># use istio default controller</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">servers</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">port</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">number</span>: <span style="color:#ae81ff">15031</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">name</span>: <span style="color:#ae81ff">http</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">protocol</span>: <span style="color:#ae81ff">HTTP</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">hosts</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#e6db74">&#34;*&#34;</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">grafana-vs</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">hosts</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#e6db74">&#34;*&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">gateways</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">grafana-gateway</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">route</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">grafana</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">port</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">number</span>: <span style="color:#ae81ff">3000</span>
+</span></span></code></pre></div><p>执行：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl apply -f grafana-gateway.yaml -n Istio-system
+</span></span></code></pre></div><p>特别需要注意：后面的<code>namespace</code>是<code>istio-system</code>，因为grafana等内部组件都是这个namespace的。</p>
 <h2 id="5-测试grafana的连通性">5. 测试grafana的连通性<a class="anchor ms-1" href="#5-测试grafana的连通性"><i class="fas fa-link"></i></a></h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">http://&lt;公网IP&gt;:31399
-</code></pre></div><h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>http://&lt;公网IP&gt;:31399
+</span></span></code></pre></div><h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://blog.csdn.net/scwang18/article/details/100833886" target="_blank" rel="noopener noreferrer">istio中的grafana等内部组件服务开放给集群外用户访问</a></p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -476,10 +476,10 @@ Events:                   &lt;none&gt;
 </div></div>
   <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
     <i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E7%9A%84%E8%B0%83%E7%94%A8%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E7%94%A8-http-%E8%80%8C%E7%94%A8-rpc/">服务之间的调用为啥不直接用 HTTP 而用 RPC？
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/%E6%82%B2%E8%A7%82%E9%94%81%E5%92%8C%E4%B9%90%E8%A7%82%E9%94%81/">悲观锁和乐观锁
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%BC%93%E5%AD%98%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7/">数据库和缓存双写一致性
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/other/%E9%98%BF%E9%87%8C%E4%BA%91%E4%B8%8B%E9%85%8D%E7%BD%AEmysql%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/">阿里云下配置MySQL远程连接
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
@@ -579,6 +579,9 @@ Events:                   &lt;none&gt;
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/yshop-k8s/">Yshop K8s
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E7%9A%84%E5%8D%B8%E8%BD%BD/">JVM类的卸载
 </a>
       </li><li>
@@ -590,9 +593,6 @@ Events:                   &lt;none&gt;
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">Like查询优化
 </a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/">Redis队列
-</a>
       </li></ul>
   </div>
 </section><section class="series-taxonomies row card component">
@@ -603,9 +603,9 @@ Events:                   &lt;none&gt;
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
-            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
-            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
             算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
             istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
             rpc</a></div>
@@ -721,8 +721,8 @@ Events:                   &lt;none&gt;
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

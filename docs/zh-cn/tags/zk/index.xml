@@ -20,17 +20,15 @@ Redis 分布式锁大家没发现好麻烦吗？遍历上锁，计算时间等�
     </item>
     
     <item>
-      <title>Zookeeper应用场景</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/</link>
+      <title>ZooKeeper的stat结构</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E7%9A%84stat%E7%BB%93%E6%9E%84/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/</guid>
-      <description>大致来说，zookeeper 的使用场景如下，我就举几个简单的，大家能说几个就好了：
- 分布式协调 分布式锁 元数据/配置信息管理 HA 高可用性  分布式协调 这个其实是 zookeeper 很经典的一个用法，简单来说，就好比，你 A 系统发送个请求到 mq，然后 B 系统消息消费之后处理了。那 A 系统如何知道 B 系统的处理结果？用 zookeeper 就可以实现分布式系统之间的协调工作。A 系统发送请求之后可以在 zookeeper 上对某个节点的值注册个监听器，一旦 B 系统处理完了就修改 zookeeper 那个节点的值，A 系统立马就可以收到通知，完美解决。
-分布式锁 举个栗子。对某一个数据连续发出两个修改操作，两台机器同时收到了请求，但是只能一台机器先执行完另外一个机器再执行。那么此时就可以使用 zookeeper 分布式锁，一个机器接收到了请求之后先获取 zookeeper 上的一把分布式锁，就是可以去创建一个 znode，接着执行操作；然后另外一个机器也尝试去创建那个 znode，结果发现自己创建不了，因为被别人创建了，那只能等着，等第一个机器执行完了自己再执行。
-元数据/配置信息管理 zookeeper 可以用作很多系统的配置信息的管理，比如 kafka、storm 等等很多分布式系统都会选用 zookeeper 来做一些元数据、配置信息的管理，包括 dubbo 注册中心不也支持 zookeeper 么？
-HA 高可用性 这个应该是很常见的，比如 hadoop、hdfs、yarn 等很多大数据系统，都选择基于 zookeeper 来开发 HA 高可用机制，就是一个重要进程一般会做主备两个，主进程挂了立马通过 zookeeper 感知到切换到备用进程。
-参考 zookeeper 都有哪些使用场景？</description>
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E7%9A%84stat%E7%BB%93%E6%9E%84/</guid>
+      <description>ZooKeeper命名空间中的每个znode都有一个与之关联的stat结构，类似于Unix/Linux文件系统中文件的stat结构。 znode的stat结构中的字段显示如下，各自的含义如下：
+ cZxid：这是导致创建znode更改的事务ID。 mZxid：这是最后修改znode更改的事务ID。 pZxid：这是用于添加或删除子节点的znode更改的事务ID。 ctime：表示从1970-01-01T00:00:00Z开始以毫秒为单位的znode创建时间。 mtime：表示从1970-01-01T00:00:00Z开始以毫秒为单位的znode最近修改时间。 dataVersion：表示对该znode的数据所做的更改次数。 cversion：这表示对此znode的子节点进行的更改次数。 aclVersion：表示对此znode的ACL进行更改的次数。 ephemeralOwner：如果znode是ephemeral类型节点，则这是znode所有者的 session ID。 如果znode不是ephemeral节点，则该字段设置为零。 dataLength：这是znode数据字段的长度。 numChildren：这表示znode的子节点的数量。  在ZooKeeper Java shell中，可以使用stat或ls2命令查看znode的stat结构。 具体说明如下：
+使用stat命令查看znode的stat结构：
+[zk: localhost(CONNECTED) 0] stat /zookeeper cZxid = 0x0 ctime = Thu Jan 01 05:30:00 IST 1970 mZxid = 0x0 mtime = Thu Jan 01 05:30:00 IST 1970 pZxid = 0x0 cversion = -1 dataVersion = 0 aclVersion = 0 ephemeralOwner = 0x0 dataLength = 0 numChildren = 1 使用ls2命令查看znode的stat结构：</description>
     </item>
     
     <item>
@@ -74,18 +72,6 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
     </item>
     
     <item>
-      <title>ZooKeeper的stat结构</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E7%9A%84stat%E7%BB%93%E6%9E%84/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E7%9A%84stat%E7%BB%93%E6%9E%84/</guid>
-      <description>ZooKeeper命名空间中的每个znode都有一个与之关联的stat结构，类似于Unix/Linux文件系统中文件的stat结构。 znode的stat结构中的字段显示如下，各自的含义如下：
- cZxid：这是导致创建znode更改的事务ID。 mZxid：这是最后修改znode更改的事务ID。 pZxid：这是用于添加或删除子节点的znode更改的事务ID。 ctime：表示从1970-01-01T00:00:00Z开始以毫秒为单位的znode创建时间。 mtime：表示从1970-01-01T00:00:00Z开始以毫秒为单位的znode最近修改时间。 dataVersion：表示对该znode的数据所做的更改次数。 cversion：这表示对此znode的子节点进行的更改次数。 aclVersion：表示对此znode的ACL进行更改的次数。 ephemeralOwner：如果znode是ephemeral类型节点，则这是znode所有者的 session ID。 如果znode不是ephemeral节点，则该字段设置为零。 dataLength：这是znode数据字段的长度。 numChildren：这表示znode的子节点的数量。  在ZooKeeper Java shell中，可以使用stat或ls2命令查看znode的stat结构。 具体说明如下：
-使用stat命令查看znode的stat结构：
-[zk: localhost(CONNECTED) 0] stat /zookeeper cZxid = 0x0 ctime = Thu Jan 01 05:30:00 IST 1970 mZxid = 0x0 mtime = Thu Jan 01 05:30:00 IST 1970 pZxid = 0x0 cversion = -1 dataVersion = 0 aclVersion = 0 ephemeralOwner = 0x0 dataLength = 0 numChildren = 1 使用ls2命令查看znode的stat结构：</description>
-    </item>
-    
-    <item>
       <title>ZooKeeper能做什么</title>
       <link>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E8%83%BD%E5%81%9A%E4%BB%80%E4%B9%88/</link>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
@@ -106,6 +92,20 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
 4.2 集群机器监控 这通常用于那种对集群中机器状态，机器在线率有较高要求的场景，能够快速对集群中机器变化作出响应。这样的场景中，往往有一个监控系统，实时检测集群机器是否存活。过去的做法通常是：监控系统通过某种手段（比如ping）定时检测每个机器，或者每个机器自己定时向监控系统汇报“我还活着”。这种做法可行，但是存在两个比较明显的问题：
  将会产生一定的时延（受心跳长短限制）; 当集群中的节点发生变更时，其余的节点都需要对维护的集群文件（状态表）进行修改，修改内容多。  利用ZooKeeper有两个特性，就可以实时另一种集群机器存活性监控系统：
  客户端在节点 x 上注册一个Watcher，那么如果x的子节点变化了，会通知该客户端。 创建EPHEMERAL类型的节点，一旦客户端和服务器的会话结束或过期，那么该节点就会消失。  例如，监控系统在/clusterServers节点上注册一个Watcher，以后每动态加机器，那么就往/clusterServers下创建一个 EPHEMERAL类型的节点：/clusterServers/{hostname}.</description>
+    </item>
+    
+    <item>
+      <title>Zookeeper应用场景</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/zookeeper/zookeeper%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/</guid>
+      <description>大致来说，zookeeper 的使用场景如下，我就举几个简单的，大家能说几个就好了：
+ 分布式协调 分布式锁 元数据/配置信息管理 HA 高可用性  分布式协调 这个其实是 zookeeper 很经典的一个用法，简单来说，就好比，你 A 系统发送个请求到 mq，然后 B 系统消息消费之后处理了。那 A 系统如何知道 B 系统的处理结果？用 zookeeper 就可以实现分布式系统之间的协调工作。A 系统发送请求之后可以在 zookeeper 上对某个节点的值注册个监听器，一旦 B 系统处理完了就修改 zookeeper 那个节点的值，A 系统立马就可以收到通知，完美解决。
+分布式锁 举个栗子。对某一个数据连续发出两个修改操作，两台机器同时收到了请求，但是只能一台机器先执行完另外一个机器再执行。那么此时就可以使用 zookeeper 分布式锁，一个机器接收到了请求之后先获取 zookeeper 上的一把分布式锁，就是可以去创建一个 znode，接着执行操作；然后另外一个机器也尝试去创建那个 znode，结果发现自己创建不了，因为被别人创建了，那只能等着，等第一个机器执行完了自己再执行。
+元数据/配置信息管理 zookeeper 可以用作很多系统的配置信息的管理，比如 kafka、storm 等等很多分布式系统都会选用 zookeeper 来做一些元数据、配置信息的管理，包括 dubbo 注册中心不也支持 zookeeper 么？
+HA 高可用性 这个应该是很常见的，比如 hadoop、hdfs、yarn 等很多大数据系统，都选择基于 zookeeper 来开发 HA 高可用机制，就是一个重要进程一般会做主备两个，主进程挂了立马通过 zookeeper 感知到切换到备用进程。
+参考 zookeeper 都有哪些使用场景？</description>
     </item>
     
   </channel>

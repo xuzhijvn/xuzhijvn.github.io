@@ -106,8 +106,8 @@
 看起来是把 2PC 的提交阶段变成了预提交阶段和提交阶段，但是 3PC 的准备阶段协调者只是询问参与者的自身状况，比如你现在还好吗？负载重不重？这类的。"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -395,9 +395,9 @@
 <p>**<code>准备阶段</code>**协调者会给各参与者发送准备命令，你可以把准备命令理解成除了提交事务之外啥事都做完了。</p>
 <p>同步等待所有资源的响应之后就进入第二阶段即**<code>提交阶段</code>**（注意提交阶段不一定是提交事务，也可能是回滚事务）。</p>
 <p>假如在第一阶段所有参与者都返回准备成功，那么协调者则向所有参与者发送提交事务命令，然后等待所有事务都提交成功之后，返回事务执行成功。</p>
-<p><img src="https://picgo.6and.ltd/img/v2-880b5e0866906160b663827f961d8360_r.jpg" alt="preview" style="zoom: 50%;" /></p>
+<img src="https://picgo.6and.ltd/img/v2-880b5e0866906160b663827f961d8360_r.jpg" alt="preview" style="zoom: 50%;" />
 <p>假如在第一阶段有一个参与者返回失败，那么协调者就会向所有参与者发送回滚事务的请求，即分布式事务执行失败。</p>
-<p><img src="https://picgo.6and.ltd/img/v2-83b3f422aeb89558c7c49f25811a2594_r.jpg" alt="preview" style="zoom: 50%;" /></p>
+<img src="https://picgo.6and.ltd/img/v2-83b3f422aeb89558c7c49f25811a2594_r.jpg" alt="preview" style="zoom: 50%;" />
 <p>首先 2PC 是一个<strong>同步阻塞协议</strong>，像第一阶段协调者会等待所有参与者响应才会进行下一步操作，当然第一阶段的<strong>协调者有超时机制</strong>，假设因为网络原因没有收到某参与者的响应或某参与者挂了，那么超时后就会判断事务失败，向所有参与者发送回滚命令。</p>
 <p>在第二阶段协调者的没法超时，只能不断重试，这里有两种情况：</p>
 <p>第一种是<strong>第二阶段执行的是回滚事务操作</strong>，那么答案是不断重试，直到所有参与者都回滚了，不然那些在第一阶段准备成功的参与者会一直阻塞着。</p>
@@ -417,7 +417,7 @@
 <p>看起来是<strong>把 2PC 的提交阶段变成了预提交阶段和提交阶段</strong>，但是 3PC 的准备阶段协调者只是询问参与者的自身状况，比如你现在还好吗？负载重不重？这类的。</p>
 <p>而预提交阶段就是和 2PC 的准备阶段一样，除了事务的提交该做的都做了。</p>
 <p>提交阶段和 2PC 的一样，让我们来看一下图。</p>
-<p><img src="https://picgo.6and.ltd/img/v2-885daf4ba34102d6e1047b0b67910652_1440w.jpg" alt="img" style="zoom: 50%;" /></p>
+<img src="https://picgo.6and.ltd/img/v2-885daf4ba34102d6e1047b0b67910652_1440w.jpg" alt="img" style="zoom: 50%;" />
 <p>不管哪一个阶段有参与者返回失败都会宣布事务失败，这和 2PC 是一样的（当然到最后的提交阶段和 2PC 一样只要是提交请求就只能不断重试）。</p>
 <p>我们先来看一下 3PC 的阶段变更有什么影响。</p>
 <p>首先<strong>准备阶段的变更成不会直接执行事务</strong>，而是会先去询问此时的参与者是否有条件接这个事务，因此<strong>不会一来就干活直接锁资源</strong>，使得在某些资源不可用的情况下所有参与者都阻塞着。</p>
@@ -462,7 +462,7 @@
 <p>其实从思想上看和 2PC 差不多，都是先试探性的执行，如果都可以那就真正的执行，如果不行就回滚。</p>
 <p>比如说一个事务要执行A、B、C三个操作，那么先对三个操作执行预留动作。如果都预留成功了那么就执行确认操作，如果有一个预留失败那就都执行撤销动作。</p>
 <p>我们来看下流程，TCC模型还有个事务管理者的角色，用来记录TCC全局事务状态并提交或者回滚事务。</p>
-<p><img src="https://picgo.6and.ltd/img/v2-90179fa933c0a389ffa6ac04e244a58f_1440w.jpg" alt="img" style="zoom: 40%;" /></p>
+<img src="https://picgo.6and.ltd/img/v2-90179fa933c0a389ffa6ac04e244a58f_1440w.jpg" alt="img" style="zoom: 40%;" />
 <p>可以看到流程还是很简单的，难点在于业务上的定义，对于每一个操作你都需要定义三个动作分别对应<code>Try</code> - <code>Confirm</code> - <code>Cancel</code>。</p>
 <p>因此 <strong>TCC 对业务的侵入较大和业务紧耦合</strong>，需要根据特定的场景和业务逻辑来设计相应的操作。</p>
 <p>还有一点要注意，撤销和确认操作的执行可能需要重试，因此还需要保证<strong>操作的幂等</strong>。</p>
@@ -491,7 +491,7 @@
 <p>如果是 Commit 那么订阅方就能收到这条消息，然后再做对应的操作，做完了之后再消费这条消息即可。</p>
 <p>如果是 RollBack 那么订阅方收不到这条消息，等于事务就没执行过。</p>
 <p>可以看到通过 RocketMQ 还是比较容易实现的，RocketMQ 提供了事务消息的功能，我们只需要定义好事务反查接口即可。</p>
-<p><img src="https://picgo.6and.ltd/img/v2-72ba7bed684e855606c44ddda185987d_1440w.jpg" alt="img" style="zoom:40%;" /></p>
+<img src="https://picgo.6and.ltd/img/v2-72ba7bed684e855606c44ddda185987d_1440w.jpg" alt="img" style="zoom:40%;" />
 <p>可以看到消息事务实现的也是最终一致性。</p>
 <h2 id="最大努力通知">最大努力通知<a class="anchor ms-1" href="#最大努力通知"><i class="fas fa-link"></i></a></h2>
 <p>其实我觉得本地消息表也可以算最大努力，事务消息也可以算最大努力。</p>
@@ -501,7 +501,7 @@
 <p>适用于对时间不敏感的业务，例如短信通知。</p>
 <h2 id="sagahttpseataiozh-cndocsusersagahtml">Saga<a class="anchor ms-1" href="#sagahttpseataiozh-cndocsusersagahtml"><i class="fas fa-link"></i></a></h2>
 <p>在Saga模式中，业务流程中每个参与者都提交本地事务，当出现某一个参与者失败则补偿前面已经成功的参与者，一阶段正向服务和二阶段补偿服务都由业务开发实现。</p>
-<p><img src="https://picgo.6and.ltd/img/TB1Y2kuw7T2gK0jSZFkXXcIQFXa-445-444.png" alt="Saga模式示意图" style="zoom: 67%;" /></p>
+<img src="https://picgo.6and.ltd/img/TB1Y2kuw7T2gK0jSZFkXXcIQFXa-445-444.png" alt="Saga模式示意图" style="zoom: 67%;" />
 <h3 id="适用场景">适用场景：<a class="anchor ms-1" href="#适用场景"><i class="fas fa-link"></i></a></h3>
 <ul>
 <li>业务流程长、业务流程多</li>
@@ -553,7 +553,7 @@
 </div></div>
   <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
     <i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E5%88%87%E6%8D%A2namespace/">切换namespace
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%9F%BA%E7%A1%80/%E6%9C%8D%E5%8A%A1%E7%BD%91%E6%A0%BC%E5%8E%9F%E7%90%86/">服务网格原理
 </a>
   </div><div class="post-nav post-next">
     <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E5%88%86%E5%B8%83%E5%BC%8Fid%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/">分布式ID生成方式
@@ -665,6 +665,9 @@
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/yshop-k8s/">Yshop K8s
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E7%9A%84%E5%8D%B8%E8%BD%BD/">JVM类的卸载
 </a>
       </li><li>
@@ -676,9 +679,6 @@
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">Like查询优化
 </a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/">Redis队列
-</a>
       </li></ul>
   </div>
 </section><section class="series-taxonomies row card component">
@@ -689,9 +689,9 @@
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
-            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
-            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
             算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
             istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
             rpc</a></div>
@@ -807,8 +807,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

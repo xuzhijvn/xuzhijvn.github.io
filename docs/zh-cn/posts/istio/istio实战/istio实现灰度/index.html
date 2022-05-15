@@ -10,23 +10,20 @@
 <link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
 <meta name="keywords" content="" />
 <meta name="description" content="istio实现灰度
-Gateway apiVersion: networking.istio.io/v1alpha3 kind: Gateway metadata: name: bookinfo-gateway spec: selector: istio: ingressgateway # use istio default controller servers: - port: number: 80 name: http protocol: HTTP hosts: - &#34;*&#34; VirtualService 是在 Istio 服务网格内对服务的请求如何进行路由控制？VirtualService 中就包含了这方面的定义。例如一个 Virtual Service 可以把请求路由到不同版本，甚至是可以路由到一个完全不同于请求要求的服务上去。路由可以用很多条件进行判断，例如请求的源和目的地、HTTP 路径和 Header 以及各个服务版本的权重等。
+Gateway apiVersion: networking.istio.io/v1alpha3 kind: Gateway metadata:  name: bookinfo-gateway spec:  selector:  istio: ingressgateway # use istio default controller  servers:  - port:  number: 80  name: http  protocol: HTTP  hosts:  - &#34;*&#34; VirtualService 是在 Istio 服务网格内对服务的请求如何进行路由控制？VirtualService 中就包含了这方面的定义。例如一个 Virtual Service 可以把请求路由到不同版本，甚至是可以路由到一个完全不同于请求要求的服务上去。路由可以用很多条件进行判断，例如请求的源和目的地、HTTP 路径和 Header 以及各个服务版本的权重等。
 路由规则对应着一或多个用 VirtualService 配置指定的请求目的主机。这些主机可以是也可以不是实际的目标负载，甚至可以不是同一网格内可路由的服务。例如要给到 reviews 服务的请求定义路由规则，可以使用内部的名称 reviews，也可以用域名 bookinfo.com，VirtualService 可以定义这样的 host 字段：
-hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的方式定义了一或多个完全限定名（FQDN）。上面的 reviews，会隐式的扩展成为特定的 FQDN，例如在 Kubernetes 环境中，全名会从 VirtualService 所在的集群和命名空间中继承而来（比如说 reviews.default.svc.cluster.local）。
---- apiVersion: networking.istio.io/v1alpha3 kind: VirtualService metadata: name: bookinfo spec: hosts: - &#34;*&#34; gateways: - bookinfo-gateway http: - match: - uri: exact: /productpage - uri: prefix: /static - uri: exact: /login - uri: exact: /logout - uri: prefix: /api/v1/products route: - destination: host: productpage port: number: 9080 所有的流量都去到reviews:v1" /><meta itemprop="name" content="istio实现灰度">
+hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的方式定义了一或多个完全限定名（FQDN）。上面的 reviews，会隐式的扩展成为特定的 FQDN，例如在 Kubernetes 环境中，全名会从 VirtualService 所在的集群和命名空间中继承而来（比如说 reviews." /><meta itemprop="name" content="istio实现灰度">
 <meta itemprop="description" content="istio实现灰度
-Gateway apiVersion: networking.istio.io/v1alpha3 kind: Gateway metadata: name: bookinfo-gateway spec: selector: istio: ingressgateway # use istio default controller servers: - port: number: 80 name: http protocol: HTTP hosts: - &#34;*&#34; VirtualService 是在 Istio 服务网格内对服务的请求如何进行路由控制？VirtualService 中就包含了这方面的定义。例如一个 Virtual Service 可以把请求路由到不同版本，甚至是可以路由到一个完全不同于请求要求的服务上去。路由可以用很多条件进行判断，例如请求的源和目的地、HTTP 路径和 Header 以及各个服务版本的权重等。
+Gateway apiVersion: networking.istio.io/v1alpha3 kind: Gateway metadata:  name: bookinfo-gateway spec:  selector:  istio: ingressgateway # use istio default controller  servers:  - port:  number: 80  name: http  protocol: HTTP  hosts:  - &#34;*&#34; VirtualService 是在 Istio 服务网格内对服务的请求如何进行路由控制？VirtualService 中就包含了这方面的定义。例如一个 Virtual Service 可以把请求路由到不同版本，甚至是可以路由到一个完全不同于请求要求的服务上去。路由可以用很多条件进行判断，例如请求的源和目的地、HTTP 路径和 Header 以及各个服务版本的权重等。
 路由规则对应着一或多个用 VirtualService 配置指定的请求目的主机。这些主机可以是也可以不是实际的目标负载，甚至可以不是同一网格内可路由的服务。例如要给到 reviews 服务的请求定义路由规则，可以使用内部的名称 reviews，也可以用域名 bookinfo.com，VirtualService 可以定义这样的 host 字段：
-hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的方式定义了一或多个完全限定名（FQDN）。上面的 reviews，会隐式的扩展成为特定的 FQDN，例如在 Kubernetes 环境中，全名会从 VirtualService 所在的集群和命名空间中继承而来（比如说 reviews.default.svc.cluster.local）。
---- apiVersion: networking.istio.io/v1alpha3 kind: VirtualService metadata: name: bookinfo spec: hosts: - &#34;*&#34; gateways: - bookinfo-gateway http: - match: - uri: exact: /productpage - uri: prefix: /static - uri: exact: /login - uri: exact: /logout - uri: prefix: /api/v1/products route: - destination: host: productpage port: number: 9080 所有的流量都去到reviews:v1"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的方式定义了一或多个完全限定名（FQDN）。上面的 reviews，会隐式的扩展成为特定的 FQDN，例如在 Kubernetes 环境中，全名会从 VirtualService 所在的集群和命名空间中继承而来（比如说 reviews."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="323">
 <meta itemprop="keywords" content="云原生,istio," /><meta property="og:title" content="istio实现灰度" />
 <meta property="og:description" content="istio实现灰度
-Gateway apiVersion: networking.istio.io/v1alpha3 kind: Gateway metadata: name: bookinfo-gateway spec: selector: istio: ingressgateway # use istio default controller servers: - port: number: 80 name: http protocol: HTTP hosts: - &#34;*&#34; VirtualService 是在 Istio 服务网格内对服务的请求如何进行路由控制？VirtualService 中就包含了这方面的定义。例如一个 Virtual Service 可以把请求路由到不同版本，甚至是可以路由到一个完全不同于请求要求的服务上去。路由可以用很多条件进行判断，例如请求的源和目的地、HTTP 路径和 Header 以及各个服务版本的权重等。
+Gateway apiVersion: networking.istio.io/v1alpha3 kind: Gateway metadata:  name: bookinfo-gateway spec:  selector:  istio: ingressgateway # use istio default controller  servers:  - port:  number: 80  name: http  protocol: HTTP  hosts:  - &#34;*&#34; VirtualService 是在 Istio 服务网格内对服务的请求如何进行路由控制？VirtualService 中就包含了这方面的定义。例如一个 Virtual Service 可以把请求路由到不同版本，甚至是可以路由到一个完全不同于请求要求的服务上去。路由可以用很多条件进行判断，例如请求的源和目的地、HTTP 路径和 Header 以及各个服务版本的权重等。
 路由规则对应着一或多个用 VirtualService 配置指定的请求目的主机。这些主机可以是也可以不是实际的目标负载，甚至可以不是同一网格内可路由的服务。例如要给到 reviews 服务的请求定义路由规则，可以使用内部的名称 reviews，也可以用域名 bookinfo.com，VirtualService 可以定义这样的 host 字段：
-hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的方式定义了一或多个完全限定名（FQDN）。上面的 reviews，会隐式的扩展成为特定的 FQDN，例如在 Kubernetes 环境中，全名会从 VirtualService 所在的集群和命名空间中继承而来（比如说 reviews.default.svc.cluster.local）。
---- apiVersion: networking.istio.io/v1alpha3 kind: VirtualService metadata: name: bookinfo spec: hosts: - &#34;*&#34; gateways: - bookinfo-gateway http: - match: - uri: exact: /productpage - uri: prefix: /static - uri: exact: /login - uri: exact: /logout - uri: prefix: /api/v1/products route: - destination: host: productpage port: number: 9080 所有的流量都去到reviews:v1" />
+hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的方式定义了一或多个完全限定名（FQDN）。上面的 reviews，会隐式的扩展成为特定的 FQDN，例如在 Kubernetes 环境中，全名会从 VirtualService 所在的集群和命名空间中继承而来（比如说 reviews." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -36,14 +33,13 @@ hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的�
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="istio实现灰度"/>
 <meta name="twitter:description" content="istio实现灰度
-Gateway apiVersion: networking.istio.io/v1alpha3 kind: Gateway metadata: name: bookinfo-gateway spec: selector: istio: ingressgateway # use istio default controller servers: - port: number: 80 name: http protocol: HTTP hosts: - &#34;*&#34; VirtualService 是在 Istio 服务网格内对服务的请求如何进行路由控制？VirtualService 中就包含了这方面的定义。例如一个 Virtual Service 可以把请求路由到不同版本，甚至是可以路由到一个完全不同于请求要求的服务上去。路由可以用很多条件进行判断，例如请求的源和目的地、HTTP 路径和 Header 以及各个服务版本的权重等。
+Gateway apiVersion: networking.istio.io/v1alpha3 kind: Gateway metadata:  name: bookinfo-gateway spec:  selector:  istio: ingressgateway # use istio default controller  servers:  - port:  number: 80  name: http  protocol: HTTP  hosts:  - &#34;*&#34; VirtualService 是在 Istio 服务网格内对服务的请求如何进行路由控制？VirtualService 中就包含了这方面的定义。例如一个 Virtual Service 可以把请求路由到不同版本，甚至是可以路由到一个完全不同于请求要求的服务上去。路由可以用很多条件进行判断，例如请求的源和目的地、HTTP 路径和 Header 以及各个服务版本的权重等。
 路由规则对应着一或多个用 VirtualService 配置指定的请求目的主机。这些主机可以是也可以不是实际的目标负载，甚至可以不是同一网格内可路由的服务。例如要给到 reviews 服务的请求定义路由规则，可以使用内部的名称 reviews，也可以用域名 bookinfo.com，VirtualService 可以定义这样的 host 字段：
-hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的方式定义了一或多个完全限定名（FQDN）。上面的 reviews，会隐式的扩展成为特定的 FQDN，例如在 Kubernetes 环境中，全名会从 VirtualService 所在的集群和命名空间中继承而来（比如说 reviews.default.svc.cluster.local）。
---- apiVersion: networking.istio.io/v1alpha3 kind: VirtualService metadata: name: bookinfo spec: hosts: - &#34;*&#34; gateways: - bookinfo-gateway http: - match: - uri: exact: /productpage - uri: prefix: /static - uri: exact: /login - uri: exact: /logout - uri: prefix: /api/v1/products route: - destination: host: productpage port: number: 9080 所有的流量都去到reviews:v1"/>
+hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的方式定义了一或多个完全限定名（FQDN）。上面的 reviews，会隐式的扩展成为特定的 FQDN，例如在 Kubernetes 环境中，全名会从 VirtualService 所在的集群和命名空间中继承而来（比如说 reviews."/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -329,155 +325,155 @@ hosts: - reviews - bookinfo.com复制代码 host 字段用显示或者隐式的�
 
 </p>
 <h1 id="gateway">Gateway<a class="anchor ms-1" href="#gateway"><i class="fas fa-link"></i></a></h1>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
-<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Gateway</span>
-<span style="color:#f92672">metadata</span>:
-  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">bookinfo-gateway</span>
-<span style="color:#f92672">spec</span>:
-  <span style="color:#f92672">selector</span>:
-    <span style="color:#f92672">istio</span>: <span style="color:#ae81ff">ingressgateway</span> <span style="color:#75715e"># use istio default controller</span>
-  <span style="color:#f92672">servers</span>:
-  - <span style="color:#f92672">port</span>:
-      <span style="color:#f92672">number</span>: <span style="color:#ae81ff">80</span>
-      <span style="color:#f92672">name</span>: <span style="color:#ae81ff">http</span>
-      <span style="color:#f92672">protocol</span>: <span style="color:#ae81ff">HTTP</span>
-    <span style="color:#f92672">hosts</span>:
-    - <span style="color:#e6db74">&#34;*&#34;</span>
-</code></pre></div><h1 id="virtualservice">VirtualService<a class="anchor ms-1" href="#virtualservice"><i class="fas fa-link"></i></a></h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Gateway</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">bookinfo-gateway</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">selector</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">istio</span>: <span style="color:#ae81ff">ingressgateway</span> <span style="color:#75715e"># use istio default controller</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">servers</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">port</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">number</span>: <span style="color:#ae81ff">80</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">name</span>: <span style="color:#ae81ff">http</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">protocol</span>: <span style="color:#ae81ff">HTTP</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">hosts</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#e6db74">&#34;*&#34;</span>
+</span></span></code></pre></div><h1 id="virtualservice">VirtualService<a class="anchor ms-1" href="#virtualservice"><i class="fas fa-link"></i></a></h1>
 <p>是在 Istio 服务网格内对服务的请求如何进行路由控制？<a href="https://preliminary.istio.io/zh/docs/reference/config/istio.networking.v1alpha3/#virtualservice" target="_blank" rel="noopener noreferrer"><code>VirtualService</code></a> 中就包含了这方面的定义。例如一个 Virtual Service 可以把请求路由到不同版本，甚至是可以路由到一个完全不同于请求要求的服务上去。路由可以用很多条件进行判断，例如请求的源和目的地、HTTP 路径和 Header 以及各个服务版本的权重等。</p>
 <p>路由规则对应着一或多个用 <code>VirtualService</code> 配置指定的请求目的主机。这些主机可以是也可以不是实际的目标负载，甚至可以不是同一网格内可路由的服务。例如要给到 <code>reviews</code> 服务的请求定义路由规则，可以使用内部的名称 <code>reviews</code>，也可以用域名 <code>bookinfo.com</code>，<code>VirtualService</code> 可以定义这样的 <code>host</code> 字段：</p>
-<pre><code>hosts:
+<pre tabindex="0"><code>hosts:
   - reviews
   - bookinfo.com复制代码
 </code></pre><p><code>host</code> 字段用显示或者隐式的方式定义了一或多个完全限定名（FQDN）。上面的 <code>reviews</code>，会隐式的扩展成为特定的 FQDN，例如在 Kubernetes 环境中，全名会从 <code>VirtualService</code> 所在的集群和命名空间中继承而来（比如说 <code>reviews.default.svc.cluster.local</code>）。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
-<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
-<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService</span>
-<span style="color:#f92672">metadata</span>:
-  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">bookinfo</span>
-<span style="color:#f92672">spec</span>:
-  <span style="color:#f92672">hosts</span>:
-  - <span style="color:#e6db74">&#34;*&#34;</span>
-  <span style="color:#f92672">gateways</span>:
-  - <span style="color:#ae81ff">bookinfo-gateway</span>
-  <span style="color:#f92672">http</span>:
-  - <span style="color:#f92672">match</span>:
-    - <span style="color:#f92672">uri</span>:
-        <span style="color:#f92672">exact</span>: <span style="color:#ae81ff">/productpage</span>
-    - <span style="color:#f92672">uri</span>:
-        <span style="color:#f92672">prefix</span>: <span style="color:#ae81ff">/static</span>
-    - <span style="color:#f92672">uri</span>:
-        <span style="color:#f92672">exact</span>: <span style="color:#ae81ff">/login</span>
-    - <span style="color:#f92672">uri</span>:
-        <span style="color:#f92672">exact</span>: <span style="color:#ae81ff">/logout</span>
-    - <span style="color:#f92672">uri</span>:
-        <span style="color:#f92672">prefix</span>: <span style="color:#ae81ff">/api/v1/products</span>
-    <span style="color:#f92672">route</span>:
-    - <span style="color:#f92672">destination</span>:
-        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">productpage</span>
-        <span style="color:#f92672">port</span>:
-          <span style="color:#f92672">number</span>: <span style="color:#ae81ff">9080</span>
-</code></pre></div><p>所有的流量都去到reviews:v1</p>
-<p><img src="http://picgo.6and.ltd/img/image-20210601124539407.png" alt="image-20210601124539407" style="zoom:40%;" /></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
-<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService</span>
-<span style="color:#f92672">metadata</span>:
-  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">reviews</span>
-<span style="color:#f92672">spec</span>:
-  <span style="color:#f92672">hosts</span>:
-  - <span style="color:#ae81ff">reviews</span>
-  <span style="color:#f92672">http</span>:
-  - <span style="color:#f92672">route</span>:
-    - <span style="color:#f92672">destination</span>:
-        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
-        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v1</span>
-</code></pre></div><p>来自名为 Jason 的用户的所有流量将被路由到服务 <code>reviews:v2</code>。</p>
-<p><img src="http://picgo.6and.ltd/img/image-20210601123957608-20210601124059926.png" style="zoom:40%;" /></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
-<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService</span>
-<span style="color:#f92672">metadata</span>:
-  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">reviews</span>
-<span style="color:#f92672">spec</span>:
-  <span style="color:#f92672">hosts</span>:
-    - <span style="color:#ae81ff">reviews</span>
-  <span style="color:#f92672">http</span>:
-  - <span style="color:#f92672">match</span>:
-    - <span style="color:#f92672">headers</span>:
-        <span style="color:#f92672">end-user</span>:
-          <span style="color:#f92672">exact</span>: <span style="color:#ae81ff">jason</span>
-    <span style="color:#f92672">route</span>:
-    - <span style="color:#f92672">destination</span>:
-        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
-        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v2</span>
-  - <span style="color:#f92672">route</span>:
-    - <span style="color:#f92672">destination</span>:
-        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
-        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v1</span>
-</code></pre></div><p>把 50% 的流量从 <code>reviews:v1</code> 转移到 <code>reviews:v3</code>：</p>
-<p><img src="http://picgo.6and.ltd/img/image-20210601124730191.png" alt="image-20210601124730191" style="zoom:40%;" /></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
-<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService</span>
-<span style="color:#f92672">metadata</span>:
-  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">reviews</span>
-<span style="color:#f92672">spec</span>:
-  <span style="color:#f92672">hosts</span>:
-    - <span style="color:#ae81ff">reviews</span>
-  <span style="color:#f92672">http</span>:
-  - <span style="color:#f92672">route</span>:
-    - <span style="color:#f92672">destination</span>:
-        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
-        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v1</span>
-      <span style="color:#f92672">weight</span>: <span style="color:#ae81ff">50</span>
-    - <span style="color:#f92672">destination</span>:
-        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
-        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v3</span>
-      <span style="color:#f92672">weight</span>: <span style="color:#ae81ff">50</span>
-</code></pre></div><p>给对 <code>reviews</code> 服务的调用增加一个半秒的请求超时：</p>
-<p><img src="http://picgo.6and.ltd/img/image-20210601124329947.png" alt="image-20210601124329947" style="zoom:40%;" /></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
-<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService</span>
-<span style="color:#f92672">metadata</span>:
-  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">reviews</span>
-<span style="color:#f92672">spec</span>:
-  <span style="color:#f92672">hosts</span>:
-  - <span style="color:#ae81ff">reviews</span>
-  <span style="color:#f92672">http</span>:
-  - <span style="color:#f92672">route</span>:
-    - <span style="color:#f92672">destination</span>:
-        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
-        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v2</span>
-    <span style="color:#f92672">timeout</span>: <span style="color:#ae81ff">0.</span><span style="color:#ae81ff">5s</span>
-</code></pre></div><h1 id="destinationrule">DestinationRule<a class="anchor ms-1" href="#destinationrule"><i class="fas fa-link"></i></a></h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">bookinfo</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">hosts</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#e6db74">&#34;*&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">gateways</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">bookinfo-gateway</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">match</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">uri</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">exact</span>: <span style="color:#ae81ff">/productpage</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">uri</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">prefix</span>: <span style="color:#ae81ff">/static</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">uri</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">exact</span>: <span style="color:#ae81ff">/login</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">uri</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">exact</span>: <span style="color:#ae81ff">/logout</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">uri</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">prefix</span>: <span style="color:#ae81ff">/api/v1/products</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">route</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">productpage</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">port</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">number</span>: <span style="color:#ae81ff">9080</span>
+</span></span></code></pre></div><p>所有的流量都去到reviews:v1</p>
+<img src="http://picgo.6and.ltd/img/image-20210601124539407.png" alt="image-20210601124539407" style="zoom:40%;" />
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">hosts</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">route</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v1</span>
+</span></span></code></pre></div><p>来自名为 Jason 的用户的所有流量将被路由到服务 <code>reviews:v2</code>。</p>
+<img src="http://picgo.6and.ltd/img/image-20210601123957608-20210601124059926.png" style="zoom:40%;" />
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">hosts</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">match</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">headers</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">end-user</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">exact</span>: <span style="color:#ae81ff">jason</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">route</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">route</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v1</span>
+</span></span></code></pre></div><p>把 50% 的流量从 <code>reviews:v1</code> 转移到 <code>reviews:v3</code>：</p>
+<img src="http://picgo.6and.ltd/img/image-20210601124730191.png" alt="image-20210601124730191" style="zoom:40%;" />
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">hosts</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">route</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">weight</span>: <span style="color:#ae81ff">50</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v3</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">weight</span>: <span style="color:#ae81ff">50</span>
+</span></span></code></pre></div><p>给对 <code>reviews</code> 服务的调用增加一个半秒的请求超时：</p>
+<img src="http://picgo.6and.ltd/img/image-20210601124329947.png" alt="image-20210601124329947" style="zoom:40%;" />
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">hosts</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">route</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">timeout</span>: <span style="color:#ae81ff">0.</span><span style="color:#ae81ff">5s</span>
+</span></span></code></pre></div><h1 id="destinationrule">DestinationRule<a class="anchor ms-1" href="#destinationrule"><i class="fas fa-link"></i></a></h1>
 <p>在请求被 <code>VirtualService</code> 路由之后，<a href="https://preliminary.istio.io/zh/docs/reference/config/istio.networking.v1alpha3/#destinationrule" target="_blank" rel="noopener noreferrer"><code>DestinationRule</code></a> 配置的一系列策略就生效了。这些策略⚠️<strong>由服务属主编写</strong>⚠️，包含断路器、负载均衡以及 TLS 等的配置内容。</p>
 <p><code>DestinationRule</code> 还定义了对应目标主机的可路由 <code>subset</code>（例如有命名的版本）。<code>VirtualService</code> 在向特定服务版本发送请求时会用到这些子集。</p>
 <p>下面是 <code>reviews</code> 服务的 <code>DestinationRule</code> 配置策略以及子集：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
-<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">DestinationRule</span>
-<span style="color:#f92672">metadata</span>:
-  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">reviews</span>
-<span style="color:#f92672">spec</span>:
-  <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
-  <span style="color:#f92672">trafficPolicy</span>:
-    <span style="color:#f92672">loadBalancer</span>:
-      <span style="color:#f92672">simple</span>: <span style="color:#ae81ff">RANDOM</span>
-  <span style="color:#f92672">subsets</span>:
-  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v1</span>
-    <span style="color:#f92672">labels</span>:
-      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v1</span>
-  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v2</span>
-    <span style="color:#f92672">labels</span>:
-      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v2</span>
-    <span style="color:#f92672">trafficPolicy</span>:
-      <span style="color:#f92672">loadBalancer</span>:
-        <span style="color:#f92672">simple</span>: <span style="color:#ae81ff">ROUND_ROBIN</span>
-  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v3</span>
-    <span style="color:#f92672">labels</span>:
-      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v3复制代码</span>
-</code></pre></div><p>注意在单个 <code>DestinationRule</code> 配置中可以包含多条策略（比如 default 和 v2）。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">DestinationRule</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">trafficPolicy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">loadBalancer</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">simple</span>: <span style="color:#ae81ff">RANDOM</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">subsets</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">trafficPolicy</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">loadBalancer</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">simple</span>: <span style="color:#ae81ff">ROUND_ROBIN</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v3</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v3复制代码</span>
+</span></span></code></pre></div><p>注意在单个 <code>DestinationRule</code> 配置中可以包含多条策略（比如 default 和 v2）。</p>
 <p>⚠️到了DestinationRule层面，是配置流量去到指定版本的策略，随机策略、轮训策略等等（注意指定版本是可以多副本的）</p>
 <p>可以用一系列的标准，例如连接数和请求数限制来定义简单的断路器。</p>
 <p>例如下面的 <code>DestinationRule</code> 给 <code>reviews</code> 服务的 <code>v1</code> 版本设置了 100 连接的限制：</p>
-<pre><code>apiVersion: networking.istio.io/v1alpha3
+<pre tabindex="0"><code>apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: reviews
@@ -519,10 +515,10 @@ spec:
 </div></div>
   <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
     <i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java-agent/">Java Agent
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%9F%BA%E7%A1%80/istio%E5%8E%9F%E7%90%86/">istio原理
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%AE%89%E8%A3%85/">istio安装
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%90%AF%E7%94%A8%E7%AD%96%E7%95%A5%E6%A3%80%E6%9F%A5%E5%8A%9F%E8%83%BD/">istio启用策略检查功能
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
@@ -606,6 +602,9 @@ spec:
   </div>
   <div class="card-body">
     <ul class="post-list"><li>
+        <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/yshop-k8s/">Yshop K8s
+</a>
+      </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/jvm%E7%B1%BB%E7%9A%84%E5%8D%B8%E8%BD%BD/">JVM类的卸载
 </a>
       </li><li>
@@ -617,9 +616,6 @@ spec:
       </li><li>
         <a href="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/like%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">Like查询优化
 </a>
-      </li><li>
-        <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E9%98%9F%E5%88%97/">Redis队列
-</a>
       </li></ul>
   </div>
 </section><section class="series-taxonomies row card component">
@@ -630,9 +626,9 @@ spec:
       </div>
       <div class="card-body">
         <div class="py-2"><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge rounded post-taxonomy" title="Manual">
-            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
-            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
-            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
+            Manual</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="k8s实战">
+            k8s实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/k8s/" class="badge rounded post-taxonomy" title="k8s">
+            k8s</a><a href="https://xuzhijvn.github.io/zh-cn/series/%E7%AE%97%E6%B3%95/" class="badge rounded post-taxonomy" title="算法">
             算法</a><a href="https://xuzhijvn.github.io/zh-cn/series/istio%E5%AE%9E%E6%88%98/" class="badge rounded post-taxonomy" title="istio实战">
             istio实战</a><a href="https://xuzhijvn.github.io/zh-cn/series/rpc/" class="badge rounded post-taxonomy" title="rpc">
             rpc</a></div>
@@ -748,8 +744,8 @@ spec:
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
