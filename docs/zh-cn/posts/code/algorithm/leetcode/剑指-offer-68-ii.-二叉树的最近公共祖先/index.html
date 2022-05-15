@@ -13,18 +13,18 @@
 思路
 我们可以用哈希表存储所有节点的父节点，然后我们就可以利用节点的父节点信息从 p 结点开始不断往上跳，并记录已经访问过的节点，再从 q 节点开始不断往上跳，如果碰到已经访问过的节点，那么这个节点就是我们要找的最近公共祖先。
 算法
- 从根节点开始遍历整棵二叉树，用哈希表记录每个节点的父节点指针。 从 p 节点开始不断往它的祖先移动，并用数据结构记录已经访问过的祖先节点。 同样，我们再从 q 节点开始不断往它的祖先移动，如果有祖先已经被访问过，即意味着这是 p 和 q 的深度最深的公共祖先，即 LCA 节点。  复杂度分析
+从根节点开始遍历整棵二叉树，用哈希表记录每个节点的父节点指针。 从 p 节点开始不断往它的祖先移动，并用数据结构记录已经访问过的祖先节点。 同样，我们再从 q 节点开始不断往它的祖先移动，如果有祖先已经被访问过，即意味着这是 p 和 q 的深度最深的公共祖先，即 LCA 节点。 复杂度分析
 时间复杂度：O(N)，其中 NN 是二叉树的节点数。二叉树的所有节点有且只会被访问一次，从 p 和 q 节点往上跳经过的祖先节点个数不会超过 N，因此总的时间复杂度为 O(N)。
 空间复杂度：O(N)，其中 NN 是二叉树的节点数。递归调用的栈深度取决于二叉树的高度，二叉树最坏情况下为一条链，此时高度为 N，因此空间复杂度为 O(N)，哈希表存储每个节点的父节点也需要 O(N) 的空间复杂度，因此最后总的空间复杂度为 O(N)。
-/** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution {   Map&lt;Integer, TreeNode&gt; parents = new HashMap&lt;&gt;();  Set&lt;Integer&gt; set = new HashSet&lt;&gt;();   public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {   if (root == null || p == null || q == null) {  return null;  }  if (root == p || root == q) {  return root;  }  dfs(root);  TreeNode res = null;  TreeNode pp = p;  TreeNode qp = q;  set." /><meta itemprop="name" content="剑指 Offer 68 - II. 二叉树的最近公共祖先">
+/** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution { Map&lt;Integer, TreeNode&gt; parents = new HashMap&lt;&gt;(); Set&lt;Integer&gt; set = new HashSet&lt;&gt;(); public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) { if (root == null || p == null || q == null) { return null; } if (root == p || root == q) { return root; } dfs(root); TreeNode res = null; TreeNode pp = p; TreeNode qp = q; set." /><meta itemprop="name" content="剑指 Offer 68 - II. 二叉树的最近公共祖先">
 <meta itemprop="description" content="方法二：存储父节点
 思路
 我们可以用哈希表存储所有节点的父节点，然后我们就可以利用节点的父节点信息从 p 结点开始不断往上跳，并记录已经访问过的节点，再从 q 节点开始不断往上跳，如果碰到已经访问过的节点，那么这个节点就是我们要找的最近公共祖先。
 算法
- 从根节点开始遍历整棵二叉树，用哈希表记录每个节点的父节点指针。 从 p 节点开始不断往它的祖先移动，并用数据结构记录已经访问过的祖先节点。 同样，我们再从 q 节点开始不断往它的祖先移动，如果有祖先已经被访问过，即意味着这是 p 和 q 的深度最深的公共祖先，即 LCA 节点。  复杂度分析
+从根节点开始遍历整棵二叉树，用哈希表记录每个节点的父节点指针。 从 p 节点开始不断往它的祖先移动，并用数据结构记录已经访问过的祖先节点。 同样，我们再从 q 节点开始不断往它的祖先移动，如果有祖先已经被访问过，即意味着这是 p 和 q 的深度最深的公共祖先，即 LCA 节点。 复杂度分析
 时间复杂度：O(N)，其中 NN 是二叉树的节点数。二叉树的所有节点有且只会被访问一次，从 p 和 q 节点往上跳经过的祖先节点个数不会超过 N，因此总的时间复杂度为 O(N)。
 空间复杂度：O(N)，其中 NN 是二叉树的节点数。递归调用的栈深度取决于二叉树的高度，二叉树最坏情况下为一条链，此时高度为 N，因此空间复杂度为 O(N)，哈希表存储每个节点的父节点也需要 O(N) 的空间复杂度，因此最后总的空间复杂度为 O(N)。
-/** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution {   Map&lt;Integer, TreeNode&gt; parents = new HashMap&lt;&gt;();  Set&lt;Integer&gt; set = new HashSet&lt;&gt;();   public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {   if (root == null || p == null || q == null) {  return null;  }  if (root == p || root == q) {  return root;  }  dfs(root);  TreeNode res = null;  TreeNode pp = p;  TreeNode qp = q;  set."><meta itemprop="datePublished" content="2021-10-11T18:04:59+08:00" />
+/** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution { Map&lt;Integer, TreeNode&gt; parents = new HashMap&lt;&gt;(); Set&lt;Integer&gt; set = new HashSet&lt;&gt;(); public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) { if (root == null || p == null || q == null) { return null; } if (root == p || root == q) { return root; } dfs(root); TreeNode res = null; TreeNode pp = p; TreeNode qp = q; set."><meta itemprop="datePublished" content="2021-10-11T18:04:59+08:00" />
 <meta itemprop="dateModified" content="2021-10-11T18:04:59+08:00" />
 <meta itemprop="wordCount" content="205">
 <meta itemprop="keywords" content="," /><meta property="og:title" content="剑指 Offer 68 - II. 二叉树的最近公共祖先" />
@@ -32,10 +32,10 @@
 思路
 我们可以用哈希表存储所有节点的父节点，然后我们就可以利用节点的父节点信息从 p 结点开始不断往上跳，并记录已经访问过的节点，再从 q 节点开始不断往上跳，如果碰到已经访问过的节点，那么这个节点就是我们要找的最近公共祖先。
 算法
- 从根节点开始遍历整棵二叉树，用哈希表记录每个节点的父节点指针。 从 p 节点开始不断往它的祖先移动，并用数据结构记录已经访问过的祖先节点。 同样，我们再从 q 节点开始不断往它的祖先移动，如果有祖先已经被访问过，即意味着这是 p 和 q 的深度最深的公共祖先，即 LCA 节点。  复杂度分析
+从根节点开始遍历整棵二叉树，用哈希表记录每个节点的父节点指针。 从 p 节点开始不断往它的祖先移动，并用数据结构记录已经访问过的祖先节点。 同样，我们再从 q 节点开始不断往它的祖先移动，如果有祖先已经被访问过，即意味着这是 p 和 q 的深度最深的公共祖先，即 LCA 节点。 复杂度分析
 时间复杂度：O(N)，其中 NN 是二叉树的节点数。二叉树的所有节点有且只会被访问一次，从 p 和 q 节点往上跳经过的祖先节点个数不会超过 N，因此总的时间复杂度为 O(N)。
 空间复杂度：O(N)，其中 NN 是二叉树的节点数。递归调用的栈深度取决于二叉树的高度，二叉树最坏情况下为一条链，此时高度为 N，因此空间复杂度为 O(N)，哈希表存储每个节点的父节点也需要 O(N) 的空间复杂度，因此最后总的空间复杂度为 O(N)。
-/** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution {   Map&lt;Integer, TreeNode&gt; parents = new HashMap&lt;&gt;();  Set&lt;Integer&gt; set = new HashSet&lt;&gt;();   public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {   if (root == null || p == null || q == null) {  return null;  }  if (root == p || root == q) {  return root;  }  dfs(root);  TreeNode res = null;  TreeNode pp = p;  TreeNode qp = q;  set." />
+/** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution { Map&lt;Integer, TreeNode&gt; parents = new HashMap&lt;&gt;(); Set&lt;Integer&gt; set = new HashSet&lt;&gt;(); public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) { if (root == null || p == null || q == null) { return null; } if (root == p || root == q) { return root; } dfs(root); TreeNode res = null; TreeNode pp = p; TreeNode qp = q; set." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-68-ii.-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-10-11T18:04:59+08:00" />
@@ -47,10 +47,10 @@
 思路
 我们可以用哈希表存储所有节点的父节点，然后我们就可以利用节点的父节点信息从 p 结点开始不断往上跳，并记录已经访问过的节点，再从 q 节点开始不断往上跳，如果碰到已经访问过的节点，那么这个节点就是我们要找的最近公共祖先。
 算法
- 从根节点开始遍历整棵二叉树，用哈希表记录每个节点的父节点指针。 从 p 节点开始不断往它的祖先移动，并用数据结构记录已经访问过的祖先节点。 同样，我们再从 q 节点开始不断往它的祖先移动，如果有祖先已经被访问过，即意味着这是 p 和 q 的深度最深的公共祖先，即 LCA 节点。  复杂度分析
+从根节点开始遍历整棵二叉树，用哈希表记录每个节点的父节点指针。 从 p 节点开始不断往它的祖先移动，并用数据结构记录已经访问过的祖先节点。 同样，我们再从 q 节点开始不断往它的祖先移动，如果有祖先已经被访问过，即意味着这是 p 和 q 的深度最深的公共祖先，即 LCA 节点。 复杂度分析
 时间复杂度：O(N)，其中 NN 是二叉树的节点数。二叉树的所有节点有且只会被访问一次，从 p 和 q 节点往上跳经过的祖先节点个数不会超过 N，因此总的时间复杂度为 O(N)。
 空间复杂度：O(N)，其中 NN 是二叉树的节点数。递归调用的栈深度取决于二叉树的高度，二叉树最坏情况下为一条链，此时高度为 N，因此空间复杂度为 O(N)，哈希表存储每个节点的父节点也需要 O(N) 的空间复杂度，因此最后总的空间复杂度为 O(N)。
-/** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution {   Map&lt;Integer, TreeNode&gt; parents = new HashMap&lt;&gt;();  Set&lt;Integer&gt; set = new HashSet&lt;&gt;();   public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {   if (root == null || p == null || q == null) {  return null;  }  if (root == p || root == q) {  return root;  }  dfs(root);  TreeNode res = null;  TreeNode pp = p;  TreeNode qp = q;  set."/>
+/** * Definition for a binary tree node. * public class TreeNode { * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) { val = x; } * } */ class Solution { Map&lt;Integer, TreeNode&gt; parents = new HashMap&lt;&gt;(); Set&lt;Integer&gt; set = new HashSet&lt;&gt;(); public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) { if (root == null || p == null || q == null) { return null; } if (root == p || root == q) { return root; } dfs(root); TreeNode res = null; TreeNode pp = p; TreeNode qp = q; set."/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
   <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
@@ -660,8 +660,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

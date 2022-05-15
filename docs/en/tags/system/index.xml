@@ -23,10 +23,11 @@
       
       <guid>https://xuzhijvn.github.io/en/zh-cn/posts/cs/system/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/</guid>
       <description>1. 前言 W. Richard Stevens在 《Unix Network Programming Volume 1 3rd Edition - The Sockets Networking API》文中的6.2 I/O Models小节中对如下5中IO模型进行了详细的阐述：
- blocking I/O nonblocking I/O I/O multiplexing (select and poll) signal driven I/O (SIGIO) asynchronous I/O (the POSIX aio_functions)  由signal driven IO在实际中并不常用，所以主要介绍其余四种IO Model。
+blocking I/O nonblocking I/O I/O multiplexing (select and poll) signal driven I/O (SIGIO) asynchronous I/O (the POSIX aio_functions) 由signal driven IO在实际中并不常用，所以主要介绍其余四种IO Model。
 再说一下IO发生时涉及的对象和步骤。对于一个network IO (这里我们以read举例)，它会涉及到两个系统对象，一个是调用这个IO的process (or thread)，另一个就是系统内核(kernel)。当一个read操作发生时，它会经历两个阶段：
- 等待数据准备 (Waiting for the data to be ready)（将数据从网卡读到内核） 将数据从内核拷贝到进程中(Copying the data from the kernel to the process)  记住这两点很重要，因为这些IO模型的区别就是在两个阶段上各有不同的情况。
-2. 概念说明 在进行解释之前，首先要说明几个概念：</description>
+等待数据准备 (Waiting for the data to be ready)（将数据从网卡读到内核） 将数据从内核拷贝到进程中(Copying the data from the kernel to the process) 记住这两点很重要，因为这些IO模型的区别就是在两个阶段上各有不同的情况。
+2. 概念说明 在进行解释之前，首先要说明几个概念：
+用户空间和内核空间 进程切换 进程的阻塞 文件描述符 缓存 I/O 2.</description>
     </item>
     
     <item>
@@ -37,10 +38,11 @@
       <guid>https://xuzhijvn.github.io/en/zh-cn/posts/cs/system/cache%E5%92%8Cbuffer/</guid>
       <description>首先我们使用 free -m 查看系统内存的使用情况：
 可以看出，系统内存为 16G，Swap 内存 16G，mem free 虽然显示为 1118，因缓存的存在，不能认为系统目前内剩下这么多内存。而应该把 buffers、cached 的也算上，即 free+cached+buffers=1118+7110+430＝8658，总内存再减去 8658＝7314，与 buffers/cache 行中对应 free 列的 7312 和 8659 基本一致。
- 这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念
-  Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
- 从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
-[root@k8s-node3 ~]# free -m  total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0  使用 hostnamectl 或者 cat /proc/version 可以查看内核版本：</description>
+这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念
+Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
+从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
+[root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0 使用 hostnamectl 或者 cat /proc/version 可以查看内核版本：
+[root@k8s-node3 ~]# hostnamectl Static hostname: k8s-node3 Pretty hostname: VM-0-4-centos Icon name: computer-vm Chassis: vm Machine ID: 8a248d59684442b3a2edd315013b7d1f Boot ID: c14dd5b3b84646a58a98db62d5379832 Virtualization: kvm Operating System: CentOS Linux 7 (Core) CPE OS Name: cpe:/o:centos:centos:7 Kernel: Linux 3.</description>
     </item>
     
   </channel>

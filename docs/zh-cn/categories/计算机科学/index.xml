@@ -41,10 +41,11 @@
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/system/5%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/</guid>
       <description>1. 前言 W. Richard Stevens在 《Unix Network Programming Volume 1 3rd Edition - The Sockets Networking API》文中的6.2 I/O Models小节中对如下5中IO模型进行了详细的阐述：
- blocking I/O nonblocking I/O I/O multiplexing (select and poll) signal driven I/O (SIGIO) asynchronous I/O (the POSIX aio_functions)  由signal driven IO在实际中并不常用，所以主要介绍其余四种IO Model。
+blocking I/O nonblocking I/O I/O multiplexing (select and poll) signal driven I/O (SIGIO) asynchronous I/O (the POSIX aio_functions) 由signal driven IO在实际中并不常用，所以主要介绍其余四种IO Model。
 再说一下IO发生时涉及的对象和步骤。对于一个network IO (这里我们以read举例)，它会涉及到两个系统对象，一个是调用这个IO的process (or thread)，另一个就是系统内核(kernel)。当一个read操作发生时，它会经历两个阶段：
- 等待数据准备 (Waiting for the data to be ready)（将数据从网卡读到内核） 将数据从内核拷贝到进程中(Copying the data from the kernel to the process)  记住这两点很重要，因为这些IO模型的区别就是在两个阶段上各有不同的情况。
-2. 概念说明 在进行解释之前，首先要说明几个概念：</description>
+等待数据准备 (Waiting for the data to be ready)（将数据从网卡读到内核） 将数据从内核拷贝到进程中(Copying the data from the kernel to the process) 记住这两点很重要，因为这些IO模型的区别就是在两个阶段上各有不同的情况。
+2. 概念说明 在进行解释之前，首先要说明几个概念：
+用户空间和内核空间 进程切换 进程的阻塞 文件描述符 缓存 I/O 2.</description>
     </item>
     
     <item>
@@ -55,10 +56,11 @@
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/system/cache%E5%92%8Cbuffer/</guid>
       <description>首先我们使用 free -m 查看系统内存的使用情况：
 可以看出，系统内存为 16G，Swap 内存 16G，mem free 虽然显示为 1118，因缓存的存在，不能认为系统目前内剩下这么多内存。而应该把 buffers、cached 的也算上，即 free+cached+buffers=1118+7110+430＝8658，总内存再减去 8658＝7314，与 buffers/cache 行中对应 free 列的 7312 和 8659 基本一致。
- 这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念
-  Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
- 从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
-[root@k8s-node3 ~]# free -m  total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0  使用 hostnamectl 或者 cat /proc/version 可以查看内核版本：</description>
+这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念
+Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
+从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
+[root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0 使用 hostnamectl 或者 cat /proc/version 可以查看内核版本：
+[root@k8s-node3 ~]# hostnamectl Static hostname: k8s-node3 Pretty hostname: VM-0-4-centos Icon name: computer-vm Chassis: vm Machine ID: 8a248d59684442b3a2edd315013b7d1f Boot ID: c14dd5b3b84646a58a98db62d5379832 Virtualization: kvm Operating System: CentOS Linux 7 (Core) CPE OS Name: cpe:/o:centos:centos:7 Kernel: Linux 3.</description>
     </item>
     
     <item>
@@ -68,13 +70,14 @@
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/other/caffeine/</guid>
       <description>针对LFU存在记录访问频次的开销、对突发稀疏流量无能为力的现状；TinyLFU运用Count–Min Sketch 算法、保鲜机制尝试解决，它解决了一个问题，但它仍然无法较好的处理突发性的稀疏流量；TinyLFU之所以无法解决问题2，是因为新的记录（new items）还没来得及建立足够的频率就被剔除出去了，这就使得命中率下降，Window Tiny LFU使用3个LRU队列解决了这个问题，同时Caffeine使用了RingBuffer数据结构、WAL思想也是其高效的重要原因。
-1. LRU 和 LFU 的缺点  LRU 实现简单，在一般情况下能够表现出很好的命中率，是一个“性价比”很高的算法，平时也很常用。虽然 LRU 对突发性的稀疏流量（sparse bursts）表现很好，但同时也会产生缓存污染，举例来说，如果偶然性的要对全量数据进行遍历，那么“历史访问记录”就会被刷走，造成污染。 如果数据的分布在一段时间内是固定的话，那么 LFU 可以达到最高的命中率。但是 LFU 有两个缺点，第一，它需要给每个记录项维护频率信息，每次访问都需要更新，这是个巨大的开销；第二，对突发性的稀疏流量无力，因为前期经常访问的记录已经占用了缓存，偶然的流量不太可能会被保留下来，而且过去的一些大量被访问的记录在将来也不一定会使用上，这样就一直把“坑”占着了。  无论 LRU 还是 LFU 都有其各自的缺点，不过，现在已经有很多针对其缺点而改良、优化出来的变种算法。
+1. LRU 和 LFU 的缺点 LRU 实现简单，在一般情况下能够表现出很好的命中率，是一个“性价比”很高的算法，平时也很常用。虽然 LRU 对突发性的稀疏流量（sparse bursts）表现很好，但同时也会产生缓存污染，举例来说，如果偶然性的要对全量数据进行遍历，那么“历史访问记录”就会被刷走，造成污染。 如果数据的分布在一段时间内是固定的话，那么 LFU 可以达到最高的命中率。但是 LFU 有两个缺点，第一，它需要给每个记录项维护频率信息，每次访问都需要更新，这是个巨大的开销；第二，对突发性的稀疏流量无力，因为前期经常访问的记录已经占用了缓存，偶然的流量不太可能会被保留下来，而且过去的一些大量被访问的记录在将来也不一定会使用上，这样就一直把“坑”占着了。 无论 LRU 还是 LFU 都有其各自的缺点，不过，现在已经有很多针对其缺点而改良、优化出来的变种算法。
 2. TinyLFU TinyLFU 就是其中一个优化算法，它是专门为了解决 LFU 上述提到的两个问题而被设计出来的。
 解决第一个问题是采用了 Count–Min Sketch 算法。
 解决第二个问题是让记录尽量保持相对的“新鲜”（Freshness Mechanism），并且当有新的记录插入时，可以让它跟老的记录进行“PK”，输者就会被淘汰，这样一些老的、不再需要的记录就会被剔除。
 2.1 统计频率 Count–Min Sketch 算法 如何对一个 key 进行统计，但又可以节省空间呢？（不是简单的使用HashMap，这太消耗内存了），注意哦，不需要精确的统计，只需要一个近似值就可以了，怎么样，这样场景是不是很熟悉，如果你是老司机，或许已经联想到布隆过滤器（Bloom Filter）的应用了。
 没错，将要介绍的 Count–Min Sketch 的原理跟 Bloom Filter 一样，只不过 Bloom Filter 只有 0 和 1 的值，那么你可以把 Count–Min Sketch 看作是“数值”版的 Bloom Filter。
-如果需要记录一个值，那我们需要通过多种Hash算法对其进行处理hash，然后在对应的hash算法的记录中+1，为什么需要多种hash算法呢？由于这是一个压缩算法必定会出现冲突，比如我们建立一个Long的数组，通过计算出每个数据的hash的位置。比如张三和李四，他们俩有可能hash值都是相同，比如都是1那Long[1]这个位置就会增加相应的频率，张三访问1万次，李四访问1次那Long[1]这个位置就是1万零1，如果取李四的访问评率的时候就会取出是1万零1，但是李四命名只访问了1次啊，为了解决这个问题，所以用了多个hash算法可以理解为long[][]二维数组的一个概念，比如在第一个算法张三和李四冲突了，但是在第二个，第三个中很大的概率不冲突，比如一个算法大概有1%的概率冲突，那四个算法一起冲突的概率是1%的四次方。通过这个模式我们取李四的访问率的时候取所有算法中，李四访问最低频率的次数。所以他的名字叫Count-Min Sketch。</description>
+如果需要记录一个值，那我们需要通过多种Hash算法对其进行处理hash，然后在对应的hash算法的记录中+1，为什么需要多种hash算法呢？由于这是一个压缩算法必定会出现冲突，比如我们建立一个Long的数组，通过计算出每个数据的hash的位置。比如张三和李四，他们俩有可能hash值都是相同，比如都是1那Long[1]这个位置就会增加相应的频率，张三访问1万次，李四访问1次那Long[1]这个位置就是1万零1，如果取李四的访问评率的时候就会取出是1万零1，但是李四命名只访问了1次啊，为了解决这个问题，所以用了多个hash算法可以理解为long[][]二维数组的一个概念，比如在第一个算法张三和李四冲突了，但是在第二个，第三个中很大的概率不冲突，比如一个算法大概有1%的概率冲突，那四个算法一起冲突的概率是1%的四次方。通过这个模式我们取李四的访问率的时候取所有算法中，李四访问最低频率的次数。所以他的名字叫Count-Min Sketch。
+2.2 保鲜机制 为了让缓存保持“新鲜”，剔除掉过往频率很高但之后不经常的缓存，Caffeine 有一个 Freshness Mechanism。做法很简答，就是当整体的统计计数（当前所有记录的频率统计之和，这个数值内部维护）达到某一个值时，那么所有记录的频率统计除以 2。</description>
     </item>
     
     <item>
@@ -104,7 +107,7 @@ Java内存访问重排序的研究</description>
 1.2 多路复用 HTTP2虽然只有一条TCP连接，但是在逻辑上分成了很多stream。HTTP2把要传输的信息分割成一个个二进制帧，首部信息会被封装到HEADER Frame，相应的request body就放到DATA Frame,一个帧你可以看成路上的一辆车,只要给这些车编号，让1号车都走1号门出，2号车都走2号门出，就把不同的http请求或者响应区分开来了。但是，这里要求同一个请求或者响应的帧必须是有有序的，要保证FIFO的，但是不同的请求或者响应帧可以互相穿插。这就是HTTP2的多路复用，是不是充分利用了网络带宽，是不是提高了并发度？
 2. 头部压缩和二进制格式 http1.x一直都是plain text，对此我只能想到一个优点，便于阅读和debug。但是，现在很多都走https，SSL也把plain text变成了二进制，那这个优点也没了。 于是HTTP2搞了个HPACK压缩来压缩头部，减少报文大小(调试这样的协议将需要curl这样的工具，要进一步地分析网络数据流需要类似Wireshark的http2解析器)。
 3. 服务端推送Server Push 这个功能通常被称作“缓存推送”。主要的思想是：当一个客户端请求资源X，而服务器知道它很可能也需要资源Z的情况下，服务器可以在客户端发送请求前，主动将资源Z推送给客户端。这个功能帮助客户端将Z放进缓存以备将来之需。
-总结  单一的长连接，减少了SSL握手的开销 头部被压缩，减少了数据传输量 多路复用能大幅提高传输效率，不用等待上一个请求的响应 不用像http1.x那样把多个文件或者资源弄成一个文件或者资源（http1.x常见的优化手段），这时候，缓存就能更容易命中啊（http1.x里面你揉成一团的东西怎么命中缓存？）  参考 HTTP/2 相比 1.0 有哪些重大改进？
+总结 单一的长连接，减少了SSL握手的开销 头部被压缩，减少了数据传输量 多路复用能大幅提高传输效率，不用等待上一个请求的响应 不用像http1.x那样把多个文件或者资源弄成一个文件或者资源（http1.x常见的优化手段），这时候，缓存就能更容易命中啊（http1.x里面你揉成一团的东西怎么命中缓存？） 参考 HTTP/2 相比 1.0 有哪些重大改进？
 HTTP 2 的新特性你 get 了吗？
 HTTP/2 服务器推送（Server Push）教程</description>
     </item>
@@ -138,7 +141,7 @@ LFU，即：最不经常使用淘汰算法（Least Frequently Used）。LFU是�
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/other/oauth2/</guid>
       <description>OAuth（开放授权）是一个开放标准，允许用户授权第三方移动应用访问他们存储在另外的服务提供者上的信息，而不需要将用户名和密码提供给第三方移动应用或分享他们数据的所有内容，OAuth2.0是OAuth协议的延续版本，但不向后兼容OAuth 1.0即完全废止了OAuth1.0。
 客户端必须得到用户的授权（authorization grant），才能获得令牌（access token）。OAuth 2.0定义了四种授权方式。
- 授权码模式（authorization code） 简化模式（implicit） 密码模式（resource owner password credentials） 客户端模式（client credentials）  1. 名词定义 在详细讲解OAuth 2.0之前，需要了解几个专用名词。
+授权码模式（authorization code） 简化模式（implicit） 密码模式（resource owner password credentials） 客户端模式（client credentials） 1. 名词定义 在详细讲解OAuth 2.0之前，需要了解几个专用名词。
 （1） Third-party application：第三方应用程序，本文中又称&amp;quot;客户端&amp;quot;（client），即上一节例子中的&amp;quot;云冲印&amp;quot;。
 （2）HTTP service：HTTP服务提供商，本文中简称&amp;quot;服务提供商&amp;quot;，即上一节例子中的Google。
 （3）Resource Owner：资源所有者，本文中又称&amp;quot;用户&amp;quot;（user）。
@@ -164,15 +167,17 @@ OAuth2.0的四种授权模式</description>
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/other/oauth2%E7%9A%84%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%94%E5%9B%9Etoken%E4%B9%8B%E5%89%8D%E5%85%88%E8%BF%94%E5%9B%9Ecode%E8%80%8C%E4%B8%8D%E6%98%AF%E7%9B%B4%E6%8E%A5%E8%BF%94%E5%9B%9Etoken/</guid>
       <description>所谓第三方登录，实质就是 OAuth 授权。用户想要登录 A 网站，A 网站让用户提供第三方网站的数据，证明自己的身份。获取第三方网站的身份数据，就需要 OAuth 授权。
 举例来说，A 网站允许 GitHub 登录，背后就是下面的流程。
-  A 网站让用户跳转到 GitHub。 GitHub 要求用户登录，然后询问&amp;quot;A 网站要求获得 xx 权限，你是否同意？&amp;quot; 用户同意，GitHub 就会重定向回 A 网站，同时发回一个授权码。 A 网站使用授权码，向 GitHub 请求令牌。 GitHub 返回令牌. A 网站使用令牌，向 GitHub 请求用户数据。   那为什么不直接返回token？而要中间经过code再倒腾一遍呢？知乎上有位大哥回答得挺好。
+A 网站让用户跳转到 GitHub。 GitHub 要求用户登录，然后询问&amp;quot;A 网站要求获得 xx 权限，你是否同意？&amp;quot; 用户同意，GitHub 就会重定向回 A 网站，同时发回一个授权码。 A 网站使用授权码，向 GitHub 请求令牌。 GitHub 返回令牌. A 网站使用令牌，向 GitHub 请求用户数据。 那为什么不直接返回token？而要中间经过code再倒腾一遍呢？知乎上有位大哥回答得挺好。
 问题：
- 为什么oauth2中的授权码模式 在获取token之前非要先到资源服务器获取一个code 然后才使用资源服务器的code去资源服务器去申请token?
+为什么oauth2中的授权码模式 在获取token之前非要先到资源服务器获取一个code 然后才使用资源服务器的code去资源服务器去申请token?
 看了很多资料说是因为 用户在确认授权之后 资源服务器会跳转到我们指定的一个回调url, 如果直接返回token的话，谁都可以在浏览器中看到这个token 那就没有安全性可言了
 但是我有个想法不知是否可行 那就是为什么 资源服务器非要跳转到第三方站点给的回调url呢？ 我的url如果是个接口 资源服务器完全可以不通过浏览器跳转 而是直接回调我的接口 直接吧token给我的服务器， 然后我的服务器存储好token之后 自己决定如何跳转不就行了？ 这样岂不是比授权模式简单也比隐式模式安全
- 回答：
- 首先，从产品交互上，我们需要浏览器跳转到“认证服务器”，让用户明确表态同不同意“第三方站点”的授权请求。这个时候，浏览器访问的地址已经到“认证服务器”去了，不跳转回来的话，网页不在“第三方站点”的控制中，怎么进行授权成功后的下一步交互呢？
+回答：
+首先，从产品交互上，我们需要浏览器跳转到“认证服务器”，让用户明确表态同不同意“第三方站点”的授权请求。这个时候，浏览器访问的地址已经到“认证服务器”去了，不跳转回来的话，网页不在“第三方站点”的控制中，怎么进行授权成功后的下一步交互呢？
 授权码模式的安全考量，是基于产品交互能完成的前提下，考虑如何不在浏览器这种暴露 url 的环境里做到安全的。
-如果你想表达的是“认证服务器”跳转回来，但是不带 code，而是通过 Server 对 Server 将 token 直接给“第三方服务器”。</description>
+如果你想表达的是“认证服务器”跳转回来，但是不带 code，而是通过 Server 对 Server 将 token 直接给“第三方服务器”。
+这样会造成一系列问题：
+Http 协议是无状态的，“第三方服务器”无法从一个 Server 对 Server 的请求轻易区分这个 token 对着自己当前哪个 Session。</description>
     </item>
     
     <item>
@@ -182,7 +187,7 @@ OAuth2.0的四种授权模式</description>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/http/post%E5%92%8Cget/</guid>
       <description>RFC标准区别 根据RFC定义的http标准，区别如下：
- GET 用于获取信息，是无副作用的，是幂等的，且可缓存 POST 用于修改服务器上的数据，有副作用，非幂等，不可缓存  实际区别 GET 和 POST 方法没有实质区别，只是报文格式不同。
+GET 用于获取信息，是无副作用的，是幂等的，且可缓存 POST 用于修改服务器上的数据，有副作用，非幂等，不可缓存 实际区别 GET 和 POST 方法没有实质区别，只是报文格式不同。
 GET 和 POST 只是 HTTP 协议中两种请求方式，而 HTTP 协议是基于 TCP/IP 的应用层协议，无论 GET 还是 POST，用的都是同一个传输层协议，所以在传输上，没有区别。
 你可以在GET请求的body里面发参数，也可以在POST请求的url后面跟参数。
 现实中，之所以会有诸如：GET请求有长度限制这样的差异，是与浏览器和服务端实现细节有关，与http协议本身无关，不是http协议规定的这些差异。
@@ -232,7 +237,7 @@ TCP 数据包的大小 以太网数据包（packet）的大小是固定的，最
 TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20字节，因此 TCP 数据包的最大负载是 1480 - 20 = 1460 字节。由于 IP 和 TCP 协议往往有额外的头信息，所以 TCP 负载实际为1400字节左右。
 因此，一条1500字节的信息需要两个 TCP 数据包。HTTP/2 协议的一大改进， 就是压缩 HTTP 协议的头信息，使得一个 HTTP 请求可以放在一个 TCP 数据包里面，而不是分成多个，这样就提高了速度。
 创建连接 TCP用三次握手（或称三路握手，three-way handshake）过程创建一个连接。在连接创建过程中，很多参数要被初始化，例如序号被初始化以保证按序传输和连接的强壮性。 一对终端同时初始化一个它们之间的连接是可能的。但通常是由一端打开一个套接字（socket）然后监听来自另一方的连接，这就是通常所指的被动打开（passive open）。服务器端被被动打开以后，用户端就能开始创建主动打开（active open）。
- 客户端通过向服务器端发送一个SYN来创建一个主动打开，作为三次握手的一部分。客户端把这段连接的序号设定为随机数A。 服务器端应当为一个合法的SYN回送一个SYN/ACK。ACK的确认码应为A+1，SYN/ACK包本身又有一个随机产生的序号B。 最后，客户端再发送一个ACK。此时包的序号被设定为A+1，而ACK的确认码则为B+1。当服务端收到这个ACK的时候，就完成了三次握手，并进入了连接创建状态。  注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的
+客户端通过向服务器端发送一个SYN来创建一个主动打开，作为三次握手的一部分。客户端把这段连接的序号设定为随机数A。 服务器端应当为一个合法的SYN回送一个SYN/ACK。ACK的确认码应为A+1，SYN/ACK包本身又有一个随机产生的序号B。 最后，客户端再发送一个ACK。此时包的序号被设定为A+1，而ACK的确认码则为B+1。当服务端收到这个ACK的时候，就完成了三次握手，并进入了连接创建状态。 注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的
 注意：三次握手建立连接的时候， SYN/ACK 是一个数据包发送出去的
 如果服务器端接到了客户端发的SYN后回了SYN-ACK后客户端掉线了，服务器端没有收到客户端回来的ACK，那么，这个连接处于一个中间状态，即没成功，也没失败。于是，服务器端如果在一定时间内没有收到的TCP会重发SYN-ACK。在Linux下，默认重试次数为5次，重试的间隔时间从1s开始每次都翻倍，5次的重试时间间隔为1s, 2s, 4s, 8s, 16s，总共31s，第5次发出后还要等32s才知道第5次也超时了，所以，总共需要 1s + 2s + 4s+ 8s+ 16s + 32s = 63s，TCP才会断开这个连接。使用三个TCP参数来调整行为：tcp_synack_retries 减少重试次数；tcp_max_syn_backlog，增大SYN连接数；tcp_abort_on_overflow决定超出能力时的行为。</description>
     </item>
@@ -244,8 +249,8 @@ TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20�
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E5%B8%B8%E7%94%A8%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AE%97%E6%B3%95/</guid>
       <description>常见类型包括LFU、LRU、ARC、FIFO、MRU。
- 最不经常使用算法（LFU, Least Frequently Used）：  这个缓存算法使用一个计数器来记录条目被访问的频率。通过使用LFU缓存算法，最低访问数的条目首先被移除。这个方法并不经常使用，因为它无法对一个拥有最初高访问率之后长时间没有被访问的条目缓存负责。
- 最近最少使用算法（LRU, Least Recently Used）  LRU是首先淘汰最长时间未被使用的页面。这种算法把近期最久没有被访问过的页面作为被替换的页面。它把LFU算法中要记录数量上的&amp;quot;多&amp;quot;与&amp;quot;少&amp;quot;简化成判断&amp;quot;有&amp;quot;与&amp;quot;无&amp;quot;，因此，实现起来比较容易。
+最不经常使用算法（LFU, Least Frequently Used）： 这个缓存算法使用一个计数器来记录条目被访问的频率。通过使用LFU缓存算法，最低访问数的条目首先被移除。这个方法并不经常使用，因为它无法对一个拥有最初高访问率之后长时间没有被访问的条目缓存负责。
+最近最少使用算法（LRU, Least Recently Used） LRU是首先淘汰最长时间未被使用的页面。这种算法把近期最久没有被访问过的页面作为被替换的页面。它把LFU算法中要记录数量上的&amp;quot;多&amp;quot;与&amp;quot;少&amp;quot;简化成判断&amp;quot;有&amp;quot;与&amp;quot;无&amp;quot;，因此，实现起来比较容易。
 注意：LRU的淘汰规则是基于访问时间，而LFU是基于访问次数的 </description>
     </item>
     
@@ -259,15 +264,15 @@ TCP 数据包在 IP 数据包的负载里面。它的头信息最少也需要20�
 1、什么是分布式ID？ 拿MySQL数据库举个栗子：
 在我们业务数据量不大的时候，单库单表完全可以支撑现有业务，数据再大一点搞个MySQL主从同步读写分离也能对付。
 但随着数据日渐增长，主从同步也扛不住了，就需要对数据库进行分库分表，但分库分表后需要有一个唯一ID来标识一条数据，数据库的自增ID显然不能满足需求；特别一点的如订单、优惠券也都需要有唯一ID做标识。此时一个能够生成全局唯一ID的系统是非常必要的。那么这个全局唯一ID就叫分布式ID。
-2、那么分布式ID需要满足那些条件？  全局唯一：必须保证ID是全局性唯一的，基本要求 高性能：高可用低延时，ID生成响应要块，否则反倒会成为业务瓶颈 高可用：100%的可用性是骗人的，但是也要无限接近于100%的可用性 好接入：要秉着拿来即用的设计原则，在系统设计和实现上要尽可能的简单 趋势递增：最好趋势递增，这个要求就得看具体业务场景了，一般不严格要求  二、 分布式ID都有哪些生成方式？ 今天主要分析一下以下9种，分布式ID生成器方式以及优缺点：
- UUID 数据库自增ID 数据库多主模式 号段模式 Redis 雪花算法（SnowFlake） 滴滴出品（TinyID） 百度 （Uidgenerator） 美团（Leaf）  那么它们都是如何实现？以及各自有什么优缺点？我们往下看
- 以上图片源自网络，如有侵权联系删除
- 1、基于UUID 在Java的世界里，想要得到一个具有唯一性的ID，首先被想到可能就是UUID，毕竟它有着全球唯一的特性。那么UUID可以做分布式ID吗？答案是可以的，但是并不推荐！
-public static void main(String[] args) {  String uuid = UUID.randomUUID().toString().replaceAll(&amp;#34;-&amp;#34;,&amp;#34;&amp;#34;);  System.out.println(uuid);  } UUID的生成简单到只有一行代码，输出结果 c2b8c2b9e46c47e3b30dca3b0d447718，但UUID却并不适用于实际的业务需求。像用作订单号UUID这样的字符串没有丝毫的意义，看不出和订单相关的有用信息；而对于数据库来说用作业务主键ID，它不仅是太长还是字符串，存储性能差查询也很耗时，所以不推荐用作分布式ID。
+2、那么分布式ID需要满足那些条件？ 全局唯一：必须保证ID是全局性唯一的，基本要求 高性能：高可用低延时，ID生成响应要块，否则反倒会成为业务瓶颈 高可用：100%的可用性是骗人的，但是也要无限接近于100%的可用性 好接入：要秉着拿来即用的设计原则，在系统设计和实现上要尽可能的简单 趋势递增：最好趋势递增，这个要求就得看具体业务场景了，一般不严格要求 二、 分布式ID都有哪些生成方式？ 今天主要分析一下以下9种，分布式ID生成器方式以及优缺点：
+UUID 数据库自增ID 数据库多主模式 号段模式 Redis 雪花算法（SnowFlake） 滴滴出品（TinyID） 百度 （Uidgenerator） 美团（Leaf） 那么它们都是如何实现？以及各自有什么优缺点？我们往下看
+以上图片源自网络，如有侵权联系删除
+1、基于UUID 在Java的世界里，想要得到一个具有唯一性的ID，首先被想到可能就是UUID，毕竟它有着全球唯一的特性。那么UUID可以做分布式ID吗？答案是可以的，但是并不推荐！
+public static void main(String[] args) { String uuid = UUID.randomUUID().toString().replaceAll(&amp;#34;-&amp;#34;,&amp;#34;&amp;#34;); System.out.println(uuid); } UUID的生成简单到只有一行代码，输出结果 c2b8c2b9e46c47e3b30dca3b0d447718，但UUID却并不适用于实际的业务需求。像用作订单号UUID这样的字符串没有丝毫的意义，看不出和订单相关的有用信息；而对于数据库来说用作业务主键ID，它不仅是太长还是字符串，存储性能差查询也很耗时，所以不推荐用作分布式ID。
 优点：
- 生成足够简单，本地生成无网络消耗，具有唯一性  缺点：
- 无序的字符串，不具备趋势自增特性 没有具体的业务含义 长度过长16 字节128位，36位长度的字符串，存储以及查询对MySQL的性能消耗较大，MySQL官方明确建议主键要尽量越短越好，作为数据库主键 UUID 的无序性会导致数据位置频繁变动，严重影响性能。  2、基于数据库自增ID 基于数据库的auto_increment自增ID完全可以充当分布式ID，具体实现：需要一个单独的MySQL实例用来生成ID，建表结构如下：
-CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.</description>
+生成足够简单，本地生成无网络消耗，具有唯一性 缺点：
+无序的字符串，不具备趋势自增特性 没有具体的业务含义 长度过长16 字节128位，36位长度的字符串，存储以及查询对MySQL的性能消耗较大，MySQL官方明确建议主键要尽量越短越好，作为数据库主键 UUID 的无序性会导致数据位置频繁变动，严重影响性能。 2、基于数据库自增ID 基于数据库的auto_increment自增ID完全可以充当分布式ID，具体实现：需要一个单独的MySQL实例用来生成ID，建表结构如下：
+CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.SEQUENCE_ID ( id bigint(20) unsigned NOT NULL auto_increment, value char(10) NOT NULL default &amp;#39;&amp;#39;, PRIMARY KEY (id), ) ENGINE=MyISAM; insert into SEQUENCE_ID(value) VALUES (&amp;#39;values&amp;#39;); 当我们需要一个ID的时候，向表中插入一条记录返回主键ID，但这种方式有一个比较致命的缺点，访问量激增时MySQL本身就是系统的瓶颈，用它来实现分布式服务风险比较大，不推荐！</description>
     </item>
     
     <item>
@@ -288,12 +293,12 @@ CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.</description>
 第一种是第二阶段执行的是回滚事务操作，那么答案是不断重试，直到所有参与者都回滚了，不然那些在第一阶段准备成功的参与者会一直阻塞着。
 第二种是第二阶段执行的是提交事务操作，那么答案也是不断重试，因为有可能一些参与者的事务已经提交成功了，这个时候只有一条路，就是头铁往前冲，不断的重试，直到提交成功，到最后真的不行只能人工介入处理。
 至此我们已经详细的分析的 2PC 的各种细节，我们来总结一下：
- 2PC 是一种尽量保证强一致性的分布式事务，因此它是同步阻塞的，而同步阻塞就导致长久的资源锁定问题，总体而言效率低，并且存在单点故障问题，在极端条件下存在数据不一致的风险。
+2PC 是一种尽量保证强一致性的分布式事务，因此它是同步阻塞的，而同步阻塞就导致长久的资源锁定问题，总体而言效率低，并且存在单点故障问题，在极端条件下存在数据不一致的风险。
 当然具体的实现可以变形，而且 2PC 也有变种，例如 Tree 2PC、Dynamic 2PC。
 还有一点不知道你们看出来没，2PC 适用于数据库层面的分布式事务场景，而我们业务需求有时候不仅仅关乎数据库，也有可能是上传一张图片或者发送一条短信。
 而且像 Java 中的 JTA 只能解决一个应用下多数据库的分布式事务问题，跨服务了就不能用了。
 简单说下 Java 中 JTA，它是基于XA规范实现的事务接口，这里的 XA 你可以简单理解为基于数据库的 XA 规范来实现的 2PC。
- 3PC 3PC 的出现是为了解决 2PC 的一些问题，相比于 2PC 它在参与者中也引入了超时机制，并且新增了一个阶段使得参与者可以利用这一个阶段统一各自的状态。
+3PC 3PC 的出现是为了解决 2PC 的一些问题，相比于 2PC 它在参与者中也引入了超时机制，并且新增了一个阶段使得参与者可以利用这一个阶段统一各自的状态。
 让我们来详细看一下。
 3PC 包含了三个阶段，分别是**准备阶段、预提交阶段、提交阶段**，对应的英文就是：CanCommit、PreCommit 、 DoCommit。
 看起来是把 2PC 的提交阶段变成了预提交阶段和提交阶段，但是 3PC 的准备阶段协调者只是询问参与者的自身状况，比如你现在还好吗？负载重不重？这类的。</description>
@@ -305,7 +310,7 @@ CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.</description>
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E7%9A%84%E8%B0%83%E7%94%A8%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E7%94%A8-http-%E8%80%8C%E7%94%A8-rpc/</guid>
-      <description> 使用自定义 TCP 协议进行传输就会避免上面这个问题，极大地减轻了传输数据的开销。 这也就是为什么通常会采用自定义 TCP 协议的 RPC 来进行进行服务调用的真正原因。 除此之外，成熟的 RPC 框架还提供好了“服务自动注册与发现”、&amp;ldquo;智能负载均衡&amp;rdquo;、“可视化的服务治理和运维”、“运行期流量调度”等等功能，这些也算是选择 RPC 进行服务注册和发现的一方面原因吧！  </description>
+      <description> 使用自定义 TCP 协议进行传输就会避免上面这个问题，极大地减轻了传输数据的开销。 这也就是为什么通常会采用自定义 TCP 协议的 RPC 来进行进行服务调用的真正原因。 除此之外，成熟的 RPC 框架还提供好了“服务自动注册与发现”、&amp;ldquo;智能负载均衡&amp;rdquo;、“可视化的服务治理和运维”、“运行期流量调度”等等功能，这些也算是选择 RPC 进行服务注册和发现的一方面原因吧！ </description>
     </item>
     
     <item>
@@ -316,7 +321,7 @@ CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.</description>
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%BC%93%E5%AD%98%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7/</guid>
       <description>数据库与缓存双写可以有4种顺序： 更新缓存-&amp;gt;更新db、更新db-&amp;gt;更新缓存、删除缓存-&amp;gt;更新db、更新db-&amp;gt;删除缓存
 前两种顺序有显著的缺陷：
- 后更新的数据源失败，因为无法将先更新的数据源回滚（redis）或者不知道该不该回滚（超时）导致数据不一致； 多并发（大于两个并发请求，不一定需要高并发）场景下，因为双写不是原子操作，就有可能发生数据不一致； 读少写多的场景下，大量缓存一直在被更新，却没有被读，一直在做无用功。  后两种顺序也存在在多并发数据场景下数据不一致的情形，但是它们都可以通过 异步延迟双删+失败删除重试机制 解决，其中更新db-&amp;gt;删除缓存 发生不一致的概率更低，所以应该首先最后一种顺序实施双写。
+后更新的数据源失败，因为无法将先更新的数据源回滚（redis）或者不知道该不该回滚（超时）导致数据不一致； 多并发（大于两个并发请求，不一定需要高并发）场景下，因为双写不是原子操作，就有可能发生数据不一致； 读少写多的场景下，大量缓存一直在被更新，却没有被读，一直在做无用功。 后两种顺序也存在在多并发数据场景下数据不一致的情形，但是它们都可以通过 异步延迟双删+失败删除重试机制 解决，其中更新db-&amp;gt;删除缓存 发生不一致的概率更低，所以应该首先最后一种顺序实施双写。
 首先，缓存由于其高并发和高性能的特性，已经在项目中被广泛使用。在读取缓存方面，大家没啥疑问，都是按照下图的流程来进行业务操作。
 、
 双写可分为：更新缓存-&amp;gt;更新db、更新db-&amp;gt;更新缓存、删除缓存-&amp;gt;更新db、更新db-&amp;gt;删除缓存 四种策略。
@@ -366,9 +371,9 @@ int a = 1; int b = 1; a = a + 1; b = b +1 ; 就可能没有
 int a = 1; a = a + 1; int b = 1; b = b +1 ; 性能好，因为后者的a或b可能在寄存器中了。
 处理器为啥要重排序？
 一条汇编指令的执行步骤：
-  取指 IF 译码和取寄存器操作 ID 执行或者有效地址计算 EX 存储器访问 MEM 写回 WB   在CPU工作中汇编指令分多步完成，每一部涉及到的硬件（寄存器）可能不同，于是有了流水线技术来执行指令。
+取指 IF 译码和取寄存器操作 ID 执行或者有效地址计算 EX 存储器访问 MEM 写回 WB 在CPU工作中汇编指令分多步完成，每一部涉及到的硬件（寄存器）可能不同，于是有了流水线技术来执行指令。
 没有流水线技术前，如果同时两个指令过来执行 一个需要5秒，那么两个就需要10秒；有了流水线技术之后，可能就只要6秒。多个指令同时执行时性能显著提升。
- 流水线技术是一种将指令分解为多步，并让不同指令的各步操作重叠，从而实现几条指令并行处理。
+流水线技术是一种将指令分解为多步，并让不同指令的各步操作重叠，从而实现几条指令并行处理。
 指令1 IF ID EX MEN WB
 指令2 IF ID EX MEN WB</description>
     </item>

@@ -10,20 +10,23 @@
 <link rel="manifest" href="https://xuzhijvn.github.io/en/manifest.json">
 <meta name="keywords" content="" />
 <meta name="description" content="k8s部署应用(前端静态)
-0. 准备条件  部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S     名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上     应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库：   理解k8s基础概念，可以参考Kubernetes: 基础概念介绍
-  1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
-1.2 生成拉取镜像的密钥 kubectl create secret docker-registry registry-secret-tencent --docker-server=ccr." /><meta itemprop="name" content="k8s部署应用(前端静态)">
+0. 准备条件 部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S 名称 数量 IP 备注 master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G node1 1 172.18.0.7 同上 node2 1 172.19.0.5 同上 应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库： 理解k8s基础概念，可以参考Kubernetes: 基础概念介绍
+1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
+1.2 生成拉取镜像的密钥 kubectl create secret docker-registry registry-secret-tencent --docker-server=ccr.ccs.tencentyun.com --docker-username=腾讯云账户ID --docker-password=腾讯云容器仓库密码 &ndash;docker-server: 仓库地址 &ndash;docker-username: 仓库登陆账号 &ndash;docker-password: 仓库登陆密码 &ndash;docker-email: 邮件地址(选填) -n 命名空间(选填)
+可以运行：kubectl get secret registry-secret-tencent --output=yaml 查看生成的密钥" /><meta itemprop="name" content="k8s部署应用(前端静态)">
 <meta itemprop="description" content="k8s部署应用(前端静态)
-0. 准备条件  部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S     名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上     应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库：   理解k8s基础概念，可以参考Kubernetes: 基础概念介绍
-  1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
-1.2 生成拉取镜像的密钥 kubectl create secret docker-registry registry-secret-tencent --docker-server=ccr."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+0. 准备条件 部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S 名称 数量 IP 备注 master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G node1 1 172.18.0.7 同上 node2 1 172.19.0.5 同上 应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库： 理解k8s基础概念，可以参考Kubernetes: 基础概念介绍
+1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
+1.2 生成拉取镜像的密钥 kubectl create secret docker-registry registry-secret-tencent --docker-server=ccr.ccs.tencentyun.com --docker-username=腾讯云账户ID --docker-password=腾讯云容器仓库密码 &ndash;docker-server: 仓库地址 &ndash;docker-username: 仓库登陆账号 &ndash;docker-password: 仓库登陆密码 &ndash;docker-email: 邮件地址(选填) -n 命名空间(选填)
+可以运行：kubectl get secret registry-secret-tencent --output=yaml 查看生成的密钥"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="141">
 <meta itemprop="keywords" content="云原生,k8s," /><meta property="og:title" content="k8s部署应用(前端静态)" />
 <meta property="og:description" content="k8s部署应用(前端静态)
-0. 准备条件  部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S     名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上     应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库：   理解k8s基础概念，可以参考Kubernetes: 基础概念介绍
-  1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
-1.2 生成拉取镜像的密钥 kubectl create secret docker-registry registry-secret-tencent --docker-server=ccr." />
+0. 准备条件 部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S 名称 数量 IP 备注 master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G node1 1 172.18.0.7 同上 node2 1 172.19.0.5 同上 应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库： 理解k8s基础概念，可以参考Kubernetes: 基础概念介绍
+1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
+1.2 生成拉取镜像的密钥 kubectl create secret docker-registry registry-secret-tencent --docker-server=ccr.ccs.tencentyun.com --docker-username=腾讯云账户ID --docker-password=腾讯云容器仓库密码 &ndash;docker-server: 仓库地址 &ndash;docker-username: 仓库登陆账号 &ndash;docker-password: 仓库登陆密码 &ndash;docker-email: 邮件地址(选填) -n 命名空间(选填)
+可以运行：kubectl get secret registry-secret-tencent --output=yaml 查看生成的密钥" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/en/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/k8s%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81/" /><meta property="article:section" content="zh-cn" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -33,9 +36,10 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="k8s部署应用(前端静态)"/>
 <meta name="twitter:description" content="k8s部署应用(前端静态)
-0. 准备条件  部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S     名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上     应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库：   理解k8s基础概念，可以参考Kubernetes: 基础概念介绍
-  1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
-1.2 生成拉取镜像的密钥 kubectl create secret docker-registry registry-secret-tencent --docker-server=ccr."/>
+0. 准备条件 部署好了k8s集群，部署可以参考Kubernetes: 从零搭建K8S 名称 数量 IP 备注 master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G node1 1 172.18.0.7 同上 node2 1 172.19.0.5 同上 应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库： 理解k8s基础概念，可以参考Kubernetes: 基础概念介绍
+1. 控制器管理Pod 1.1 生成deployment配置文件 kubectl create deployment yshop-h5 --image=ccr.ccs.tencentyun.com/yshop/h5 --dry-run -o yaml &gt; yshop-h5.yaml 这个时候k8s还不能拉取镜像，需要生成拉取镜像的密钥。
+1.2 生成拉取镜像的密钥 kubectl create secret docker-registry registry-secret-tencent --docker-server=ccr.ccs.tencentyun.com --docker-username=腾讯云账户ID --docker-password=腾讯云容器仓库密码 &ndash;docker-server: 仓库地址 &ndash;docker-username: 仓库登陆账号 &ndash;docker-password: 仓库登陆密码 &ndash;docker-email: 邮件地址(选填) -n 命名空间(选填)
+可以运行：kubectl get secret registry-secret-tencent --output=yaml 查看生成的密钥"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
   <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
@@ -623,8 +627,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

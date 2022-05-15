@@ -28,8 +28,9 @@ Merkle树
 在比特币网络中，merkle树被用来归纳一个区块中的所有交易，同时生成整个交易集合的数字指纹。此外，由于merkle树的存在，使得在比特币这种公链的场景下，扩展一种“轻节点”实现简单支付验证变成可能。
 知道了Merkle树在比特币中的应用，那么他是怎么构成呢？现在就简单看下其构成。它由一组叶节点、一组中间节点和一个根节点构成。最下面的叶节点包含基础数据，每个中间节点是它的子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部 。
 Merkle树具有下列特性:
- 每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。  Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
-首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。" /><meta itemprop="name" content="Merkle Patricia Tree">
+每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。 Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
+首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。
+其次，MPT树引人了很多节点类型来提高效率。包括以下4种:" /><meta itemprop="name" content="Merkle Patricia Tree">
 <meta itemprop="description" content="区块链一个重要的亮点就是防篡改，那么它是怎么做到防篡改的呢？其中一个重要的知识点就是Merkle Patricia Tree(MPT)，本篇就来解析下何为MPT。
 MPT是一种加密认证的数据结构，它融合了Merkle树和Patricia Trie树(基数树/压缩前缀树)两种数据类型的优点。
 则在介绍MPT树之前先介绍下Merkle树(默克尔树)、Trie树(前缀树)和Patricia Trie(基数树/压缩前缀树)，介绍Trie树是因为Patricia Trie是基于Trie树衍化来的。
@@ -49,8 +50,9 @@ Merkle树
 在比特币网络中，merkle树被用来归纳一个区块中的所有交易，同时生成整个交易集合的数字指纹。此外，由于merkle树的存在，使得在比特币这种公链的场景下，扩展一种“轻节点”实现简单支付验证变成可能。
 知道了Merkle树在比特币中的应用，那么他是怎么构成呢？现在就简单看下其构成。它由一组叶节点、一组中间节点和一个根节点构成。最下面的叶节点包含基础数据，每个中间节点是它的子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部 。
 Merkle树具有下列特性:
- 每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。  Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
-首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。 Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
+首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。
+其次，MPT树引人了很多节点类型来提高效率。包括以下4种:"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="404">
 <meta itemprop="keywords" content="BlockChain," /><meta property="og:title" content="Merkle Patricia Tree" />
@@ -73,8 +75,9 @@ Merkle树
 在比特币网络中，merkle树被用来归纳一个区块中的所有交易，同时生成整个交易集合的数字指纹。此外，由于merkle树的存在，使得在比特币这种公链的场景下，扩展一种“轻节点”实现简单支付验证变成可能。
 知道了Merkle树在比特币中的应用，那么他是怎么构成呢？现在就简单看下其构成。它由一组叶节点、一组中间节点和一个根节点构成。最下面的叶节点包含基础数据，每个中间节点是它的子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部 。
 Merkle树具有下列特性:
- 每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。  Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
-首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。" />
+每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。 Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
+首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。
+其次，MPT树引人了很多节点类型来提高效率。包括以下4种:" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/en/zh-cn/posts/block-chain/merkle-patricia-treempt/" /><meta property="article:section" content="zh-cn" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -102,8 +105,9 @@ Merkle树
 在比特币网络中，merkle树被用来归纳一个区块中的所有交易，同时生成整个交易集合的数字指纹。此外，由于merkle树的存在，使得在比特币这种公链的场景下，扩展一种“轻节点”实现简单支付验证变成可能。
 知道了Merkle树在比特币中的应用，那么他是怎么构成呢？现在就简单看下其构成。它由一组叶节点、一组中间节点和一个根节点构成。最下面的叶节点包含基础数据，每个中间节点是它的子节点的散列，根节点是它的子节点的散列，代表了Merkle树的根部 。
 Merkle树具有下列特性:
- 每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。  Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
-首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。"/>
+每个数据集对应一个唯一合法的根散列值。 很容易更新、添加或者删除树节点，以及生成新的根散列值 。 不改变根散列值的话就没有办法修改树的任何部分，所以如果根散列值被包括在签名的文档或有效区块中，就可以保证这棵树的正确性。 任何人可以只提供一个到特定节点的分支，并通过密码学方法证明拥有对应内容的节点确实在树里 。 Merkle Patricia Tree 叨叨了那么多，本篇的主角终于出来了。 Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太坊的使用场景进行了一些改进。
+首先，为了保证树的加密安全，每个节点通过它的散列值被引用，则根节点是一层一层散列向上收敛而得，被称为整棵树的加密签名，如果一棵给定 Trie树的根散列值是公开的，那么所有人都可以提供一种证明，即通过提供每步向上的路径证明特定的key是否含有特定的值。在当前的以太坊版本中，MPT存储在LevelDB数据库中。
+其次，MPT树引人了很多节点类型来提高效率。包括以下4种:"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
   <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
@@ -774,8 +778,8 @@ hashG:    [ &lt;35&gt;, &#39;coin&#39; ]
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

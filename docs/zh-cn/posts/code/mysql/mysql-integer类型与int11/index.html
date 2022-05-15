@@ -11,16 +11,28 @@
 <meta name="keywords" content="" />
 <meta name="description" content="1.介绍 Integer类型，即整数类型，MySQL支持的整数类型有TINYINT、SMALLINT、MEDIUMINT、INT、BIGINT。
 1.1 空间和范围 每种整数类型所需的存储空间和范围如下：
-   类型 字节 最小值(有符号) 最大值(有符号) 最小值(无符号) 最大值(无符号)     TINYINT 1 -128 127 0 255   SMALLINT 2 -32768 32767 0 65535   MEDIUMINT 3 -8388608 8388607 0 16777215   INT 4 -2147483648 2147483647 0 4294967295   BIGINT 8 $-2^{63}$(-9223372036854775808) $2^{63}-1$(9223372036854775807) 0 $2^{64}-1$(18446744073709551615)    2. INT(11) 2.1 数字是否限制长度？ id INT(11) NOT NULL AUTO_INCREMENT, 在一些建表语句会出现上面 int(11) 的类型，那么其代表什么意思呢？" /><meta itemprop="name" content="MySQL Integer类型与INT(11)">
+类型 字节 最小值(有符号) 最大值(有符号) 最小值(无符号) 最大值(无符号) TINYINT 1 -128 127 0 255 SMALLINT 2 -32768 32767 0 65535 MEDIUMINT 3 -8388608 8388607 0 16777215 INT 4 -2147483648 2147483647 0 4294967295 BIGINT 8 $-2^{63}$(-9223372036854775808) $2^{63}-1$(9223372036854775807) 0 $2^{64}-1$(18446744073709551615) 2. INT(11) 2.1 数字是否限制长度？ id INT(11) NOT NULL AUTO_INCREMENT, 在一些建表语句会出现上面 int(11) 的类型，那么其代表什么意思呢？
+对于Integer类型括号中的数字称为字段的显示宽度。这与其他类型字段的含义不同。对于DECIMAL类型，表示数字的总数。对于字符字段，这是可以存储的最大字符数，例如VARCHAR（20）可以存储20个字符。
+显示宽度并不影响可以存储在该列中的最大值。INT(5) 和 INT(11)可以存储相同的最大值。哪怕设置成 INT(20) 并不意味着将能够存储20位数字(BIGINT)，该列还是只能存储INT的最大值。
+示例 创建一个临时表：
+CREATE TEMPORARY TABLE demo_a ( id INT(11) NOT NULL AUTO_INCREMENT, a INT(1) NOT NULL, b INT(5) NOT NULL, PRIMARY KEY (`id`) ) 插入超过&quot;长度&quot;的数字：" /><meta itemprop="name" content="MySQL Integer类型与INT(11)">
 <meta itemprop="description" content="1.介绍 Integer类型，即整数类型，MySQL支持的整数类型有TINYINT、SMALLINT、MEDIUMINT、INT、BIGINT。
 1.1 空间和范围 每种整数类型所需的存储空间和范围如下：
-   类型 字节 最小值(有符号) 最大值(有符号) 最小值(无符号) 最大值(无符号)     TINYINT 1 -128 127 0 255   SMALLINT 2 -32768 32767 0 65535   MEDIUMINT 3 -8388608 8388607 0 16777215   INT 4 -2147483648 2147483647 0 4294967295   BIGINT 8 $-2^{63}$(-9223372036854775808) $2^{63}-1$(9223372036854775807) 0 $2^{64}-1$(18446744073709551615)    2. INT(11) 2.1 数字是否限制长度？ id INT(11) NOT NULL AUTO_INCREMENT, 在一些建表语句会出现上面 int(11) 的类型，那么其代表什么意思呢？"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+类型 字节 最小值(有符号) 最大值(有符号) 最小值(无符号) 最大值(无符号) TINYINT 1 -128 127 0 255 SMALLINT 2 -32768 32767 0 65535 MEDIUMINT 3 -8388608 8388607 0 16777215 INT 4 -2147483648 2147483647 0 4294967295 BIGINT 8 $-2^{63}$(-9223372036854775808) $2^{63}-1$(9223372036854775807) 0 $2^{64}-1$(18446744073709551615) 2. INT(11) 2.1 数字是否限制长度？ id INT(11) NOT NULL AUTO_INCREMENT, 在一些建表语句会出现上面 int(11) 的类型，那么其代表什么意思呢？
+对于Integer类型括号中的数字称为字段的显示宽度。这与其他类型字段的含义不同。对于DECIMAL类型，表示数字的总数。对于字符字段，这是可以存储的最大字符数，例如VARCHAR（20）可以存储20个字符。
+显示宽度并不影响可以存储在该列中的最大值。INT(5) 和 INT(11)可以存储相同的最大值。哪怕设置成 INT(20) 并不意味着将能够存储20位数字(BIGINT)，该列还是只能存储INT的最大值。
+示例 创建一个临时表：
+CREATE TEMPORARY TABLE demo_a ( id INT(11) NOT NULL AUTO_INCREMENT, a INT(1) NOT NULL, b INT(5) NOT NULL, PRIMARY KEY (`id`) ) 插入超过&quot;长度&quot;的数字："><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="188">
 <meta itemprop="keywords" content="MySQL," /><meta property="og:title" content="MySQL Integer类型与INT(11)" />
 <meta property="og:description" content="1.介绍 Integer类型，即整数类型，MySQL支持的整数类型有TINYINT、SMALLINT、MEDIUMINT、INT、BIGINT。
 1.1 空间和范围 每种整数类型所需的存储空间和范围如下：
-   类型 字节 最小值(有符号) 最大值(有符号) 最小值(无符号) 最大值(无符号)     TINYINT 1 -128 127 0 255   SMALLINT 2 -32768 32767 0 65535   MEDIUMINT 3 -8388608 8388607 0 16777215   INT 4 -2147483648 2147483647 0 4294967295   BIGINT 8 $-2^{63}$(-9223372036854775808) $2^{63}-1$(9223372036854775807) 0 $2^{64}-1$(18446744073709551615)    2. INT(11) 2.1 数字是否限制长度？ id INT(11) NOT NULL AUTO_INCREMENT, 在一些建表语句会出现上面 int(11) 的类型，那么其代表什么意思呢？" />
+类型 字节 最小值(有符号) 最大值(有符号) 最小值(无符号) 最大值(无符号) TINYINT 1 -128 127 0 255 SMALLINT 2 -32768 32767 0 65535 MEDIUMINT 3 -8388608 8388607 0 16777215 INT 4 -2147483648 2147483647 0 4294967295 BIGINT 8 $-2^{63}$(-9223372036854775808) $2^{63}-1$(9223372036854775807) 0 $2^{64}-1$(18446744073709551615) 2. INT(11) 2.1 数字是否限制长度？ id INT(11) NOT NULL AUTO_INCREMENT, 在一些建表语句会出现上面 int(11) 的类型，那么其代表什么意思呢？
+对于Integer类型括号中的数字称为字段的显示宽度。这与其他类型字段的含义不同。对于DECIMAL类型，表示数字的总数。对于字符字段，这是可以存储的最大字符数，例如VARCHAR（20）可以存储20个字符。
+显示宽度并不影响可以存储在该列中的最大值。INT(5) 和 INT(11)可以存储相同的最大值。哪怕设置成 INT(20) 并不意味着将能够存储20位数字(BIGINT)，该列还是只能存储INT的最大值。
+示例 创建一个临时表：
+CREATE TEMPORARY TABLE demo_a ( id INT(11) NOT NULL AUTO_INCREMENT, a INT(1) NOT NULL, b INT(5) NOT NULL, PRIMARY KEY (`id`) ) 插入超过&quot;长度&quot;的数字：" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/mysql/mysql-integer%E7%B1%BB%E5%9E%8B%E4%B8%8Eint11/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -31,7 +43,11 @@
 <meta name="twitter:title" content="MySQL Integer类型与INT(11)"/>
 <meta name="twitter:description" content="1.介绍 Integer类型，即整数类型，MySQL支持的整数类型有TINYINT、SMALLINT、MEDIUMINT、INT、BIGINT。
 1.1 空间和范围 每种整数类型所需的存储空间和范围如下：
-   类型 字节 最小值(有符号) 最大值(有符号) 最小值(无符号) 最大值(无符号)     TINYINT 1 -128 127 0 255   SMALLINT 2 -32768 32767 0 65535   MEDIUMINT 3 -8388608 8388607 0 16777215   INT 4 -2147483648 2147483647 0 4294967295   BIGINT 8 $-2^{63}$(-9223372036854775808) $2^{63}-1$(9223372036854775807) 0 $2^{64}-1$(18446744073709551615)    2. INT(11) 2.1 数字是否限制长度？ id INT(11) NOT NULL AUTO_INCREMENT, 在一些建表语句会出现上面 int(11) 的类型，那么其代表什么意思呢？"/>
+类型 字节 最小值(有符号) 最大值(有符号) 最小值(无符号) 最大值(无符号) TINYINT 1 -128 127 0 255 SMALLINT 2 -32768 32767 0 65535 MEDIUMINT 3 -8388608 8388607 0 16777215 INT 4 -2147483648 2147483647 0 4294967295 BIGINT 8 $-2^{63}$(-9223372036854775808) $2^{63}-1$(9223372036854775807) 0 $2^{64}-1$(18446744073709551615) 2. INT(11) 2.1 数字是否限制长度？ id INT(11) NOT NULL AUTO_INCREMENT, 在一些建表语句会出现上面 int(11) 的类型，那么其代表什么意思呢？
+对于Integer类型括号中的数字称为字段的显示宽度。这与其他类型字段的含义不同。对于DECIMAL类型，表示数字的总数。对于字符字段，这是可以存储的最大字符数，例如VARCHAR（20）可以存储20个字符。
+显示宽度并不影响可以存储在该列中的最大值。INT(5) 和 INT(11)可以存储相同的最大值。哪怕设置成 INT(20) 并不意味着将能够存储20位数字(BIGINT)，该列还是只能存储INT的最大值。
+示例 创建一个临时表：
+CREATE TEMPORARY TABLE demo_a ( id INT(11) NOT NULL AUTO_INCREMENT, a INT(1) NOT NULL, b INT(5) NOT NULL, PRIMARY KEY (`id`) ) 插入超过&quot;长度&quot;的数字："/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
   <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
@@ -700,8 +716,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

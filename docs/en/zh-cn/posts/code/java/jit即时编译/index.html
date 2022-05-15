@@ -16,11 +16,12 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 1. 编译器与解释器 不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
- 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
- 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
+特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
+无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
 编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
-解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果  特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：" /><meta itemprop="name" content="JIT即时编译">
+解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果 特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：
+至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行； 兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。 为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？" /><meta itemprop="name" content="JIT即时编译">
 <meta itemprop="description" content="JIT (just-in-time compilation) 是指程序在运行过程中对热点代码进行编译的过程，编译后的机器码存入CodeCache，下次再遇到这段代码，就会从CodeCache中读取机器码，直接执行，以此来提升程序运行的性能。
 有的JVM全程都是JIT编译运行，例如：JRockit；有的JVM是解释器 &#43; JIT运行，例如：HotSpot, J9（也支持AOT）；有的JVM没有解释器，只支持AOT&#43;JIT或者纯AOT，例如：Excelsior JET
 以HotSpot JVM举例，JIT还可以分为C1, C2等。C1编译快，执行效率低；C2编译慢，效率高。可以通过 -XX:&#43;TieredCompilation 开启分层编译，对热点代码先C1编译以尽快进入到编译执行模式；随着应用继续运行，收集到足够多的指标后，再进行C2编译，以期获得最好的执行效率。
@@ -28,11 +29,12 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 1. 编译器与解释器 不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
- 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
- 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
+特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
+无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
 编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
-解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果  特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常："><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果 特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：
+至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行； 兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。 为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="644">
 <meta itemprop="keywords" content="Java,JVM," /><meta property="og:title" content="JIT即时编译" />
@@ -43,11 +45,12 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 1. 编译器与解释器 不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
- 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
- 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
+特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
+无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
 编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
-解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果  特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：" />
+解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果 特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：
+至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行； 兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。 为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/java/jit%E5%8D%B3%E6%97%B6%E7%BC%96%E8%AF%91/" /><meta property="article:section" content="zh-cn" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -63,11 +66,12 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 1. 编译器与解释器 不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
- 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
- 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
+特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
+无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
 编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
-解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果  特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常："/>
+解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果 特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：
+至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行； 兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。 为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
   <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
@@ -842,8 +846,8 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

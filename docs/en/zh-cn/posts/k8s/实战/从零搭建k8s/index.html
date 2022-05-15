@@ -10,20 +10,20 @@
 <link rel="manifest" href="https://xuzhijvn.github.io/en/manifest.json">
 <meta name="keywords" content="" />
 <meta name="description" content="从零搭建K8S
-机器准备    名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上    由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
+机器准备 名称 数量 IP 备注 master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G node1 1 172.18.0.7 同上 node2 1 172.19.0.5 同上 由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
 1. 修改hostname [root@k8s-master ~]$ vim /etc/hostname # 修改hostname [root@k8s-master ~]$ vim /etc/hosts	# 将本机IP指向hostname [root@k8s-master ~]$ reboot -h # 重启(可以做完全部前期准备后再重启) 修改后：
-[root@k8s-master ~]# cat /etc/hosts  ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6." /><meta itemprop="name" content="从零搭建K8S">
+[root@k8s-master ~]# cat /etc/hosts ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6.localdomain6 localhost6 127.0.0.1 localhost localhost.localdomain k8s-master 172.17.0.14 k8s-master 172.18.0.7 k8s-node1 172.19.0.5 k8s-node2 2. 配置防火墙 笔者图方便, 直接关闭了防火墙." /><meta itemprop="name" content="从零搭建K8S">
 <meta itemprop="description" content="从零搭建K8S
-机器准备    名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上    由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
+机器准备 名称 数量 IP 备注 master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G node1 1 172.18.0.7 同上 node2 1 172.19.0.5 同上 由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
 1. 修改hostname [root@k8s-master ~]$ vim /etc/hostname # 修改hostname [root@k8s-master ~]$ vim /etc/hosts	# 将本机IP指向hostname [root@k8s-master ~]$ reboot -h # 重启(可以做完全部前期准备后再重启) 修改后：
-[root@k8s-master ~]# cat /etc/hosts  ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+[root@k8s-master ~]# cat /etc/hosts ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6.localdomain6 localhost6 127.0.0.1 localhost localhost.localdomain k8s-master 172.17.0.14 k8s-master 172.18.0.7 k8s-node1 172.19.0.5 k8s-node2 2. 配置防火墙 笔者图方便, 直接关闭了防火墙."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="801">
 <meta itemprop="keywords" content="云原生,k8s," /><meta property="og:title" content="从零搭建K8S" />
 <meta property="og:description" content="从零搭建K8S
-机器准备    名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上    由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
+机器准备 名称 数量 IP 备注 master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G node1 1 172.18.0.7 同上 node2 1 172.19.0.5 同上 由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
 1. 修改hostname [root@k8s-master ~]$ vim /etc/hostname # 修改hostname [root@k8s-master ~]$ vim /etc/hosts	# 将本机IP指向hostname [root@k8s-master ~]$ reboot -h # 重启(可以做完全部前期准备后再重启) 修改后：
-[root@k8s-master ~]# cat /etc/hosts  ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6." />
+[root@k8s-master ~]# cat /etc/hosts ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6.localdomain6 localhost6 127.0.0.1 localhost localhost.localdomain k8s-master 172.17.0.14 k8s-master 172.18.0.7 k8s-node1 172.19.0.5 k8s-node2 2. 配置防火墙 笔者图方便, 直接关闭了防火墙." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/en/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BAk8s/" /><meta property="article:section" content="zh-cn" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -33,9 +33,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="从零搭建K8S"/>
 <meta name="twitter:description" content="从零搭建K8S
-机器准备    名称 数量 IP 备注     master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G   node1 1 172.18.0.7 同上   node2 1 172.19.0.5 同上    由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
+机器准备 名称 数量 IP 备注 master 1 172.17.0.14 操作系统: Linux(centos7, 其它操作系统也可, 安装过程类似, 可参考官方文档) 机器配置: 4C8G node1 1 172.18.0.7 同上 node2 1 172.19.0.5 同上 由于本人很穷，这几台机器是分别属于不同的腾讯云账号，不同的账号之间不能内网通信，不过可以通过建立“对等连接”实现通信，比直接用公网通信靠谱。
 1. 修改hostname [root@k8s-master ~]$ vim /etc/hostname # 修改hostname [root@k8s-master ~]$ vim /etc/hosts	# 将本机IP指向hostname [root@k8s-master ~]$ reboot -h # 重启(可以做完全部前期准备后再重启) 修改后：
-[root@k8s-master ~]# cat /etc/hosts  ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6."/>
+[root@k8s-master ~]# cat /etc/hosts ::1 VM_0_5_centos VM_0_5_centos ::1 localhost.localdomain localhost ::1 localhost6.localdomain6 localhost6 127.0.0.1 localhost localhost.localdomain k8s-master 172.17.0.14 k8s-master 172.18.0.7 k8s-node1 172.19.0.5 k8s-node2 2. 配置防火墙 笔者图方便, 直接关闭了防火墙."/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
   <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
@@ -810,8 +810,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

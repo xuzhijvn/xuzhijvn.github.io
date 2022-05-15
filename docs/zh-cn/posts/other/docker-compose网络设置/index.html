@@ -12,27 +12,33 @@
 <meta name="description" content="基本概念 默认情况下，Compose 会为我们的应用创建一个网络，服务的每个容器都会加入该网络中。这样，容器就可被该网络中的其他容器访问，不仅如此，该容器还能以服务名称作为 hostname 被其他容器访问。
 默认情况下，应用程序的网络名称基于 Compose 的工程名称，而项目名称基于 docker-compose.yml 所在目录的名称。如需修改工程名称，可使用&ndash;project-name 标识或 COMPOSE_PORJECT_NAME 环境变量。
 举个例子，假如一个应用程序在名为 myapp 的目录中，并且 docker-compose.yml 如下所示：
-version: &#39;2&#39; services:  web:  build: .  ports:  - &#34;8000:8000&#34;  db:  image: postgres 当我们运行 docker-compose up 时，将会执行以下几步：
- 创建一个名为 myapp_default 的网络； 使用 web 服务的配置创建容器，它以“web”这个名称加入网络 myapp_default； 使用 db 服务的配置创建容器，它以“db”这个名称加入网络 myapp_default。  容器间可使用服务名称（web 或 db）作为 hostname 相互访问。例如，web 这个服务可使用postgres://db:5432 访问 db 容器。
+version: &#39;2&#39; services: web: build: . ports: - &#34;8000:8000&#34; db: image: postgres 当我们运行 docker-compose up 时，将会执行以下几步：
+创建一个名为 myapp_default 的网络； 使用 web 服务的配置创建容器，它以“web”这个名称加入网络 myapp_default； 使用 db 服务的配置创建容器，它以“db”这个名称加入网络 myapp_default。 容器间可使用服务名称（web 或 db）作为 hostname 相互访问。例如，web 这个服务可使用postgres://db:5432 访问 db 容器。
 更新容器 当服务的配置发生更改时，可使用 docker-compose up 命令更新配置。
-此时，Compose 会删除旧容器并创建新容器。新容器会以不同的 IP 地址加入网络，名称保持不变。任何指向旧容器的连接都会被关闭，容器会重新找到新容器并连接上去。" /><meta itemprop="name" content="docker-compose网络设置">
+此时，Compose 会删除旧容器并创建新容器。新容器会以不同的 IP 地址加入网络，名称保持不变。任何指向旧容器的连接都会被关闭，容器会重新找到新容器并连接上去。
+links 前文讲过，默认情况下，服务之间可使用服务名称相互访问。links 允许我们定义一个别名，从而使用该别名访问其他服务。举个例子：
+version: &#39;2&#39; services: web: build: ." /><meta itemprop="name" content="docker-compose网络设置">
 <meta itemprop="description" content="基本概念 默认情况下，Compose 会为我们的应用创建一个网络，服务的每个容器都会加入该网络中。这样，容器就可被该网络中的其他容器访问，不仅如此，该容器还能以服务名称作为 hostname 被其他容器访问。
 默认情况下，应用程序的网络名称基于 Compose 的工程名称，而项目名称基于 docker-compose.yml 所在目录的名称。如需修改工程名称，可使用&ndash;project-name 标识或 COMPOSE_PORJECT_NAME 环境变量。
 举个例子，假如一个应用程序在名为 myapp 的目录中，并且 docker-compose.yml 如下所示：
-version: &#39;2&#39; services:  web:  build: .  ports:  - &#34;8000:8000&#34;  db:  image: postgres 当我们运行 docker-compose up 时，将会执行以下几步：
- 创建一个名为 myapp_default 的网络； 使用 web 服务的配置创建容器，它以“web”这个名称加入网络 myapp_default； 使用 db 服务的配置创建容器，它以“db”这个名称加入网络 myapp_default。  容器间可使用服务名称（web 或 db）作为 hostname 相互访问。例如，web 这个服务可使用postgres://db:5432 访问 db 容器。
+version: &#39;2&#39; services: web: build: . ports: - &#34;8000:8000&#34; db: image: postgres 当我们运行 docker-compose up 时，将会执行以下几步：
+创建一个名为 myapp_default 的网络； 使用 web 服务的配置创建容器，它以“web”这个名称加入网络 myapp_default； 使用 db 服务的配置创建容器，它以“db”这个名称加入网络 myapp_default。 容器间可使用服务名称（web 或 db）作为 hostname 相互访问。例如，web 这个服务可使用postgres://db:5432 访问 db 容器。
 更新容器 当服务的配置发生更改时，可使用 docker-compose up 命令更新配置。
-此时，Compose 会删除旧容器并创建新容器。新容器会以不同的 IP 地址加入网络，名称保持不变。任何指向旧容器的连接都会被关闭，容器会重新找到新容器并连接上去。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+此时，Compose 会删除旧容器并创建新容器。新容器会以不同的 IP 地址加入网络，名称保持不变。任何指向旧容器的连接都会被关闭，容器会重新找到新容器并连接上去。
+links 前文讲过，默认情况下，服务之间可使用服务名称相互访问。links 允许我们定义一个别名，从而使用该别名访问其他服务。举个例子：
+version: &#39;2&#39; services: web: build: ."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="493">
 <meta itemprop="keywords" content="Other," /><meta property="og:title" content="docker-compose网络设置" />
 <meta property="og:description" content="基本概念 默认情况下，Compose 会为我们的应用创建一个网络，服务的每个容器都会加入该网络中。这样，容器就可被该网络中的其他容器访问，不仅如此，该容器还能以服务名称作为 hostname 被其他容器访问。
 默认情况下，应用程序的网络名称基于 Compose 的工程名称，而项目名称基于 docker-compose.yml 所在目录的名称。如需修改工程名称，可使用&ndash;project-name 标识或 COMPOSE_PORJECT_NAME 环境变量。
 举个例子，假如一个应用程序在名为 myapp 的目录中，并且 docker-compose.yml 如下所示：
-version: &#39;2&#39; services:  web:  build: .  ports:  - &#34;8000:8000&#34;  db:  image: postgres 当我们运行 docker-compose up 时，将会执行以下几步：
- 创建一个名为 myapp_default 的网络； 使用 web 服务的配置创建容器，它以“web”这个名称加入网络 myapp_default； 使用 db 服务的配置创建容器，它以“db”这个名称加入网络 myapp_default。  容器间可使用服务名称（web 或 db）作为 hostname 相互访问。例如，web 这个服务可使用postgres://db:5432 访问 db 容器。
+version: &#39;2&#39; services: web: build: . ports: - &#34;8000:8000&#34; db: image: postgres 当我们运行 docker-compose up 时，将会执行以下几步：
+创建一个名为 myapp_default 的网络； 使用 web 服务的配置创建容器，它以“web”这个名称加入网络 myapp_default； 使用 db 服务的配置创建容器，它以“db”这个名称加入网络 myapp_default。 容器间可使用服务名称（web 或 db）作为 hostname 相互访问。例如，web 这个服务可使用postgres://db:5432 访问 db 容器。
 更新容器 当服务的配置发生更改时，可使用 docker-compose up 命令更新配置。
-此时，Compose 会删除旧容器并创建新容器。新容器会以不同的 IP 地址加入网络，名称保持不变。任何指向旧容器的连接都会被关闭，容器会重新找到新容器并连接上去。" />
+此时，Compose 会删除旧容器并创建新容器。新容器会以不同的 IP 地址加入网络，名称保持不变。任何指向旧容器的连接都会被关闭，容器会重新找到新容器并连接上去。
+links 前文讲过，默认情况下，服务之间可使用服务名称相互访问。links 允许我们定义一个别名，从而使用该别名访问其他服务。举个例子：
+version: &#39;2&#39; services: web: build: ." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/other/docker-compose%E7%BD%91%E7%BB%9C%E8%AE%BE%E7%BD%AE/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -44,10 +50,12 @@ version: &#39;2&#39; services:  web:  build: .  ports:  - &#34;8000:8000&#34;  d
 <meta name="twitter:description" content="基本概念 默认情况下，Compose 会为我们的应用创建一个网络，服务的每个容器都会加入该网络中。这样，容器就可被该网络中的其他容器访问，不仅如此，该容器还能以服务名称作为 hostname 被其他容器访问。
 默认情况下，应用程序的网络名称基于 Compose 的工程名称，而项目名称基于 docker-compose.yml 所在目录的名称。如需修改工程名称，可使用&ndash;project-name 标识或 COMPOSE_PORJECT_NAME 环境变量。
 举个例子，假如一个应用程序在名为 myapp 的目录中，并且 docker-compose.yml 如下所示：
-version: &#39;2&#39; services:  web:  build: .  ports:  - &#34;8000:8000&#34;  db:  image: postgres 当我们运行 docker-compose up 时，将会执行以下几步：
- 创建一个名为 myapp_default 的网络； 使用 web 服务的配置创建容器，它以“web”这个名称加入网络 myapp_default； 使用 db 服务的配置创建容器，它以“db”这个名称加入网络 myapp_default。  容器间可使用服务名称（web 或 db）作为 hostname 相互访问。例如，web 这个服务可使用postgres://db:5432 访问 db 容器。
+version: &#39;2&#39; services: web: build: . ports: - &#34;8000:8000&#34; db: image: postgres 当我们运行 docker-compose up 时，将会执行以下几步：
+创建一个名为 myapp_default 的网络； 使用 web 服务的配置创建容器，它以“web”这个名称加入网络 myapp_default； 使用 db 服务的配置创建容器，它以“db”这个名称加入网络 myapp_default。 容器间可使用服务名称（web 或 db）作为 hostname 相互访问。例如，web 这个服务可使用postgres://db:5432 访问 db 容器。
 更新容器 当服务的配置发生更改时，可使用 docker-compose up 命令更新配置。
-此时，Compose 会删除旧容器并创建新容器。新容器会以不同的 IP 地址加入网络，名称保持不变。任何指向旧容器的连接都会被关闭，容器会重新找到新容器并连接上去。"/>
+此时，Compose 会删除旧容器并创建新容器。新容器会以不同的 IP 地址加入网络，名称保持不变。任何指向旧容器的连接都会被关闭，容器会重新找到新容器并连接上去。
+links 前文讲过，默认情况下，服务之间可使用服务名称相互访问。links 允许我们定义一个别名，从而使用该别名访问其他服务。举个例子：
+version: &#39;2&#39; services: web: build: ."/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
   <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
@@ -797,8 +805,8 @@ version: &#39;2&#39; services:  web:  build: .  ports:  - &#34;8000:8000&#34;  d
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

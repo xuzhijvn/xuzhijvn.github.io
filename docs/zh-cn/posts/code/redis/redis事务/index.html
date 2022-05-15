@@ -10,16 +10,16 @@
 <link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
 <meta name="keywords" content="" />
 <meta name="description" content="redis它只是做到了：
- 它认为的原子性。（单个命令原子，多条命令不一定原子） 隔离性。（单线程执行，各事务串行执行，天然满足隔离） AOF/RDB保证了部分的持久性。（持久化的时候可能存在数据丢失） 它不存在ACID中的C的概念，因为它没有约束。  1. 命令使用错误 这种错误redis在执行前就能检查出来，因此整个事务都不执行。
+它认为的原子性。（单个命令原子，多条命令不一定原子） 隔离性。（单线程执行，各事务串行执行，天然满足隔离） AOF/RDB保证了部分的持久性。（持久化的时候可能存在数据丢失） 它不存在ACID中的C的概念，因为它没有约束。 1. 命令使用错误 这种错误redis在执行前就能检查出来，因此整个事务都不执行。
 127.0.0.1:6379&gt; get name &#34;xumeili&#34; 127.0.0.1:6379&gt; get age &#34;28&#34; 127.0.0.1:6379&gt; get sex &#34;female&#34; 127.0.0.1:6379&gt; multi OK 127.0.0.1:6379&gt; set name xuzhijun QUEUED 127.0.0.1:6379&gt; set age (error) ERR wrong number of arguments for &#39;set&#39; command 127.0.0.1:6379&gt; set sex male QUEUED 127.0.0.1:6379&gt; exec (error) EXECABORT Transaction discarded because of previous errors. 127.0.0.1:6379&gt; get name &#34;xumeili&#34; 127.0.0.1:6379&gt; get age &#34;28&#34; 127.0.0.1:6379&gt; get sex &#34;female&#34; 2. 命令执行错误 这种错误redis无法在执行前发现，因此不影响这种错误的前后命令被提交。" /><meta itemprop="name" content="Redis事务">
 <meta itemprop="description" content="redis它只是做到了：
- 它认为的原子性。（单个命令原子，多条命令不一定原子） 隔离性。（单线程执行，各事务串行执行，天然满足隔离） AOF/RDB保证了部分的持久性。（持久化的时候可能存在数据丢失） 它不存在ACID中的C的概念，因为它没有约束。  1. 命令使用错误 这种错误redis在执行前就能检查出来，因此整个事务都不执行。
+它认为的原子性。（单个命令原子，多条命令不一定原子） 隔离性。（单线程执行，各事务串行执行，天然满足隔离） AOF/RDB保证了部分的持久性。（持久化的时候可能存在数据丢失） 它不存在ACID中的C的概念，因为它没有约束。 1. 命令使用错误 这种错误redis在执行前就能检查出来，因此整个事务都不执行。
 127.0.0.1:6379&gt; get name &#34;xumeili&#34; 127.0.0.1:6379&gt; get age &#34;28&#34; 127.0.0.1:6379&gt; get sex &#34;female&#34; 127.0.0.1:6379&gt; multi OK 127.0.0.1:6379&gt; set name xuzhijun QUEUED 127.0.0.1:6379&gt; set age (error) ERR wrong number of arguments for &#39;set&#39; command 127.0.0.1:6379&gt; set sex male QUEUED 127.0.0.1:6379&gt; exec (error) EXECABORT Transaction discarded because of previous errors. 127.0.0.1:6379&gt; get name &#34;xumeili&#34; 127.0.0.1:6379&gt; get age &#34;28&#34; 127.0.0.1:6379&gt; get sex &#34;female&#34; 2. 命令执行错误 这种错误redis无法在执行前发现，因此不影响这种错误的前后命令被提交。"><meta itemprop="datePublished" content="2021-10-08T16:45:53+08:00" />
 <meta itemprop="dateModified" content="2021-10-08T16:45:53+08:00" />
 <meta itemprop="wordCount" content="199">
 <meta itemprop="keywords" content="Redis," /><meta property="og:title" content="Redis事务" />
 <meta property="og:description" content="redis它只是做到了：
- 它认为的原子性。（单个命令原子，多条命令不一定原子） 隔离性。（单线程执行，各事务串行执行，天然满足隔离） AOF/RDB保证了部分的持久性。（持久化的时候可能存在数据丢失） 它不存在ACID中的C的概念，因为它没有约束。  1. 命令使用错误 这种错误redis在执行前就能检查出来，因此整个事务都不执行。
+它认为的原子性。（单个命令原子，多条命令不一定原子） 隔离性。（单线程执行，各事务串行执行，天然满足隔离） AOF/RDB保证了部分的持久性。（持久化的时候可能存在数据丢失） 它不存在ACID中的C的概念，因为它没有约束。 1. 命令使用错误 这种错误redis在执行前就能检查出来，因此整个事务都不执行。
 127.0.0.1:6379&gt; get name &#34;xumeili&#34; 127.0.0.1:6379&gt; get age &#34;28&#34; 127.0.0.1:6379&gt; get sex &#34;female&#34; 127.0.0.1:6379&gt; multi OK 127.0.0.1:6379&gt; set name xuzhijun QUEUED 127.0.0.1:6379&gt; set age (error) ERR wrong number of arguments for &#39;set&#39; command 127.0.0.1:6379&gt; set sex male QUEUED 127.0.0.1:6379&gt; exec (error) EXECABORT Transaction discarded because of previous errors. 127.0.0.1:6379&gt; get name &#34;xumeili&#34; 127.0.0.1:6379&gt; get age &#34;28&#34; 127.0.0.1:6379&gt; get sex &#34;female&#34; 2. 命令执行错误 这种错误redis无法在执行前发现，因此不影响这种错误的前后命令被提交。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/redis%E4%BA%8B%E5%8A%A1/" /><meta property="article:section" content="posts" />
@@ -30,7 +30,7 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Redis事务"/>
 <meta name="twitter:description" content="redis它只是做到了：
- 它认为的原子性。（单个命令原子，多条命令不一定原子） 隔离性。（单线程执行，各事务串行执行，天然满足隔离） AOF/RDB保证了部分的持久性。（持久化的时候可能存在数据丢失） 它不存在ACID中的C的概念，因为它没有约束。  1. 命令使用错误 这种错误redis在执行前就能检查出来，因此整个事务都不执行。
+它认为的原子性。（单个命令原子，多条命令不一定原子） 隔离性。（单线程执行，各事务串行执行，天然满足隔离） AOF/RDB保证了部分的持久性。（持久化的时候可能存在数据丢失） 它不存在ACID中的C的概念，因为它没有约束。 1. 命令使用错误 这种错误redis在执行前就能检查出来，因此整个事务都不执行。
 127.0.0.1:6379&gt; get name &#34;xumeili&#34; 127.0.0.1:6379&gt; get age &#34;28&#34; 127.0.0.1:6379&gt; get sex &#34;female&#34; 127.0.0.1:6379&gt; multi OK 127.0.0.1:6379&gt; set name xuzhijun QUEUED 127.0.0.1:6379&gt; set age (error) ERR wrong number of arguments for &#39;set&#39; command 127.0.0.1:6379&gt; set sex male QUEUED 127.0.0.1:6379&gt; exec (error) EXECABORT Transaction discarded because of previous errors. 127.0.0.1:6379&gt; get name &#34;xumeili&#34; 127.0.0.1:6379&gt; get age &#34;28&#34; 127.0.0.1:6379&gt; get sex &#34;female&#34; 2. 命令执行错误 这种错误redis无法在执行前发现，因此不影响这种错误的前后命令被提交。"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
@@ -680,8 +680,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

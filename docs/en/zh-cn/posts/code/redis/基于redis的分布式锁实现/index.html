@@ -15,22 +15,22 @@
 实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
 比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
 分布式锁的特点 分布式锁一般有如下的特点：
- 互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒  分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
- 基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
+互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒 分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
+基于数据库 基于Redis 基于zookeeper 本篇文章主要介绍基于Redis如何实现分布式锁
 Redis的分布式锁实现 1. 利用setnx&#43;expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
 因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx&#43;expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis." /><meta itemprop="name" content="基于Redis的分布式锁实现">
+public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.expire(key, timeout) == 1L; } else { return false; } } 复制代码 实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。" /><meta itemprop="name" content="基于Redis的分布式锁实现">
 <meta itemprop="description" content="使用 set key value ex/px 秒/毫秒 xx/nx 的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是多锁，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（RedissonPriorityDeque）和分布式同步工具（RedissonCountDownLatch, RedissonSemaphore）
 前言 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
 分布式锁概览 在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
 实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
 比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
 分布式锁的特点 分布式锁一般有如下的特点：
- 互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒  分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
- 基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
+互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒 分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
+基于数据库 基于Redis 基于zookeeper 本篇文章主要介绍基于Redis如何实现分布式锁
 Redis的分布式锁实现 1. 利用setnx&#43;expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
 因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx&#43;expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.expire(key, timeout) == 1L; } else { return false; } } 复制代码 实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="793">
 <meta itemprop="keywords" content="Redis," /><meta property="og:title" content="基于Redis的分布式锁实现" />
@@ -40,11 +40,11 @@ public boolean tryLock(String key,String requset,int timeout) { Long result = je
 实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
 比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
 分布式锁的特点 分布式锁一般有如下的特点：
- 互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒  分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
- 基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
+互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒 分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
+基于数据库 基于Redis 基于zookeeper 本篇文章主要介绍基于Redis如何实现分布式锁
 Redis的分布式锁实现 1. 利用setnx&#43;expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
 因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx&#43;expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis." />
+public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.expire(key, timeout) == 1L; } else { return false; } } 复制代码 实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/" /><meta property="article:section" content="zh-cn" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -59,11 +59,11 @@ public boolean tryLock(String key,String requset,int timeout) { Long result = je
 实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
 比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
 分布式锁的特点 分布式锁一般有如下的特点：
- 互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒  分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
- 基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
+互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒 分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
+基于数据库 基于Redis 基于zookeeper 本篇文章主要介绍基于Redis如何实现分布式锁
 Redis的分布式锁实现 1. 利用setnx&#43;expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
 因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx&#43;expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis."/>
+public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.expire(key, timeout) == 1L; } else { return false; } } 复制代码 实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
   <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
@@ -868,8 +868,8 @@ public boolean tryLock(String key,String requset,int timeout) { Long result = je
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

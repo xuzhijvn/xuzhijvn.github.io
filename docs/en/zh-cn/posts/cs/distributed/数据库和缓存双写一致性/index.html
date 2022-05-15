@@ -11,7 +11,7 @@
 <meta name="keywords" content="" />
 <meta name="description" content="数据库与缓存双写可以有4种顺序： 更新缓存-&gt;更新db、更新db-&gt;更新缓存、删除缓存-&gt;更新db、更新db-&gt;删除缓存
 前两种顺序有显著的缺陷：
- 后更新的数据源失败，因为无法将先更新的数据源回滚（redis）或者不知道该不该回滚（超时）导致数据不一致； 多并发（大于两个并发请求，不一定需要高并发）场景下，因为双写不是原子操作，就有可能发生数据不一致； 读少写多的场景下，大量缓存一直在被更新，却没有被读，一直在做无用功。  后两种顺序也存在在多并发数据场景下数据不一致的情形，但是它们都可以通过 异步延迟双删&#43;失败删除重试机制 解决，其中更新db-&gt;删除缓存 发生不一致的概率更低，所以应该首先最后一种顺序实施双写。
+后更新的数据源失败，因为无法将先更新的数据源回滚（redis）或者不知道该不该回滚（超时）导致数据不一致； 多并发（大于两个并发请求，不一定需要高并发）场景下，因为双写不是原子操作，就有可能发生数据不一致； 读少写多的场景下，大量缓存一直在被更新，却没有被读，一直在做无用功。 后两种顺序也存在在多并发数据场景下数据不一致的情形，但是它们都可以通过 异步延迟双删&#43;失败删除重试机制 解决，其中更新db-&gt;删除缓存 发生不一致的概率更低，所以应该首先最后一种顺序实施双写。
 首先，缓存由于其高并发和高性能的特性，已经在项目中被广泛使用。在读取缓存方面，大家没啥疑问，都是按照下图的流程来进行业务操作。
 、
 双写可分为：更新缓存-&gt;更新db、更新db-&gt;更新缓存、删除缓存-&gt;更新db、更新db-&gt;删除缓存 四种策略。
@@ -22,7 +22,7 @@
 参考链接： 分布式之数据库和缓存双写一致性方案解析" /><meta itemprop="name" content="数据库和缓存双写一致性">
 <meta itemprop="description" content="数据库与缓存双写可以有4种顺序： 更新缓存-&gt;更新db、更新db-&gt;更新缓存、删除缓存-&gt;更新db、更新db-&gt;删除缓存
 前两种顺序有显著的缺陷：
- 后更新的数据源失败，因为无法将先更新的数据源回滚（redis）或者不知道该不该回滚（超时）导致数据不一致； 多并发（大于两个并发请求，不一定需要高并发）场景下，因为双写不是原子操作，就有可能发生数据不一致； 读少写多的场景下，大量缓存一直在被更新，却没有被读，一直在做无用功。  后两种顺序也存在在多并发数据场景下数据不一致的情形，但是它们都可以通过 异步延迟双删&#43;失败删除重试机制 解决，其中更新db-&gt;删除缓存 发生不一致的概率更低，所以应该首先最后一种顺序实施双写。
+后更新的数据源失败，因为无法将先更新的数据源回滚（redis）或者不知道该不该回滚（超时）导致数据不一致； 多并发（大于两个并发请求，不一定需要高并发）场景下，因为双写不是原子操作，就有可能发生数据不一致； 读少写多的场景下，大量缓存一直在被更新，却没有被读，一直在做无用功。 后两种顺序也存在在多并发数据场景下数据不一致的情形，但是它们都可以通过 异步延迟双删&#43;失败删除重试机制 解决，其中更新db-&gt;删除缓存 发生不一致的概率更低，所以应该首先最后一种顺序实施双写。
 首先，缓存由于其高并发和高性能的特性，已经在项目中被广泛使用。在读取缓存方面，大家没啥疑问，都是按照下图的流程来进行业务操作。
 、
 双写可分为：更新缓存-&gt;更新db、更新db-&gt;更新缓存、删除缓存-&gt;更新db、更新db-&gt;删除缓存 四种策略。
@@ -36,7 +36,7 @@
 <meta itemprop="keywords" content="分布式,CS,Redis," /><meta property="og:title" content="数据库和缓存双写一致性" />
 <meta property="og:description" content="数据库与缓存双写可以有4种顺序： 更新缓存-&gt;更新db、更新db-&gt;更新缓存、删除缓存-&gt;更新db、更新db-&gt;删除缓存
 前两种顺序有显著的缺陷：
- 后更新的数据源失败，因为无法将先更新的数据源回滚（redis）或者不知道该不该回滚（超时）导致数据不一致； 多并发（大于两个并发请求，不一定需要高并发）场景下，因为双写不是原子操作，就有可能发生数据不一致； 读少写多的场景下，大量缓存一直在被更新，却没有被读，一直在做无用功。  后两种顺序也存在在多并发数据场景下数据不一致的情形，但是它们都可以通过 异步延迟双删&#43;失败删除重试机制 解决，其中更新db-&gt;删除缓存 发生不一致的概率更低，所以应该首先最后一种顺序实施双写。
+后更新的数据源失败，因为无法将先更新的数据源回滚（redis）或者不知道该不该回滚（超时）导致数据不一致； 多并发（大于两个并发请求，不一定需要高并发）场景下，因为双写不是原子操作，就有可能发生数据不一致； 读少写多的场景下，大量缓存一直在被更新，却没有被读，一直在做无用功。 后两种顺序也存在在多并发数据场景下数据不一致的情形，但是它们都可以通过 异步延迟双删&#43;失败删除重试机制 解决，其中更新db-&gt;删除缓存 发生不一致的概率更低，所以应该首先最后一种顺序实施双写。
 首先，缓存由于其高并发和高性能的特性，已经在项目中被广泛使用。在读取缓存方面，大家没啥疑问，都是按照下图的流程来进行业务操作。
 、
 双写可分为：更新缓存-&gt;更新db、更新db-&gt;更新缓存、删除缓存-&gt;更新db、更新db-&gt;删除缓存 四种策略。
@@ -55,7 +55,7 @@
 <meta name="twitter:title" content="数据库和缓存双写一致性"/>
 <meta name="twitter:description" content="数据库与缓存双写可以有4种顺序： 更新缓存-&gt;更新db、更新db-&gt;更新缓存、删除缓存-&gt;更新db、更新db-&gt;删除缓存
 前两种顺序有显著的缺陷：
- 后更新的数据源失败，因为无法将先更新的数据源回滚（redis）或者不知道该不该回滚（超时）导致数据不一致； 多并发（大于两个并发请求，不一定需要高并发）场景下，因为双写不是原子操作，就有可能发生数据不一致； 读少写多的场景下，大量缓存一直在被更新，却没有被读，一直在做无用功。  后两种顺序也存在在多并发数据场景下数据不一致的情形，但是它们都可以通过 异步延迟双删&#43;失败删除重试机制 解决，其中更新db-&gt;删除缓存 发生不一致的概率更低，所以应该首先最后一种顺序实施双写。
+后更新的数据源失败，因为无法将先更新的数据源回滚（redis）或者不知道该不该回滚（超时）导致数据不一致； 多并发（大于两个并发请求，不一定需要高并发）场景下，因为双写不是原子操作，就有可能发生数据不一致； 读少写多的场景下，大量缓存一直在被更新，却没有被读，一直在做无用功。 后两种顺序也存在在多并发数据场景下数据不一致的情形，但是它们都可以通过 异步延迟双删&#43;失败删除重试机制 解决，其中更新db-&gt;删除缓存 发生不一致的概率更低，所以应该首先最后一种顺序实施双写。
 首先，缓存由于其高并发和高性能的特性，已经在项目中被广泛使用。在读取缓存方面，大家没啥疑问，都是按照下图的流程来进行业务操作。
 、
 双写可分为：更新缓存-&gt;更新db、更新db-&gt;更新缓存、删除缓存-&gt;更新db、更新db-&gt;删除缓存 四种策略。
@@ -556,8 +556,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

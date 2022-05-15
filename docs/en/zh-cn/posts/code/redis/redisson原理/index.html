@@ -11,19 +11,22 @@
 <meta name="keywords" content="" />
 <meta name="description" content="使用 set key value ex/px 秒/毫秒 xx/nx 的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是多锁，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（RedissonPriorityDeque）和分布式同步工具（RedissonCountDownLatch, RedissonSemaphore）
 写在前面 在了解分布式锁具体实现方案之前，我们应该先思考一下使用分布式锁必须要考虑的一些问题。
- 互斥性：在任意时刻，只能有一个进程持有锁。 防死锁：即使有一个进程在持有锁的期间崩溃而未能主动释放锁，要有其他方式去释放锁从而保证其他进程能获取到锁。 加锁和解锁的必须是同一个进程。 锁的续期问题。  常见的分布式锁实现方案  基于 Redis 实现分布式锁 基于 Zookeeper 实现分布式锁  本文采用第一种方案，也就是基于 Redis 的分布式锁实现方案。
-Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 Redis 中，指定一个 唯一的用户标识 作为 value。 当 key 不存在时才能设置值，确保同一时间只有一个客户端进程获得锁，满足 互斥性 特性。 设置一个过期时间，防止因系统异常导致没能删除这个 key，满足 防死锁 特性。 当处理完业务之后需要清除这个 key 来释放锁，清除 key 时需要校验 value 值，需要满足 只有加锁的人才能释放锁 。   特别注意：以上实现步骤考虑到了使用分布式锁需要考虑的互斥性、防死锁、加锁和解锁必须为同一个进程等问题，但是锁的续期无法实现。所以，博主采用 Redisson 实现 Redis 的分布式锁，借助 Redisson 的 WatchDog 机制 能够很好的解决锁续期的问题，同样 Redisson 也是 Redis 官方推荐分布式锁实现方案，实现起来较为简单。" /><meta itemprop="name" content="Redisson原理">
+互斥性：在任意时刻，只能有一个进程持有锁。 防死锁：即使有一个进程在持有锁的期间崩溃而未能主动释放锁，要有其他方式去释放锁从而保证其他进程能获取到锁。 加锁和解锁的必须是同一个进程。 锁的续期问题。 常见的分布式锁实现方案 基于 Redis 实现分布式锁 基于 Zookeeper 实现分布式锁 本文采用第一种方案，也就是基于 Redis 的分布式锁实现方案。
+Redis 实现分布式锁主要步骤 指定一个 key 作为锁标记，存入 Redis 中，指定一个 唯一的用户标识 作为 value。 当 key 不存在时才能设置值，确保同一时间只有一个客户端进程获得锁，满足 互斥性 特性。 设置一个过期时间，防止因系统异常导致没能删除这个 key，满足 防死锁 特性。 当处理完业务之后需要清除这个 key 来释放锁，清除 key 时需要校验 value 值，需要满足 只有加锁的人才能释放锁 。 特别注意：以上实现步骤考虑到了使用分布式锁需要考虑的互斥性、防死锁、加锁和解锁必须为同一个进程等问题，但是锁的续期无法实现。所以，博主采用 Redisson 实现 Redis 的分布式锁，借助 Redisson 的 WatchDog 机制 能够很好的解决锁续期的问题，同样 Redisson 也是 Redis 官方推荐分布式锁实现方案，实现起来较为简单。
+Redisson 实现分布式锁 具体实现代码已经上传到博主的仓库，需要的朋友可以在公众号内回复 【分布式锁代码】 获取码云或 GitHub 项目下载地址。" /><meta itemprop="name" content="Redisson原理">
 <meta itemprop="description" content="使用 set key value ex/px 秒/毫秒 xx/nx 的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是多锁，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（RedissonPriorityDeque）和分布式同步工具（RedissonCountDownLatch, RedissonSemaphore）
 写在前面 在了解分布式锁具体实现方案之前，我们应该先思考一下使用分布式锁必须要考虑的一些问题。
- 互斥性：在任意时刻，只能有一个进程持有锁。 防死锁：即使有一个进程在持有锁的期间崩溃而未能主动释放锁，要有其他方式去释放锁从而保证其他进程能获取到锁。 加锁和解锁的必须是同一个进程。 锁的续期问题。  常见的分布式锁实现方案  基于 Redis 实现分布式锁 基于 Zookeeper 实现分布式锁  本文采用第一种方案，也就是基于 Redis 的分布式锁实现方案。
-Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 Redis 中，指定一个 唯一的用户标识 作为 value。 当 key 不存在时才能设置值，确保同一时间只有一个客户端进程获得锁，满足 互斥性 特性。 设置一个过期时间，防止因系统异常导致没能删除这个 key，满足 防死锁 特性。 当处理完业务之后需要清除这个 key 来释放锁，清除 key 时需要校验 value 值，需要满足 只有加锁的人才能释放锁 。   特别注意：以上实现步骤考虑到了使用分布式锁需要考虑的互斥性、防死锁、加锁和解锁必须为同一个进程等问题，但是锁的续期无法实现。所以，博主采用 Redisson 实现 Redis 的分布式锁，借助 Redisson 的 WatchDog 机制 能够很好的解决锁续期的问题，同样 Redisson 也是 Redis 官方推荐分布式锁实现方案，实现起来较为简单。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+互斥性：在任意时刻，只能有一个进程持有锁。 防死锁：即使有一个进程在持有锁的期间崩溃而未能主动释放锁，要有其他方式去释放锁从而保证其他进程能获取到锁。 加锁和解锁的必须是同一个进程。 锁的续期问题。 常见的分布式锁实现方案 基于 Redis 实现分布式锁 基于 Zookeeper 实现分布式锁 本文采用第一种方案，也就是基于 Redis 的分布式锁实现方案。
+Redis 实现分布式锁主要步骤 指定一个 key 作为锁标记，存入 Redis 中，指定一个 唯一的用户标识 作为 value。 当 key 不存在时才能设置值，确保同一时间只有一个客户端进程获得锁，满足 互斥性 特性。 设置一个过期时间，防止因系统异常导致没能删除这个 key，满足 防死锁 特性。 当处理完业务之后需要清除这个 key 来释放锁，清除 key 时需要校验 value 值，需要满足 只有加锁的人才能释放锁 。 特别注意：以上实现步骤考虑到了使用分布式锁需要考虑的互斥性、防死锁、加锁和解锁必须为同一个进程等问题，但是锁的续期无法实现。所以，博主采用 Redisson 实现 Redis 的分布式锁，借助 Redisson 的 WatchDog 机制 能够很好的解决锁续期的问题，同样 Redisson 也是 Redis 官方推荐分布式锁实现方案，实现起来较为简单。
+Redisson 实现分布式锁 具体实现代码已经上传到博主的仓库，需要的朋友可以在公众号内回复 【分布式锁代码】 获取码云或 GitHub 项目下载地址。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="1116">
 <meta itemprop="keywords" content="Redis," /><meta property="og:title" content="Redisson原理" />
 <meta property="og:description" content="使用 set key value ex/px 秒/毫秒 xx/nx 的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是多锁，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（RedissonPriorityDeque）和分布式同步工具（RedissonCountDownLatch, RedissonSemaphore）
 写在前面 在了解分布式锁具体实现方案之前，我们应该先思考一下使用分布式锁必须要考虑的一些问题。
- 互斥性：在任意时刻，只能有一个进程持有锁。 防死锁：即使有一个进程在持有锁的期间崩溃而未能主动释放锁，要有其他方式去释放锁从而保证其他进程能获取到锁。 加锁和解锁的必须是同一个进程。 锁的续期问题。  常见的分布式锁实现方案  基于 Redis 实现分布式锁 基于 Zookeeper 实现分布式锁  本文采用第一种方案，也就是基于 Redis 的分布式锁实现方案。
-Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 Redis 中，指定一个 唯一的用户标识 作为 value。 当 key 不存在时才能设置值，确保同一时间只有一个客户端进程获得锁，满足 互斥性 特性。 设置一个过期时间，防止因系统异常导致没能删除这个 key，满足 防死锁 特性。 当处理完业务之后需要清除这个 key 来释放锁，清除 key 时需要校验 value 值，需要满足 只有加锁的人才能释放锁 。   特别注意：以上实现步骤考虑到了使用分布式锁需要考虑的互斥性、防死锁、加锁和解锁必须为同一个进程等问题，但是锁的续期无法实现。所以，博主采用 Redisson 实现 Redis 的分布式锁，借助 Redisson 的 WatchDog 机制 能够很好的解决锁续期的问题，同样 Redisson 也是 Redis 官方推荐分布式锁实现方案，实现起来较为简单。" />
+互斥性：在任意时刻，只能有一个进程持有锁。 防死锁：即使有一个进程在持有锁的期间崩溃而未能主动释放锁，要有其他方式去释放锁从而保证其他进程能获取到锁。 加锁和解锁的必须是同一个进程。 锁的续期问题。 常见的分布式锁实现方案 基于 Redis 实现分布式锁 基于 Zookeeper 实现分布式锁 本文采用第一种方案，也就是基于 Redis 的分布式锁实现方案。
+Redis 实现分布式锁主要步骤 指定一个 key 作为锁标记，存入 Redis 中，指定一个 唯一的用户标识 作为 value。 当 key 不存在时才能设置值，确保同一时间只有一个客户端进程获得锁，满足 互斥性 特性。 设置一个过期时间，防止因系统异常导致没能删除这个 key，满足 防死锁 特性。 当处理完业务之后需要清除这个 key 来释放锁，清除 key 时需要校验 value 值，需要满足 只有加锁的人才能释放锁 。 特别注意：以上实现步骤考虑到了使用分布式锁需要考虑的互斥性、防死锁、加锁和解锁必须为同一个进程等问题，但是锁的续期无法实现。所以，博主采用 Redisson 实现 Redis 的分布式锁，借助 Redisson 的 WatchDog 机制 能够很好的解决锁续期的问题，同样 Redisson 也是 Redis 官方推荐分布式锁实现方案，实现起来较为简单。
+Redisson 实现分布式锁 具体实现代码已经上传到博主的仓库，需要的朋友可以在公众号内回复 【分布式锁代码】 获取码云或 GitHub 项目下载地址。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/en/zh-cn/posts/code/redis/redisson%E5%8E%9F%E7%90%86/" /><meta property="article:section" content="zh-cn" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -34,8 +37,9 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
 <meta name="twitter:title" content="Redisson原理"/>
 <meta name="twitter:description" content="使用 set key value ex/px 秒/毫秒 xx/nx 的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是多锁，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（RedissonPriorityDeque）和分布式同步工具（RedissonCountDownLatch, RedissonSemaphore）
 写在前面 在了解分布式锁具体实现方案之前，我们应该先思考一下使用分布式锁必须要考虑的一些问题。
- 互斥性：在任意时刻，只能有一个进程持有锁。 防死锁：即使有一个进程在持有锁的期间崩溃而未能主动释放锁，要有其他方式去释放锁从而保证其他进程能获取到锁。 加锁和解锁的必须是同一个进程。 锁的续期问题。  常见的分布式锁实现方案  基于 Redis 实现分布式锁 基于 Zookeeper 实现分布式锁  本文采用第一种方案，也就是基于 Redis 的分布式锁实现方案。
-Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 Redis 中，指定一个 唯一的用户标识 作为 value。 当 key 不存在时才能设置值，确保同一时间只有一个客户端进程获得锁，满足 互斥性 特性。 设置一个过期时间，防止因系统异常导致没能删除这个 key，满足 防死锁 特性。 当处理完业务之后需要清除这个 key 来释放锁，清除 key 时需要校验 value 值，需要满足 只有加锁的人才能释放锁 。   特别注意：以上实现步骤考虑到了使用分布式锁需要考虑的互斥性、防死锁、加锁和解锁必须为同一个进程等问题，但是锁的续期无法实现。所以，博主采用 Redisson 实现 Redis 的分布式锁，借助 Redisson 的 WatchDog 机制 能够很好的解决锁续期的问题，同样 Redisson 也是 Redis 官方推荐分布式锁实现方案，实现起来较为简单。"/>
+互斥性：在任意时刻，只能有一个进程持有锁。 防死锁：即使有一个进程在持有锁的期间崩溃而未能主动释放锁，要有其他方式去释放锁从而保证其他进程能获取到锁。 加锁和解锁的必须是同一个进程。 锁的续期问题。 常见的分布式锁实现方案 基于 Redis 实现分布式锁 基于 Zookeeper 实现分布式锁 本文采用第一种方案，也就是基于 Redis 的分布式锁实现方案。
+Redis 实现分布式锁主要步骤 指定一个 key 作为锁标记，存入 Redis 中，指定一个 唯一的用户标识 作为 value。 当 key 不存在时才能设置值，确保同一时间只有一个客户端进程获得锁，满足 互斥性 特性。 设置一个过期时间，防止因系统异常导致没能删除这个 key，满足 防死锁 特性。 当处理完业务之后需要清除这个 key 来释放锁，清除 key 时需要校验 value 值，需要满足 只有加锁的人才能释放锁 。 特别注意：以上实现步骤考虑到了使用分布式锁需要考虑的互斥性、防死锁、加锁和解锁必须为同一个进程等问题，但是锁的续期无法实现。所以，博主采用 Redisson 实现 Redis 的分布式锁，借助 Redisson 的 WatchDog 机制 能够很好的解决锁续期的问题，同样 Redisson 也是 Redis 官方推荐分布式锁实现方案，实现起来较为简单。
+Redisson 实现分布式锁 具体实现代码已经上传到博主的仓库，需要的朋友可以在公众号内回复 【分布式锁代码】 获取码云或 GitHub 项目下载地址。"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
   <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
@@ -838,8 +842,8 @@ Redis 实现分布式锁主要步骤  指定一个 key 作为锁标记，存入 
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

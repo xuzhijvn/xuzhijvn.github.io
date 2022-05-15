@@ -13,28 +13,28 @@
 1、什么是分布式ID？ 拿MySQL数据库举个栗子：
 在我们业务数据量不大的时候，单库单表完全可以支撑现有业务，数据再大一点搞个MySQL主从同步读写分离也能对付。
 但随着数据日渐增长，主从同步也扛不住了，就需要对数据库进行分库分表，但分库分表后需要有一个唯一ID来标识一条数据，数据库的自增ID显然不能满足需求；特别一点的如订单、优惠券也都需要有唯一ID做标识。此时一个能够生成全局唯一ID的系统是非常必要的。那么这个全局唯一ID就叫分布式ID。
-2、那么分布式ID需要满足那些条件？  全局唯一：必须保证ID是全局性唯一的，基本要求 高性能：高可用低延时，ID生成响应要块，否则反倒会成为业务瓶颈 高可用：100%的可用性是骗人的，但是也要无限接近于100%的可用性 好接入：要秉着拿来即用的设计原则，在系统设计和实现上要尽可能的简单 趋势递增：最好趋势递增，这个要求就得看具体业务场景了，一般不严格要求  二、 分布式ID都有哪些生成方式？ 今天主要分析一下以下9种，分布式ID生成器方式以及优缺点：
- UUID 数据库自增ID 数据库多主模式 号段模式 Redis 雪花算法（SnowFlake） 滴滴出品（TinyID） 百度 （Uidgenerator） 美团（Leaf）  那么它们都是如何实现？以及各自有什么优缺点？我们往下看
- 以上图片源自网络，如有侵权联系删除
- 1、基于UUID 在Java的世界里，想要得到一个具有唯一性的ID，首先被想到可能就是UUID，毕竟它有着全球唯一的特性。那么UUID可以做分布式ID吗？答案是可以的，但是并不推荐！
-public static void main(String[] args) {  String uuid = UUID.randomUUID().toString().replaceAll(&#34;-&#34;,&#34;&#34;);  System.out.println(uuid);  } UUID的生成简单到只有一行代码，输出结果 c2b8c2b9e46c47e3b30dca3b0d447718，但UUID却并不适用于实际的业务需求。像用作订单号UUID这样的字符串没有丝毫的意义，看不出和订单相关的有用信息；而对于数据库来说用作业务主键ID，它不仅是太长还是字符串，存储性能差查询也很耗时，所以不推荐用作分布式ID。
+2、那么分布式ID需要满足那些条件？ 全局唯一：必须保证ID是全局性唯一的，基本要求 高性能：高可用低延时，ID生成响应要块，否则反倒会成为业务瓶颈 高可用：100%的可用性是骗人的，但是也要无限接近于100%的可用性 好接入：要秉着拿来即用的设计原则，在系统设计和实现上要尽可能的简单 趋势递增：最好趋势递增，这个要求就得看具体业务场景了，一般不严格要求 二、 分布式ID都有哪些生成方式？ 今天主要分析一下以下9种，分布式ID生成器方式以及优缺点：
+UUID 数据库自增ID 数据库多主模式 号段模式 Redis 雪花算法（SnowFlake） 滴滴出品（TinyID） 百度 （Uidgenerator） 美团（Leaf） 那么它们都是如何实现？以及各自有什么优缺点？我们往下看
+以上图片源自网络，如有侵权联系删除
+1、基于UUID 在Java的世界里，想要得到一个具有唯一性的ID，首先被想到可能就是UUID，毕竟它有着全球唯一的特性。那么UUID可以做分布式ID吗？答案是可以的，但是并不推荐！
+public static void main(String[] args) { String uuid = UUID.randomUUID().toString().replaceAll(&#34;-&#34;,&#34;&#34;); System.out.println(uuid); } UUID的生成简单到只有一行代码，输出结果 c2b8c2b9e46c47e3b30dca3b0d447718，但UUID却并不适用于实际的业务需求。像用作订单号UUID这样的字符串没有丝毫的意义，看不出和订单相关的有用信息；而对于数据库来说用作业务主键ID，它不仅是太长还是字符串，存储性能差查询也很耗时，所以不推荐用作分布式ID。
 优点：
- 生成足够简单，本地生成无网络消耗，具有唯一性  缺点：
- 无序的字符串，不具备趋势自增特性 没有具体的业务含义 长度过长16 字节128位，36位长度的字符串，存储以及查询对MySQL的性能消耗较大，MySQL官方明确建议主键要尽量越短越好，作为数据库主键 UUID 的无序性会导致数据位置频繁变动，严重影响性能。  2、基于数据库自增ID 基于数据库的auto_increment自增ID完全可以充当分布式ID，具体实现：需要一个单独的MySQL实例用来生成ID，建表结构如下：
-CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID." /><meta itemprop="name" content="分布式ID生成方式">
+生成足够简单，本地生成无网络消耗，具有唯一性 缺点：
+无序的字符串，不具备趋势自增特性 没有具体的业务含义 长度过长16 字节128位，36位长度的字符串，存储以及查询对MySQL的性能消耗较大，MySQL官方明确建议主键要尽量越短越好，作为数据库主键 UUID 的无序性会导致数据位置频繁变动，严重影响性能。 2、基于数据库自增ID 基于数据库的auto_increment自增ID完全可以充当分布式ID，具体实现：需要一个单独的MySQL实例用来生成ID，建表结构如下：
+CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.SEQUENCE_ID ( id bigint(20) unsigned NOT NULL auto_increment, value char(10) NOT NULL default &#39;&#39;, PRIMARY KEY (id), ) ENGINE=MyISAM; insert into SEQUENCE_ID(value) VALUES (&#39;values&#39;); 当我们需要一个ID的时候，向表中插入一条记录返回主键ID，但这种方式有一个比较致命的缺点，访问量激增时MySQL本身就是系统的瓶颈，用它来实现分布式服务风险比较大，不推荐！" /><meta itemprop="name" content="分布式ID生成方式">
 <meta itemprop="description" content="一、为什么要用分布式ID？ 在说分布式ID的具体实现之前，我们来简单分析一下为什么用分布式ID？分布式ID应该满足哪些特征？
 1、什么是分布式ID？ 拿MySQL数据库举个栗子：
 在我们业务数据量不大的时候，单库单表完全可以支撑现有业务，数据再大一点搞个MySQL主从同步读写分离也能对付。
 但随着数据日渐增长，主从同步也扛不住了，就需要对数据库进行分库分表，但分库分表后需要有一个唯一ID来标识一条数据，数据库的自增ID显然不能满足需求；特别一点的如订单、优惠券也都需要有唯一ID做标识。此时一个能够生成全局唯一ID的系统是非常必要的。那么这个全局唯一ID就叫分布式ID。
-2、那么分布式ID需要满足那些条件？  全局唯一：必须保证ID是全局性唯一的，基本要求 高性能：高可用低延时，ID生成响应要块，否则反倒会成为业务瓶颈 高可用：100%的可用性是骗人的，但是也要无限接近于100%的可用性 好接入：要秉着拿来即用的设计原则，在系统设计和实现上要尽可能的简单 趋势递增：最好趋势递增，这个要求就得看具体业务场景了，一般不严格要求  二、 分布式ID都有哪些生成方式？ 今天主要分析一下以下9种，分布式ID生成器方式以及优缺点：
- UUID 数据库自增ID 数据库多主模式 号段模式 Redis 雪花算法（SnowFlake） 滴滴出品（TinyID） 百度 （Uidgenerator） 美团（Leaf）  那么它们都是如何实现？以及各自有什么优缺点？我们往下看
- 以上图片源自网络，如有侵权联系删除
- 1、基于UUID 在Java的世界里，想要得到一个具有唯一性的ID，首先被想到可能就是UUID，毕竟它有着全球唯一的特性。那么UUID可以做分布式ID吗？答案是可以的，但是并不推荐！
-public static void main(String[] args) {  String uuid = UUID.randomUUID().toString().replaceAll(&#34;-&#34;,&#34;&#34;);  System.out.println(uuid);  } UUID的生成简单到只有一行代码，输出结果 c2b8c2b9e46c47e3b30dca3b0d447718，但UUID却并不适用于实际的业务需求。像用作订单号UUID这样的字符串没有丝毫的意义，看不出和订单相关的有用信息；而对于数据库来说用作业务主键ID，它不仅是太长还是字符串，存储性能差查询也很耗时，所以不推荐用作分布式ID。
+2、那么分布式ID需要满足那些条件？ 全局唯一：必须保证ID是全局性唯一的，基本要求 高性能：高可用低延时，ID生成响应要块，否则反倒会成为业务瓶颈 高可用：100%的可用性是骗人的，但是也要无限接近于100%的可用性 好接入：要秉着拿来即用的设计原则，在系统设计和实现上要尽可能的简单 趋势递增：最好趋势递增，这个要求就得看具体业务场景了，一般不严格要求 二、 分布式ID都有哪些生成方式？ 今天主要分析一下以下9种，分布式ID生成器方式以及优缺点：
+UUID 数据库自增ID 数据库多主模式 号段模式 Redis 雪花算法（SnowFlake） 滴滴出品（TinyID） 百度 （Uidgenerator） 美团（Leaf） 那么它们都是如何实现？以及各自有什么优缺点？我们往下看
+以上图片源自网络，如有侵权联系删除
+1、基于UUID 在Java的世界里，想要得到一个具有唯一性的ID，首先被想到可能就是UUID，毕竟它有着全球唯一的特性。那么UUID可以做分布式ID吗？答案是可以的，但是并不推荐！
+public static void main(String[] args) { String uuid = UUID.randomUUID().toString().replaceAll(&#34;-&#34;,&#34;&#34;); System.out.println(uuid); } UUID的生成简单到只有一行代码，输出结果 c2b8c2b9e46c47e3b30dca3b0d447718，但UUID却并不适用于实际的业务需求。像用作订单号UUID这样的字符串没有丝毫的意义，看不出和订单相关的有用信息；而对于数据库来说用作业务主键ID，它不仅是太长还是字符串，存储性能差查询也很耗时，所以不推荐用作分布式ID。
 优点：
- 生成足够简单，本地生成无网络消耗，具有唯一性  缺点：
- 无序的字符串，不具备趋势自增特性 没有具体的业务含义 长度过长16 字节128位，36位长度的字符串，存储以及查询对MySQL的性能消耗较大，MySQL官方明确建议主键要尽量越短越好，作为数据库主键 UUID 的无序性会导致数据位置频繁变动，严重影响性能。  2、基于数据库自增ID 基于数据库的auto_increment自增ID完全可以充当分布式ID，具体实现：需要一个单独的MySQL实例用来生成ID，建表结构如下：
-CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+生成足够简单，本地生成无网络消耗，具有唯一性 缺点：
+无序的字符串，不具备趋势自增特性 没有具体的业务含义 长度过长16 字节128位，36位长度的字符串，存储以及查询对MySQL的性能消耗较大，MySQL官方明确建议主键要尽量越短越好，作为数据库主键 UUID 的无序性会导致数据位置频繁变动，严重影响性能。 2、基于数据库自增ID 基于数据库的auto_increment自增ID完全可以充当分布式ID，具体实现：需要一个单独的MySQL实例用来生成ID，建表结构如下：
+CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.SEQUENCE_ID ( id bigint(20) unsigned NOT NULL auto_increment, value char(10) NOT NULL default &#39;&#39;, PRIMARY KEY (id), ) ENGINE=MyISAM; insert into SEQUENCE_ID(value) VALUES (&#39;values&#39;); 当我们需要一个ID的时候，向表中插入一条记录返回主键ID，但这种方式有一个比较致命的缺点，访问量激增时MySQL本身就是系统的瓶颈，用它来实现分布式服务风险比较大，不推荐！"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="1032">
 <meta itemprop="keywords" content="分布式,CS," /><meta property="og:title" content="分布式ID生成方式" />
@@ -42,15 +42,15 @@ CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID."><meta itemprop="datePublished" co
 1、什么是分布式ID？ 拿MySQL数据库举个栗子：
 在我们业务数据量不大的时候，单库单表完全可以支撑现有业务，数据再大一点搞个MySQL主从同步读写分离也能对付。
 但随着数据日渐增长，主从同步也扛不住了，就需要对数据库进行分库分表，但分库分表后需要有一个唯一ID来标识一条数据，数据库的自增ID显然不能满足需求；特别一点的如订单、优惠券也都需要有唯一ID做标识。此时一个能够生成全局唯一ID的系统是非常必要的。那么这个全局唯一ID就叫分布式ID。
-2、那么分布式ID需要满足那些条件？  全局唯一：必须保证ID是全局性唯一的，基本要求 高性能：高可用低延时，ID生成响应要块，否则反倒会成为业务瓶颈 高可用：100%的可用性是骗人的，但是也要无限接近于100%的可用性 好接入：要秉着拿来即用的设计原则，在系统设计和实现上要尽可能的简单 趋势递增：最好趋势递增，这个要求就得看具体业务场景了，一般不严格要求  二、 分布式ID都有哪些生成方式？ 今天主要分析一下以下9种，分布式ID生成器方式以及优缺点：
- UUID 数据库自增ID 数据库多主模式 号段模式 Redis 雪花算法（SnowFlake） 滴滴出品（TinyID） 百度 （Uidgenerator） 美团（Leaf）  那么它们都是如何实现？以及各自有什么优缺点？我们往下看
- 以上图片源自网络，如有侵权联系删除
- 1、基于UUID 在Java的世界里，想要得到一个具有唯一性的ID，首先被想到可能就是UUID，毕竟它有着全球唯一的特性。那么UUID可以做分布式ID吗？答案是可以的，但是并不推荐！
-public static void main(String[] args) {  String uuid = UUID.randomUUID().toString().replaceAll(&#34;-&#34;,&#34;&#34;);  System.out.println(uuid);  } UUID的生成简单到只有一行代码，输出结果 c2b8c2b9e46c47e3b30dca3b0d447718，但UUID却并不适用于实际的业务需求。像用作订单号UUID这样的字符串没有丝毫的意义，看不出和订单相关的有用信息；而对于数据库来说用作业务主键ID，它不仅是太长还是字符串，存储性能差查询也很耗时，所以不推荐用作分布式ID。
+2、那么分布式ID需要满足那些条件？ 全局唯一：必须保证ID是全局性唯一的，基本要求 高性能：高可用低延时，ID生成响应要块，否则反倒会成为业务瓶颈 高可用：100%的可用性是骗人的，但是也要无限接近于100%的可用性 好接入：要秉着拿来即用的设计原则，在系统设计和实现上要尽可能的简单 趋势递增：最好趋势递增，这个要求就得看具体业务场景了，一般不严格要求 二、 分布式ID都有哪些生成方式？ 今天主要分析一下以下9种，分布式ID生成器方式以及优缺点：
+UUID 数据库自增ID 数据库多主模式 号段模式 Redis 雪花算法（SnowFlake） 滴滴出品（TinyID） 百度 （Uidgenerator） 美团（Leaf） 那么它们都是如何实现？以及各自有什么优缺点？我们往下看
+以上图片源自网络，如有侵权联系删除
+1、基于UUID 在Java的世界里，想要得到一个具有唯一性的ID，首先被想到可能就是UUID，毕竟它有着全球唯一的特性。那么UUID可以做分布式ID吗？答案是可以的，但是并不推荐！
+public static void main(String[] args) { String uuid = UUID.randomUUID().toString().replaceAll(&#34;-&#34;,&#34;&#34;); System.out.println(uuid); } UUID的生成简单到只有一行代码，输出结果 c2b8c2b9e46c47e3b30dca3b0d447718，但UUID却并不适用于实际的业务需求。像用作订单号UUID这样的字符串没有丝毫的意义，看不出和订单相关的有用信息；而对于数据库来说用作业务主键ID，它不仅是太长还是字符串，存储性能差查询也很耗时，所以不推荐用作分布式ID。
 优点：
- 生成足够简单，本地生成无网络消耗，具有唯一性  缺点：
- 无序的字符串，不具备趋势自增特性 没有具体的业务含义 长度过长16 字节128位，36位长度的字符串，存储以及查询对MySQL的性能消耗较大，MySQL官方明确建议主键要尽量越短越好，作为数据库主键 UUID 的无序性会导致数据位置频繁变动，严重影响性能。  2、基于数据库自增ID 基于数据库的auto_increment自增ID完全可以充当分布式ID，具体实现：需要一个单独的MySQL实例用来生成ID，建表结构如下：
-CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID." />
+生成足够简单，本地生成无网络消耗，具有唯一性 缺点：
+无序的字符串，不具备趋势自增特性 没有具体的业务含义 长度过长16 字节128位，36位长度的字符串，存储以及查询对MySQL的性能消耗较大，MySQL官方明确建议主键要尽量越短越好，作为数据库主键 UUID 的无序性会导致数据位置频繁变动，严重影响性能。 2、基于数据库自增ID 基于数据库的auto_increment自增ID完全可以充当分布式ID，具体实现：需要一个单独的MySQL实例用来生成ID，建表结构如下：
+CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.SEQUENCE_ID ( id bigint(20) unsigned NOT NULL auto_increment, value char(10) NOT NULL default &#39;&#39;, PRIMARY KEY (id), ) ENGINE=MyISAM; insert into SEQUENCE_ID(value) VALUES (&#39;values&#39;); 当我们需要一个ID的时候，向表中插入一条记录返回主键ID，但这种方式有一个比较致命的缺点，访问量激增时MySQL本身就是系统的瓶颈，用它来实现分布式服务风险比较大，不推荐！" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E5%88%86%E5%B8%83%E5%BC%8Fid%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -63,15 +63,15 @@ CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID." />
 1、什么是分布式ID？ 拿MySQL数据库举个栗子：
 在我们业务数据量不大的时候，单库单表完全可以支撑现有业务，数据再大一点搞个MySQL主从同步读写分离也能对付。
 但随着数据日渐增长，主从同步也扛不住了，就需要对数据库进行分库分表，但分库分表后需要有一个唯一ID来标识一条数据，数据库的自增ID显然不能满足需求；特别一点的如订单、优惠券也都需要有唯一ID做标识。此时一个能够生成全局唯一ID的系统是非常必要的。那么这个全局唯一ID就叫分布式ID。
-2、那么分布式ID需要满足那些条件？  全局唯一：必须保证ID是全局性唯一的，基本要求 高性能：高可用低延时，ID生成响应要块，否则反倒会成为业务瓶颈 高可用：100%的可用性是骗人的，但是也要无限接近于100%的可用性 好接入：要秉着拿来即用的设计原则，在系统设计和实现上要尽可能的简单 趋势递增：最好趋势递增，这个要求就得看具体业务场景了，一般不严格要求  二、 分布式ID都有哪些生成方式？ 今天主要分析一下以下9种，分布式ID生成器方式以及优缺点：
- UUID 数据库自增ID 数据库多主模式 号段模式 Redis 雪花算法（SnowFlake） 滴滴出品（TinyID） 百度 （Uidgenerator） 美团（Leaf）  那么它们都是如何实现？以及各自有什么优缺点？我们往下看
- 以上图片源自网络，如有侵权联系删除
- 1、基于UUID 在Java的世界里，想要得到一个具有唯一性的ID，首先被想到可能就是UUID，毕竟它有着全球唯一的特性。那么UUID可以做分布式ID吗？答案是可以的，但是并不推荐！
-public static void main(String[] args) {  String uuid = UUID.randomUUID().toString().replaceAll(&#34;-&#34;,&#34;&#34;);  System.out.println(uuid);  } UUID的生成简单到只有一行代码，输出结果 c2b8c2b9e46c47e3b30dca3b0d447718，但UUID却并不适用于实际的业务需求。像用作订单号UUID这样的字符串没有丝毫的意义，看不出和订单相关的有用信息；而对于数据库来说用作业务主键ID，它不仅是太长还是字符串，存储性能差查询也很耗时，所以不推荐用作分布式ID。
+2、那么分布式ID需要满足那些条件？ 全局唯一：必须保证ID是全局性唯一的，基本要求 高性能：高可用低延时，ID生成响应要块，否则反倒会成为业务瓶颈 高可用：100%的可用性是骗人的，但是也要无限接近于100%的可用性 好接入：要秉着拿来即用的设计原则，在系统设计和实现上要尽可能的简单 趋势递增：最好趋势递增，这个要求就得看具体业务场景了，一般不严格要求 二、 分布式ID都有哪些生成方式？ 今天主要分析一下以下9种，分布式ID生成器方式以及优缺点：
+UUID 数据库自增ID 数据库多主模式 号段模式 Redis 雪花算法（SnowFlake） 滴滴出品（TinyID） 百度 （Uidgenerator） 美团（Leaf） 那么它们都是如何实现？以及各自有什么优缺点？我们往下看
+以上图片源自网络，如有侵权联系删除
+1、基于UUID 在Java的世界里，想要得到一个具有唯一性的ID，首先被想到可能就是UUID，毕竟它有着全球唯一的特性。那么UUID可以做分布式ID吗？答案是可以的，但是并不推荐！
+public static void main(String[] args) { String uuid = UUID.randomUUID().toString().replaceAll(&#34;-&#34;,&#34;&#34;); System.out.println(uuid); } UUID的生成简单到只有一行代码，输出结果 c2b8c2b9e46c47e3b30dca3b0d447718，但UUID却并不适用于实际的业务需求。像用作订单号UUID这样的字符串没有丝毫的意义，看不出和订单相关的有用信息；而对于数据库来说用作业务主键ID，它不仅是太长还是字符串，存储性能差查询也很耗时，所以不推荐用作分布式ID。
 优点：
- 生成足够简单，本地生成无网络消耗，具有唯一性  缺点：
- 无序的字符串，不具备趋势自增特性 没有具体的业务含义 长度过长16 字节128位，36位长度的字符串，存储以及查询对MySQL的性能消耗较大，MySQL官方明确建议主键要尽量越短越好，作为数据库主键 UUID 的无序性会导致数据位置频繁变动，严重影响性能。  2、基于数据库自增ID 基于数据库的auto_increment自增ID完全可以充当分布式ID，具体实现：需要一个单独的MySQL实例用来生成ID，建表结构如下：
-CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID."/>
+生成足够简单，本地生成无网络消耗，具有唯一性 缺点：
+无序的字符串，不具备趋势自增特性 没有具体的业务含义 长度过长16 字节128位，36位长度的字符串，存储以及查询对MySQL的性能消耗较大，MySQL官方明确建议主键要尽量越短越好，作为数据库主键 UUID 的无序性会导致数据位置频繁变动，严重影响性能。 2、基于数据库自增ID 基于数据库的auto_increment自增ID完全可以充当分布式ID，具体实现：需要一个单独的MySQL实例用来生成ID，建表结构如下：
+CREATE DATABASE `SEQ_ID`; CREATE TABLE SEQID.SEQUENCE_ID ( id bigint(20) unsigned NOT NULL auto_increment, value char(10) NOT NULL default &#39;&#39;, PRIMARY KEY (id), ) ENGINE=MyISAM; insert into SEQUENCE_ID(value) VALUES (&#39;values&#39;); 当我们需要一个ID的时候，向表中插入一条记录返回主键ID，但这种方式有一个比较致命的缺点，访问量激增时MySQL本身就是系统的瓶颈，用它来实现分布式服务风险比较大，不推荐！"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
   <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
@@ -1038,8 +1038,8 @@ tinyid.token =0f673adf80504e2eaa552f5d791b644c
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

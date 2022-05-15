@@ -15,8 +15,9 @@
       <guid>https://xuzhijvn.github.io/zh-cn/posts/cicd/docker-compose%E7%9A%84%E6%96%B9%E5%BC%8F%E5%90%AF%E5%8A%A8jenkins/</guid>
       <description>docker-compose的方式启动jenkins
 jenkins官网提供了多种安装方式，唯独没有提供docker compose的教程！咱也不知道为啥，所以自己动手丰衣足食。
-1. 编写docker-compose.yml version: &amp;#39;3&amp;#39; services:  jenkins:  image: jenkinsci/blueocean  container_name: jenkins  user: root  ports:  - &amp;#39;8080:8080&amp;#39;  - &amp;#39;50000:50000&amp;#39;  volumes:  - &amp;#39;/docker/volumes/jenkins:/var/jenkins_home&amp;#39;  - &amp;#39;/var/run/docker.sock:/var/run/docker.sock&amp;#39;  - &amp;#39;/usr/local/jdk1.8.0_241:/usr/local/jdk1.8.0_241&amp;#39;  - &amp;#39;/usr/local/apache-maven-3.6.3:/usr/local/apache-maven-3.6.3&amp;#39;  restart: always 2. 启动jenkins docker-compose up -d jenkins &amp;amp;&amp;amp; docker logs -f jenkins ==jenkins 启动时，一直处在 Please wait while Jenkins is getting ready to work &amp;hellip;== 需要更新hudson.model.UpdateCenter.xml的url：
-&amp;lt;?xml version=&amp;#39;1.1&amp;#39; encoding=&amp;#39;UTF-8&amp;#39;?</description>
+1. 编写docker-compose.yml version: &amp;#39;3&amp;#39; services: jenkins: image: jenkinsci/blueocean container_name: jenkins user: root ports: - &amp;#39;8080:8080&amp;#39; - &amp;#39;50000:50000&amp;#39; volumes: - &amp;#39;/docker/volumes/jenkins:/var/jenkins_home&amp;#39; - &amp;#39;/var/run/docker.sock:/var/run/docker.sock&amp;#39; - &amp;#39;/usr/local/jdk1.8.0_241:/usr/local/jdk1.8.0_241&amp;#39; - &amp;#39;/usr/local/apache-maven-3.6.3:/usr/local/apache-maven-3.6.3&amp;#39; restart: always 2. 启动jenkins docker-compose up -d jenkins &amp;amp;&amp;amp; docker logs -f jenkins ==jenkins 启动时，一直处在 Please wait while Jenkins is getting ready to work &amp;hellip;== 需要更新hudson.model.UpdateCenter.xml的url：
+&amp;lt;?xml version=&amp;#39;1.1&amp;#39; encoding=&amp;#39;UTF-8&amp;#39;?&amp;gt; &amp;lt;sites&amp;gt; &amp;lt;site&amp;gt; &amp;lt;id&amp;gt;default&amp;lt;/id&amp;gt; &amp;lt;url&amp;gt;https://updates.jenkins.io/update-center.json&amp;lt;/url&amp;gt; &amp;lt;/site&amp;gt; &amp;lt;/sites&amp;gt; 更新为：
+&amp;lt;?xml version=&amp;#39;1.1&amp;#39; encoding=&amp;#39;UTF-8&amp;#39;?&amp;gt; &amp;lt;sites&amp;gt; &amp;lt;site&amp;gt; &amp;lt;id&amp;gt;default&amp;lt;/id&amp;gt; &amp;lt;url&amp;gt;http://mirror.</description>
     </item>
     
   </channel>

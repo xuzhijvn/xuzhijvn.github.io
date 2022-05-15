@@ -16,13 +16,14 @@
 第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。
 现在对他们赋上初值，如下图：
 其中，输入数据 i1=0.05，i2=0.10;
-　输出数据 o1=0.01,o2=0.99;
-　初始权重 w1=0.15,w2=0.20,w3=0.25,w4=0.30;
-　w5=0.40,w6=0.45,w7=0.50,w8=0.55
+输出数据 o1=0.01,o2=0.99;
+初始权重 w1=0.15,w2=0.20,w3=0.25,w4=0.30;
+w5=0.40,w6=0.45,w7=0.50,w8=0.55
 目标：给出输入数据i1,i2(0.05和0.10)，使输出尽可能与原始输出o1,o2(0.01和0.99)接近。
 Step 1 前向传播
 1.输入层&mdash;-&gt;隐含层：
-计算神经元h1的输入加权和： $$ \begin{array}{l} n e t_{h 1}=w_{1} * i_{1}&#43;w_{2} * i_{2}&#43;b_{1} * 1 \ { net }{h 1}=0.15 * 0.05&#43;0.2 * 0.1&#43;0.35 * 1=0.3775 \end{array} $$ 神经元h1的输出o1:(此处用到激活函数为sigmoid函数)： $$ { out }{h 1}=\frac{1}{1&#43;e^{-n e t_{h 1}}}=\frac{1}{1&#43;e^{-0.3775}}=0.593269992 $$ 同理，可计算出神经元h2的输出o2： $$ { out }_{h 2}=0.596884378 $$ 2." /><meta itemprop="name" content="反向传播">
+计算神经元h1的输入加权和： $$ \begin{array}{l} n e t_{h 1}=w_{1} * i_{1}&#43;w_{2} * i_{2}&#43;b_{1} * 1 \ { net }{h 1}=0.15 * 0.05&#43;0.2 * 0.1&#43;0.35 * 1=0.3775 \end{array} $$ 神经元h1的输出o1:(此处用到激活函数为sigmoid函数)： $$ { out }{h 1}=\frac{1}{1&#43;e^{-n e t_{h 1}}}=\frac{1}{1&#43;e^{-0.3775}}=0.593269992 $$ 同理，可计算出神经元h2的输出o2： $$ { out }_{h 2}=0.596884378 $$ 2.隐含层&mdash;-&gt;输出层：
+计算输出层神经元o1和o2的值： $$ \begin{array}{l} { net }{o 1}=w{5} * { out }{h 1}&#43;w{6} * { out }{h 2}&#43;b{2} * 1 \ { net }{o 1}=0." /><meta itemprop="name" content="反向传播">
 <meta itemprop="description" content="说到神经网络，大家看到这个图应该不陌生：
 这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。
 本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[Mechine Learning &amp; Algorithm] 神经网络基础）
@@ -30,13 +31,14 @@ Step 1 前向传播
 第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。
 现在对他们赋上初值，如下图：
 其中，输入数据 i1=0.05，i2=0.10;
-　输出数据 o1=0.01,o2=0.99;
-　初始权重 w1=0.15,w2=0.20,w3=0.25,w4=0.30;
-　w5=0.40,w6=0.45,w7=0.50,w8=0.55
+输出数据 o1=0.01,o2=0.99;
+初始权重 w1=0.15,w2=0.20,w3=0.25,w4=0.30;
+w5=0.40,w6=0.45,w7=0.50,w8=0.55
 目标：给出输入数据i1,i2(0.05和0.10)，使输出尽可能与原始输出o1,o2(0.01和0.99)接近。
 Step 1 前向传播
 1.输入层&mdash;-&gt;隐含层：
-计算神经元h1的输入加权和： $$ \begin{array}{l} n e t_{h 1}=w_{1} * i_{1}&#43;w_{2} * i_{2}&#43;b_{1} * 1 \ { net }{h 1}=0.15 * 0.05&#43;0.2 * 0.1&#43;0.35 * 1=0.3775 \end{array} $$ 神经元h1的输出o1:(此处用到激活函数为sigmoid函数)： $$ { out }{h 1}=\frac{1}{1&#43;e^{-n e t_{h 1}}}=\frac{1}{1&#43;e^{-0.3775}}=0.593269992 $$ 同理，可计算出神经元h2的输出o2： $$ { out }_{h 2}=0.596884378 $$ 2."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+计算神经元h1的输入加权和： $$ \begin{array}{l} n e t_{h 1}=w_{1} * i_{1}&#43;w_{2} * i_{2}&#43;b_{1} * 1 \ { net }{h 1}=0.15 * 0.05&#43;0.2 * 0.1&#43;0.35 * 1=0.3775 \end{array} $$ 神经元h1的输出o1:(此处用到激活函数为sigmoid函数)： $$ { out }{h 1}=\frac{1}{1&#43;e^{-n e t_{h 1}}}=\frac{1}{1&#43;e^{-0.3775}}=0.593269992 $$ 同理，可计算出神经元h2的输出o2： $$ { out }_{h 2}=0.596884378 $$ 2.隐含层&mdash;-&gt;输出层：
+计算输出层神经元o1和o2的值： $$ \begin{array}{l} { net }{o 1}=w{5} * { out }{h 1}&#43;w{6} * { out }{h 2}&#43;b{2} * 1 \ { net }{o 1}=0."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="1449">
 <meta itemprop="keywords" content="CNN,AI," /><meta property="og:title" content="反向传播" />
@@ -47,13 +49,14 @@ Step 1 前向传播
 第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。
 现在对他们赋上初值，如下图：
 其中，输入数据 i1=0.05，i2=0.10;
-　输出数据 o1=0.01,o2=0.99;
-　初始权重 w1=0.15,w2=0.20,w3=0.25,w4=0.30;
-　w5=0.40,w6=0.45,w7=0.50,w8=0.55
+输出数据 o1=0.01,o2=0.99;
+初始权重 w1=0.15,w2=0.20,w3=0.25,w4=0.30;
+w5=0.40,w6=0.45,w7=0.50,w8=0.55
 目标：给出输入数据i1,i2(0.05和0.10)，使输出尽可能与原始输出o1,o2(0.01和0.99)接近。
 Step 1 前向传播
 1.输入层&mdash;-&gt;隐含层：
-计算神经元h1的输入加权和： $$ \begin{array}{l} n e t_{h 1}=w_{1} * i_{1}&#43;w_{2} * i_{2}&#43;b_{1} * 1 \ { net }{h 1}=0.15 * 0.05&#43;0.2 * 0.1&#43;0.35 * 1=0.3775 \end{array} $$ 神经元h1的输出o1:(此处用到激活函数为sigmoid函数)： $$ { out }{h 1}=\frac{1}{1&#43;e^{-n e t_{h 1}}}=\frac{1}{1&#43;e^{-0.3775}}=0.593269992 $$ 同理，可计算出神经元h2的输出o2： $$ { out }_{h 2}=0.596884378 $$ 2." />
+计算神经元h1的输入加权和： $$ \begin{array}{l} n e t_{h 1}=w_{1} * i_{1}&#43;w_{2} * i_{2}&#43;b_{1} * 1 \ { net }{h 1}=0.15 * 0.05&#43;0.2 * 0.1&#43;0.35 * 1=0.3775 \end{array} $$ 神经元h1的输出o1:(此处用到激活函数为sigmoid函数)： $$ { out }{h 1}=\frac{1}{1&#43;e^{-n e t_{h 1}}}=\frac{1}{1&#43;e^{-0.3775}}=0.593269992 $$ 同理，可计算出神经元h2的输出o2： $$ { out }_{h 2}=0.596884378 $$ 2.隐含层&mdash;-&gt;输出层：
+计算输出层神经元o1和o2的值： $$ \begin{array}{l} { net }{o 1}=w{5} * { out }{h 1}&#43;w{6} * { out }{h 2}&#43;b{2} * 1 \ { net }{o 1}=0." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/en/zh-cn/posts/ai/%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%ADbp/" /><meta property="article:section" content="zh-cn" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -69,13 +72,14 @@ Step 1 前向传播
 第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。
 现在对他们赋上初值，如下图：
 其中，输入数据 i1=0.05，i2=0.10;
-　输出数据 o1=0.01,o2=0.99;
-　初始权重 w1=0.15,w2=0.20,w3=0.25,w4=0.30;
-　w5=0.40,w6=0.45,w7=0.50,w8=0.55
+输出数据 o1=0.01,o2=0.99;
+初始权重 w1=0.15,w2=0.20,w3=0.25,w4=0.30;
+w5=0.40,w6=0.45,w7=0.50,w8=0.55
 目标：给出输入数据i1,i2(0.05和0.10)，使输出尽可能与原始输出o1,o2(0.01和0.99)接近。
 Step 1 前向传播
 1.输入层&mdash;-&gt;隐含层：
-计算神经元h1的输入加权和： $$ \begin{array}{l} n e t_{h 1}=w_{1} * i_{1}&#43;w_{2} * i_{2}&#43;b_{1} * 1 \ { net }{h 1}=0.15 * 0.05&#43;0.2 * 0.1&#43;0.35 * 1=0.3775 \end{array} $$ 神经元h1的输出o1:(此处用到激活函数为sigmoid函数)： $$ { out }{h 1}=\frac{1}{1&#43;e^{-n e t_{h 1}}}=\frac{1}{1&#43;e^{-0.3775}}=0.593269992 $$ 同理，可计算出神经元h2的输出o2： $$ { out }_{h 2}=0.596884378 $$ 2."/>
+计算神经元h1的输入加权和： $$ \begin{array}{l} n e t_{h 1}=w_{1} * i_{1}&#43;w_{2} * i_{2}&#43;b_{1} * 1 \ { net }{h 1}=0.15 * 0.05&#43;0.2 * 0.1&#43;0.35 * 1=0.3775 \end{array} $$ 神经元h1的输出o1:(此处用到激活函数为sigmoid函数)： $$ { out }{h 1}=\frac{1}{1&#43;e^{-n e t_{h 1}}}=\frac{1}{1&#43;e^{-0.3775}}=0.593269992 $$ 同理，可计算出神经元h2的输出o2： $$ { out }_{h 2}=0.596884378 $$ 2.隐含层&mdash;-&gt;输出层：
+计算输出层神经元o1和o2的值： $$ \begin{array}{l} { net }{o 1}=w{5} * { out }{h 1}&#43;w{6} * { out }{h 2}&#43;b{2} * 1 \ { net }{o 1}=0."/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
   <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/katex.min.d080a89e03e1eb850f547d835c186b4273f69879aa497eb8b0e88c1578bf1f0b.css" integrity="sha256-0ICongPh64UPVH2DXBhrQnP2mHmqSX64sOiMFXi/Hws=" crossorigin="anonymous">
@@ -949,8 +953,8 @@ $$
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.be3fe6c8bbba7e7e03a4165c8991b0e06d58552bef00ca8c4b66d28696d7a975.js" integrity="sha256-vj/myLu6fn4DpBZciZGw4G1YVSvvAMqMS2bShpbXqXU=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.7781ba4e24db35cc3033a16118f338140fbb6694360d281e18a5928a4d16d54a.js" integrity="sha256-d4G6TiTbNcwwM6FhGPM4FA&#43;7ZpQ2DSgeGKWSik0W1Uo=" crossorigin="anonymous" defer></script><script defer src="https://xuzhijvn.github.io/js/katex.min.94aec2dfcc8c17ad662f39ab866039f0e9705caf6f362b93496f3750d66a9bfe.js" integrity="sha256-lK7C38yMF61mLzmrhmA58OlwXK9vNiuTSW83UNZqm/4=" crossorigin="anonymous"></script>
+<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script defer src="https://xuzhijvn.github.io/js/katex.min.26bd45a5e82b7d38f740bdeae49996000155b70162760e14677af7fdd8ce4259.js" integrity="sha256-Jr1FpegrfTj3QL3q5JmWAAFVtwFidg4UZ3r3/djOQlk=" crossorigin="anonymous"></script>
 <script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
