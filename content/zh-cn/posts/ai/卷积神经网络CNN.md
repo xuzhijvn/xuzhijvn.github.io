@@ -31,7 +31,7 @@ images : [
 
 图像是由像素构成的，每个像素又是由颜色构成的。
 
-<img src="http://picgo.6and.ltd/img/2019-06-12-xiangsu.png" alt="图像是由像素构成的，每个像素又是由颜色构成的" style="zoom: 50%;" />
+<img src="http://cdn.tkaid.com/img/2019-06-12-xiangsu.png" alt="图像是由像素构成的，每个像素又是由颜色构成的" style="zoom: 50%;" />
 
 现在随随便便一张图片都是 1000×1000 像素以上的， 每个像素都有RGB 3个参数来表示颜色信息。
 
@@ -49,7 +49,7 @@ images : [
 
 图片数字化的传统方式我们简化一下，就类似下图的过程：
 
-<img src="http://picgo.6and.ltd/img/2019-06-12-tuxiangtx.png" alt="图像简单数字化无法保留图像特征" style="zoom:50%;" />
+<img src="http://cdn.tkaid.com/img/2019-06-12-tuxiangtx.png" alt="图像简单数字化无法保留图像特征" style="zoom:50%;" />
 
 假如有圆形是1，没有圆形是0，那么圆形的位置不同就会产生完全不同的数据表达。但是从视觉的角度来看，**图像的内容（本质）并没有发生变化，只是位置发生了变化。**
 
@@ -67,11 +67,11 @@ images : [
 
 人类的视觉原理如下：从原始信号摄入开始（瞳孔摄入像素 Pixels），接着做初步处理（大脑皮层某些细胞发现边缘和方向），然后抽象（大脑判定，眼前的物体的形状，是圆形的），然后进一步抽象（大脑进一步判定该物体是只气球）。下面是人脑进行人脸识别的一个示例：
 
-![人类视觉原理1](http://picgo.6and.ltd/img/2019-06-24-rennao.png)
+![人类视觉原理1](http://cdn.tkaid.com/img/2019-06-24-rennao.png)
 
 对于不同的物体，人类视觉也是通过这样逐层分级，来进行认知的：
 
-![人类视觉原理2](http://picgo.6and.ltd/img/2019-06-19-renlei-shijue2.jpg)
+![人类视觉原理2](http://cdn.tkaid.com/img/2019-06-19-renlei-shijue2.jpg)
 
 我们可以看到，在最底层特征基本上是类似的，就是各种边缘，越往上，越能提取出此类物体的一些特征（轮子、眼睛、躯干等），到最上层，不同的高级特征最终组合成相应的图像，从而能够让人类准确的区分不同的物体。
 
@@ -89,7 +89,7 @@ images : [
 
 如果简单来描述的话：卷积层负责提取图像中的局部特征；池化层用来大幅降低参数量级(降维)；全连接层类似传统神经网络的部分，用来输出想要的结果。
 
-<img src="http://picgo.6and.ltd/img/2019-06-24-cnnjiegou.png" alt="典型的 CNN 由3个部分构成" style="zoom:50%;" />
+<img src="http://cdn.tkaid.com/img/2019-06-24-cnnjiegou.png" alt="典型的 CNN 由3个部分构成" style="zoom:50%;" />
 
 下面的原理解释为了通俗易懂，忽略了很多技术细节，如果大家对详细的原理感兴趣，可以看这个视频《[卷积神经网络基础](https://www.bilibili.com/video/av28733156/?p=3)》。
 
@@ -97,13 +97,13 @@ images : [
 
 卷积层的运算过程如下图，用一个卷积核扫完整张图片：
 
-![卷积层运算过程](http://picgo.6and.ltd/img/2019-06-19-juanji.gif)
+![卷积层运算过程](http://cdn.tkaid.com/img/2019-06-19-juanji.gif)
 
 这个过程我们可以理解为我们使用一个过滤器（卷积核）来过滤图像的各个小区域，从而得到这些小区域的特征值。
 
 在具体应用中，往往有多个卷积核，可以认为，每个卷积核代表了一种图像模式，如果某个图像块与此卷积核卷积出的值大，则认为此图像块十分接近于此卷积核。如果我们设计了6个卷积核，可以理解：我们认为这个图像上有6种底层纹理模式，也就是我们用6中基础模式就能描绘出一副图像。以下就是25种不同的卷积核的示例：
 
-![25种不同的卷积核](http://picgo.6and.ltd/img/2019-06-19-150926.jpg)
+![25种不同的卷积核](http://cdn.tkaid.com/img/2019-06-19-150926.jpg)
 
 **总结：卷积层的通过卷积核的过滤提取出图片中局部的特征，跟上面提到的人类视觉的特征提取类似。**
 
@@ -111,7 +111,7 @@ images : [
 
 池化层简单说就是下采样，他可以大大降低数据的维度。其过程如下：
 
-<img src="http://picgo.6and.ltd/img/2019-06-19-chihua.gif" alt="池化层过程" style="zoom:67%;" />
+<img src="http://cdn.tkaid.com/img/2019-06-19-chihua.gif" alt="池化层过程" style="zoom:67%;" />
 
 上图中，我们可以看到，原始图片是20×20的，我们对其进行下采样，采样窗口为10×10，最终将其下采样成为一个2×2大小的特征图。
 
@@ -125,13 +125,13 @@ images : [
 
 经过卷积层和池化层降维过的数据，全连接层才能”跑得动”，不然数据量太大，计算成本高，效率低下。
 
-<img src="http://picgo.6and.ltd/img/2019-06-19-quanlianjie.png" alt="全连接层" style="zoom:67%;" />
+<img src="http://cdn.tkaid.com/img/2019-06-19-quanlianjie.png" alt="全连接层" style="zoom:67%;" />
 
 典型的 CNN 并非只是上面提到的3层结构，而是多层结构，例如 LeNet-5 的结构就如下图所示：
 
 **卷积层 – 池化层- 卷积层 – 池化层 – 卷积层 – 全连接层**
 
-![LeNet-5网络结构](http://picgo.6and.ltd/img/2019-06-19-lenet.png)
+![LeNet-5网络结构](http://cdn.tkaid.com/img/2019-06-19-lenet.png)
 
 ## 3. 总结
 
@@ -156,7 +156,7 @@ images : [
 
 典型场景：图像搜索…
 
-<img src="http://picgo.6and.ltd/img/2019-06-12-cnn-fenlei.png" alt="CNN应用-图像分类、检索" style="zoom:67%;" />
+<img src="http://cdn.tkaid.com/img/2019-06-12-cnn-fenlei.png" alt="CNN应用-图像分类、检索" style="zoom:67%;" />
 
  
 
@@ -166,7 +166,7 @@ images : [
 
 典型场景：自动驾驶、安防、医疗…
 
-![CNN应用-目标](http://picgo.6and.ltd/img/2019-06-12-cnn-dingwei-1.png)
+![CNN应用-目标](http://cdn.tkaid.com/img/2019-06-12-cnn-dingwei-1.png)
 
  
 
@@ -178,7 +178,7 @@ images : [
 
 典型场景：美图秀秀、视频后期加工、图像生成…
 
-![CNN应用-目标分割](http://picgo.6and.ltd/img/2019-06-12-cnn-fenge-1.png)
+![CNN应用-目标分割](http://cdn.tkaid.com/img/2019-06-12-cnn-fenge-1.png)
 
  
 
@@ -188,7 +188,7 @@ images : [
 
 典型场景：安防、金融、生活…
 
-![CNN应用-人脸识别](http://picgo.6and.ltd/img/2019-06-12-cnn-renlian.png)
+![CNN应用-人脸识别](http://cdn.tkaid.com/img/2019-06-12-cnn-renlian.png)
 
  
 
@@ -198,7 +198,7 @@ images : [
 
 典型场景：安防、电影、图像视频生成、游戏…
 
-![CNN应用-骨骼识别](http://picgo.6and.ltd/img/2019-06-12-cnn-guge.png)
+![CNN应用-骨骼识别](http://cdn.tkaid.com/img/2019-06-12-cnn-guge.png)
 
  
 
