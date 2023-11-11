@@ -28,11 +28,11 @@ images = [
 
 在应用运行过程中，我们有可能在一次数据库会话中，执行多次查询条件完全相同的SQL，MyBatis提供了一级缓存的方案优化这部分场景，如果是相同的SQL语句，会优先命中一级缓存，避免直接对数据库进行查询，提高性能。具体执行过程如下图所示。
 
-<img src="https://picgo.6and.ltd/img/6e38df6a.jpg" alt="img" style="zoom: 40%;" />
+<img src="https://cdn.tkaid.com/img/6e38df6a.jpg" alt="img" style="zoom: 40%;" />
 
 每个SqlSession中持有了Executor，每个Executor中有一个LocalCache。当用户发起查询时，MyBatis根据当前执行的语句生成`MappedStatement`，在Local Cache进行查询，如果缓存命中的话，直接返回结果给用户，如果缓存没有命中的话，查询数据库，结果写入`Local Cache`，最后返回结果给用户。具体实现类的类关系图如下图所示。
 
-![img](https://picgo.6and.ltd/img/d76ec5fe.jpg)
+![img](https://cdn.tkaid.com/img/d76ec5fe.jpg)
 
 ### 一级缓存配置
 
@@ -81,7 +81,7 @@ public void getStudentById() throws Exception {
 
 执行结果：
 
-![img](https://picgo.6and.ltd/img/9e996384.jpg)
+![img](https://cdn.tkaid.com/img/9e996384.jpg)
 
 我们可以看到，只有第一次真正查询了数据库，后续的查询使用了一级缓存。
 
@@ -103,7 +103,7 @@ public void addStudent() throws Exception {
 
 执行结果：
 
-![img](https://picgo.6and.ltd/img/fb6a78e0.jpg)
+![img](https://cdn.tkaid.com/img/fb6a78e0.jpg)
 
 我们可以看到，在修改操作后执行的相同查询，查询了数据库，**一级缓存失效**。
 
@@ -128,7 +128,7 @@ public void testLocalCacheScope() throws Exception {
 }
 ```
 
-![img](https://picgo.6and.ltd/img/f480ac76.jpg)
+![img](https://cdn.tkaid.com/img/f480ac76.jpg)
 
 `sqlSession2`更新了id为1的学生的姓名，从凯伦改为了小岑，但session1之后的查询中，id为1的学生的名字还是凯伦，出现了脏数据，也证明了之前的设想，一级缓存只在数据库会话内部共享。
 
@@ -146,7 +146,7 @@ public void testLocalCacheScope() throws Exception {
 
 在上文中提到的一级缓存中，其最大的共享范围就是一个SqlSession内部，如果多个SqlSession之间需要共享缓存，则需要使用到二级缓存。开启二级缓存后，会使用CachingExecutor装饰Executor，进入一级缓存的查询流程前，先在CachingExecutor进行二级缓存的查询，具体的工作流程如下所示。
 
-<img src="https://picgo.6and.ltd/img/28399eba.png" alt="img" style="zoom: 67%;" />
+<img src="https://cdn.tkaid.com/img/28399eba.png" alt="img" style="zoom: 67%;" />
 
 二级缓存开启后，同一个namespace下的所有操作语句，都影响着同一个Cache，即二级缓存被多个SqlSession共享，是一个全局的变量。
 
@@ -209,7 +209,7 @@ public void testCacheWithoutCommitOrClose() throws Exception {
 
 执行结果：
 
-![img](https://picgo.6and.ltd/img/71e2bfdc.jpg)
+![img](https://cdn.tkaid.com/img/71e2bfdc.jpg)
 
 我们可以看到，当`sqlsession`没有调用`commit()`方法时，二级缓存并没有起到作用。
 
@@ -232,7 +232,7 @@ public void testCacheWithCommitOrClose() throws Exception {
 }
 ```
 
-![img](https://picgo.6and.ltd/img/f366f34e.jpg)
+![img](https://cdn.tkaid.com/img/f366f34e.jpg)
 
 从图上可知，`sqlsession2`的查询，使用了缓存，缓存的命中率是0.5。
 
@@ -261,7 +261,7 @@ public void testCacheWithUpdate() throws Exception {
 }
 ```
 
-![img](https://picgo.6and.ltd/img/3ad93c3a.jpg)
+![img](https://cdn.tkaid.com/img/3ad93c3a.jpg)
 
 我们可以看到，在`sqlSession3`更新数据库，并提交事务后，`sqlsession2`的`StudentMapper namespace`下的查询走了数据库，没有走Cache。
 
@@ -294,7 +294,7 @@ public void testCacheWithDiffererntNamespace() throws Exception {
 
 执行结果：
 
-![img](https://picgo.6and.ltd/img/5265ed97.jpg)
+![img](https://cdn.tkaid.com/img/5265ed97.jpg)
 
 在这个实验中，我们引入了两张新的表，一张class，一张classroom。class中保存了班级的id和班级名，classroom中保存了班级id和学生id。我们在`StudentMapper`中增加了一个查询方法`getStudentByIdWithClassInfo`，用于查询学生所在的班级，涉及到多表查询。在`ClassMapper`中添加了`updateClassName`，根据班级id更新班级名的操作。
 
@@ -306,7 +306,7 @@ public void testCacheWithDiffererntNamespace() throws Exception {
 
 执行结果：
 
-![img](https://picgo.6and.ltd/img/a2e4c2d8.jpg)
+![img](https://cdn.tkaid.com/img/a2e4c2d8.jpg)
 
 不过这样做的后果是，缓存的粒度变粗了，多个`Mapper namespace`下的所有操作都会对缓存使用造成影响。
 

@@ -192,11 +192,11 @@ Java的执行过程整体可以分为两个部分，第一步由javac将源码�
 
 怎么样才会被认为是热点代码呢？JVM中会设置一个阈值，当方法或者代码块的在一定时间内的调用次数超过这个阈值时就会被编译，存入codeCache中。当下次执行时，再遇到这段代码，就会从codeCache中读取机器码，直接执行，以此来提升程序运行的性能。整体的执行过程大致如下图所示：
 
-![img](https://picgo.6and.ltd/img/ba83857ecf9f344e4972fd551c4973d653952.png@648w_454h_80q)
+![img](https://cdn.tkaid.com/img/ba83857ecf9f344e4972fd551c4973d653952.png@648w_454h_80q)
 
 ## 6. JVM Client 模式和 Server模式的区别
 
-![img](https://picgo.6and.ltd/img/16453677b5ddbb34)
+![img](https://cdn.tkaid.com/img/16453677b5ddbb34)
 
 通过 java -version 可查看 JVM 所处的模式，并可以通过修改配置文件进行配置，那它们有什么区别呢？
 
@@ -305,11 +305,11 @@ public static int bar(boolean flag) {
 
 bar方法的IR图：
 
-<img src="https://picgo.6and.ltd/img/857398429cf23f82f291a9cbaceecea122617.png@794w_480h_80q" alt="img" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/857398429cf23f82f291a9cbaceecea122617.png@794w_480h_80q" alt="img" style="zoom:67%;" />
 
 内联后的IR图：
 
-<img src="https://picgo.6and.ltd/img/524631fb0c1db243b5b1fd08b185c23f59399.png@802w_1202h_80q" alt="img" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/524631fb0c1db243b5b1fd08b185c23f59399.png@802w_1202h_80q" alt="img" style="zoom:67%;" />
 
 ### 4. 最前沿的优化技术之一：逃逸分析
 

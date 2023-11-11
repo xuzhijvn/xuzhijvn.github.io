@@ -55,7 +55,7 @@ images : [
 
 那么它们都是如何实现？以及各自有什么优缺点？我们往下看
 
-<img src="https://picgo.6and.ltd/img/v2-5802e64766fc2bd3e5d3293bc94fa5bf_720w.jpg" alt="常用分布式id方案" style="zoom: 67%;" />
+<img src="https://cdn.tkaid.com/img/v2-5802e64766fc2bd3e5d3293bc94fa5bf_720w.jpg" alt="常用分布式id方案" style="zoom: 67%;" />
 
 > 以上图片源自网络，如有侵权联系删除
 
@@ -136,7 +136,7 @@ set @@auto_increment_increment = 2;  -- 步长
 
 那如果集群后的性能还是扛不住高并发咋办？就要进行MySQL扩容增加节点，这是一个比较麻烦的事。
 
-<img src="http://picgo.6and.ltd/img/image-20210711172218562.png" alt="image-20210711172218562" style="zoom: 50%;" />
+<img src="http://cdn.tkaid.com/img/image-20210711172218562.png" alt="image-20210711172218562" style="zoom: 50%;" />
 
 
 从上图可以看出，水平扩展的数据库集群，有利于解决数据库单点压力的问题，同时为了ID生成特性，将自增步长按照机器数量来设置。
@@ -206,7 +206,7 @@ OK
 
 雪花算法（Snowflake）是twitter公司内部分布式项目采用的ID生成算法，开源后广受国内大厂的好评，在该算法影响下各大公司相继开发出各具特色的分布式生成器。
 
-<img src="http://picgo.6and.ltd/img/image-20210711170933663.png" alt="image-20210711170933663" style="zoom: 33%;" />
+<img src="http://cdn.tkaid.com/img/image-20210711170933663.png" alt="image-20210711170933663" style="zoom: 33%;" />
 
 > 以上图片源自网络，如有侵权联系删除
 
@@ -409,7 +409,7 @@ snowflake模式获取分布式自增ID的测试url：http://localhost:8080/api/s
 
 `Tinyid`是基于号段模式原理实现的与`Leaf`如出一辙，每个服务获取一个号段（1000,2000]、（2000,3000]、（3000,4000]
 
-<img src="http://picgo.6and.ltd/img/image-20210711171156622.png" alt="image-20210711171156622" style="zoom: 33%;" />
+<img src="http://cdn.tkaid.com/img/image-20210711171156622.png" alt="image-20210711171156622" style="zoom: 33%;" />
 
 
 `Tinyid`提供`http`和`tinyid-client`两种方式接入

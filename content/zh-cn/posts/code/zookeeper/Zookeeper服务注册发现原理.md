@@ -21,7 +21,7 @@ images : [
 
 RPC框架中有3个重要的角色：
 
-<img src="https://picgo.6and.ltd/img/image-20210925201308382.png" alt="image-20210925201308382" style="zoom:33%;" />
+<img src="https://cdn.tkaid.com/img/image-20210925201308382.png" alt="image-20210925201308382" style="zoom:33%;" />
 
 1. 注册中心 ：保存所有服务的名字，服务提供者的ip列表，服务消费者的IP列表
 2. 服务提供者： 提供跨进程服务
@@ -33,7 +33,7 @@ RPC框架中有3个重要的角色：
 
 
 
-<img src="https://picgo.6and.ltd/img/webp-20210804100351249" alt="img" style="zoom: 33%;" />
+<img src="https://cdn.tkaid.com/img/webp-20210804100351249" alt="img" style="zoom: 33%;" />
 
 
 
@@ -43,7 +43,7 @@ RPC框架中有3个重要的角色：
 
 
 
-<img src="https://picgo.6and.ltd/img/webp-20210804100421495" alt="img" style="zoom: 50%;" />
+<img src="https://cdn.tkaid.com/img/webp-20210804100421495" alt="img" style="zoom: 50%;" />
 
 
 

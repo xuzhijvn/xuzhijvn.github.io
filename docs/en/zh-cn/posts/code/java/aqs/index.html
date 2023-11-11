@@ -304,7 +304,7 @@ private Node addWaiter(Node mode) { //以给定模式构造结点。mode有两�
 <p>AQS核心思想是：如果被请求的共享资源（state）空闲，那么就将当前请求资源的线程设置为有效的工作线程，将共享资源设置为锁定状态；如果共享资源被占用，就需要一定的阻塞等待唤醒机制来保证锁分配。这个机制主要用的是CLH队列的变体实现的，将暂时获取不到锁的线程加入到队列中。</p>
 <p>CLH：Craig, Landin, and Hagersten队列，是单向链表，AQS中的队列是CLH变体的虚拟双向队列（FIFO），AQS是通过将每条请求共享资源的线程封装成一个节点来实现锁的分配。</p>
 <p>主要原理图如下：</p>
-<p><img class="img-fluid" alt="AQS核心原理" src="https://picgo.6and.ltd/img/7132e4cef44c26f62835b197b239147b18062-20210920163618794.png" loading="lazy"
+<p><img class="img-fluid" alt="AQS核心原理" src="https://cdn.tkaid.com/img/7132e4cef44c26f62835b197b239147b18062-20210920163618794.png" loading="lazy"
   
    />
 
@@ -317,7 +317,7 @@ private Node addWaiter(Node mode) { //以给定模式构造结点。mode有两�
 </span></span><span style="display:flex;"><span>         acquireQueued<span style="color:#f92672">(</span>addWaiter<span style="color:#f92672">(</span>Node<span style="color:#f92672">.</span><span style="color:#a6e22e">EXCLUSIVE</span><span style="color:#f92672">),</span> arg<span style="color:#f92672">))</span>
 </span></span><span style="display:flex;"><span>         selfInterrupt<span style="color:#f92672">();</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p><img class="img-fluid" alt="线程获取锁" src="https://picgo.6and.ltd/img/e9e385c3c68f62c67c8d62ab0adb613921117-20210920165824965.png" loading="lazy"
+</span></span></code></pre></div><p><img class="img-fluid" alt="线程获取锁" src="https://cdn.tkaid.com/img/e9e385c3c68f62c67c8d62ab0adb613921117-20210920165824965.png" loading="lazy"
   
    />
 
@@ -392,7 +392,7 @@ private Node addWaiter(Node mode) { //以给定模式构造结点。mode有两�
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
 </span></span></code></pre></div><p>Node2自旋查看前置节点，直到前置节点执行完成状态修改为CANCELLED，然后断开前置节点的链接，获取资源开始执行。</p>
-<img src="https://picgo.6and.ltd/img/1195582-20190531083229686-1272222252.png" alt="img" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/1195582-20190531083229686-1272222252.png" alt="img" style="zoom:50%;" />
 <p>再来总结下它的流程吧：</p>
 <ol>
 <li>调用自定义同步器的tryAcquire()尝试直接去获取资源，如果成功则直接返回；</li>
@@ -401,7 +401,7 @@ private Node addWaiter(Node mode) { //以给定模式构造结点。mode有两�
 <li>如果线程在等待过程中被中断过，它是不响应的。只是获取资源后才再进行自我中断selfInterrupt()，将中断补上。</li>
 </ol>
 <p>由于此函数是重中之重，我再用流程图总结一下：</p>
-<p><img class="img-fluid" alt="aqs获得锁" src="https://picgo.6and.ltd/img/721070-20151102145743461-623794326-20210920184027834.png" loading="lazy"
+<p><img class="img-fluid" alt="aqs获得锁" src="https://cdn.tkaid.com/img/721070-20151102145743461-623794326-20210920184027834.png" loading="lazy"
   
    />
 

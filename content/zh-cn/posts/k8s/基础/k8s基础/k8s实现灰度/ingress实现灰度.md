@@ -24,7 +24,7 @@ images : [
 
 迅速回顾一下 `Nginx-ingress` 的架构和实现原理：
 
-![img](http://picgo.6and.ltd/img/20200727162517.png)
+![img](http://cdn.tkaid.com/img/20200727162517.png)
 
 `Nginx-ingress` 通过前置的 `Loadbalancer` 类型的 `Service` 接收集群流量，将流量转发至 `Nginx-ingress` Pod 内并对配置的策略进行检查，再转发至目标 `Service`，最终将流量转发至业务容器。
 

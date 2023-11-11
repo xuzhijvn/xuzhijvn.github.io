@@ -28,7 +28,7 @@ images = [
 在一个方法只被一个aspect类拦截时，aspect类内部的 advice 将按照以下的顺序进行执行：
 
 **正常情况：** 
-<img src="https://picgo.6and.ltd/img/20160811192425854-20210831150318603.png" alt="one-ok" style="zoom: 67%;" />
+<img src="https://cdn.tkaid.com/img/20160811192425854-20210831150318603.png" alt="one-ok" style="zoom: 67%;" />
 
  
 
@@ -37,7 +37,7 @@ images = [
  
 
 **异常情况：** 
-<img src="https://picgo.6and.ltd/img/20160811192446479-20210831150323983.png" alt="one-exception" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/20160811192446479-20210831150323983.png" alt="one-exception" style="zoom:67%;" />
 
 ### 2. 同一个方法被多个Aspect类拦截
 
@@ -60,7 +60,7 @@ public class Aspect2 {
 ```
 
 这样修改之后，可保证不管在任何情况下， aspect1 中的 advice 总是比 aspect2 中的 advice 先执行。如下图所示： 
-<img src="https://picgo.6and.ltd/img/20160811193349342.png" alt="two-ok" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/20160811193349342.png" alt="two-ok" style="zoom:67%;" />
 
 ### 注意点
 

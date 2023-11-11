@@ -34,7 +34,7 @@ images : [
 
 PTP 点对点: 使用 Queue 作为通信载体
 
-<img src="https://picgo.6and.ltd/img/20200116001.png" alt="点对点" style="zoom: 33%;" />
+<img src="https://cdn.tkaid.com/img/20200116001.png" alt="点对点" style="zoom: 33%;" />
 
 消息生产者生产消息发送到 Queue 中，然后消息消费者从 Queue 中取出并且消费消息。消息被消费以后，Queue 中不再存储，所以消息消费者不可能消费到已经被消费的消息。Queue 支持存在多个消费者，但是对一个消息而言，只会有一个消费者可以消费
 
@@ -42,7 +42,7 @@ PTP 点对点: 使用 Queue 作为通信载体
 
 Pub/Sub 发布订阅(广播): 使用 Topic 作为通信载体
 
-<img src="https://picgo.6and.ltd/img/20200116002.png" alt="发布订阅" style="zoom:33%;" />
+<img src="https://cdn.tkaid.com/img/20200116002.png" alt="发布订阅" style="zoom:33%;" />
 
 消息生产者(发布)将消息发布到 Topic 中，同时有多个消息消费者(订阅)消费该消息。和点对点方式不同，发布到 Topic 的消息会被所有订阅者消费
 
@@ -128,7 +128,7 @@ RabbitMQ 有三种模式：单机模式、普通集群模式、镜像集群模�
 
 普通集群模式，意思就是在多台机器上启动多个 RabbitMQ 实例，每个机器启动一个。你**创建的 queue，只会放在一个 RabbitMQ 实例上**，但是每个实例都同步 queue 的元数据（元数据可以认为是 queue 的一些配置信息，通过元数据，可以找到 queue 所在实例）。你消费的时候，实际上如果连接到了另外一个实例，那么那个实例会从 queue 所在实例上拉取数据过来。
 
-<img src="https://picgo.6and.ltd/img/mq-7.png" alt="RabbitMQ-普通集群模式" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/mq-7.png" alt="RabbitMQ-普通集群模式" style="zoom:67%;" />
 
 这种方式确实很麻烦，也不怎么好，**没做到所谓的分布式**，就是个普通集群。因为这导致你要么消费者每次随机连接一个实例然后拉取数据，要么固定连接那个 queue 所在实例消费数据，前者有**数据拉取的开销**，后者导致**单实例性能瓶颈**。
 
@@ -142,7 +142,7 @@ RabbitMQ 有三种模式：单机模式、普通集群模式、镜像集群模�
 
 这种模式，才是所谓的 RabbitMQ 的高可用模式。跟普通集群模式不一样的是，在镜像集群模式下，你创建的 queue，无论元数据还是 queue 里的消息都会**存在于多个实例上**，就是说，每个 RabbitMQ 节点都有这个 queue 的一个**完整镜像**，包含 queue 的全部数据的意思。然后每次你写消息到 queue 的时候，都会自动把**消息同步**到多个实例的 queue 上。
 
-<img src="https://picgo.6and.ltd/img/mq-8.png" alt="RabbitMQ-镜像集群模式" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/mq-8.png" alt="RabbitMQ-镜像集群模式" style="zoom:67%;" />
 
 这样的话，好处在于，你任何一个机器宕机了，没事儿，其它机器（节点）还包含了这个 queue 的完整数据，别的 consumer 都可以到其它节点上去消费数据。坏处在于，第一，这个性能开销也太大了吧，消息需要同步到所有机器上，导致网络带宽压力和消耗很重！第二，这么玩儿，不是分布式的，就**没有扩展性可言**了，如果某个 queue 负载很重，你加机器，新增的机器也包含了这个 queue 的所有数据，并**没有办法线性扩展**你的 queue。你想，如果这个 queue 的数据量很大，大到这个机器上的容量无法容纳了，此时该怎么办呢？
 
@@ -178,7 +178,7 @@ Kafka有partition的概念，每个topic可以划分为多个partition。每个 
 
 #### 6.3.1 RabbitMQ
 
-<img src="https://picgo.6and.ltd/img/rabbitmq-message-lose.png" alt="rabbitmq-message-lose" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/rabbitmq-message-lose.png" alt="rabbitmq-message-lose" style="zoom:67%;" />
 
 ##### 1. 生产者弄丢了数据
 
@@ -219,7 +219,7 @@ channel.txCommit
 
 关闭 RabbitMQ 的自动 `ack` ，然后每次你自己代码里确保处理完的时候，再在程序里 `ack` 一把。这样的话，如果你还没处理完，不就没有 `ack` 了？那 RabbitMQ 就认为你还没处理完，这个时候 RabbitMQ 会把这个消费分配给别的 consumer 去处理，消息是不会丢的。
 
-<img src="https://picgo.6and.ltd/img/rabbitmq-message-lose-solution.png" alt="rabbitmq-message-lose-solution" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/rabbitmq-message-lose-solution.png" alt="rabbitmq-message-lose-solution" style="zoom:67%;" />
 
 #### 6.3.2 Kafka
 

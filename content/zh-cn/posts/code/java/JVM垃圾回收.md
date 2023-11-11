@@ -97,7 +97,7 @@ Java堆中存放着大量的Java对象实例，在垃圾收集器回收内存前
 
 上面有说到进行 GC 的时候，会从 GC Root 进行搜索，做一个引用图。现有一个对象 C 在 Young Gen，其只被一个在 Old Gen 的对象 D 引用，其引用结构如下所示：
 
-<img src="https://picgo.6and.ltd/img/gc_remembered_set.png" alt="img" style="zoom: 67%;" />
+<img src="https://cdn.tkaid.com/img/gc_remembered_set.png" alt="img" style="zoom: 67%;" />
 
 这个时候要进行 Young GC，要确定 C 是否被堆外引用，就需要遍历 Old Gen，这样的代价太大。所以 JVM 在进行对象引用的时候，会有个 **记忆集（Remembered Set）** 记录从 Old Gen 到 Young Gen 的引用关系，并把记忆集里的 Old Gen 作为 GC Root 来构建引用图。这样在进行 Young GC 时就不需要遍历 Old Gen。
 
@@ -154,7 +154,7 @@ Java堆中存放着大量的Java对象实例，在垃圾收集器回收内存前
 
 垃圾收集器是内存回收的具体实现，下图展示了 7 种用于不同分代的收集器，两个收集器之间有连线表示可以搭配使用，每种收集器都有最适合的使用场景。
 
-![垃圾收集器](https://picgo.6and.ltd/img/garbage_collector.svg)
+![垃圾收集器](https://cdn.tkaid.com/img/garbage_collector.svg)
 
 ### Serial 收集器 
 

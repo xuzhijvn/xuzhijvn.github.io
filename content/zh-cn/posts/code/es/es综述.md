@@ -47,7 +47,7 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
 
 与kafka partition副本不同的是，es不仅 `primary shard` 能读写，`replica shard` 也能读。
 
-![es-cluster](https://picgo.6and.ltd/img/es-cluster.png)
+![es-cluster](https://cdn.tkaid.com/img/es-cluster.png)
 
 ES 集群多个节点，会自动选举一个节点为 master 节点，这个 master 节点其实就是干一些管理的工作的，比如维护索引元数据、负责切换 primary shard 和 replica shard 身份等。要是 master 节点宕机了，那么会重新选举一个节点为 master 节点。
 
@@ -137,7 +137,7 @@ ES 集群多个节点，会自动选举一个节点为 master 节点，这个 ma
 - 实际的 node 上的 `primary shard` 处理请求，然后将数据同步到 `replica node` 。
 - `coordinating node` 如果发现 `primary node` 和所有 `replica node` 都搞定之后，就返回响应结果给客户端。
 
-![es-write](https://picgo.6and.ltd/img/es-write.png)
+![es-write](https://cdn.tkaid.com/img/es-write.png)
 
 ### 3.2 ES 读数据过程
 
@@ -147,7 +147,7 @@ GET my-index/_doc/0
 
 
 
-![查询流程](https://picgo.6and.ltd/img/209c63fb760b19cb4e9c745c1e795045.png)
+![查询流程](https://cdn.tkaid.com/img/209c63fb760b19cb4e9c745c1e795045.png)
 
 
 
@@ -193,7 +193,7 @@ j2ee特别牛
 
 你往 es 里写的数据，实际上都写到磁盘文件里去了，**查询的时候**，操作系统会将磁盘文件里的数据自动缓存到 `filesystem cache` 里面去。
 
-![es-search-process](https://picgo.6and.ltd/img/es-search-process.png)
+![es-search-process](https://cdn.tkaid.com/img/es-search-process.png)
 
 归根结底，你要让 es 性能要好，最佳的情况下，就是你的机器的内存，至少可以容纳你的总数据量的一半。
 

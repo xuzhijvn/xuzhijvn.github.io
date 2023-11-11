@@ -53,7 +53,7 @@ images = []
 
 所谓异步回调，在得到结果之前，不会处于阻塞状态，理论上任何时间都没有任何线程处于阻塞状态，因此异步回调的模型，理论上只需要很少的工作线程与服务连接就能够达到很高的吞吐量。
 
-![RPC-client异步回调](https://picgo.6and.ltd/img/1493814917513968.jpg)
+![RPC-client异步回调](https://cdn.tkaid.com/img/1493814917513968.jpg)
 
 上图中**左边的框框**，是少量 <font color=red>工作线程</font>（少数几个就行了）进行调用与回调。
 
@@ -115,7 +115,7 @@ images = []
 
 这是一个很有意思的问题，通过一条连接往下游服务发送了a，b，c三个请求包，异步的收到了x，y，z三个响应包：
 
-![响应包匹配](https://picgo.6and.ltd/img/1493815262685061.png)
+![响应包匹配](https://cdn.tkaid.com/img/1493815262685061.png)
 
 **（1）怎么知道哪个请求包与哪个响应包对应？**
 
@@ -123,7 +123,7 @@ images = []
 
 回答：这是<font color=red>通过【请求id】来实现 `请求-响应-回调` 的串联</font>的。
 
-![请求id](https://picgo.6and.ltd/img/1493815329535331.png)
+![请求id](https://cdn.tkaid.com/img/1493815329535331.png)
 
 整个处理流程如上，通过请求id，上下文管理器来对应请求-响应-callback之间的映射关系：
 
@@ -155,7 +155,7 @@ images = []
 
 **超时管理器** 和 **上下文管理器**：
 
-![超时管理器](https://picgo.6and.ltd/img/1493815461259351.png)
+![超时管理器](https://cdn.tkaid.com/img/1493815461259351.png)
 
 超时管理器，用于实现请求回包超时回调处理。
 
@@ -171,7 +171,7 @@ however，异步回调和同步回调相比，除了序列化组件和连接池�
 
 dubbo实现异步调用的原理：
 
-![dubbo-rpc-async](https://picgo.6and.ltd/img/future-20220226231412484.jpg)
+![dubbo-rpc-async](https://cdn.tkaid.com/img/future-20220226231412484.jpg)
 
 其原理和本文原理类似。
 

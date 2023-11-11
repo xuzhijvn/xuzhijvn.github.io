@@ -79,7 +79,7 @@ cd130929bc7e
 
 拷贝master节点的配置文件 `~/.kube/config` 到本地 `~/.kube/config` ，修改server的ip地址为master节点的公网ip地址
 
-![image-20210627152937670](https://picgo.6and.ltd/img/image-20210627152937670.png)
+![image-20210627152937670](https://cdn.tkaid.com/img/image-20210627152937670.png)
 
 
 

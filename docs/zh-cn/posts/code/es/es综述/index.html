@@ -349,7 +349,7 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
 <p>primary shard（建立索引时一次设置，不能修改，默认 5 个），replica shard（随时修改数量，默认 1 个），默认每个索引 10 个 shard，5 个 primary shard，5 个 replica shard，最小的高可用配置，是 2 台服务器。</p>
 </blockquote>
 <p>与kafka partition副本不同的是，es不仅 <code>primary shard</code> 能读写，<code>replica shard</code> 也能读。</p>
-<p><img class="img-fluid" alt="es-cluster" src="https://picgo.6and.ltd/img/es-cluster.png" loading="lazy"
+<p><img class="img-fluid" alt="es-cluster" src="https://cdn.tkaid.com/img/es-cluster.png" loading="lazy"
   
    />
 
@@ -492,14 +492,14 @@ ES 的每个shard也可以配置多个replica副本，每个 shard 都有一个 
 <li>实际的 node 上的 <code>primary shard</code> 处理请求，然后将数据同步到 <code>replica node</code> 。</li>
 <li><code>coordinating node</code> 如果发现 <code>primary node</code> 和所有 <code>replica node</code> 都搞定之后，就返回响应结果给客户端。</li>
 </ul>
-<p><img class="img-fluid" alt="es-write" src="https://picgo.6and.ltd/img/es-write.png" loading="lazy"
+<p><img class="img-fluid" alt="es-write" src="https://cdn.tkaid.com/img/es-write.png" loading="lazy"
   
    />
 
 </p>
 <h3 id="32-es-读数据过程">3.2 ES 读数据过程<a class="anchor ms-1" href="#32-es-读数据过程"><i class="fas fa-link"></i></a></h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-http" data-lang="http"><span style="color:#960050;background-color:#1e0010">GET my-index/_doc/0
-</span></code></pre></div><p><img class="img-fluid" alt="查询流程" src="https://picgo.6and.ltd/img/209c63fb760b19cb4e9c745c1e795045.png" loading="lazy"
+</span></code></pre></div><p><img class="img-fluid" alt="查询流程" src="https://cdn.tkaid.com/img/209c63fb760b19cb4e9c745c1e795045.png" loading="lazy"
   
    />
 
@@ -533,7 +533,7 @@ j2ee特别牛
 <h3 id="41-filesystem-cache">4.1 filesystem cache<a class="anchor ms-1" href="#41-filesystem-cache"><i class="fas fa-link"></i></a></h3>
 <p><code>filesystem cache</code> 即<code>文件系统cache</code>，由文件系统进行热点数据缓存，不受进程自主控制。关于cache的详细介绍请 👉 <a href="https://huolala.gitbook.io/code/ji-suan-ji-ji-chu/cao-zuo-xi-tong/cache-he-buffer" target="_blank" rel="noopener noreferrer">cache和buffer</a></p>
 <p>你往 es 里写的数据，实际上都写到磁盘文件里去了，<strong>查询的时候</strong>，操作系统会将磁盘文件里的数据自动缓存到 <code>filesystem cache</code> 里面去。</p>
-<p><img class="img-fluid" alt="es-search-process" src="https://picgo.6and.ltd/img/es-search-process.png" loading="lazy"
+<p><img class="img-fluid" alt="es-search-process" src="https://cdn.tkaid.com/img/es-search-process.png" loading="lazy"
   
    />
 

@@ -68,11 +68,11 @@ pbft算法通过三阶段广播协议来使所有正常节点按相同的顺序�
 
 **三阶段协议**
 
-![image-20210604124945145](https://picgo.6and.ltd/img/image-20210604124945145.png)
+![image-20210604124945145](https://cdn.tkaid.com/img/image-20210604124945145.png)
 
 **三阶段协议数据结构**
 
-![image-20210604125121077](https://picgo.6and.ltd/img/image-20210604125121077.png)
+![image-20210604125121077](https://cdn.tkaid.com/img/image-20210604125121077.png)
 
 ## -  **pre-prepare**
 
@@ -171,9 +171,9 @@ commit-local状态说明有2f+1个节点达成了prepared状态.
 
 检查点协议可以用来更新水线（watermark）的高低值（h和H），这两个高低值限定了可以被接受的消息。水线的低值h与最近稳定检查点的序列号相同，而水线的高值H=h+k，k需要足够大才能使副本不至于为了等待稳定检查点而停顿。加入检查点每100个请求产生一次，k的取值可以是200。
 
-![image-20210604125401192](https://picgo.6and.ltd/img/image-20210604125401192.png)
+![image-20210604125401192](https://cdn.tkaid.com/img/image-20210604125401192.png)
 
-![image-20210604125501073](https://picgo.6and.ltd/img/image-20210604125501073.png)
+![image-20210604125501073](https://cdn.tkaid.com/img/image-20210604125501073.png)
 
 > 举例：
 
@@ -188,7 +188,7 @@ stable checkpoint 就是大部分节点 （2f+1） 已经共识完成的最大�
 
 > <VIEW-CHANGE, v+1, n, C, P, i><sub>sigma(i)</sub>消息。n是最新的stable checkpoint的编号，C是2f+1验证过的CheckPoint消息集合，P是当前副本节点未完成的请求的PRE-PREPARE和PREPARE消息集合。
 
-![image-20210604125157418](https://picgo.6and.ltd/img/image-20210604125157418.png)
+![image-20210604125157418](https://cdn.tkaid.com/img/image-20210604125157418.png)
 
 **NEW-VIEW**
 
@@ -197,7 +197,7 @@ stable checkpoint 就是大部分节点 （2f+1） 已经共识完成的最大�
 2. 在min-s和max-s之间，如果存在P消息集合，则创建<<PRE-PREPARE, v+1, n, d>, m>消息。否则创建一个空的PRE-PREPARE消息，即：<<PRE-PREPARE, v+1, n, d(null)>, m(null)>, m(null)空消息，d(null)空消息摘要。
 
 
-![image-20210604125232540](https://picgo.6and.ltd/img/image-20210604125232540.png)
+![image-20210604125232540](https://cdn.tkaid.com/img/image-20210604125232540.png)
 
 
 当主节点p = v + 1 mod |R|收到2f个有效的VIEW-CHANGE消息后，向其他节点广播<NEW-VIEW, v+1, V, O><sub>sigma(p)</sub>消息，副本节点收到主节点的NEW-VIEW消息，验证有效性，有效的话，进入v+1状态，并且开始O中的PRE-PREPARE消息处理流程。

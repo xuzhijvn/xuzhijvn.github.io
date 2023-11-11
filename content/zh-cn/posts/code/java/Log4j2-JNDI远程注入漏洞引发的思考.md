@@ -54,7 +54,7 @@ JNDI (Java Naming and Directory Interface)
 
 我们以JDBC举例，我们使用原生JDBC连接数据库的时候，需要指定一系列参数，例如：连接地址、端口、数据库驱动、账号密码、连接池参数等等。我们怎么获取这些配置呢？这些配置除了配置在本地，还可以配置在远端，那么有没有一种接口屏蔽配置获取的具体细节？给它一个”名称“就能返回所有配置？这就是JNDI要做的事情，它定义了一套通过名称获取属性的API，JDBC/LDAP/RMI等都去实现它。
 
-<img src="https://picgo.6and.ltd/img/image-20211219231451885.png" alt="image-20211219231451885" style="zoom: 43%;" />
+<img src="https://cdn.tkaid.com/img/image-20211219231451885.png" alt="image-20211219231451885" style="zoom: 43%;" />
 
 ## Log4j2远程注入演示
 
@@ -407,11 +407,11 @@ public class JNDILookup {
 
 Ldap lookup堆栈：
 
-![image-20211220001424139](https://picgo.6and.ltd/img/image-20211220001424139.png)
+![image-20211220001424139](https://cdn.tkaid.com/img/image-20211220001424139.png)
 
 rmi lookup堆栈：
 
-![image-20211220003021810](https://picgo.6and.ltd/img/image-20211220003021810.png)
+![image-20211220003021810](https://cdn.tkaid.com/img/image-20211220003021810.png)
 
 
 

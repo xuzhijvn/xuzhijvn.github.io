@@ -136,7 +136,7 @@ Reactive Streams，是一套非阻塞背压的异步数据流的API。这个概�
 
 
 
-<img src="https://picgo.6and.ltd/img/back-pressure.png" alt="back-pressure" style="zoom: 67%;" />
+<img src="https://cdn.tkaid.com/img/back-pressure.png" alt="back-pressure" style="zoom: 67%;" />
 
 **back-pressure**
 

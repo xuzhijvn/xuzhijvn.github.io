@@ -36,7 +36,7 @@ TinyLFU 就是其中一个优化算法，它是专门为了解决 LFU 上述提�
 
 解决第二个问题是让记录尽量保持相对的“新鲜”（`Freshness Mechanism`），并且当有新的记录插入时，可以让它跟老的记录进行“PK”，输者就会被淘汰，这样一些老的、不再需要的记录就会被剔除。
 
-<img src="https://picgo.6and.ltd/img/ba12253ec1118589eefd541329d7046c.webp" alt="img" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/ba12253ec1118589eefd541329d7046c.webp" alt="img" style="zoom:50%;" />
 
 ### 2.1 统计频率 Count–Min Sketch 算法
 
@@ -44,7 +44,7 @@ TinyLFU 就是其中一个优化算法，它是专门为了解决 LFU 上述提�
 
 没错，将要介绍的 Count–Min Sketch 的原理跟 Bloom Filter 一样，只不过 Bloom Filter 只有 0 和 1 的值，那么你可以把 Count–Min Sketch 看作是“数值”版的 Bloom Filter。
 
-<img src="https://picgo.6and.ltd/img/0f6f4d0944b4e598364e8ac5a3b43ee7.webp" alt="img" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/0f6f4d0944b4e598364e8ac5a3b43ee7.webp" alt="img" style="zoom:50%;" />
 
 如果需要记录一个值，那我们需要通过多种Hash算法对其进行处理hash，然后在对应的hash算法的记录中+1，为什么需要多种hash算法呢？由于这是一个压缩算法必定会出现冲突，比如我们建立一个Long的数组，通过计算出每个数据的hash的位置。比如张三和李四，他们俩有可能hash值都是相同，比如都是1那Long[1]这个位置就会增加相应的频率，张三访问1万次，李四访问1次那Long[1]这个位置就是1万零1，如果取李四的访问评率的时候就会取出是1万零1，但是李四命名只访问了1次啊，为了解决这个问题，所以用了多个hash算法可以理解为long[][]二维数组的一个概念，比如在第一个算法张三和李四冲突了，但是在第二个，第三个中很大的概率不冲突，比如一个算法大概有1%的概率冲突，那四个算法一起冲突的概率是1%的四次方。通过这个模式我们取李四的访问率的时候取所有算法中，李四访问最低频率的次数。所以他的名字叫Count-Min Sketch。
 
@@ -62,9 +62,9 @@ Caffeine 通过测试发现 TinyLFU 在面对突发性的稀疏流量（sparse b
 
 W-TinyLFU 的设计如下所示（两图等价）：
 
-<img src="https://picgo.6and.ltd/img/dd7a8708c4a726ddead9512d4d59f56a.webp" alt="img" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/dd7a8708c4a726ddead9512d4d59f56a.webp" alt="img" style="zoom:50%;" />
 
-<img src="https://picgo.6and.ltd/img/c5e738b1875a38bed65e1e93ac951a68.webp" alt="img" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/c5e738b1875a38bed65e1e93ac951a68.webp" alt="img" style="zoom:50%;" />
 
 它主要包括两个缓存模块，主缓存是 SLRU（Segmented LRU，即分段 LRU），SLRU 包括一个名为 protected 和一个名为 probation 的缓存区。通过增加一个缓存区（即 Window Cache），当有新的记录插入时，会先在 window 区呆一下，就可以避免上述说的 sparse bursts 问题。
 
@@ -78,7 +78,7 @@ W-TinyLFU 的设计如下所示（两图等价）：
 
 这三个队列关系如下:
 
-<img src="https://picgo.6and.ltd/img/1654222b063487e1~tplv-t2oaga2asx-watermark.image" alt="img" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/1654222b063487e1~tplv-t2oaga2asx-watermark.image" alt="img" style="zoom:50%;" />
 
 1. 所有的新数据都会进入Eden。
 2. Eden满了，淘汰进入Probation。
@@ -93,7 +93,7 @@ W-TinyLFU 的设计如下所示（两图等价）：
 
 - 如果攻击者<=5，那么直接淘汰攻击者。这个逻辑在他的注释中有解释:
 
-  ![img](https://picgo.6and.ltd/img/165422c9450da3ba~tplv-t2oaga2asx-watermark.image)
+  ![img](https://cdn.tkaid.com/img/165422c9450da3ba~tplv-t2oaga2asx-watermark.image)
 
   他认为设置一个预热的门槛会让整体命中率更高。
 

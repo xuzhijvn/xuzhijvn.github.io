@@ -20,7 +20,7 @@ images : [
 
 
 
-<img src="http://picgo.6and.ltd/img/1583329564615.png" alt="img" style="zoom:50%;" />
+<img src="http://cdn.tkaid.com/img/1583329564615.png" alt="img" style="zoom:50%;" />
 
 Kubernetes 主要由以下几个核心组件组成:
 

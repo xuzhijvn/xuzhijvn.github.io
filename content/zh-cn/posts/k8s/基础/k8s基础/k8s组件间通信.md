@@ -30,7 +30,7 @@ Kubernetes 多组件之间的通信原理：
 
 比如最典型的创建 Pod 的流程：
 
-<img src="http://picgo.6and.ltd/img/k8s-pod-process.png" alt="k8s pod" style="zoom:67%;" />
+<img src="http://cdn.tkaid.com/img/k8s-pod-process.png" alt="k8s pod" style="zoom:67%;" />
 
 1. 通过 `CLI 或者 UI` 提交 Pod 部署请求给 Kubernetes API Server
 2. `API Server` 会把这个信息写入到它的存储系统 etcd

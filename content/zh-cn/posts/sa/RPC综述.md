@@ -71,7 +71,7 @@ RPC的本质是要使得微服务远程调用像调用本地方法一样无感�
 
 设计一个rpc框架大概需要：
 
-<img src="https://picgo.6and.ltd/img/4213082d93da0d63cb78420e447ad000.png" alt="设计一个rpc框架" style="zoom: 67%;" />
+<img src="https://cdn.tkaid.com/img/4213082d93da0d63cb78420e447ad000.png" alt="设计一个rpc框架" style="zoom: 67%;" />
 
 ## 参考
 

@@ -360,7 +360,7 @@
 <p>虽然部分编程语言实现了理论上无限精度的 BigDecimal，但是在实际应用中我们大多不需要无限的精度保证，C# 等编程语言通过 16 字节的 Decimal 提供的 28 ~ 29 位的精度，而在金融系统中使用 16 字节的 Decimal 一般就可以保证数据计算的准确性了。</p>
 <h2 id="有理数">有理数<a class="anchor ms-1" href="#有理数"><i class="fas fa-link"></i></a></h2>
 <p>使用 <code>Decimal</code> 和 <code>BigDecimal</code> 虽然可以在很大程度上解决浮点数的精度问题，但是它们在遇到无限小数时仍然无能为力，使用十进制的小数永远无法准确地表示 <code>1/3</code>，无论使用多少位小数都无法避免精度的损失：</p>
-<p><img src="https://picgo.6and.ltd/img/img_5fffbb6fb631b.png" alt="img" style="zoom:50%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/img_5fffbb6fb631b.png" alt="img" style="zoom:50%;" /></p>
 <p>当我们遇到这种情况时，使用有理数（Rational）是解决类似问题的最好方法，使用分数可以准确的表示 <code>1/10</code>、<code>1/5</code> 和 <code>1/3</code></p>
 <p>这种解决精度问题的方法更接近原始的数学公式，分数的分子和分母是有理数结构体中的两个变量，多个分数的加减乘除操作与数学中对分数的计算没有任何区别，自然也就不会造成精度的损失，我们可以简单了解一下 Java 中有理数的实现<a href="https://draveness.me/whys-the-design-decimal-and-rational/#fn:7" target="_blank" rel="noopener noreferrer">7</a>：</p>
 <pre><code>public class Rational implements Comparable&lt;Rational&gt; {

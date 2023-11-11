@@ -382,7 +382,7 @@ attach实现动态注入的原理如下：
 <p>在<code>Java6</code> 以后实现启动后加载的新实现是<code>Attach API </code>。<code>Attach API</code> 很简单，只有 2 个主要的类，即<code>VirtualMachine</code> 和 <code>VirtualMachineDescriptor</code>，都在<code>tool.jar</code> 的 <code>com.sun.tools.attach</code> 包里面。</p>
 <p><code>attach</code>实现动态注入的原理如下：</p>
 <p>通过<code>VirtualMachine</code>类的<code>attach(pid)</code>方法，便可以<code>attach</code>到一个运行中的<code>java进程</code>上，之后便可以通过<code>loadAgent(agentJarPath)</code>来将<code>agent</code>的<code>jar包</code>注入到对应的进程，然后对应的进程会调用<code>agentmain</code>方法。</p>
-<p><img src="https://picgo.6and.ltd/img/1607781-20190817155003876-767522290.png" alt="attach实现动态注入的原理" style="zoom: 40%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/1607781-20190817155003876-767522290.png" alt="attach实现动态注入的原理" style="zoom: 40%;" /></p>
 <p>既然是两个进程之间通信那肯定的建立起连接，<code>VirtualMachine.attach</code>动作类似TCP创建连接的三次握手，目的就是搭建<code>attach</code>通信的连接。而后面执行的操作，例如<code>vm.loadAgent</code>，其实就是向这个<code>socket</code>写入数据流，接收方<code>target VM</code>会针对不同的传入数据来做不同的处理。</p>
 <p>例如：找到当前<code>JVM</code>并加载<code>agent.jar</code>（即<code>attach JVM</code> 和 <code>runing JVM</code> 是同一个 <code>JVM</code>，真正的应用中更多的是不同的两个<code>JVM</code>，这里仅为了测试方便。）</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.rickiyang.learn.job<span style="color:#f92672">;</span>

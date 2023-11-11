@@ -505,7 +505,7 @@ BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初
 </blockquote>
 <h2 id="4-进一步深入分析">4. 进一步深入分析<a class="anchor ms-1" href="#4-进一步深入分析"><i class="fas fa-link"></i></a></h2>
 <p>在使用ApplicationContext启动spring容器的时候，在AbstractApplicationContext.refresh()方法中，完成相关初始化工作：</p>
-<img src="https://picgo.6and.ltd/img/20140628121008984" alt="img" style="zoom: 67%;" />
+<img src="https://cdn.tkaid.com/img/20140628121008984" alt="img" style="zoom: 67%;" />
 <p>1）BeanFactoryPostProcessor.postProcessBeanFactory，是在第5步执行的</p>
 <p>2）而BeanPostProcessor的执行，取决于配置文件中bean的定义，如果定义的bean是singleton并且不是抽象类，也不延迟初始化，则BeanPostProcessor是在第11步中执行；而对于prototype的bean，BeanPostProcessor是在程序getBean的时候执行的。在第6步中，调用registerBeanPostProcessors方法，注册所有实现BeanPostProcessor接口的bean</p>
 <h2 id="5-总结">5. 总结<a class="anchor ms-1" href="#5-总结"><i class="fas fa-link"></i></a></h2>

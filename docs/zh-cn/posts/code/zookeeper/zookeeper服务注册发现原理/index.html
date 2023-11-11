@@ -353,7 +353,7 @@
   </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/zk/" class="badge post-taxonomy">ZK</a></span>
 </div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>RPC框架中有3个重要的角色：</p>
-<p><img src="https://picgo.6and.ltd/img/image-20210925201308382.png" alt="image-20210925201308382" style="zoom:33%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/image-20210925201308382.png" alt="image-20210925201308382" style="zoom:33%;" /></p>
 <ol>
 <li>注册中心 ：保存所有服务的名字，服务提供者的ip列表，服务消费者的IP列表</li>
 <li>服务提供者： 提供跨进程服务</li>
@@ -361,10 +361,10 @@
 </ol>
 <h3 id="zookeeper用作注册中心">Zookeeper用作注册中心<a class="anchor ms-1" href="#zookeeper用作注册中心"><i class="fas fa-link"></i></a></h3>
 <p>简单来讲，zookeeper可以充当一个服务注册表（Service Registry），让多个服务提供者形成一个集群，让服务消费者通过服务注册表获取具体的服务访问地址（ip+端口）去访问具体的服务提供者。如下图所示：</p>
-<p><img src="https://picgo.6and.ltd/img/webp-20210804100351249" alt="img" style="zoom: 33%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/webp-20210804100351249" alt="img" style="zoom: 33%;" /></p>
 <p>具体来说，zookeeper就是个分布式文件系统，每当一个服务提供者部署后都要将自己的服务注册到zookeeper的某一路径上: /{service}/{version}/{ip:port}, 比如我们的HelloWorldService部署到两台机器，那么zookeeper上就会创建两条目录：分别为/HelloWorldService/1.0.0/100.19.20.01:16888  /HelloWorldService/1.0.0/100.19.20.02:16888。</p>
 <p>这么描述有点不好理解，下图更直观，</p>
-<p><img src="https://picgo.6and.ltd/img/webp-20210804100421495" alt="img" style="zoom: 50%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/webp-20210804100421495" alt="img" style="zoom: 50%;" /></p>
 <p>在zookeeper中，进行服务注册，实际上就是在zookeeper中创建了一个znode节点，该节点存储了该服务的IP、端口、调用方式(协议、序列化方式)等。该节点承担着最重要的职责，它由服务提供者(发布服务时)创建，以供服务消费者获取节点中的信息，从而定位到服务提供者真正网络拓扑位置以及得知如何调用。RPC服务注册、发现过程简述如下：</p>
 <ol>
 <li>服务提供者启动时，会将其服务名称，ip地址注册到配置中心。</li>

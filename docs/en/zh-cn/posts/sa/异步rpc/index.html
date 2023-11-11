@@ -274,7 +274,7 @@
 <p>根据一些公开的测试数据，一些业务采用异步 RPC 替换同步 RPC 调用之后，综合性能提升 2-3 倍+。</p>
 <h2 id="3-异步-rpc-实现原理">3. 异步 RPC 实现原理<a class="anchor ms-1" href="#3-异步-rpc-实现原理"><i class="fas fa-link"></i></a></h2>
 <p>所谓异步回调，在得到结果之前，不会处于阻塞状态，理论上任何时间都没有任何线程处于阻塞状态，因此异步回调的模型，理论上只需要很少的工作线程与服务连接就能够达到很高的吞吐量。</p>
-<p><img class="img-fluid" alt="RPC-client异步回调" src="https://picgo.6and.ltd/img/1493814917513968.jpg" loading="lazy"
+<p><img class="img-fluid" alt="RPC-client异步回调" src="https://cdn.tkaid.com/img/1493814917513968.jpg" loading="lazy"
   
    />
 
@@ -306,7 +306,7 @@
 <p>回答：由于请求包的发送，响应包的回调都是异步的，甚至不在同一个工作线程中完成，<font color=red>需要一个组件来记录一个请求的上下文，把 <code>请求-响应-回调</code> 等一些信息匹配起来</font>。</p>
 <h3 id="32-如何将-请求-响应-回调-这些信息匹配起来">3.2 如何将 请求-响应-回调 这些信息匹配起来？<a class="anchor ms-1" href="#32-如何将-请求-响应-回调-这些信息匹配起来"><i class="fas fa-link"></i></a></h3>
 <p>这是一个很有意思的问题，通过一条连接往下游服务发送了a，b，c三个请求包，异步的收到了x，y，z三个响应包：</p>
-<p><img class="img-fluid" alt="响应包匹配" src="https://picgo.6and.ltd/img/1493815262685061.png" loading="lazy"
+<p><img class="img-fluid" alt="响应包匹配" src="https://cdn.tkaid.com/img/1493815262685061.png" loading="lazy"
   
    />
 
@@ -314,7 +314,7 @@
 <p><strong>（1）怎么知道哪个请求包与哪个响应包对应？</strong></p>
 <p><strong>（2）怎么知道哪个响应包与哪个回调函数对应？</strong></p>
 <p>回答：这是<font color=red>通过【请求id】来实现 <code>请求-响应-回调</code> 的串联</font>的。</p>
-<p><img class="img-fluid" alt="请求id" src="https://picgo.6and.ltd/img/1493815329535331.png" loading="lazy"
+<p><img class="img-fluid" alt="请求id" src="https://cdn.tkaid.com/img/1493815329535331.png" loading="lazy"
   
    />
 
@@ -333,7 +333,7 @@
 <h3 id="34-如何实现超时发送与接收">3.4 如何实现超时发送与接收？<a class="anchor ms-1" href="#34-如何实现超时发送与接收"><i class="fas fa-link"></i></a></h3>
 <p>回答：同步阻塞发送，可以直接使用带超时的send/recv来实现，异步非阻塞的nio的网络报文收发，如何实现超时接收呢？（由于连接不会一直等待回包，那如何知晓超时呢？）这时，超时管理器就上场啦。</p>
 <p><strong>超时管理器</strong> 和 <strong>上下文管理器</strong>：</p>
-<p><img class="img-fluid" alt="超时管理器" src="https://picgo.6and.ltd/img/1493815461259351.png" loading="lazy"
+<p><img class="img-fluid" alt="超时管理器" src="https://cdn.tkaid.com/img/1493815461259351.png" loading="lazy"
   
    />
 
@@ -345,7 +345,7 @@
 <p>however，异步回调和同步回调相比，除了序列化组件和连接池组件，会多出上下文管理器，超时管理器，下游收发队列，下游收发线程等组件，并且对调用方的调用习惯有影响（同步-&gt;回调）。异步回调能提高系统整体的吞吐量，具体使用哪种方式实现RPC-client，可以结合业务场景来选取（对时延敏感的可以选用同步，对吞吐量敏感的可以选用异步）。</p>
 <h2 id="4-dubbo异步调用">4. dubbo异步调用<a class="anchor ms-1" href="#4-dubbo异步调用"><i class="fas fa-link"></i></a></h2>
 <p>dubbo实现异步调用的原理：</p>
-<p><img class="img-fluid" alt="dubbo-rpc-async" src="https://picgo.6and.ltd/img/future-20220226231412484.jpg" loading="lazy"
+<p><img class="img-fluid" alt="dubbo-rpc-async" src="https://cdn.tkaid.com/img/future-20220226231412484.jpg" loading="lazy"
   
    />
 

@@ -105,7 +105,7 @@ public class Myclass {
 
 谈到了伪共享就不得不说计算机CPU缓存,缓存大小是CPU的重要指标之一，而且缓存的结构和大小对CPU速度的影响非常大，CPU内缓存的运行频率极高，一般是和处理器同频运作，工作效率远远大于系统内存和硬盘。实际工作时，CPU往往需要重复读取同样的数据块，而缓存容量的增大，可以大幅度提升CPU内部读取数据的命中率，而不用再到内存或者硬盘上寻找，以此提高系统性能。但是从CPU芯片面积和成本的因素来考虑，缓存都很小。
 
-![cpu](https://picgo.6and.ltd/img/cpu.png)
+![cpu](https://cdn.tkaid.com/img/cpu.png)
 
 CPU缓存可以分为一级缓存，二级缓存，如今主流CPU还有三级缓存，甚至有些CPU还有四级缓存。每一级缓存中所储存的全部数据都是下一级缓存的一部分，这三种缓存的技术难度和制造成本是相对递减的，所以其容量也是相对递增的。
 
@@ -130,7 +130,7 @@ Martin和Mike的 QCon presentation演讲中给出了一些每个缓存时间：
 
 在cpu的多级缓存中，并不是以独立的项来保存的，而是类似一种pageCahe的一种策略，以缓存行来保存，而缓存行的大小通常是64字节，在Java中Long是8个字节，所以可以存储8个Long,举个例子，你访问一个long的变量的时候，他会把帮助再加载7个，我们上面说为什么选择数组不选择链表，也就是这个原因，在数组中可以依靠缓冲行得到很快的访问。
 
-![cache-line-1](https://picgo.6and.ltd/img/cache-line-1.png)
+![cache-line-1](https://cdn.tkaid.com/img/cache-line-1.png)
 
 缓存行是万能的吗？NO，因为他依然带来了一个缺点，我在这里举个例子说明这个缺点，可以想象有个数组队列，ArrayQueue，他的数据结构如下:
 
@@ -143,7 +143,7 @@ class ArrayQueue{
 
 对于maxSize是我们一开始就定义好的，数组的大小，对于currentIndex，是标志我们当前队列的位置，这个变化比较快，假设你访问maxSize的时候，把currentIndex也加载进来了，这个时候，其他线程更新currentIndex,就会把cpu中的缓存行置位无效，请注意这是CPU规定的，他并不是只吧currentIndex置位无效，如果此时又继续访问maxSize他依然得继续从内存中读取，但是MaxSize却是我们一开始定义好的，我们应该访问缓存即可，但是却被我们经常改变的currentIndex所影响。
 
-![cache-line-2](https://picgo.6and.ltd/img/cache-line-2.png)
+![cache-line-2](https://cdn.tkaid.com/img/cache-line-2.png)
 
 ##### Padding的魔法
 
@@ -170,7 +170,7 @@ class RhsPadding extends Value
 
 最后顺便一提，在jdk8中提供了@Contended的注解，当然一般来说只允许Jdk中内部，如果你自己使用那就得配置Jvm参数 -RestricContentended = fase，将限制这个注解置位取消。很多文章分析了ConcurrentHashMap，但是都把这个注解给忽略掉了，在ConcurrentHashMap中就使用了这个注解，在ConcurrentHashMap每个桶都是单独的用计数器去做计算，而这个计数器由于时刻都在变化，所以被用这个注解进行填充缓存行优化，以此来增加性能。
 
-<img src="https://picgo.6and.ltd/img/Padding.png" alt="Padding" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/Padding.png" alt="Padding" style="zoom:50%;" />
 
 #### 3.1.3 RingBuffer
 
@@ -178,7 +178,7 @@ class RhsPadding extends Value
 
 当然其不仅解决了数组快速访问的问题，也解决了不需要再次分配内存的问题，减少了垃圾回收，因为我们0，10，20等都是执行的同一片内存区域，这样就不需要再次分配内存，频繁的被JVM垃圾回收器回收。
 
-![RingBuffer](https://picgo.6and.ltd/img/RingBuffer.png)
+![RingBuffer](https://cdn.tkaid.com/img/RingBuffer.png)
 
 自此三大杀器已经说完了，有了这三大杀器为Disruptor如此高性能垫定了基础。接下来还会在讲解如何使用Disruptor和Disruptor的具体的工作原理。
 

@@ -45,21 +45,21 @@ services:
     restart: always
 ```
 
-![img](https://picgo.6and.ltd/img/img_5eb4d21387fdc-20210621143038464.png)
+![img](https://cdn.tkaid.com/img/img_5eb4d21387fdc-20210621143038464.png)
 
-![img](https://picgo.6and.ltd/img/img_5eb4d1e12de8e-20210621143042626.png)
+![img](https://cdn.tkaid.com/img/img_5eb4d1e12de8e-20210621143042626.png)
 
 > 更诡异的是，虽然docker下无法执行node命令，jenkins却能调用：
 >
-> ![img](https://picgo.6and.ltd/img/img_5eb4d29cd4624-20210621143052299.png)
+> ![img](https://cdn.tkaid.com/img/img_5eb4d29cd4624-20210621143052299.png)
 >
-> ![img](https://picgo.6and.ltd/img/img_5eb4d31ee9ef8-20210621143432171.png)
+> ![img](https://cdn.tkaid.com/img/img_5eb4d31ee9ef8-20210621143432171.png)
 >
 > 这里暂且不管，请当作docker没有node环境，继续往下阅读。
 
 经过彻夜未眠的排除，基本能定位为题的原因：本质不是node命令找不到，而是node的依赖在docker容器里面找不到，node依赖如下：
 
-![img](https://picgo.6and.ltd/img/img_5eb4c4003270b-20210621143427506.png)
+![img](https://cdn.tkaid.com/img/img_5eb4c4003270b-20210621143427506.png)
 
 所以要么进入到容器里面使用apk add，要么自己制作镜像（这样太麻烦了），我选择前者。
 

@@ -23,7 +23,7 @@ images : [
 
 - 当查询语句只涉及部分列时，只需要扫描相关的列
 
-  ![大幅降低磁盘IO](https://picgo.6and.ltd/img/3412665-fb1b4b09b70815f2.jpg)
+  ![大幅降低磁盘IO](https://cdn.tkaid.com/img/3412665-fb1b4b09b70815f2.jpg)
 
 - 每一列的数据都是相同类型的，彼此间相关性更大，对列数据压缩的效率较高
 

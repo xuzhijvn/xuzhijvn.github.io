@@ -279,7 +279,7 @@ serviceSubnet: 10.96.0.0/12
 
 打开calico.yaml, 将`192.168.0.0/16`修改为`10.96.0.0/12`
 
-![img](https://picgo.6and.ltd/img/img_5ef33afe955d8-20210621122448233.png)
+![img](https://cdn.tkaid.com/img/img_5ef33afe955d8-20210621122448233.png)
 
 [su_highlight]需要注意的是, `calico.yaml`中的IP和`kubeadm-init.yaml`需要保持一致, 要么初始化前修改`kubeadm-init.yaml`, 要么初始化后修改`calico.yaml`.[/su_highlight]
 
@@ -350,11 +350,11 @@ subjects:
 
 `kubecfg.p12`即需要导入客户端机器的证书. 将证书拷贝到客户端机器上, 导入即可. chrome浏览器按下图所示导入：
 
-![img](https://picgo.6and.ltd/img/img_5ef33c7e9db84-20210621122443116.png)
+![img](https://cdn.tkaid.com/img/img_5ef33c7e9db84-20210621122443116.png)
 
 此时我们可以登录面板了, 访问地址: `https://{k8s-master-ip}:6443/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login`
 
-![img](https://picgo.6and.ltd/img/img_5ef33d17328d4.png)
+![img](https://cdn.tkaid.com/img/img_5ef33d17328d4.png)
 
 
 
@@ -362,7 +362,7 @@ subjects:
 
 
 
-![img](https://picgo.6and.ltd/img/img_5ef33d20519c2.png)
+![img](https://cdn.tkaid.com/img/img_5ef33d20519c2.png)
 
 
 
@@ -389,7 +389,7 @@ token:      eyJhbGciOiJSUzI1NiIsImtpZCI6Iks2dmRwalB5SWNKbWJTVUUxanVlVlAwbTk1OHR6
 
 复制该Token到登录页, 点击登录即可, 效果如下:
 
-![img](https://picgo.6and.ltd/img/img_5ef33d9fd5224-20210621122422540.png)
+![img](https://cdn.tkaid.com/img/img_5ef33d9fd5224-20210621122422540.png)
 
 ## 10. 添加Node节点
 
@@ -430,7 +430,7 @@ k8s-node2    Ready    <none>   95m    v1.18.4
 
 在面板上也可查看:
 
-![img](https://picgo.6and.ltd/img/img_5ef33e6d5addd-20210621122430349.png)
+![img](https://cdn.tkaid.com/img/img_5ef33e6d5addd-20210621122430349.png)
 
 配置node节点，以便node节点能够执行类似`kubectl get node`的时候不至于报`The connection to the server localhost:8080 was refused - did you specify the right host or port?`
 

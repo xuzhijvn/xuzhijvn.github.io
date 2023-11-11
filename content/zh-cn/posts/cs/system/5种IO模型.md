@@ -98,7 +98,7 @@ W. Richard Stevens在 《Unix Network Programming Volume 1 3rd Edition - The Soc
 
 在linux中，默认情况下所有的socket都是blocking，一个典型的读操作流程大概是这样：
 
-<img src="https://picgo.6and.ltd/img/img_5f3e145553aec-1024x559-20210621141130881.png" alt="img" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/img_5f3e145553aec-1024x559-20210621141130881.png" alt="img" style="zoom:50%;" />
 
 当用户进程调用了`recvfrom`这个系统调用，kernel就开始了IO的第一个阶段：准备数据（对于网络IO来说，很多时候数据在一开始还没有到达。比如，还没有收到一个完整的UDP包。这个时候kernel就要等待足够的数据到来）。这个过程需要等待，也就是说数据被拷贝到操作系统内核的缓冲区中是需要一个过程的。而在用户进程这边，整个进程会被阻塞（当然，是进程自己选择的阻塞)。当kernel一直等到数据准备好了，它就会将数据从kernel中拷贝到用户内存，然后kernel返回结果，用户进程才解除block的状态，重新运行起来。
 
@@ -109,7 +109,7 @@ W. Richard Stevens在 《Unix Network Programming Volume 1 3rd Edition - The Soc
 
 linux下，可以通过设置socket使其变为non-blocking。当对一个non-blocking socket执行读操作时，流程是这个样子：
 
-<img src="https://picgo.6and.ltd/img/img_5f3e143f07ef6-1024x559-20210621141137000.png" alt="img" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/img_5f3e143f07ef6-1024x559-20210621141137000.png" alt="img" style="zoom:50%;" />
 
 当用户进程发出read操作时，如果kernel中的数据还没有准备好，那么它并不会block用户进程，而是立刻返回一个`EWOULDBLOCK`的error。从用户进程角度讲 ，它发起一个read操作后，并不需要等待，而是马上就得到了一个结果。用户进程判断结果是一个error时，它就知道数据还没有准备好，于是它可以再次发送read操作。一旦kernel中的数据准备好了，并且又再次收到了用户进程的`system call`，那么它马上就将数据拷贝到了用户内存，然后返回。
 
@@ -120,7 +120,7 @@ linux下，可以通过设置socket使其变为non-blocking。当对一个non-bl
 
 IO multiplexing就是我们说的`select`，`poll`，`epoll`，有些地方也称这种IO方式为`event driven IO`。select/epoll的好处就在于单个process就可以同时处理多个网络连接的IO。它的基本原理就是select，poll，epoll这个function会不断的轮询所负责的所有socket，当某个socket有数据到达了，就通知用户进程。
 
-<img src="https://picgo.6and.ltd/img/img_5f3e14163bf52-1024x534-20210621141144263.png" alt="img" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/img_5f3e14163bf52-1024x534-20210621141144263.png" alt="img" style="zoom:50%;" />
 
 
 
@@ -141,7 +141,7 @@ IO multiplexing就是我们说的`select`，`poll`，`epoll`，有些地方也�
 
  
 
-<img src="https://picgo.6and.ltd/img/img_5f3def904eae9-1024x651.png" alt="img" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/img_5f3def904eae9-1024x651.png" alt="img" style="zoom:50%;" />
 
 ### 3.5 asynchronous IO
 
@@ -149,7 +149,7 @@ IO multiplexing就是我们说的`select`，`poll`，`epoll`，有些地方也�
 
 Linux提供了AIO库函数实现异步，但是用的很少。目前有很多开源的异步IO库，例如`libevent、libev、libuv`。异步过程如下图所示：
 
-<img src="https://picgo.6and.ltd/img/img_5f3e14a73cc23-1024x644-20210621141152724.png" alt="img" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/img_5f3e14a73cc23-1024x644-20210621141152724.png" alt="img" style="zoom:50%;" />
 
 
 
@@ -160,7 +160,7 @@ Linux提供了AIO库函数实现异步，但是用的很少。目前有很多开
 
 ## 4. 总结
 
-<img src="https://picgo.6and.ltd/img/img_5f3df05eac237-1024x656-20210621141201925.png" alt="img" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/img_5f3df05eac237-1024x656-20210621141201925.png" alt="img" style="zoom:50%;" />
 
  
 

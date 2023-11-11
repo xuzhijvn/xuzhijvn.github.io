@@ -56,7 +56,7 @@ images : [
 
 加锁其实是通过一段 lua 脚本实现的，如下：
 
-![img](https://picgo.6and.ltd/img/v2-edd7847d81d487fd42b38c5d36c6c8fe_720w.jpg)
+![img](https://cdn.tkaid.com/img/v2-edd7847d81d487fd42b38c5d36c6c8fe_720w.jpg)
 
 我们把这一段 lua 脚本抽出来看：
 

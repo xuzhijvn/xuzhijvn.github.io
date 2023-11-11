@@ -25,7 +25,7 @@ images =  [
 
 运行时数据区用于保存 JVM 在运行过程中产生的数据，结构如图所示：
 
-![img](https://picgo.6and.ltd/img/runtime_data_area.svg)
+![img](https://cdn.tkaid.com/img/runtime_data_area.svg)
 
 ## Heap
 

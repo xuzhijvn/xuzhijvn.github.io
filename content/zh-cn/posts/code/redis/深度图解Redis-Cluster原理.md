@@ -41,7 +41,7 @@ images : [
 
 首先Redis Sentinel说白了也是基于**主从复制**，在主从复制中slave的数据是完全来自于master。
 
-<img src="https://picgo.6and.ltd/img/0081Kckwly1gll2khn7srj30el03vt8o.jpg" alt="redis-capacity" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/0081Kckwly1gll2khn7srj30el03vt8o.jpg" alt="redis-capacity" style="zoom:67%;" />
 
 假设master节点的内存只有4G，那slave节点所能存储的数据上限也只能是4G。而且在之前的[跟随杠精的视角一起来了解Redis的主从复制](https://mp.weixin.qq.com/s/VJTBmAB-A1aRT9DR6v5gow)文章中也说过，主从复制架构中是读写分离的，我们可以通过增加slave节点来扩展主从的读并发能力，但是**写能力**和**存储能力**是无法进行扩展的，就只能是master节点能够承载的上限。
 
@@ -59,7 +59,7 @@ images : [
 
 很简单，你就可以理解为n个主从架构组合在一起对外服务。Redis Cluster要求至少需要3个master才能组成一个集群，同时每个master至少需要有一个slave节点。
 
-<img src="https://picgo.6and.ltd/img/0081Kckwly1gll36kwg27j30qr0i3myk.jpg" alt="redis-cluster" style="zoom: 67%;" />
+<img src="https://cdn.tkaid.com/img/0081Kckwly1gll36kwg27j30qr0i3myk.jpg" alt="redis-cluster" style="zoom: 67%;" />
 
 这样一来，如果一个主从能够存储32G的数据，如果这个集群包含了两个主从，则整个集群就能够存储64G的数据。
 
@@ -73,7 +73,7 @@ slave节点只是充当了一个数据备份的角色，当master发生了宕机
 
 不知道你思考过一个问题没，这么多的master节点。我存储的时候，到底该选择哪个节点呢？一般这种负载均衡算法，会选择**哈希算法**。哈希算法是怎么做的呢？
 
-<img src="https://picgo.6and.ltd/img/0081Kckwly1gll3oxx5iqj30d80dhaag.jpg" alt="redis-master-select" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/0081Kckwly1gll3oxx5iqj30d80dhaag.jpg" alt="redis-master-select" style="zoom:67%;" />
 
 首先就是对key计算出一个hash值，然后用哈希值对master数量进行取模。由此就可以将key负载均衡到每一个Redis节点上去。这就是简单的**哈希算法**的实现。
 
@@ -91,13 +91,13 @@ Redis Cluster其实采取的是类似于**一致性哈希**的算法来实现节
 
 然后我们的Redis实例也分布在圆环上，我们在圆环上按照顺时针的顺序找到第一个Redis实例，这样就完成了对key的节点分配。我们举个例子。
 
-<img src="https://picgo.6and.ltd/img/0081Kckwgy1glmcvvmyvkj30ee0jdmy3.jpg" alt="hash" style="zoom: 50%;" />
+<img src="https://cdn.tkaid.com/img/0081Kckwgy1glmcvvmyvkj30ee0jdmy3.jpg" alt="hash" style="zoom: 50%;" />
 
 假设我们有A、B、C三个Redis实例按照如图所示的位置分布在圆环上，此时计算出来的hash值，取模之后位置落在了**位置D**，那么我们按照顺时针的顺序，就能够找到我们这个key应该分配的Redis实例B。同理如果我们计算出来位置在E，那么对应选择的Redis的实例就是A。
 
 即使这个时候Redis实例B挂了，也不会影响到实例A和C的缓存。
 
-<img src="https://picgo.6and.ltd/img/0081Kckwgy1gln53ifhuwj30ee0jdt9p.jpg" alt="hash-down" style="zoom: 50%;" />
+<img src="https://cdn.tkaid.com/img/0081Kckwgy1gln53ifhuwj30ee0jdt9p.jpg" alt="hash-down" style="zoom: 50%;" />
 
 例如此时节点B挂了，那之前计算出来在位置D的key，此时会按照顺时针的顺序，找到节点C。相当于自动的把原来节点B的流量给转移到了节点C上去。而其他原本就在节点A和节点C的数据则完全不受影响。
 
@@ -107,11 +107,11 @@ Redis Cluster其实采取的是类似于**一致性哈希**的算法来实现节
 
 但是一致性哈希也存在自身的小问题，例如当我们的Redis节点分布如下时，就有问题了。
 
-<img src="https://picgo.6and.ltd/img/0081Kckwgy1gln5gdf877j30ee0jd0to.jpg" alt="hash-unevently" style="zoom: 50%;" />
+<img src="https://cdn.tkaid.com/img/0081Kckwgy1gln5gdf877j30ee0jd0to.jpg" alt="hash-unevently" style="zoom: 50%;" />
 
 此时数据落在节点A上的概率明显是大于其他两个节点的，其次落在节点C上的概率最小。这样一来会导致整个集群的数据存储不平衡，AB节点压力较大，而C节点资源利用不充分。为了解决这个问题，一致性哈希算法引入了**虚拟节点机制**。
 
-<img src="https://picgo.6and.ltd/img/0081Kckwgy1gln5lb847oj30ee0k2my8.jpg" alt="virtual-dom" style="zoom: 50%;" />
+<img src="https://cdn.tkaid.com/img/0081Kckwgy1gln5lb847oj30ee0k2my8.jpg" alt="virtual-dom" style="zoom: 50%;" />
 
 在圆环中，增加了对应节点的虚拟节点，然后完成了虚拟节点到真实节点的映射。假设现在计算得出了位置D，那么按照顺时针的顺序，我们找到的第一个节点就是**C #1**，最终数据实际还是会落在节点C上。
 
@@ -131,7 +131,7 @@ Redis Cluster其实采取的是类似于**一致性哈希**的算法来实现节
 
 每个Redis实例会自己维护一份**slot - Redis节点**的映射关系，假设你在节点A上设置了某个key，但是这个key通过CRC16计算出来的槽位是由节点B维护的，那么就会提示你需要去节点B上进行操作。
 
-<img src="https://picgo.6and.ltd/img/0081Kckwgy1glnlpufb7yj30f50bmjry.jpg" alt="slot-to-node" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/0081Kckwgy1glnlpufb7yj30f50bmjry.jpg" alt="slot-to-node" style="zoom:67%;" />
 
 ## 7. Redis Cluster如何做到高可用
 
@@ -155,7 +155,7 @@ Redis Cluster中保证集群高可用的思路和实现和Redis Sentinel如出�
 
 一旦节点A被标记为了客观宕机，集群就会开始执行**故障转移**。其余正常运行的master节点会进行投票选举，从A节点的slave节点中选举出一个，将其切换成新的master对外提供服务。当某个slave获得了超过半数的master节点投票，就成功当选。
 
-<img src="https://picgo.6and.ltd/img/0081Kckwgy1glqmfywf8jj30920f3mxp.jpg" alt="cluster-failover" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/0081Kckwgy1glqmfywf8jj30920f3mxp.jpg" alt="cluster-failover" style="zoom:67%;" />
 
 当选成功之后，新的master会执行`slaveof no one`来让自己停止复制A节点，使自己成为master。然后将A节点所负责处理的slot，全部转移给自己，然后就会向集群发**PONG**消息来广播自己的最新状态。
 
@@ -175,13 +175,13 @@ gossip: 流言、八卦、小道消息
 
 gossip是在1989年的论文上提出的，我看了一堆资料都说的是1987年发表的，但是文章里的时间明确是1989年1月份发表。
 
-<img src="https://picgo.6and.ltd/img/0081Kckwgy1globdud52sj30p0044dfx.jpg" alt="image-20201215100703648" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/0081Kckwgy1globdud52sj30p0044dfx.jpg" alt="image-20201215100703648" style="zoom:67%;" />
 
 感兴趣的可以去看看[Epidemic Algorithms for Replicated . Database Maintenance](http://bitsavers.trailing-edge.com/pdf/xerox/parc/techReports/CSL-89-1_Epidemic_Algorithms_for_Replicated_Database_Maintenance.pdf)，在当时提出gossip主要是为了解决在分布式数据库中，各个副本节点的数据同步问题。但随着技术的发展，gossip后续也被广泛运用于信息扩散、故障探测等等。
 
 Redis Cluster就是利用了gossip来实现自身的**信息扩散**的。那使用gossip具体是如何通信的呢？
 
-<img src="https://picgo.6and.ltd/img/0081Kckwgy1glob136uztj30hn0cwgmi.jpg" alt="gossip" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/0081Kckwgy1glob136uztj30hn0cwgmi.jpg" alt="gossip" style="zoom:67%;" />
 
 很简单，就像图里这样。每个Redis节点**每秒钟**都会向其他的节点发送**PING**，然后被**PING**的节点会回一个**PONG**。
 

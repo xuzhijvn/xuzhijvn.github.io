@@ -19,7 +19,7 @@ Jenkins安装插件提速
 国内安装Jenkins插件缓慢，这是我见到最完美的解决方案。
 通过【插件-->高级-->更新网站】替换成清华的数据源（https://mirrors.tuna.tsinghua.edu.cn/jenkins/updates/update-center.json）并不好使
 
-![img](https://picgo.6and.ltd/img/img_5e9b36bba6599.png)
+![img](https://cdn.tkaid.com/img/img_5e9b36bba6599.png)
 需要按照如下步骤操作：
 
 ## 进入到工作目录

@@ -347,11 +347,11 @@
 <p>TinyLFU 就是其中一个优化算法，它是专门为了解决 LFU 上述提到的两个问题而被设计出来的。</p>
 <p>解决第一个问题是采用了 <code>Count–Min Sketch</code> 算法。</p>
 <p>解决第二个问题是让记录尽量保持相对的“新鲜”（<code>Freshness Mechanism</code>），并且当有新的记录插入时，可以让它跟老的记录进行“PK”，输者就会被淘汰，这样一些老的、不再需要的记录就会被剔除。</p>
-<p><img src="https://picgo.6and.ltd/img/ba12253ec1118589eefd541329d7046c.webp" alt="img" style="zoom:50%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/ba12253ec1118589eefd541329d7046c.webp" alt="img" style="zoom:50%;" /></p>
 <h3 id="21-统计频率-countmin-sketch-算法">2.1 统计频率 Count–Min Sketch 算法<a class="anchor ms-1" href="#21-统计频率-countmin-sketch-算法"><i class="fas fa-link"></i></a></h3>
 <p>如何对一个 key 进行统计，但又可以节省空间呢？（不是简单的使用<code>HashMap</code>，这太消耗内存了），注意哦，不需要精确的统计，只需要一个近似值就可以了，怎么样，这样场景是不是很熟悉，如果你是老司机，或许已经联想到布隆过滤器（Bloom Filter）的应用了。</p>
 <p>没错，将要介绍的 Count–Min Sketch 的原理跟 Bloom Filter 一样，只不过 Bloom Filter 只有 0 和 1 的值，那么你可以把 Count–Min Sketch 看作是“数值”版的 Bloom Filter。</p>
-<p><img src="https://picgo.6and.ltd/img/0f6f4d0944b4e598364e8ac5a3b43ee7.webp" alt="img" style="zoom:50%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/0f6f4d0944b4e598364e8ac5a3b43ee7.webp" alt="img" style="zoom:50%;" /></p>
 <p>如果需要记录一个值，那我们需要通过多种Hash算法对其进行处理hash，然后在对应的hash算法的记录中+1，为什么需要多种hash算法呢？由于这是一个压缩算法必定会出现冲突，比如我们建立一个Long的数组，通过计算出每个数据的hash的位置。比如张三和李四，他们俩有可能hash值都是相同，比如都是1那Long[1]这个位置就会增加相应的频率，张三访问1万次，李四访问1次那Long[1]这个位置就是1万零1，如果取李四的访问评率的时候就会取出是1万零1，但是李四命名只访问了1次啊，为了解决这个问题，所以用了多个hash算法可以理解为long[][]二维数组的一个概念，比如在第一个算法张三和李四冲突了，但是在第二个，第三个中很大的概率不冲突，比如一个算法大概有1%的概率冲突，那四个算法一起冲突的概率是1%的四次方。通过这个模式我们取李四的访问率的时候取所有算法中，李四访问最低频率的次数。所以他的名字叫Count-Min Sketch。</p>
 <h3 id="22-保鲜机制">2.2 保鲜机制<a class="anchor ms-1" href="#22-保鲜机制"><i class="fas fa-link"></i></a></h3>
 <p>为了让缓存保持“新鲜”，剔除掉过往频率很高但之后不经常的缓存，Caffeine 有一个 Freshness Mechanism。做法很简答，就是当整体的统计计数（当前所有记录的频率统计之和，这个数值内部维护）达到某一个值时，那么所有记录的频率统计除以 2。</p>
@@ -359,8 +359,8 @@
 <p>Caffeine 通过测试发现 TinyLFU 在面对突发性的稀疏流量（sparse bursts）时表现很差，因为新的记录（new items）还没来得及建立足够的频率就被剔除出去了，这就使得命中率下降。</p>
 <p>于是 Caffeine 设计出一种新的 policy，即 <strong>Window Tiny LFU（W-TinyLFU）</strong>，并通过实验和实践发现 W-TinyLFU 比 TinyLFU 表现的更好。</p>
 <p>W-TinyLFU 的设计如下所示（两图等价）：</p>
-<p><img src="https://picgo.6and.ltd/img/dd7a8708c4a726ddead9512d4d59f56a.webp" alt="img" style="zoom:50%;" /></p>
-<p><img src="https://picgo.6and.ltd/img/c5e738b1875a38bed65e1e93ac951a68.webp" alt="img" style="zoom:50%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/dd7a8708c4a726ddead9512d4d59f56a.webp" alt="img" style="zoom:50%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/c5e738b1875a38bed65e1e93ac951a68.webp" alt="img" style="zoom:50%;" /></p>
 <p>它主要包括两个缓存模块，主缓存是 SLRU（Segmented LRU，即分段 LRU），SLRU 包括一个名为 protected 和一个名为 probation 的缓存区。通过增加一个缓存区（即 Window Cache），当有新的记录插入时，会先在 window 区呆一下，就可以避免上述说的 sparse bursts 问题。</p>
 <h3 id="31-数据淘汰策略">3.1 数据淘汰策略<a class="anchor ms-1" href="#31-数据淘汰策略"><i class="fas fa-link"></i></a></h3>
 <p>在caffeine所有的数据都在ConcurrentHashMap中，这个和guava cache不同，guava cache是自己实现了个类似ConcurrentHashMap的结构。在caffeine中有三个记录引用的<strong>LRU</strong>队列:</p>
@@ -370,7 +370,7 @@
 <li>Protected队列：在这个队列中，可以稍微放心一下了，你暂时不会被淘汰，但是别急，如果Probation队列没有数据了或者Protected数据满了，你也将会被面临淘汰的尴尬局面。当然想要变成这个队列，需要把Probation访问一次之后，就会提升为Protected队列。这个有效大小为(size减去eden) * 80% 如果size =100，就会是79。</li>
 </ul>
 <p>这三个队列关系如下:</p>
-<p><img src="https://picgo.6and.ltd/img/1654222b063487e1~tplv-t2oaga2asx-watermark.image" alt="img" style="zoom:50%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/1654222b063487e1~tplv-t2oaga2asx-watermark.image" alt="img" style="zoom:50%;" /></p>
 <ol>
 <li>所有的新数据都会进入Eden。</li>
 <li>Eden满了，淘汰进入Probation。</li>
@@ -385,7 +385,7 @@
 </li>
 <li>
 <p>如果攻击者&lt;=5，那么直接淘汰攻击者。这个逻辑在他的注释中有解释:</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/165422c9450da3ba~tplv-t2oaga2asx-watermark.image" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/165422c9450da3ba~tplv-t2oaga2asx-watermark.image" loading="lazy"
   
    />
 

@@ -283,13 +283,13 @@
 <p>所以，字符串常量池的具体位置是在哪里？当然这个我们后面需要区分jdk的版本，jdk1.7之前，jdk1.7，以及jdk1.8，因为这些版本中，字符串常量池因为方法区的改变而做了一些变化。</p>
 <h3 id="jdk17之前">JDK1.7之前<a class="anchor ms-1" href="#jdk17之前"><i class="fas fa-link"></i></a></h3>
 <p>在jdk1.7之前，常量池是存放在方法区中的。</p>
-<img src="https://picgo.6and.ltd/img/20201126173632432.png" alt="JDK1.7之前" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/20201126173632432.png" alt="JDK1.7之前" style="zoom:50%;" />
 <h3 id="jdk17">JDK1.7<a class="anchor ms-1" href="#jdk17"><i class="fas fa-link"></i></a></h3>
 <p>在jdk1.7中，字符串常量池移到了堆中，运行时常量池还在方法区中。</p>
-<img src="https://picgo.6and.ltd/img/20201126173618236.png" alt="JDK1.7" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/20201126173618236.png" alt="JDK1.7" style="zoom:50%;" />
 <h3 id="jdk18">JDK1.8<a class="anchor ms-1" href="#jdk18"><i class="fas fa-link"></i></a></h3>
 <p>jdk1.8删除了永久代，方法区这个概念还是保留的，但是方法区的实现变成了<code>元空间</code>，常量池沿用jdk1.7，还是放在了堆中。这样的效果就变成了：常量池和静态变量存储到了堆中，类的元数据及运行时常量池存储到元空间中。</p>
-<img src="https://picgo.6and.ltd/img/20201126172724596.png" alt="JDK1.8" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/20201126172724596.png" alt="JDK1.8" style="zoom:50%;" />
 <p>为啥要把方法区从JVM内存（永久代）移到直接内存（元空间)？主要有两个原因：</p>
 <ol>
 <li>直接内存属于本地系统的IO操作，具有更高的一个IO操作性能，而JVM的堆内存这种，如果有IO操作，也是先复制到直接内存，然后再去进行本地IO操作。经过了一系列的中间流程，性能就会差一些。非直接内存操作：<code>本地IO操作——&gt;直接内存操作——&gt;非直接内存操作——&gt;直接内存操作——&gt;本地IO操作</code>，而直接内存操作：<code>本地IO操作——&gt;直接内存操作——&gt;本地IO操作</code>。</li>
@@ -316,7 +316,7 @@
 </span></span><span style="display:flex;"><span>str4 <span style="color:#f92672">==</span> str5<span style="color:#960050;background-color:#1e0010">：</span><span style="color:#66d9ef">false</span>
 </span></span><span style="display:flex;"><span>str5 <span style="color:#f92672">==</span> str6<span style="color:#960050;background-color:#1e0010">：</span><span style="color:#66d9ef">false</span>
 </span></span></code></pre></div><h3 id="jvm存储示例">jvm存储示例<a class="anchor ms-1" href="#jvm存储示例"><i class="fas fa-link"></i></a></h3>
-<img src="https://picgo.6and.ltd/img/20201130112956433.png" alt="在这里插入图片描述" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/20201130112956433.png" alt="在这里插入图片描述" style="zoom:50%;" />
 <h3 id="创建对象流程">创建对象流程<a class="anchor ms-1" href="#创建对象流程"><i class="fas fa-link"></i></a></h3>
 <p>对于jvm底层，<code>String str = new String(&quot;123&quot;)</code>创建对象流程是什么？</p>
 <ol>

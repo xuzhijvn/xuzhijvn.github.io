@@ -320,13 +320,13 @@
 <h3 id="11-算法流程">1.1 算法流程<a class="anchor ms-1" href="#11-算法流程"><i class="fas fa-link"></i></a></h3>
 <p>pbft算法通过三阶段广播协议来使所有正常节点按相同的顺序执行请求，三阶段分别为pre-prepare、prepare和commit。pre-prepare阶段和prepare阶段确保了在同一个view下，正常节点对于消息m达成了全局一致的顺序，用(Order&lt;v, m, n&gt;)表示，在view = v下，正常节点都会对消息m，确认一个序号n。接下来的commit投票，再配合上viewchange的设计，实现了即使view切换，也可以保证对于m的全局一致顺序，即(Order&lt;v+1, m, n&gt;)，视图切换到v+1, 依然会对消息m，确认序号n。</p>
 <p><strong>三阶段协议</strong></p>
-<p><img class="img-fluid" alt="image-20210604124945145" src="https://picgo.6and.ltd/img/image-20210604124945145.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20210604124945145" src="https://cdn.tkaid.com/img/image-20210604124945145.png" loading="lazy"
   
    />
 
 </p>
 <p><strong>三阶段协议数据结构</strong></p>
-<p><img class="img-fluid" alt="image-20210604125121077" src="https://picgo.6and.ltd/img/image-20210604125121077.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20210604125121077" src="https://cdn.tkaid.com/img/image-20210604125121077.png" loading="lazy"
   
    />
 
@@ -404,12 +404,12 @@
 <p>检查点的正确性证明的生成过程如下：当副本节点i生成一个检查点后，向其他副本节点广播检查点消息&lt;CHECKPOINT,n,d,i&gt;，这里n是最近一个影响状态的请求序号，d是状态的摘要。每个副本节点都默默地在各自的日志中收集并记录其他节点发过来的检查点消息，直到收到来自2f+1个不同副本节点的具有相同序号n和摘要d的检查点消息。<strong>这2f+1个消息就是这个检查点的正确性证明</strong>。</p>
 <p>具有证明的检查点成为稳定检查点，然后副本节点就可以将所有序号小于等于n的预准备、准备和确认消息从日志中删除。同时也可以将之前的检查点和检查点消息一并删除。</p>
 <p>检查点协议可以用来更新水线（watermark）的高低值（h和H），这两个高低值限定了可以被接受的消息。水线的低值h与最近稳定检查点的序列号相同，而水线的高值H=h+k，k需要足够大才能使副本不至于为了等待稳定检查点而停顿。加入检查点每100个请求产生一次，k的取值可以是200。</p>
-<p><img class="img-fluid" alt="image-20210604125401192" src="https://picgo.6and.ltd/img/image-20210604125401192.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20210604125401192" src="https://cdn.tkaid.com/img/image-20210604125401192.png" loading="lazy"
   
    />
 
 </p>
-<p><img class="img-fluid" alt="image-20210604125501073" src="https://picgo.6and.ltd/img/image-20210604125501073.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20210604125501073" src="https://cdn.tkaid.com/img/image-20210604125501073.png" loading="lazy"
   
    />
 
@@ -424,7 +424,7 @@
 <blockquote>
 <p>&lt;VIEW-CHANGE, v+1, n, C, P, i&gt;<sub>sigma(i)</sub>消息。n是最新的stable checkpoint的编号，C是2f+1验证过的CheckPoint消息集合，P是当前副本节点未完成的请求的PRE-PREPARE和PREPARE消息集合。</p>
 </blockquote>
-<p><img class="img-fluid" alt="image-20210604125157418" src="https://picgo.6and.ltd/img/image-20210604125157418.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20210604125157418" src="https://cdn.tkaid.com/img/image-20210604125157418.png" loading="lazy"
   
    />
 
@@ -437,7 +437,7 @@
 <li>选取V中最小的stable checkpoint编号min-s，选取V中prepare消息的最大编号max-s。</li>
 <li>在min-s和max-s之间，如果存在P消息集合，则创建&laquo;PRE-PREPARE, v+1, n, d&gt;, m&gt;消息。否则创建一个空的PRE-PREPARE消息，即：&laquo;PRE-PREPARE, v+1, n, d(null)&gt;, m(null)&gt;, m(null)空消息，d(null)空消息摘要。</li>
 </ol>
-<p><img class="img-fluid" alt="image-20210604125232540" src="https://picgo.6and.ltd/img/image-20210604125232540.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20210604125232540" src="https://cdn.tkaid.com/img/image-20210604125232540.png" loading="lazy"
   
    />
 

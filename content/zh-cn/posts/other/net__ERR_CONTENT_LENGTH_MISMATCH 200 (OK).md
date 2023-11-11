@@ -21,7 +21,7 @@ net::ERR_CONTENT_LENGTH_MISMATCH 200 (OK)
 
 加载静态资源时报错：`net::ERR_CONTENT_LENGTH_MISMATCH 200 (OK)`
 
-![img](https://picgo.6and.ltd/img/img_5fa02506e21da.png)
+![img](https://cdn.tkaid.com/img/img_5fa02506e21da.png)
 
 解决办法：调整缓冲区大小 `proxy_buffer_size 64k; proxy_buffers 4 32k; proxy_busy_buffers_size 64k;`
 

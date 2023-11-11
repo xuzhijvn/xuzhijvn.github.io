@@ -24,7 +24,7 @@ images : [
 
 `ingress`是k8s一种资源对象，如k8s的`Deployment`、`Service`资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的`ClusterIP`、`NodePort`、`LoadBalance`一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。
 
-<img src="https://picgo.6and.ltd/img/img_5f40a321e4f83.png" alt="ingress" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/img_5f40a321e4f83.png" alt="ingress" style="zoom:67%;" />
 
 ## 2. ingress与ingress-controller
 
@@ -194,7 +194,7 @@ deploy.yaml里面的镜像地址是：`us.gcr.io/k8s-artifacts-prod/ingress-ngin
 
 修改后如下图所示：
 
-![img](https://picgo.6and.ltd/img/img_5f40b9365a422-20210621140800469.png)
+![img](https://cdn.tkaid.com/img/img_5f40b9365a422-20210621140800469.png)
 
 #### 4.2.3 部署**ingress-nginx controller**
 
@@ -212,11 +212,11 @@ kubectl replace --force -f deploy.yaml
 
 查看controller是否running
 
-![img](https://picgo.6and.ltd/img/img_5f40b97a7c88d-20210621140805590.png)
+![img](https://cdn.tkaid.com/img/img_5f40b97a7c88d-20210621140805590.png)
 
 查看service
 
-![img](https://picgo.6and.ltd/img/img_5f40ba7ebd446-20210621140808992.png)
+![img](https://cdn.tkaid.com/img/img_5f40ba7ebd446-20210621140808992.png)
 
 登陆任意节点，运行：
 
@@ -248,11 +248,11 @@ kubectl label node k8s-node1 isIngress="true"
 
 #### 4.3.2 修改deploy.yaml的deployment部分配置
 
-![img](https://picgo.6and.ltd/img/img_5f40d9927f98b-20210621140820358.png)
+![img](https://cdn.tkaid.com/img/img_5f40d9927f98b-20210621140820358.png)
 
 删除指定的nodePort：
 
-![img](https://picgo.6and.ltd/img/img_5f40da20d4f52-20210621140825440.png)
+![img](https://cdn.tkaid.com/img/img_5f40da20d4f52-20210621140825440.png)
 
 #### 4.3.3 重启
 
@@ -264,11 +264,11 @@ kubectl replace --force -f deploy.yaml
 
 可以看到，nginx-controller的pod已经部署在在k8s-node1上了：
 
-![img](https://picgo.6and.ltd/img/img_5f40dc88f1c92-20210621140832249.png)
+![img](https://cdn.tkaid.com/img/img_5f40dc88f1c92-20210621140832249.png)
 
 到k8s-node1上看下本地端口：
 
-![img](https://picgo.6and.ltd/img/img_5f40dcba3965c.png)
+![img](https://cdn.tkaid.com/img/img_5f40dcba3965c.png)
 
 由于配置了hostnetwork，nginx已经在node主机本地监听80/443/8181端口。其中8181是nginx-controller默认配置的一个default backend。这样，只要访问node主机有公网IP，就可以直接映射域名来对外网暴露服务了。如果要nginx高可用的话，可以在多个node上部署，并在前面再搭建一套LVS+keepalive做负载均衡。用hostnetwork的另一个好处是，如果lvs用DR模式的话，是不支持端口映射的，这时候如果用nodeport，暴露非标准的端口，管理起来会很麻烦。
 

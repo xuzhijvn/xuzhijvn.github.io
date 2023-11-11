@@ -77,7 +77,7 @@ images : [
 
 在计算机操作系统中，用户空间(`user space`)下的缓冲区数据一般情况下是无法直接写入磁盘的，中间必须经过操作系统内核空间(`kernel space`)缓冲区(`OS Buffer`)。因此，`redo log buffer`写入`redo log file`实际上是先写入`OS Buffer`，然后再通过系统调用`fsync()`将其刷到`redo log file`中，过程如下：
 
-<img src="https://picgo.6and.ltd/img/v2-44c0e78a1222853dc2a99e596cf3fa13_r.jpg" alt="从redo log buffer写日志到磁盘的redo log file中" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/v2-44c0e78a1222853dc2a99e596cf3fa13_r.jpg" alt="从redo log buffer写日志到磁盘的redo log file中" style="zoom:67%;" />
 
 `mysql`支持三种将`redo log buffer`写入`redo log file`的时机，可以通过`innodb_flush_log_at_trx_commit`参数配置，各参数值含义如下：
 
@@ -87,13 +87,13 @@ images : [
 | 1（实时写，实时刷） | 事务每次提交都会将`redo log buffer`中的日志写入`os buffer`并调用`fsync()`刷到`redo log file`中。这种方式即使系统崩溃也不会丢失任何数据，但是因为每次提交都写入磁盘，IO的性能较差。 |
 | 2（实时写，延迟刷） | 每次提交都仅写入到`os buffer`，然后是每秒调用`fsync()`将`os buffer`中的日志写入到`redo log file`。 |
 
-<img src="https://picgo.6and.ltd/img/v2-6322074d51c4d1507be3c3159ab583bc_r-20210819145000945-20210819145044199.jpg" alt="自定义在commit时如何将log buffer中的日志刷log file中" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/v2-6322074d51c4d1507be3c3159ab583bc_r-20210819145000945-20210819145044199.jpg" alt="自定义在commit时如何将log buffer中的日志刷log file中" style="zoom:67%;" />
 
 ### 2.3 redo log记录形式
 
 前面说过，`redo log`实际上记录数据页的变更，而这种变更记录是没必要全部保存，因此`redo log`实现上采用了大小固定，循环写入的方式，当写到结尾时，会回到开头循环写日志。如下图： 
 
-<img src="https://picgo.6and.ltd/img/image-20210819145133194.png" alt="redo log记录形式" style="zoom: 25%;" />
+<img src="https://cdn.tkaid.com/img/image-20210819145133194.png" alt="redo log记录形式" style="zoom: 25%;" />
 
 同时我们很容易得知，**在innodb中，既有`redo log`需要刷盘，还有`数据页`也需要刷盘，`redo log`存在的意义主要就是降低对`数据页`刷盘的要求**。在上图中，`write pos`表示`redo log`当前记录的`LSN`(逻辑序列号)位置，`check point`表示**数据页更改记录**刷盘后对应`redo log`所处的`LSN`(逻辑序列号)位置。`write pos`到`check point`之间的部分是`redo log`空着的部分，用于记录新的记录；`check point`到`write pos`之间是`redo log`待落盘的数据页更改记录。当`write pos`追上`check point`时，会先推动`check point`向前移动，空出位置再记录新的日志。
 
@@ -124,14 +124,14 @@ images : [
 
 ### MySQL 的逻辑架构图：
 
-<img src="https://picgo.6and.ltd/img/0d2070e8f84c4801adbfa03bda1f98d9-20210819150540455.png" alt="MySQL 的逻辑架构图" style="zoom: 25%;" />
+<img src="https://cdn.tkaid.com/img/0d2070e8f84c4801adbfa03bda1f98d9-20210819150540455.png" alt="MySQL 的逻辑架构图" style="zoom: 25%;" />
 
 > mysql8.0之后删除了查询缓存模块
 >
 
 ### update 语句执行流程：
 
-<img src="https://picgo.6and.ltd/img/20201124231528159.png" alt="update 语句执行流程" style="zoom: 25%;" />
+<img src="https://cdn.tkaid.com/img/20201124231528159.png" alt="update 语句执行流程" style="zoom: 25%;" />
 
 redo log的写入分成两个步骤prepare和commit，这就是**两阶段提交**
 

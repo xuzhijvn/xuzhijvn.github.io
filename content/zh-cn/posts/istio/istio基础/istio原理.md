@@ -17,15 +17,15 @@ images : [
 
 istio原理
 
-![img](http://picgo.6and.ltd/img/istio-arch.png)
+![img](http://cdn.tkaid.com/img/istio-arch.png)
 
 
 
-![img](http://picgo.6and.ltd/img/istio-service.png)
+![img](http://cdn.tkaid.com/img/istio-service.png)
 
 
 
 
 
-![img](http://picgo.6and.ltd/img/nginx_sidecar.png)
+![img](http://cdn.tkaid.com/img/nginx_sidecar.png)
 

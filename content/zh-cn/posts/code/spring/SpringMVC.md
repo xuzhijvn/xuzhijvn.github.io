@@ -20,7 +20,7 @@ images : [
 
 [comment]: <> (# SpringMVC)
 
-![img](https://picgo.6and.ltd/img/img_5ffae61a24542-20210621152631659.png)
+![img](https://cdn.tkaid.com/img/img_5ffae61a24542-20210621152631659.png)
 
 ## SpringMVC执行流程
 

@@ -72,7 +72,7 @@ public class Test {
 
 结果：
 
-![img](https://picgo.6and.ltd/img/img_5ffafe534509f.png)
+![img](https://cdn.tkaid.com/img/img_5ffafe534509f.png)
 
 两个线程（线程0和线程1）拿到的对象并不是同一个对象，但是同一线程能保证拿到的是同一个对象，即线程单例。
 ThreadLocal是基于ThreadLocalMap来实现的，所以我们在调用get方法的时候，默认走的就是这个map，不用指定key，它维持了线程间的隔离。

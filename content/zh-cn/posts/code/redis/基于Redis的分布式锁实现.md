@@ -35,7 +35,7 @@ images : [
 
 
 
-<img src="https://picgo.6and.ltd/img/16a53749547937bb~tplv-t2oaga2asx-watermark.awebp" alt="分布式锁" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/16a53749547937bb~tplv-t2oaga2asx-watermark.awebp" alt="分布式锁" style="zoom:67%;" />
 
 
 

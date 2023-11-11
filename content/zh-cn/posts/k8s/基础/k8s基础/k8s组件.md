@@ -20,7 +20,7 @@ images : [
 
 
 
-<img src="http://picgo.6and.ltd/img/components-of-kubernetes.svg" alt="Kubernetes 组件" style="zoom: 60%;" />
+<img src="http://cdn.tkaid.com/img/components-of-kubernetes.svg" alt="Kubernetes 组件" style="zoom: 60%;" />
 
 ## Master（控制平面）组件
 
@@ -144,7 +144,7 @@ DNS 是 Kubernetes 的核心功能之一，通过 kube-dns 或 CoreDNS 作为集
 
 ### 2⃣️ [Dashboard](https://kubernetes.io/zh/docs/tasks/access-application-cluster/web-ui-dashboard/)
 
-<img src="http://picgo.6and.ltd/img/ui-dashboard.png" alt="Kubernetes Dashboard UI" style="zoom: 33%;" />
+<img src="http://cdn.tkaid.com/img/ui-dashboard.png" alt="Kubernetes Dashboard UI" style="zoom: 33%;" />
 
 ### 3⃣️ [容器资源监控](https://kubernetes.io/zh/docs/tasks/debug-application-cluster/resource-usage-monitoring/)
 

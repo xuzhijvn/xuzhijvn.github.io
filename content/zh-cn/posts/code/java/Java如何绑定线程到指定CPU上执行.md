@@ -49,7 +49,7 @@ images : [
 
 其实我们都知道 Thread 类的大部分方法都是 native 方法：
 
-<img src="http://picgo.6and.ltd/img/1c4cc84e3f66490e9f6f9642c6aced18" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 50%;" />
+<img src="http://cdn.tkaid.com/img/1c4cc84e3f66490e9f6f9642c6aced18" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 50%;" />
 
 
 
@@ -77,13 +77,13 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
 
 > https://www.zhihu.com/question/64072646/answer/216184631
 
-<img src="http://picgo.6and.ltd/img/1f3a800354944d25b06cabd142c30331" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:50%;" />
+<img src="http://cdn.tkaid.com/img/1f3a800354944d25b06cabd142c30331" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:50%;" />
 
 
 
 这里面有一个R大的回答，大家可以看看一下。
 
-<img src="http://picgo.6and.ltd/img/21b76e01d2de418b838e885448b585d0" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 67%;" />
+<img src="http://cdn.tkaid.com/img/21b76e01d2de418b838e885448b585d0" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 67%;" />
 
 
 
@@ -105,7 +105,7 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
 
 > https://www.zhihu.com/question/64072646/answer/216184631
 
-![面试官：Java如何绑定线程到指定CPU上执行？](http://picgo.6and.ltd/img/ee5640f1dea245c2b0f7ab8ef1241649)
+![面试官：Java如何绑定线程到指定CPU上执行？](http://cdn.tkaid.com/img/ee5640f1dea245c2b0f7ab8ef1241649)
 
 
 
@@ -117,7 +117,7 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
 >
 > UT：User Thread 用户线程
 
-<img src="http://picgo.6and.ltd/img/7be3f0a574f14521acf2d54bb56879c7" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 33%;" />
+<img src="http://cdn.tkaid.com/img/7be3f0a574f14521acf2d54bb56879c7" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 33%;" />
 
 
 
@@ -160,7 +160,7 @@ JVM 规范里面也没有规定，必须使用哪一种模型。
 
 项目里面有个问答，解答了如何使用它去做绑核的操作：
 
-<img src="http://picgo.6and.ltd/img/5dd8bfffd039430283aa88d687fbd21d" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 67%;" />
+<img src="http://cdn.tkaid.com/img/5dd8bfffd039430283aa88d687fbd21d" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 67%;" />
 
 
 
@@ -195,13 +195,13 @@ public static void main(String[] args) {
 
 这是没有程序启动之前：
 
-![面试官：Java如何绑定线程到指定CPU上执行？](http://picgo.6and.ltd/img/cb4f49f2ae6a462f9c8f9540c765d88e)
+![面试官：Java如何绑定线程到指定CPU上执行？](http://cdn.tkaid.com/img/cb4f49f2ae6a462f9c8f9540c765d88e)
 
 
 
 这是启动起来之后：
 
-![面试官：Java如何绑定线程到指定CPU上执行？](http://picgo.6and.ltd/img/21a81210c0b8460abeebe69fe307374b)
+![面试官：Java如何绑定线程到指定CPU上执行？](http://cdn.tkaid.com/img/21a81210c0b8460abeebe69fe307374b)
 
 
 
@@ -209,19 +209,19 @@ public static void main(String[] args) {
 
 同时还有两行日志输出，我截出来给你看一下：
 
-![面试官：Java如何绑定线程到指定CPU上执行？](http://picgo.6and.ltd/img/b51ff90c29a949068fb5248279b19527)
+![面试官：Java如何绑定线程到指定CPU上执行？](http://cdn.tkaid.com/img/b51ff90c29a949068fb5248279b19527)
 
 
 
 另外，说明一下这个项目对应的 Maven 版本还是有好多个的：
 
-<img src="http://picgo.6and.ltd/img/2c6f6dd3ba224728ad92273885f6e080" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 50%;" />
+<img src="http://cdn.tkaid.com/img/2c6f6dd3ba224728ad92273885f6e080" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 50%;" />
 
 
 
 在我的机器上，如果用高于 3.2.3 的版本就会出现这样的异常信息：
 
-![面试官：Java如何绑定线程到指定CPU上执行？](http://picgo.6and.ltd/img/6256ec55de264bc2ac2794f3a93543d1)
+![面试官：Java如何绑定线程到指定CPU上执行？](http://cdn.tkaid.com/img/6256ec55de264bc2ac2794f3a93543d1)
 
 
 
@@ -233,7 +233,7 @@ public static void main(String[] args) {
 
 绑定核心之后就可以更好的利用缓存以及减少线程的上下文切换。
 
-<img src="http://picgo.6and.ltd/img/ca4c14e2b9914361a83e855b43f66f36" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<img src="http://cdn.tkaid.com/img/ca4c14e2b9914361a83e855b43f66f36" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
 
 
 
@@ -251,7 +251,7 @@ public static void main(String[] args) {
 
 而我第一次知道这个开源项目，就是通过这篇文章《PolarDB数据库性能大赛Java选手分享》
 
-<img src="http://picgo.6and.ltd/img/62ca31873e0f46bab1233b9ba49315ca" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<img src="http://cdn.tkaid.com/img/62ca31873e0f46bab1233b9ba49315ca" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
 
 
 
@@ -265,7 +265,7 @@ public static void main(String[] args) {
 
 这个策略上有这样的一个注释：
 
-![面试官：Java如何绑定线程到指定CPU上执行？](http://picgo.6and.ltd/img/44dcbc78d94a41fea2d362cb4f712830)
+![面试官：Java如何绑定线程到指定CPU上执行？](http://cdn.tkaid.com/img/44dcbc78d94a41fea2d362cb4f712830)
 
 
 
@@ -279,7 +279,7 @@ public static void main(String[] args) {
 
 于是问题就变成了：它是怎么做呢？
 
-<img src="http://picgo.6and.ltd/img/b7b71044b3734a038b6c428f1aff84b5" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:25%;" />
+<img src="http://cdn.tkaid.com/img/b7b71044b3734a038b6c428f1aff84b5" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:25%;" />
 
 
 
@@ -289,7 +289,7 @@ public static void main(String[] args) {
 
 首先第一个点：JNA 对于 Java-Thread-Affinity 非常重要：
 
-<img src="http://picgo.6and.ltd/img/5566d1eefa5f4a9aaa9b8fccd4a9be70" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<img src="http://cdn.tkaid.com/img/5566d1eefa5f4a9aaa9b8fccd4a9be70" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
 
 
 
@@ -303,7 +303,7 @@ public static void main(String[] args) {
 
 首先在这个类的静态代码块判断操作系统的类型：
 
-![面试官：Java如何绑定线程到指定CPU上执行？](http://picgo.6and.ltd/img/13365b09d2454a7fa855355dbecc3608)
+![面试官：Java如何绑定线程到指定CPU上执行？](http://cdn.tkaid.com/img/13365b09d2454a7fa855355dbecc3608)
 
 
 
@@ -313,7 +313,7 @@ public static void main(String[] args) {
 
 是一个接口，有各个平台的线程亲和性实现：
 
-<img src="http://picgo.6and.ltd/img/a39f9a3623a14a6ab3fe678c0729ce6f" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 50%;" />
+<img src="http://cdn.tkaid.com/img/a39f9a3623a14a6ab3fe678c0729ce6f" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 50%;" />
 
 
 
@@ -321,7 +321,7 @@ public static void main(String[] args) {
 
 > net.openhft.affinity.impl.WindowsJNAAffinity.CLibrary
 
-![面试官：Java如何绑定线程到指定CPU上执行？](http://picgo.6and.ltd/img/2ef72d323f4d4e86a0e451c6c4d8c52d)
+![面试官：Java如何绑定线程到指定CPU上执行？](http://cdn.tkaid.com/img/2ef72d323f4d4e86a0e451c6c4d8c52d)
 
 
 
@@ -335,7 +335,7 @@ public static void main(String[] args) {
 
 > net.openhft.affinity.AffinityLock#acquireLock(int)
 
-![面试官：Java如何绑定线程到指定CPU上执行？](http://picgo.6and.ltd/img/8b993e443e1e4a399cfb0428cd6cc9c3)
+![面试官：Java如何绑定线程到指定CPU上执行？](http://cdn.tkaid.com/img/8b993e443e1e4a399cfb0428cd6cc9c3)
 
 
 
@@ -343,7 +343,7 @@ public static void main(String[] args) {
 
 但 0 不建议使用：
 
-<img src="http://picgo.6and.ltd/img/671147237b17419985cee7c0b1d0b2e8" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<img src="http://cdn.tkaid.com/img/671147237b17419985cee7c0b1d0b2e8" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
 
 
 
@@ -353,7 +353,7 @@ public static void main(String[] args) {
 
 > net.openhft.affinity.AffinityLock#bind(boolean)
 
-![面试官：Java如何绑定线程到指定CPU上执行？](http://picgo.6and.ltd/img/9c976ed0f530470a92ef7d5a64eee47c)
+![面试官：Java如何绑定线程到指定CPU上执行？](http://cdn.tkaid.com/img/9c976ed0f530470a92ef7d5a64eee47c)
 
 
 
@@ -367,7 +367,7 @@ public static void main(String[] args) {
 
 > https://docs.microsoft.com/zh-cn/windows/win32/api/winbase/nf-winbase-setthreadaffinitymask?redirectedfrom=MSDN
 
-<img src="http://picgo.6and.ltd/img/b37611f0db5b4020b0f426bacf2368aa" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<img src="http://cdn.tkaid.com/img/b37611f0db5b4020b0f426bacf2368aa" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
 
 
 
@@ -375,7 +375,7 @@ public static void main(String[] args) {
 
 因为我们知道，在 Solaris 平台上的 HotSpot 虚拟机，同时支持 1:1 和 N:M 的线程模型。
 
-<img src="http://picgo.6and.ltd/img/06cd55a8b08d46d1aba33d2eb865abe3" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<img src="http://cdn.tkaid.com/img/06cd55a8b08d46d1aba33d2eb865abe3" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
 
 
 
@@ -383,7 +383,7 @@ public static void main(String[] args) {
 
 大道至简，直接来一个不实现。
 
-![面试官：Java如何绑定线程到指定CPU上执行？](http://picgo.6and.ltd/img/39ff3ff169c243e78f918442d73f7684)
+![面试官：Java如何绑定线程到指定CPU上执行？](http://cdn.tkaid.com/img/39ff3ff169c243e78f918442d73f7684)
 
 
 
@@ -393,7 +393,7 @@ Netty 里面用到了这个库：
 
 > https://ifeve.com/thread-affinity/
 
-![面试官：Java如何绑定线程到指定CPU上执行？](http://picgo.6and.ltd/img/757c924f1e6d4554a42b70f39512ce06)
+![面试官：Java如何绑定线程到指定CPU上执行？](http://cdn.tkaid.com/img/757c924f1e6d4554a42b70f39512ce06)
 
 
 
@@ -401,17 +401,17 @@ SOFAJRaft 里面也依赖了这个包：
 
 > https://github.com/sofastack/sofa-jraft/blob/master/README_zh_CN.md
 
-![面试官：Java如何绑定线程到指定CPU上执行？](http://picgo.6and.ltd/img/0f8cb2c770584f61a08d7e2808ebdfae)
+![面试官：Java如何绑定线程到指定CPU上执行？](http://cdn.tkaid.com/img/0f8cb2c770584f61a08d7e2808ebdfae)
 
 
 
-<img src="http://picgo.6and.ltd/img/22548b1703504b48b49534f0eac711a1" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<img src="http://cdn.tkaid.com/img/22548b1703504b48b49534f0eac711a1" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
 
 
 
 然后我前面说到的比赛中也有这样的使用场景，在知乎也看到了这样的一个场景：
 
-<img src="http://picgo.6and.ltd/img/314ec0e9a86d4f0990a45b6b02d0e343" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<img src="http://cdn.tkaid.com/img/314ec0e9a86d4f0990a45b6b02d0e343" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
 
 
 
@@ -419,7 +419,7 @@ SOFAJRaft 里面也依赖了这个包：
 
 你再想想这个面试题，如果面试官想要的真的是这个回答，你说合适吗？
 
-![面试官：Java如何绑定线程到指定CPU上执行？](http://picgo.6and.ltd/img/c0a6a0fa9a3343a0a8a5443ae4d7a3ca)
+![面试官：Java如何绑定线程到指定CPU上执行？](http://cdn.tkaid.com/img/c0a6a0fa9a3343a0a8a5443ae4d7a3ca)
 
 
 

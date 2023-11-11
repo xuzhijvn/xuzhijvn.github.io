@@ -47,7 +47,7 @@ images : [
 
 通过`VirtualMachine`类的`attach(pid)`方法，便可以`attach`到一个运行中的`java进程`上，之后便可以通过`loadAgent(agentJarPath)`来将`agent`的`jar包`注入到对应的进程，然后对应的进程会调用`agentmain`方法。
 
-<img src="https://picgo.6and.ltd/img/1607781-20190817155003876-767522290.png" alt="attach实现动态注入的原理" style="zoom: 40%;" />
+<img src="https://cdn.tkaid.com/img/1607781-20190817155003876-767522290.png" alt="attach实现动态注入的原理" style="zoom: 40%;" />
 
 既然是两个进程之间通信那肯定的建立起连接，`VirtualMachine.attach`动作类似TCP创建连接的三次握手，目的就是搭建`attach`通信的连接。而后面执行的操作，例如`vm.loadAgent`，其实就是向这个`socket`写入数据流，接收方`target VM`会针对不同的传入数据来做不同的处理。
 

@@ -22,7 +22,7 @@ WordPress更换域名
 
 在更换的域名过程中遇到很多坑，主要还是我的架构比较特殊的原因，导致跟以往配置不太一样，架构如下：
 
-[![img](https://picgo.6and.ltd/img/2020061014034891.png)](http://106.55.152.92:30989/wp-content/uploads/2020/06/2020061014034891.png)
+[![img](https://cdn.tkaid.com/img/2020061014034891.png)](http://106.55.152.92:30989/wp-content/uploads/2020/06/2020061014034891.png)
 
 ## 1. 无法通过nginx转发请求到容器端口
 

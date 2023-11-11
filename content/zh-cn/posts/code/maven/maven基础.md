@@ -71,9 +71,9 @@ mvn -Dverbose  dependency:tree -Doutput=/Users/shangxiaofei/sxfoutput.txt
 
 例子：
 
-![img](https://picgo.6and.ltd/img/645085-20190110173328966-1325435360.png)
+![img](https://cdn.tkaid.com/img/645085-20190110173328966-1325435360.png)
 
-![img](https://picgo.6and.ltd/img/645085-20190110182627824-965290088-20211010213928890.png)
+![img](https://cdn.tkaid.com/img/645085-20190110182627824-965290088-20211010213928890.png)
 
  
 

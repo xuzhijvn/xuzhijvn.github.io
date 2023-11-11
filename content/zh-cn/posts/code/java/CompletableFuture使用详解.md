@@ -19,7 +19,7 @@ images : [
 
 [comment]: <> "# CompletableFuture使用详解"
 
-![CompletableFuture](https://picgo.6and.ltd/img/CompletableFuture.jpg)
+![CompletableFuture](https://cdn.tkaid.com/img/CompletableFuture.jpg)
 
 ## 1. runAsync 和 supplyAsync方法
 

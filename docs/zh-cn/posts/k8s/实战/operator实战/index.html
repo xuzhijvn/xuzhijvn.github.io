@@ -740,25 +740,25 @@ apps.app.huolala.cn                                   2021-06-27T13:42:09Z
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">make docker-build IMG<span style="color:#f92672">=</span>ccr.ccs.tencentyun.com/huolala.cn/app:v1
 </code></pre></div><p>==特别注意==☢️</p>
 <p>⚠️ 1. 因为docker-build会执行测试，测试的时候需要连接github下载脚本运行，此时极有可能会报443的连接错误，所以我们把test注释掉。</p>
-<p><img class="img-fluid" alt="image-20210627223227260" src="https://picgo.6and.ltd/img/image-20210627223227260.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20210627223227260" src="https://cdn.tkaid.com/img/image-20210627223227260.png" loading="lazy"
   
    />
 
 </p>
 <p>⚠️ 2. 下图位置默认的镜像地址是<code>gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0</code> 这个地址国内无法拉取到镜像，所以需要替换成自己的镜像地址（可以先找台国外的服务器拉取下来，重新打tag后推送到自己的镜像仓库），如果不修改，容器<code>ccr.ccs.tencentyun.com/huolala.cn/app:v1</code>无法启动。</p>
-<p><img class="img-fluid" alt="image-20210627223536610" src="https://picgo.6and.ltd/img/image-20210627223536610.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20210627223536610" src="https://cdn.tkaid.com/img/image-20210627223536610.png" loading="lazy"
   
    />
 
 </p>
 <p>⚠️ 3. 将 controller 部署到 k8s 集群的时候，可能会出现 RBAC 权限错误，解决方法是修改部署时的权限配置，这里我们使用最简单的方法是直接给 controller 绑定到 cluster-admin 集群管理员即可</p>
-<p><img class="img-fluid" alt="image-20210627225840775" src="https://picgo.6and.ltd/img/image-20210627225840775.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20210627225840775" src="https://cdn.tkaid.com/img/image-20210627225840775.png" loading="lazy"
   
    />
 
 </p>
 <p>如果不修改，报错如下：</p>
-<p><img class="img-fluid" alt="image-20210627230328638" src="https://picgo.6and.ltd/img/image-20210627230328638.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20210627230328638" src="https://cdn.tkaid.com/img/image-20210627230328638.png" loading="lazy"
   
    />
 
@@ -778,7 +778,7 @@ app-controller-manager-c49568d65-86tpj   2/2     Running   <span style="color:#a
 <span style="color:#f92672">[</span>root@k8s-master ~<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl get deployment -n app-system</span>
 NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
 app-controller-manager   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           24s
-</code></pre></div><p><img class="img-fluid" alt="image-20210628092101436" src="https://picgo.6and.ltd/img/image-20210628092101436.png" loading="lazy"
+</code></pre></div><p><img class="img-fluid" alt="image-20210628092101436" src="https://cdn.tkaid.com/img/image-20210628092101436.png" loading="lazy"
   
    />
 

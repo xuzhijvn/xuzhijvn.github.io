@@ -298,7 +298,7 @@
 <p>在 JVM 中不同的对象拥有不同的生命周期，因此对于不同生命周期的对象也可以采用不同的垃圾回收算法，以提高效率，这就是分代回收算法的核心思想。</p>
 <h4 id="记忆集">记忆集<a class="anchor ms-1" href="#记忆集"><i class="fas fa-link"></i></a></h4>
 <p>上面有说到进行 GC 的时候，会从 GC Root 进行搜索，做一个引用图。现有一个对象 C 在 Young Gen，其只被一个在 Old Gen 的对象 D 引用，其引用结构如下所示：</p>
-<img src="https://picgo.6and.ltd/img/gc_remembered_set.png" alt="img" style="zoom: 67%;" />
+<img src="https://cdn.tkaid.com/img/gc_remembered_set.png" alt="img" style="zoom: 67%;" />
 <p>这个时候要进行 Young GC，要确定 C 是否被堆外引用，就需要遍历 Old Gen，这样的代价太大。所以 JVM 在进行对象引用的时候，会有个 <strong>记忆集（Remembered Set）</strong> 记录从 Old Gen 到 Young Gen 的引用关系，并把记忆集里的 Old Gen 作为 GC Root 来构建引用图。这样在进行 Young GC 时就不需要遍历 Old Gen。</p>
 <p>但是使用记忆集也会有缺点：C &amp; D 其实都可以进行回收，但是由于记忆集的存在，不会将 C 回收。这里其实有一点 <strong>空间换时间</strong> 的意思。不过无论如何，它依然确保了垃圾回收所遵循的原则：<strong>垃圾回收确保回收的对象必然是不可达对象，但是不确保所有的不可达对象都会被回收</strong>。</p>
 <h2 id="垃圾回收触发条件">垃圾回收触发条件<a class="anchor ms-1" href="#垃圾回收触发条件"><i class="fas fa-link"></i></a></h2>
@@ -357,7 +357,7 @@
 <p><code>DirectByteBuffer</code> 申请的直接内存，不再GC范围之内，无法自动回收。JDK 提供了一种机制，可以为堆内存对象注册一个钩子函数(其实就是实现 <code>Runnable</code> 接口的子类)，当堆内存对象被GC回收的时候，会回调run方法，我们可以在这个方法中执行释放 <code>DirectByteBuffer</code> 引用的直接内存，即在run方法中调用 <code>Unsafe</code> 的 <code>freeMemory</code> 方法。注册是通过<code>sun.misc.Cleaner</code> 类来实现的。</p>
 <h2 id="垃圾收集器">垃圾收集器<a class="anchor ms-1" href="#垃圾收集器"><i class="fas fa-link"></i></a></h2>
 <p>垃圾收集器是内存回收的具体实现，下图展示了 7 种用于不同分代的收集器，两个收集器之间有连线表示可以搭配使用，每种收集器都有最适合的使用场景。</p>
-<p><img class="img-fluid" alt="垃圾收集器" src="https://picgo.6and.ltd/img/garbage_collector.svg" loading="lazy"
+<p><img class="img-fluid" alt="垃圾收集器" src="https://cdn.tkaid.com/img/garbage_collector.svg" loading="lazy"
   
    />
 

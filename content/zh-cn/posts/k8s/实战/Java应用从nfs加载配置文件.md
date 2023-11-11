@@ -197,7 +197,7 @@ pvc-fec62c86-451e-4125-9e00-be60394f40d9   32Mi       RWX            Delete     
 - 而当这个 PV 被回收后会以`archieved-${namespace}-${pvcName}-${pvName}`这样的命名格式存在 NFS 服务器上。
 
 形如下图所示：
-![img](https://picgo.6and.ltd/img/img_5fb0f0f9ef6a6.png)
+![img](https://cdn.tkaid.com/img/img_5fb0f0f9ef6a6.png)
 
 ## 5. 使用PVC
 

@@ -69,7 +69,7 @@ Zookeeper 是有取舍的，它实现了 A 可用性、P 分区容错性、C 的
 
 Zookeeper 的 ZNode 模型其实可以理解为类文件系统，如下图：
 
-<img src="https://picgo.6and.ltd/img/image-20210804004139634.png" alt="image-20210804004139634" style="zoom: 15%;" />
+<img src="https://cdn.tkaid.com/img/image-20210804004139634.png" alt="image-20210804004139634" style="zoom: 15%;" />
 
 ### 2.1 ZNode 并不适合存储太大的数据
 
@@ -225,7 +225,7 @@ public interface Watcher {
 
 下面是监听的大致流程图：
 
-<img src="https://picgo.6and.ltd/img/image-20210804004209720.png" alt="image-20210804004209720" style="zoom: 33%;" />
+<img src="https://cdn.tkaid.com/img/image-20210804004209720.png" alt="image-20210804004209720" style="zoom: 33%;" />
 
 稍稍解释一下：
 

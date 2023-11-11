@@ -311,9 +311,9 @@
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><h2 id="一级缓存">一级缓存<a class="anchor ms-1" href="#一级缓存"><i class="fas fa-link"></i></a></h2>
 <h3 id="一级缓存介绍">一级缓存介绍<a class="anchor ms-1" href="#一级缓存介绍"><i class="fas fa-link"></i></a></h3>
 <p>在应用运行过程中，我们有可能在一次数据库会话中，执行多次查询条件完全相同的SQL，MyBatis提供了一级缓存的方案优化这部分场景，如果是相同的SQL语句，会优先命中一级缓存，避免直接对数据库进行查询，提高性能。具体执行过程如下图所示。</p>
-<p><img src="https://picgo.6and.ltd/img/6e38df6a.jpg" alt="img" style="zoom: 40%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/6e38df6a.jpg" alt="img" style="zoom: 40%;" /></p>
 <p>每个SqlSession中持有了Executor，每个Executor中有一个LocalCache。当用户发起查询时，MyBatis根据当前执行的语句生成<code>MappedStatement</code>，在Local Cache进行查询，如果缓存命中的话，直接返回结果给用户，如果缓存没有命中的话，查询数据库，结果写入<code>Local Cache</code>，最后返回结果给用户。具体实现类的类关系图如下图所示。</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/d76ec5fe.jpg" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/d76ec5fe.jpg" loading="lazy"
   
    />
 
@@ -347,7 +347,7 @@
         System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>studentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
     <span style="color:#f92672">}</span>
 </code></pre></div><p>执行结果：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/9e996384.jpg" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/9e996384.jpg" loading="lazy"
   
    />
 
@@ -365,7 +365,7 @@
         sqlSession<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>执行结果：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/fb6a78e0.jpg" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/fb6a78e0.jpg" loading="lazy"
   
    />
 
@@ -387,7 +387,7 @@
         System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
         System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper2读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper2<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
 <span style="color:#f92672">}</span>
-</code></pre></div><p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/f480ac76.jpg" loading="lazy"
+</code></pre></div><p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/f480ac76.jpg" loading="lazy"
   
    />
 
@@ -402,7 +402,7 @@
 <h2 id="二级缓存">二级缓存<a class="anchor ms-1" href="#二级缓存"><i class="fas fa-link"></i></a></h2>
 <h3 id="二级缓存介绍">二级缓存介绍<a class="anchor ms-1" href="#二级缓存介绍"><i class="fas fa-link"></i></a></h3>
 <p>在上文中提到的一级缓存中，其最大的共享范围就是一个SqlSession内部，如果多个SqlSession之间需要共享缓存，则需要使用到二级缓存。开启二级缓存后，会使用CachingExecutor装饰Executor，进入一级缓存的查询流程前，先在CachingExecutor进行二级缓存的查询，具体的工作流程如下所示。</p>
-<p><img src="https://picgo.6and.ltd/img/28399eba.png" alt="img" style="zoom: 67%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/28399eba.png" alt="img" style="zoom: 67%;" /></p>
 <p>二级缓存开启后，同一个namespace下的所有操作语句，都影响着同一个Cache，即二级缓存被多个SqlSession共享，是一个全局的变量。</p>
 <p>当开启缓存后，数据的查询执行的流程就是 二级缓存 -&gt; 一级缓存 -&gt; 数据库。</p>
 <h3 id="二级缓存配置">二级缓存配置<a class="anchor ms-1" href="#二级缓存配置"><i class="fas fa-link"></i></a></h3>
@@ -443,7 +443,7 @@
         System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper2读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper2<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>执行结果：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/71e2bfdc.jpg" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/71e2bfdc.jpg" loading="lazy"
   
    />
 
@@ -463,7 +463,7 @@
         sqlSession1<span style="color:#f92672">.</span><span style="color:#a6e22e">commit</span><span style="color:#f92672">();</span>
         System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper2读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper2<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
 <span style="color:#f92672">}</span>
-</code></pre></div><p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/f366f34e.jpg" loading="lazy"
+</code></pre></div><p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/f366f34e.jpg" loading="lazy"
   
    />
 
@@ -489,7 +489,7 @@
         sqlSession3<span style="color:#f92672">.</span><span style="color:#a6e22e">commit</span><span style="color:#f92672">();</span>
         System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper2读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper2<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentById</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
 <span style="color:#f92672">}</span>
-</code></pre></div><p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/3ad93c3a.jpg" loading="lazy"
+</code></pre></div><p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/3ad93c3a.jpg" loading="lazy"
   
    />
 
@@ -517,7 +517,7 @@
         System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;studentMapper2读取数据: &#34;</span> <span style="color:#f92672">+</span> studentMapper2<span style="color:#f92672">.</span><span style="color:#a6e22e">getStudentByIdWithClassInfo</span><span style="color:#f92672">(</span>1<span style="color:#f92672">));</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>执行结果：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/5265ed97.jpg" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/5265ed97.jpg" loading="lazy"
   
    />
 
@@ -527,7 +527,7 @@
 <h4 id="实验5">实验5<a class="anchor ms-1" href="#实验5"><i class="fas fa-link"></i></a></h4>
 <p>为了解决实验4的问题呢，可以使用Cache ref，让<code>ClassMapper</code>引用<code>StudenMapper</code>命名空间，这样两个映射文件对应的SQL操作都使用的是同一块缓存了。</p>
 <p>执行结果：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/a2e4c2d8.jpg" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/a2e4c2d8.jpg" loading="lazy"
   
    />
 

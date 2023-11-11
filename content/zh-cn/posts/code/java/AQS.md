@@ -29,7 +29,7 @@ CLH：Craig, Landin, and Hagersten队列，是单向链表，AQS中的队列是C
 
 主要原理图如下：
 
-![AQS核心原理](https://picgo.6and.ltd/img/7132e4cef44c26f62835b197b239147b18062-20210920163618794.png)
+![AQS核心原理](https://cdn.tkaid.com/img/7132e4cef44c26f62835b197b239147b18062-20210920163618794.png)
 
 AQS使用一个Volatile的int类型的成员变量`state`来表示同步状态，通过内置的FIFO队列来完成资源获取的排队工作，通过CAS完成对State值的修改。
 
@@ -47,7 +47,7 @@ public final void acquire(int arg) {
 
 
 
-![线程获取锁](https://picgo.6and.ltd/img/e9e385c3c68f62c67c8d62ab0adb613921117-20210920165824965.png)
+![线程获取锁](https://cdn.tkaid.com/img/e9e385c3c68f62c67c8d62ab0adb613921117-20210920165824965.png)
 
 如果再有线程要获取锁，依次在队列中往后排队即可。
 
@@ -140,7 +140,7 @@ final boolean acquireQueued(final Node node, int arg) {
 
 Node2自旋查看前置节点，直到前置节点执行完成状态修改为CANCELLED，然后断开前置节点的链接，获取资源开始执行。
 
-<img src="https://picgo.6and.ltd/img/1195582-20190531083229686-1272222252.png" alt="img" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/1195582-20190531083229686-1272222252.png" alt="img" style="zoom:50%;" />
 
 再来总结下它的流程吧：
 
@@ -151,7 +151,7 @@ Node2自旋查看前置节点，直到前置节点执行完成状态修改为CAN
 
 由于此函数是重中之重，我再用流程图总结一下：
 
-![aqs获得锁](https://picgo.6and.ltd/img/721070-20151102145743461-623794326-20210920184027834.png)
+![aqs获得锁](https://cdn.tkaid.com/img/721070-20151102145743461-623794326-20210920184027834.png)
 
 
 

@@ -34,7 +34,7 @@ images = []
 
 这里我也列了一个表格，总结了它们各自的优缺点：
 
-![compare](https://picgo.6and.ltd/img/c9e280fb1080e6e9083b88a10724daa9.jpg)
+![compare](https://cdn.tkaid.com/img/c9e280fb1080e6e9083b88a10724daa9.jpg)
 
 
 
@@ -44,7 +44,7 @@ images = []
 
 如果把 List 当作队列，你可以这么来用。
 
-![List队列](https://picgo.6and.ltd/img/ab27b5e96cd641ba62468f3097aa4345.jpg)
+![List队列](https://cdn.tkaid.com/img/ab27b5e96cd641ba62468f3097aa4345.jpg)
 
 生产者使用 LPUSH 发布消息： 
 
@@ -89,7 +89,7 @@ while true:
 
 Redis 提供了 `PUBLISH / SUBSCRIBE` 命令，来完成发布、订阅的操作。
 
-![pub-sub](https://picgo.6and.ltd/img/d463bd15025f4bf6968dc6bb8715d7d7.jpg)
+![pub-sub](https://cdn.tkaid.com/img/d463bd15025f4bf6968dc6bb8715d7d7.jpg)
 
 假设你想开启 2 个消费者，同时消费同一批数据，就可以按照以下方式来实现。
 
@@ -127,7 +127,7 @@ Reading messages... (press Ctrl-C to quit)
 
 除此之外，Pub/Sub 还提供了「匹配订阅」模式，允许消费者根据一定规则，订阅「多个」自己感兴趣的队列。 
 
-![PSUB](https://picgo.6and.ltd/img/b60df512f308044c1bb87dfaa1cc275c-20220206113049502.jpg)
+![PSUB](https://cdn.tkaid.com/img/b60df512f308044c1bb87dfaa1cc275c-20220206113049502.jpg)
 
 ```shell
 // 订阅符合规则的队列  
@@ -199,7 +199,7 @@ Pub/Sub 从缓冲区取走数据之后，数据就从 Redis 缓冲区删除了�
 
 之后，消费者不断地从缓冲区读取消息，处理消息。
 
-![pub-sub消息堆积](https://picgo.6and.ltd/img/d98e667cc32664a7400147cad6dbef50.jpg)
+![pub-sub消息堆积](https://cdn.tkaid.com/img/d98e667cc32664a7400147cad6dbef50.jpg)
 
 但是，问题就出在这个缓冲区上。
 
@@ -250,7 +250,7 @@ Pub/Sub 从缓冲区取走数据之后，数据就从 Redis 缓冲区删除了�
 
 没有消息，Redis 会返回 NULL。
 
-![stream](https://picgo.6and.ltd/img/5f90f8ba279738b98eeba49662a93d3c.jpg)
+![stream](https://cdn.tkaid.com/img/5f90f8ba279738b98eeba49662a93d3c.jpg)
 
 以上就是 Stream 最简单的生产、消费。
 
@@ -332,7 +332,7 @@ OK
 
 这样一来，就达到了多组消费者「订阅」消费的目的。
 
-![XREADGROUP](https://picgo.6and.ltd/img/9a167ac652995bbad7ed9da7d39eb5fa.jpg)
+![XREADGROUP](https://cdn.tkaid.com/img/9a167ac652995bbad7ed9da7d39eb5fa.jpg)
 
 ### 3. 消息处理时异常，Stream 能否保证消息不丢失，重新消费？
 
@@ -345,7 +345,7 @@ OK
 127.0.0.1:6379> XACK queue group1 1618472043089-0 
 ```
 
-![stream-ack](https://picgo.6and.ltd/img/1ebeaa4a073d4dfb7018a9451119344b.jpg)
+![stream-ack](https://cdn.tkaid.com/img/1ebeaa4a073d4dfb7018a9451119344b.jpg)
 
 如果消费者异常宕机，肯定不会发送 XACK，那么 Redis 就会依旧保留这条消息。
 

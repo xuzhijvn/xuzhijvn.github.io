@@ -489,21 +489,21 @@ make docker-build IMG=ccr.ccs.tencentyun.com/huolala.cn/app:v1
 
 ⚠️ 1. 因为docker-build会执行测试，测试的时候需要连接github下载脚本运行，此时极有可能会报443的连接错误，所以我们把test注释掉。
 
-![image-20210627223227260](https://picgo.6and.ltd/img/image-20210627223227260.png)
+![image-20210627223227260](https://cdn.tkaid.com/img/image-20210627223227260.png)
 
 
 
 ⚠️ 2. 下图位置默认的镜像地址是`gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0` 这个地址国内无法拉取到镜像，所以需要替换成自己的镜像地址（可以先找台国外的服务器拉取下来，重新打tag后推送到自己的镜像仓库），如果不修改，容器`ccr.ccs.tencentyun.com/huolala.cn/app:v1`无法启动。
 
-![image-20210627223536610](https://picgo.6and.ltd/img/image-20210627223536610.png)
+![image-20210627223536610](https://cdn.tkaid.com/img/image-20210627223536610.png)
 
 ⚠️ 3. 将 controller 部署到 k8s 集群的时候，可能会出现 RBAC 权限错误，解决方法是修改部署时的权限配置，这里我们使用最简单的方法是直接给 controller 绑定到 cluster-admin 集群管理员即可
 
-![image-20210627225840775](https://picgo.6and.ltd/img/image-20210627225840775.png)
+![image-20210627225840775](https://cdn.tkaid.com/img/image-20210627225840775.png)
 
 如果不修改，报错如下：
 
-![image-20210627230328638](https://picgo.6and.ltd/img/image-20210627230328638.png)
+![image-20210627230328638](https://cdn.tkaid.com/img/image-20210627230328638.png)
 
 ### 推送镜像到仓库
 
@@ -533,7 +533,7 @@ NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
 app-controller-manager   1/1     1            1           24s
 ```
 
-![image-20210628092101436](https://picgo.6and.ltd/img/image-20210628092101436.png)
+![image-20210628092101436](https://cdn.tkaid.com/img/image-20210628092101436.png)
 
 
 

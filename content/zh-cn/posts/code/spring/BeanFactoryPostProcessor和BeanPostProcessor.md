@@ -299,7 +299,7 @@ remark：BeanFactoryPostProcessor中修改之后的remark
 
 在使用ApplicationContext启动spring容器的时候，在AbstractApplicationContext.refresh()方法中，完成相关初始化工作：
 
-<img src="https://picgo.6and.ltd/img/20140628121008984" alt="img" style="zoom: 67%;" />
+<img src="https://cdn.tkaid.com/img/20140628121008984" alt="img" style="zoom: 67%;" />
 
 1）BeanFactoryPostProcessor.postProcessBeanFactory，是在第5步执行的
 

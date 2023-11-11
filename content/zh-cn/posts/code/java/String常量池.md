@@ -68,19 +68,19 @@ JDK 1.8, HotSpot JVM将永久代移除了，使用本地内存来存储类的元
 
 在jdk1.7之前，常量池是存放在方法区中的。
 
-<img src="https://picgo.6and.ltd/img/20201126173632432.png" alt="JDK1.7之前" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/20201126173632432.png" alt="JDK1.7之前" style="zoom:50%;" />
 
 ### JDK1.7
 
 在jdk1.7中，字符串常量池移到了堆中，运行时常量池还在方法区中。
 
-<img src="https://picgo.6and.ltd/img/20201126173618236.png" alt="JDK1.7" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/20201126173618236.png" alt="JDK1.7" style="zoom:50%;" />
 
 ### JDK1.8
 
 jdk1.8删除了永久代，方法区这个概念还是保留的，但是方法区的实现变成了`元空间`，常量池沿用jdk1.7，还是放在了堆中。这样的效果就变成了：常量池和静态变量存储到了堆中，类的元数据及运行时常量池存储到元空间中。
 
-<img src="https://picgo.6and.ltd/img/20201126172724596.png" alt="JDK1.8" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/20201126172724596.png" alt="JDK1.8" style="zoom:50%;" />
 
 为啥要把方法区从JVM内存（永久代）移到直接内存（元空间)？主要有两个原因：
 
@@ -118,7 +118,7 @@ str5 == str6：false
 
 ### jvm存储示例
 
-<img src="https://picgo.6and.ltd/img/20201130112956433.png" alt="在这里插入图片描述" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/20201130112956433.png" alt="在这里插入图片描述" style="zoom:50%;" />
 
 ### 创建对象流程
 

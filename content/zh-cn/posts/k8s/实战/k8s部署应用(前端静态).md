@@ -31,7 +31,7 @@ k8s部署应用(前端静态)
 | node2  | 1    | 172.19.0.5  | 同上                                                         |
 
 2. 应用已经容器化，并上传到了远程仓库，笔者是腾讯云容器仓库：
-   ![img](https://picgo.6and.ltd/img/img_5efcb24401ad0-20210621141634123.png)
+   ![img](https://cdn.tkaid.com/img/img_5efcb24401ad0-20210621141634123.png)
 
 3. 理解k8s基础概念，可以参考[Kubernetes: 基础概念介绍](http://106.55.152.92:30989/archives/874)
 
@@ -65,7 +65,7 @@ kubectl create secret docker-registry registry-secret-tencent --docker-server=cc
 vi yshop-h5.yaml
 ```
 
-![img](https://picgo.6and.ltd/img/img_5efcb55bacecd-20210621141721477.png)
+![img](https://cdn.tkaid.com/img/img_5efcb55bacecd-20210621141721477.png)
 
 ### 1.4 运行`deployment`
 
@@ -75,7 +75,7 @@ kubectl apply -f yshop-h5.yaml
 
 查看启动的pods：`kubectl get pods`
 
-![img](https://picgo.6and.ltd/img/img_5efcb676f200d-20210621141730179.png)
+![img](https://cdn.tkaid.com/img/img_5efcb676f200d-20210621141730179.png)
 
 查看启动日志：`kubectl logs yshop-h5-cd4dc8c5b-562g5`
 
@@ -105,11 +105,11 @@ kubectl apply -f yshop-h5-svc.yaml
 
 查看pods和svc：`kubectl get pods,svc`
 
-![img](https://picgo.6and.ltd/img/img_5efcb91e43add-20210621141742027.png)
+![img](https://cdn.tkaid.com/img/img_5efcb91e43add-20210621141742027.png)
 
 查看pods分布的节点： `kubectl get pods -o wide`
 
-![img](https://picgo.6and.ltd/img/img_5efcb8975f615-20210621141745982.png)
+![img](https://cdn.tkaid.com/img/img_5efcb8975f615-20210621141745982.png)
 
 ## 3. 访问应用
 
@@ -127,7 +127,7 @@ http://{master的公网ip/node1的公网ip/node2的公网ip}:32585
 curl http://10.108.253.217
 ```
 
-![img](https://picgo.6and.ltd/img/img_5efcbb070be4f.png)
+![img](https://cdn.tkaid.com/img/img_5efcbb070be4f.png)
 
 通过节点ip:
 
@@ -135,5 +135,5 @@ curl http://10.108.253.217
  curl http://{master的内网ip/node1的内网ip/node2的内网ip}:32585
 ```
 
-![img](https://picgo.6and.ltd/img/img_5efcbb9ab0aef.png)
+![img](https://cdn.tkaid.com/img/img_5efcbb9ab0aef.png)
 

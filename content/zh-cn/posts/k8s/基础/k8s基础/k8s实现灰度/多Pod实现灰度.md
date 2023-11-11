@@ -22,7 +22,7 @@ images : [
 
 如果您想使用 Deployment 将最新的应用程序版本发布给一部分用户（或服务器），您可以为每个版本创建一个 Deployment，此时，应用程序的新旧两个版本都可以同时获得生产上的流量。
 
-<img src="http://picgo.6and.ltd/img/%EF%BC%8C.png" alt="，" style="zoom: 33%;" />
+<img src="http://cdn.tkaid.com/img/%EF%BC%8C.png" alt="，" style="zoom: 33%;" />
 
 # 实施方案
 

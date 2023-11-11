@@ -37,7 +37,7 @@ WordPress加入ssl后可能出现的网站访问缓慢、样式无法被加载�
 
 
 
-![img](https://picgo.6and.ltd/img/https-setup.png)
+![img](https://cdn.tkaid.com/img/https-setup.png)
 
 
 

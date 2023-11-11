@@ -53,11 +53,11 @@ istioctl manifest apply --set profile=demo
 
 查看svc：`kubectl get svc -n istio-system`
 
-![img](https://picgo.6and.ltd/img/img_5f4c6db833900-20210621140453436.png)
+![img](https://cdn.tkaid.com/img/img_5f4c6db833900-20210621140453436.png)
 
 查看pod：`kubectl get pods -n istio-system`
 
-![img](https://picgo.6and.ltd/img/img_5f4c6dd8cc2e9-20210621140456027.png)
+![img](https://cdn.tkaid.com/img/img_5f4c6dd8cc2e9-20210621140456027.png)
 
 这里需要注意，如果使用的是`1.5.10`以后的高版本，安装命令应该是：`istioctl manifest install --set profile=demo`
 

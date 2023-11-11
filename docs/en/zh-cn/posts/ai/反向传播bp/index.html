@@ -313,14 +313,14 @@ Step 1 前向传播
   </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/en/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" class="badge post-taxonomy">人工智能</a><a href="https://xuzhijvn.github.io/en/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/en/tags/cnn/" class="badge post-taxonomy">CNN</a><a href="https://xuzhijvn.github.io/en/tags/ai/" class="badge post-taxonomy">AI</a></span>
 </div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>说到神经网络，大家看到这个图应该不陌生：</p>
-<img src="https://picgo.6and.ltd/img/853467-20160630140644406-409859737.png" alt="典型的三层神经网络的基本构成" style="zoom: 33%;" />
+<img src="https://cdn.tkaid.com/img/853467-20160630140644406-409859737.png" alt="典型的三层神经网络的基本构成" style="zoom: 33%;" />
 <p>这是典型的三层神经网络的基本构成，Layer L1是输入层，Layer L2是隐含层，Layer L3是隐含层，我们现在手里有一堆数据{x1,x2,x3,&hellip;,xn},输出也是一堆数据{y1,y2,y3,&hellip;,yn},现在要他们在隐含层做某种变换，让你把数据灌进去后得到你期望的输出。如果你希望你的输出和原始输入一样，那么就是最常见的自编码模型（Auto-Encoder）。可能有人会问，为什么要输入输出都一样呢？有什么用啊？其实应用挺广的，在图像识别，文本分类等等都会用到，我会专门再写一篇Auto-Encoder的文章来说明，包括一些变种之类的。如果你的输出和原始输入不一样，那么就是很常见的人工神经网络了，相当于让原始数据通过一个映射来得到我们想要的输出数据，也就是我们今天要讲的话题。</p>
 <p>本文直接举一个例子，带入数值演示反向传播法的过程，公式的推导等到下次写Auto-Encoder的时候再写，其实也很简单，感兴趣的同学可以自己推导下试试：）（注：本文假设你已经懂得基本的神经网络构成，如果完全不懂，可以参考Poll写的笔记：[<a href="http://www.cnblogs.com/maybe2030/p/5597716.html" target="_blank" rel="noopener noreferrer">Mechine Learning &amp; Algorithm] 神经网络基础</a>）</p>
 <p>假设，你有这样一个网络层：</p>
-<img src="https://picgo.6and.ltd/img/853467-20160630141449671-1058672778.png" alt="假设，你有这样一个网络层" style="zoom:33%;" />
+<img src="https://cdn.tkaid.com/img/853467-20160630141449671-1058672778.png" alt="假设，你有这样一个网络层" style="zoom:33%;" />
 <p>第一层是输入层，包含两个神经元i1，i2，和截距项b1；第二层是隐含层，包含两个神经元h1,h2和截距项b2，第三层是输出o1,o2，每条线上标的wi是层与层之间连接的权重，激活函数我们默认为sigmoid函数。</p>
 <p>现在对他们赋上初值，如下图：</p>
-<img src="https://picgo.6and.ltd/img/853467-20160630142019140-402363317.png" alt="对他们赋上初值" style="zoom:33%;" />
+<img src="https://cdn.tkaid.com/img/853467-20160630142019140-402363317.png" alt="对他们赋上初值" style="zoom:33%;" />
 <p>其中，输入数据  i1=0.05，i2=0.10;</p>
 <p>　　　输出数据 o1=0.01,o2=0.99;</p>
 <p>　　　初始权重  w1=0.15,w2=0.20,w3=0.25,w4=0.30;</p>
@@ -374,7 +374,7 @@ $$
 \frac{\partial E_{{total }}}{\partial w_{5}}=\frac{\partial E_{\text {total }}}{\partial { out }<em>{o 1}} * \frac{\partial {out }</em>{o 1}}{\partial { net }<em>{o 1}} * \frac{\partial { net }</em>{o 1}}{\partial w_{5}}
 $$
 下面的图可以更直观的看清楚误差是怎样反向传播的：</p>
-<img src="https://picgo.6and.ltd/img/853467-20160630152018906-1524325812.png" alt="误差是怎样反向传播的" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/853467-20160630152018906-1524325812.png" alt="误差是怎样反向传播的" style="zoom:50%;" />
 <p>现在我们来分别计算每个式子的值：</p>
 <p>计算：
 $$
@@ -450,7 +450,7 @@ w_{8}^{+}=0.561370121
 $$
 3.隐含层&mdash;-&gt;输入层的权值更新：</p>
 <p>　方法其实与上面说的差不多，但是有个地方需要变一下，在上文计算总误差对w5的偏导时，是从out(o1)&mdash;-&gt;net(o1)&mdash;-&gt;w5,但是在隐含层之间的权值更新时，是out(h1)&mdash;-&gt;net(h1)&mdash;-&gt;w1,而out(h1)会接受E(o1)和E(o2)两个地方传来的误差，所以这个地方两个都要计算。</p>
-<img src="https://picgo.6and.ltd/img/853467-20160630154317562-311369571.png" alt="隐含层的权值更新" style="zoom: 50%;" />
+<img src="https://cdn.tkaid.com/img/853467-20160630154317562-311369571.png" alt="隐含层的权值更新" style="zoom: 50%;" />
 <p>计算：
 $$
 \frac{\partial E_{ {total }}}{\partial { out }_{h 1}}

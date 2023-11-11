@@ -318,7 +318,7 @@
 <li>消息可堆积</li>
 </ul>
 <p>这里我也列了一个表格，总结了它们各自的优缺点：</p>
-<p><img class="img-fluid" alt="compare" src="https://picgo.6and.ltd/img/c9e280fb1080e6e9083b88a10724daa9.jpg" loading="lazy"
+<p><img class="img-fluid" alt="compare" src="https://cdn.tkaid.com/img/c9e280fb1080e6e9083b88a10724daa9.jpg" loading="lazy"
   
    />
 
@@ -326,7 +326,7 @@
 <h2 id="list-队列">List 队列<a class="anchor ms-1" href="#list-队列"><i class="fas fa-link"></i></a></h2>
 <h3 id="原理与实践">原理与实践<a class="anchor ms-1" href="#原理与实践"><i class="fas fa-link"></i></a></h3>
 <p>如果把 List 当作队列，你可以这么来用。</p>
-<p><img class="img-fluid" alt="List队列" src="https://picgo.6and.ltd/img/ab27b5e96cd641ba62468f3097aa4345.jpg" loading="lazy"
+<p><img class="img-fluid" alt="List队列" src="https://cdn.tkaid.com/img/ab27b5e96cd641ba62468f3097aa4345.jpg" loading="lazy"
   
    />
 
@@ -361,7 +361,7 @@
 <h2 id="pubsub">Pub/Sub<a class="anchor ms-1" href="#pubsub"><i class="fas fa-link"></i></a></h2>
 <h3 id="原理与实践-1">原理与实践<a class="anchor ms-1" href="#原理与实践-1"><i class="fas fa-link"></i></a></h3>
 <p>Redis 提供了 <code>PUBLISH / SUBSCRIBE</code> 命令，来完成发布、订阅的操作。</p>
-<p><img class="img-fluid" alt="pub-sub" src="https://picgo.6and.ltd/img/d463bd15025f4bf6968dc6bb8715d7d7.jpg" loading="lazy"
+<p><img class="img-fluid" alt="pub-sub" src="https://cdn.tkaid.com/img/d463bd15025f4bf6968dc6bb8715d7d7.jpg" loading="lazy"
   
    />
 
@@ -386,7 +386,7 @@ Reading messages... <span style="color:#f92672">(</span>press Ctrl-C to quit<spa
 3<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;msg1&#34;</span> 
 </code></pre></div><p>看到了么，使用 Pub/Sub 这种方案，既支持阻塞式拉取消息，还很好地满足了多组消费者，消费同一批数据的业务需求。</p>
 <p>除此之外，Pub/Sub 还提供了「匹配订阅」模式，允许消费者根据一定规则，订阅「多个」自己感兴趣的队列。</p>
-<p><img class="img-fluid" alt="PSUB" src="https://picgo.6and.ltd/img/b60df512f308044c1bb87dfaa1cc275c-20220206113049502.jpg" loading="lazy"
+<p><img class="img-fluid" alt="PSUB" src="https://cdn.tkaid.com/img/b60df512f308044c1bb87dfaa1cc275c-20220206113049502.jpg" loading="lazy"
   
    />
 
@@ -441,7 +441,7 @@ Reading messages... <span style="color:#f92672">(</span>press Ctrl-C to quit<spa
 <p>每个消费者订阅一个队列时，Redis 都会在 Server 上给这个消费者在分配一个「缓冲区」，这个缓冲区其实就是一块内存。</p>
 <p>当生产者发布消息时，Redis 先把消息写到对应消费者的缓冲区中。</p>
 <p>之后，消费者不断地从缓冲区读取消息，处理消息。</p>
-<p><img class="img-fluid" alt="pub-sub消息堆积" src="https://picgo.6and.ltd/img/d98e667cc32664a7400147cad6dbef50.jpg" loading="lazy"
+<p><img class="img-fluid" alt="pub-sub消息堆积" src="https://cdn.tkaid.com/img/d98e667cc32664a7400147cad6dbef50.jpg" loading="lazy"
   
    />
 
@@ -477,7 +477,7 @@ Reading messages... <span style="color:#f92672">(</span>press Ctrl-C to quit<spa
 
 <span style="color:#f92672">(</span>nil<span style="color:#f92672">)</span>
 </code></pre></div><p>没有消息，Redis 会返回 NULL。</p>
-<p><img class="img-fluid" alt="stream" src="https://picgo.6and.ltd/img/5f90f8ba279738b98eeba49662a93d3c.jpg" loading="lazy"
+<p><img class="img-fluid" alt="stream" src="https://cdn.tkaid.com/img/5f90f8ba279738b98eeba49662a93d3c.jpg" loading="lazy"
   
    />
 
@@ -532,7 +532,7 @@ OK
             2<span style="color:#f92672">)</span> <span style="color:#e6db74">&#34;lisi&#34;</span> 
 </code></pre></div><p>我们可以看到，这 2 组消费者，都可以获取同一批数据进行处理了。</p>
 <p>这样一来，就达到了多组消费者「订阅」消费的目的。</p>
-<p><img class="img-fluid" alt="XREADGROUP" src="https://picgo.6and.ltd/img/9a167ac652995bbad7ed9da7d39eb5fa.jpg" loading="lazy"
+<p><img class="img-fluid" alt="XREADGROUP" src="https://cdn.tkaid.com/img/9a167ac652995bbad7ed9da7d39eb5fa.jpg" loading="lazy"
   
    />
 
@@ -542,7 +542,7 @@ OK
 <p>当一组消费者处理完消息后，需要执行 XACK 命令告知 Redis，这时 Redis 就会把这条消息标记为「处理完成」。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">// group1下的 1618472043089-0 消息已处理完成  
 127.0.0.1:6379&gt; XACK queue group1 1618472043089-0 
-</code></pre></div><p><img class="img-fluid" alt="stream-ack" src="https://picgo.6and.ltd/img/1ebeaa4a073d4dfb7018a9451119344b.jpg" loading="lazy"
+</code></pre></div><p><img class="img-fluid" alt="stream-ack" src="https://cdn.tkaid.com/img/1ebeaa4a073d4dfb7018a9451119344b.jpg" loading="lazy"
   
    />
 

@@ -77,7 +77,7 @@ images : [
 
 默认情况下`RequestMappingHandlerMapping` 先于`SimpleUrlHandlerMapping`匹配请求：
 
-![image-20210620131115664](https://picgo.6and.ltd/img/image-20210620131115664.png)
+![image-20210620131115664](https://cdn.tkaid.com/img/image-20210620131115664.png)
 
 
 
@@ -107,7 +107,7 @@ order值越小，优先级越高。
 
 调整之后的HandlerMapping顺序：
 
-![image-20210620130706589](https://picgo.6and.ltd/img/image-20210620130706589.png)
+![image-20210620130706589](https://cdn.tkaid.com/img/image-20210620130706589.png)
 
 此时，`SimpleUrlHandlerMapping`会返回一个用于加载静态资源的`ResourceHttpRequestHandler`
 

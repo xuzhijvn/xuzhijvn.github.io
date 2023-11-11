@@ -20,7 +20,7 @@ images : [
 
 istio实现灰度
 
-![Bookinfo Application without Istio](http://picgo.6and.ltd/img/noistio.svg)
+![Bookinfo Application without Istio](http://cdn.tkaid.com/img/noistio.svg)
 
 # Gateway
 
@@ -87,7 +87,7 @@ spec:
 
 所有的流量都去到reviews:v1
 
-<img src="http://picgo.6and.ltd/img/image-20210601124539407.png" alt="image-20210601124539407" style="zoom:40%;" />
+<img src="http://cdn.tkaid.com/img/image-20210601124539407.png" alt="image-20210601124539407" style="zoom:40%;" />
 
 ```yaml
 apiVersion: networking.istio.io/v1alpha3
@@ -106,7 +106,7 @@ spec:
 
 来自名为 Jason 的用户的所有流量将被路由到服务 `reviews:v2`。
 
-<img src="http://picgo.6and.ltd/img/image-20210601123957608-20210601124059926.png" style="zoom:40%;" />
+<img src="http://cdn.tkaid.com/img/image-20210601123957608-20210601124059926.png" style="zoom:40%;" />
 
 ```yaml
 apiVersion: networking.istio.io/v1alpha3
@@ -133,7 +133,7 @@ spec:
 
 把 50% 的流量从 `reviews:v1` 转移到 `reviews:v3`：
 
-<img src="http://picgo.6and.ltd/img/image-20210601124730191.png" alt="image-20210601124730191" style="zoom:40%;" />
+<img src="http://cdn.tkaid.com/img/image-20210601124730191.png" alt="image-20210601124730191" style="zoom:40%;" />
 
 ```yaml
 apiVersion: networking.istio.io/v1alpha3
@@ -157,7 +157,7 @@ spec:
 
 给对 `reviews` 服务的调用增加一个半秒的请求超时：
 
-<img src="http://picgo.6and.ltd/img/image-20210601124329947.png" alt="image-20210601124329947" style="zoom:40%;" />
+<img src="http://cdn.tkaid.com/img/image-20210601124329947.png" alt="image-20210601124329947" style="zoom:40%;" />
 
 ```yaml
 apiVersion: networking.istio.io/v1alpha3

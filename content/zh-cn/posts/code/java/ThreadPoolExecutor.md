@@ -80,17 +80,17 @@ public ThreadPoolExecutor(int corePoolSize,
 
 下图中展示了线程1往阻塞队列中添加元素，而线程2从阻塞队列中移除元素：
 
-![img](http://picgo.6and.ltd/img/img_5ff5cf37d14ce.png)
+![img](http://cdn.tkaid.com/img/img_5ff5cf37d14ce.png)
 
 使用不同的队列可以实现不一样的任务存取策略。在这里，我们可以再介绍下阻塞队列的成员：
 
-![img](http://picgo.6and.ltd/img/img_5ff5cf6113fd2.png)
+![img](http://cdn.tkaid.com/img/img_5ff5cf6113fd2.png)
 
 ## 拒绝策略
 
 用户可以通过实现`RejectedExecutionHandler `接口去定制拒绝策略，也可以选择JDK提供的四种已有拒绝策略，其特点如下：
 
-![img](http://picgo.6and.ltd/img/img_5ff5cfc91d801.png)
+![img](http://cdn.tkaid.com/img/img_5ff5cfc91d801.png)
 
  
 

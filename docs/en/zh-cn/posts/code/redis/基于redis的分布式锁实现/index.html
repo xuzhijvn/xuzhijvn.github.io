@@ -302,7 +302,7 @@ public boolean tryLock(String key,String requset,int timeout) { Long result = je
 <p>在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？</p>
 <p>实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间<strong>互斥访问共享资源</strong>的一种方式。</p>
 <p>比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：</p>
-<img src="https://picgo.6and.ltd/img/16a53749547937bb~tplv-t2oaga2asx-watermark.awebp" alt="分布式锁" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/16a53749547937bb~tplv-t2oaga2asx-watermark.awebp" alt="分布式锁" style="zoom:67%;" />
 <h3 id="分布式锁的特点">分布式锁的特点<a class="anchor ms-1" href="#分布式锁的特点"><i class="fas fa-link"></i></a></h3>
 <p>分布式锁一般有如下的特点：</p>
 <ul>

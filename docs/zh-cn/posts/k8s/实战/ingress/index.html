@@ -326,7 +326,7 @@ apiVersion: extensions/v1beta1 kind: Ingress metadata: name: abc-ingress annotat
 </div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><h2 id="1-ingress是什么">1. ingress是什么<a class="anchor ms-1" href="#1-ingress是什么"><i class="fas fa-link"></i></a></h2>
 <p><code>ingress</code>是k8s一种资源对象，如k8s的<code>Deployment</code>、<code>Service</code>资源对象一样。它是一种集群维度暴露服务的方式，正如k8s的<code>ClusterIP</code>、<code>NodePort</code>、<code>LoadBalance</code>一样，但是ClusterIP的方式只能在集群内部访问，NodePort方式的话，测试环境使用还行，当有几十上百的服务在集群中运行时，NodePort的端口管理是灾难，LoadBalance方式受限于云平台，且通常在云平台部署ELB还需要额外的费用。ingress规则是很灵活的，可以根据不同域名、不同path转发请求到不同的service，并且支持https/http。</p>
-<p><img src="https://picgo.6and.ltd/img/img_5f40a321e4f83.png" alt="ingress" style="zoom:67%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/img_5f40a321e4f83.png" alt="ingress" style="zoom:67%;" /></p>
 <h2 id="2-ingress与ingress-controller">2. ingress与ingress-controller<a class="anchor ms-1" href="#2-ingress与ingress-controller"><i class="fas fa-link"></i></a></h2>
 <p>要理解ingress，需要区分两个概念，<code>ingress</code>和<code>ingress-controller</code>：</p>
 <ul>
@@ -459,7 +459,7 @@ NodePort方式暴露ingress虽然简单方便，但是NodePort多了一层NAT，
 <p>deploy.yaml里面的镜像地址是：<code>us.gcr.io/k8s-artifacts-prod/ingress-nginx/controller:v0.34.1@sha256:0e072dddd1f7f8fc8909a2ca6f65e76c5f0d2fcfb8be47935ae3457e8bbceb20</code></p>
 <p>该地址无法被访问，解决办法参考：<a href="https://mp.weixin.qq.com/s/kf0SrktAze3bT7LcIveDYw" target="_blank" rel="noopener noreferrer">如何在国内顺畅下载被墙的 Docker 镜像？</a></p>
 <p>修改后如下图所示：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40b9365a422-20210621140800469.png" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/img_5f40b9365a422-20210621140800469.png" loading="lazy"
   
    />
 
@@ -470,13 +470,13 @@ NodePort方式暴露ingress虽然简单方便，但是NodePort多了一层NAT，
 <pre><code>kubectl replace --force -f deploy.yaml
 </code></pre><h4 id="424-检查是否部署成功">4.2.4 检查是否部署成功<a class="anchor ms-1" href="#424-检查是否部署成功"><i class="fas fa-link"></i></a></h4>
 <p>查看controller是否running</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40b97a7c88d-20210621140805590.png" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/img_5f40b97a7c88d-20210621140805590.png" loading="lazy"
   
    />
 
 </p>
 <p>查看service</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40ba7ebd446-20210621140808992.png" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/img_5f40ba7ebd446-20210621140808992.png" loading="lazy"
   
    />
 
@@ -497,13 +497,13 @@ Connection: keep-alive
 <p>我们需要使用daemonset部署到特定node，需要修改部分配置：先给要部署nginx-ingress的node打上特定标签，这里测试部署在<code>k8s-node1</code>这个节点。</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl label node k8s-node1 isIngress<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;true&#34;</span>
 </code></pre></div><h4 id="432-修改deployyaml的deployment部分配置">4.3.2 修改deploy.yaml的deployment部分配置<a class="anchor ms-1" href="#432-修改deployyaml的deployment部分配置"><i class="fas fa-link"></i></a></h4>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40d9927f98b-20210621140820358.png" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/img_5f40d9927f98b-20210621140820358.png" loading="lazy"
   
    />
 
 </p>
 <p>删除指定的nodePort：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40da20d4f52-20210621140825440.png" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/img_5f40da20d4f52-20210621140825440.png" loading="lazy"
   
    />
 
@@ -512,13 +512,13 @@ Connection: keep-alive
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">kubectl replace --force -f deploy.yaml
 </code></pre></div><h4 id="434-检查">4.3.4 检查<a class="anchor ms-1" href="#434-检查"><i class="fas fa-link"></i></a></h4>
 <p>可以看到，nginx-controller的pod已经部署在在k8s-node1上了：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40dc88f1c92-20210621140832249.png" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/img_5f40dc88f1c92-20210621140832249.png" loading="lazy"
   
    />
 
 </p>
 <p>到k8s-node1上看下本地端口：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/img_5f40dcba3965c.png" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/img_5f40dcba3965c.png" loading="lazy"
   
    />
 

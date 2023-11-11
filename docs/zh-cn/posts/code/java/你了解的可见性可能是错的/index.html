@@ -386,7 +386,7 @@ public class ThreadSafeCache { int result; public int getResult() { return resul
 <p>当一个线程修改了共享变量后，其他线程能够立即得知这个修改。</p>
 </blockquote>
 <p>可见性的定义比较简单，那怎么去实现呢？一般来说可见性会通过缓存一致性协议来完成，这里有篇文章讲CPU缓存一致性协议讲得不错:https://www.cnblogs.com/yanlong300/p/8986041.html，我这里直接借用他的图片,</p>
-<p><img src="https://picgo.6and.ltd/img/aco97-du9wx.jpg" alt="缓存一致性协议" style="zoom: 50%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/aco97-du9wx.jpg" alt="缓存一致性协议" style="zoom: 50%;" /></p>
 <ul>
 <li>CPU A 计算完成后发指令需要修改x.</li>
 <li>CPU A 将x设置为M状态（修改状态）并通知缓存了x的CPU B, CPU B将本地cache b中的x设置为I状态(无效状态)</li>
@@ -399,16 +399,16 @@ public class ThreadSafeCache { int result; public int getResult() { return resul
 <p>通过上面的种种论述我们发现我们可见性的验证似乎出了一点问题。</p>
 <h3 id="推翻验证程序">推翻验证程序<a class="anchor ms-1" href="#推翻验证程序"><i class="fas fa-link"></i></a></h3>
 <p>我们这里只需要一行代码就可以推翻我们上面的验证程序，我们用第二个验证程序:</p>
-<p><img src="https://picgo.6and.ltd/img/a6oru-dia04-20210908154223291.jpg" alt="第二个验证程序" style="zoom:80%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/a6oru-dia04-20210908154223291.jpg" alt="第二个验证程序" style="zoom:80%;" /></p>
 <p>只添加了一句打印我们的结果值,我们的程序却停止了:</p>
-<p><img src="https://picgo.6and.ltd/img/alljf-ijrqt-20210908154256928.jpg" alt="程序却停止" style="zoom:67%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/alljf-ijrqt-20210908154256928.jpg" alt="程序却停止" style="zoom:67%;" /></p>
 <p>这个结果证明我们的其他线程是能获取到我们的更新后的结果值的，所以这里一定是有其他原因。</p>
 <h3 id="真相大白">真相大白<a class="anchor ms-1" href="#真相大白"><i class="fas fa-link"></i></a></h3>
 <p>我们上面添加了一句话，并没有影响我们的逻辑，但是却产生了截然不同的结果，这个到底是怎么回事呢？首先我们能想到的是编译器优化，看看添加代码前和添加代码后，编译器编译之后的代码是什么，由于我们用的是idea直接打开idea的class文件会帮助我们做反编译。</p>
 <p>添加代码前:</p>
-<p><img src="https://picgo.6and.ltd/img/aroua-cfq0t-20210908154335705.jpg" alt="添加代码前" style="zoom:67%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/aroua-cfq0t-20210908154335705.jpg" alt="添加代码前" style="zoom:67%;" /></p>
 <p>添加代码后:</p>
-<p><img src="https://picgo.6and.ltd/img/aak8e-a0hay-20210908154410072.jpg" alt="添加代码后" style="zoom:67%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/aak8e-a0hay-20210908154410072.jpg" alt="添加代码后" style="zoom:67%;" /></p>
 <p>这里可以看见编译器已经将我们的while循环优化成for循环，在循环内部添加了一个输出语句，这里可以看见逻辑并没有太大的变化，可以看见不是我们的编译器作怪的问题，这种优化代码的问题还有一个元凶那就是JIT，由于我们的循环有很多次肯定会触发JIT编译优化。</p>
 <p>由于JIT编译优化有多个层级，这里我们只看最终的C2优化后的汇编代码,看JIT的汇编代码可以利用hsdis+JITWatch查看，这里我只用了hsdis打印在控制台上查看即可。这里需要添加一下JVM启动参数-XX:+UnlockDiagnosticVMOptions -XX:+PrintAssembly，
 启动之后一大堆汇编代码，为了看这个查询了好多汇编指令终于是把它理顺了。</p>
@@ -445,7 +445,7 @@ public class ThreadSafeCache { int result; public int getResult() { return resul
 <span style="color:#f92672">}</span>
 </code></pre></div><p>可以看见我们的整段代码只执行了这一次get逻辑，有可能get的时候我们主线程还没有执行set。
 为什么里面加了一段打印之后就不会有这样的效果呢？我的猜测是如果在我们print中有sync加锁操作，jit会取消这种激进的优化，当然我们的变量如果是<code>volatile</code>也会有这样的效果，我们添加<code>volatile</code>的jit的汇编代码如下：</p>
-<p><img src="https://picgo.6and.ltd/img/a0tyw-koqj3-20210908154514512.jpg" alt="汇编代码" style="zoom:67%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/a0tyw-koqj3-20210908154514512.jpg" alt="汇编代码" style="zoom:67%;" /></p>
 <p>可以发现这里没有做激进的优化而是每次都会获取新的值，来进行比较。</p>
 <h3 id="总结">总结<a class="anchor ms-1" href="#总结"><i class="fas fa-link"></i></a></h3>
 <p>到最后，我也没有提及，如何去测试可见性，因为这个东西理论上来说无法去测试，因为有一个很重要的一点我们没法确定线程的执行顺序，当然也有确定的方式，那就是加一个同步器，可以是锁，可以是信号量，让我们的读取操作,在我们写操作之后，还有读操作一定是一次，不能使用循环，我尝试着按照这个思路去写：</p>

@@ -27,7 +27,7 @@ images : [
 export PATH=/usr/local/go/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin 
 ```
 
-![image-20210626133140778](https://picgo.6and.ltd/img/image-20210626133140778.png)
+![image-20210626133140778](https://cdn.tkaid.com/img/image-20210626133140778.png)
 
 
 

@@ -47,7 +47,7 @@ public class Test {
 
 ## ThreadLocal的数据结构
 
-<img src="https://picgo.6and.ltd/img/img_5ff415f5aa909.png" alt="img" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/img_5ff415f5aa909.png" alt="img" style="zoom:50%;" />
 
 ## 为什么ThreadLocalMap 采用开放地址法来解决哈希冲突?
 

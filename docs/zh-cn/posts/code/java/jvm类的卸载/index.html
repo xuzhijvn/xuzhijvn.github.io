@@ -313,7 +313,7 @@
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>类的卸载：由JVM自带的类加载器所加载的类，在JVM的生命周期中，始终不会被卸载。JVM本身会始终引用这些类加载器，而这些类加载器始终引用它们所加载的类的Class对象。所以说，这些Class对象始终是可触及的。</p>
 <p>由用户自定义的类加载器所加载的类是可以被卸载的。</p>
 <p>当类被加载，连接和初始化后，它的生命周期就开始了。当代表类的Class对象不在被引用时，即不可触及时，Class对象就会结束生命周期，类在方法区内的数据也会被卸载，从而结束类的生命周期。由此可见，一个类何时结束生命周期，取决于代表它的Class对象何时结束生命周期。由Java虚拟机自带的类加载器所加载的类，在虚拟机的生命周期中，始终不会被卸载。包括根类加载器，扩展类加载器和系统类加载器，Java虚拟机本身会始终引用这些类加载器，而这些类加载器则会始终引用这些类加载器，而这些类加载器则会始终引用它们所加载的类的Class对象，因此这些Class对象始终是可触及的。</p>
-<p><img src="https://picgo.6and.ltd/img/1443749-20200420025519968-94458427.png" alt="img" style="zoom: 60%;" /></p>
+<p><img src="https://cdn.tkaid.com/img/1443749-20200420025519968-94458427.png" alt="img" style="zoom: 60%;" /></p>
 <p>如果程序运行过程中，将上图左侧三个引用变量都置为null，此时Sample对象结束生命周期，MyClassLoader对象结束生命周期，代表Sample类的Class对象也结束生命周期，Sample类在方法区内的二进制数据被卸载。</p>
 <p>当再次有需要时，会检查Sample类的Class对象是否存在，如果存在会直接使用，不再重新加载；如果不存在Sample类会被重新加载，在Java虚拟机的堆区会生成一个新的代表Sample类的Class实例(可以通过哈希码查看是否是同一个实例)。</p>
 <p>通过虚拟机参数，可以查看类的加载与卸载过程</p>
@@ -337,7 +337,7 @@ System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span>
 </span><span style="color:#75715e"></span>Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">sleep</span><span style="color:#f92672">(</span>2000<span style="color:#f92672">);</span>
 System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;执行结束....&#34;</span><span style="color:#f92672">);</span>
 </code></pre></div><p>控制台输出：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1443749-20200420025252004-1863456722.png" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/1443749-20200420025252004-1863456722.png" loading="lazy"
   
    />
 
@@ -357,7 +357,7 @@ System<span style="color:#f92672">.</span><span style="color:#a6e22e">gc</span><
 Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">sleep</span><span style="color:#f92672">(</span>2000<span style="color:#f92672">);</span>
 System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;执行结束....&#34;</span><span style="color:#f92672">);</span>
 </code></pre></div><p>控制台输出：</p>
-<p><img class="img-fluid" alt="img" src="https://picgo.6and.ltd/img/1443749-20200420025349804-987473013.png" loading="lazy"
+<p><img class="img-fluid" alt="img" src="https://cdn.tkaid.com/img/1443749-20200420025349804-987473013.png" loading="lazy"
   
    />
 

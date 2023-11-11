@@ -25,7 +25,7 @@ images =  [
 
 类加载器是 Java 运行时环境（Java Runtime Environment）的一部分，负责动态加载 Java 类到 Java 虚拟机的内存空间中。**类通常是按需加载，即第一次使用该类时才加载。** 由于有了类加载器，Java 运行时系统不需要知道文件与文件系统。每个 Java 类必须由某个类加载器装入到内存。
 
-![jvm_classloader_architecture](https://picgo.6and.ltd/img/jvm_classlaoder_architecture.svg)
+![jvm_classloader_architecture](https://cdn.tkaid.com/img/jvm_classlaoder_architecture.svg)
 
 类装载器除了要定位和导入二进制 class 文件外，还必须负责验证被导入类的正确性，为变量分配初始化内存，以及帮助解析符号引用。这些动作必须严格按一下顺序完成：
 

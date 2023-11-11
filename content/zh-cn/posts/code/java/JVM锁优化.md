@@ -43,7 +43,7 @@ images =  [
 
 HotSpot虚拟机的对象头（ObjectHeader）分为两部分，第一部分用于存储对象自身的运行时数据，如哈希码（HashCode）、GC分代年龄（GenerationalGCAge）等。这部分数据的长度在32位和64位的Java虚拟机中分别会占用32个或64个比特，官方称它为“MarkWord”。这部分是实现轻量级锁和偏向锁的关键。另外一部分用于存储指向方法区对象类型数据的指针，如果是数组对象，还会有一个额外的部分用于存储数组长度。官方称它为 “Klass Point”
 
-<img src="https://picgo.6and.ltd/img/image-20210909142432896.png" alt="对象头" style="zoom:40%;" />
+<img src="https://cdn.tkaid.com/img/image-20210909142432896.png" alt="对象头" style="zoom:40%;" />
 
 ### 全局安全点
 
@@ -55,7 +55,7 @@ HotSpot虚拟机的对象头（ObjectHeader）分为两部分，第一部分用�
 
 偏向锁、轻量级锁的状态转化及对象MarkWord的关系如图
 
-<img src="https://picgo.6and.ltd/img/image-20210909143332042-20210909143549967.png" alt="状态转化" style="zoom: 40%;" />
+<img src="https://cdn.tkaid.com/img/image-20210909143332042-20210909143549967.png" alt="状态转化" style="zoom: 40%;" />
 
 ### 重量级锁
 
@@ -65,13 +65,13 @@ HotSpot虚拟机的对象头（ObjectHeader）分为两部分，第一部分用�
 
 在代码即将进入同步块的时候，如果此同步对象没有被锁定（锁标志位为“01”状态），虚拟机首先将在当前线程的栈帧中建立一个名为锁记录（LockRecord）的空间，用于存储锁对象目前的MarkWord的拷贝（官方为这份拷贝加了一个Displaced前缀，即DisplacedMarkWord）
 
-<img src="https://picgo.6and.ltd/img/image-20210909142626364.png" alt="cas操作前" style="zoom: 33%;" />
+<img src="https://cdn.tkaid.com/img/image-20210909142626364.png" alt="cas操作前" style="zoom: 33%;" />
 
 虚拟机将使用CAS操作尝试把对象的MarkWord更新为指向LockRecord的指针。如果这个更新动作成功了，即代表该线程拥有了这个对象的锁，并且对象MarkWord的锁标志位（MarkWord的最后两个比特）将转变为“00”，表示此对象处于轻量级锁定状态。
 
 如果这个更新操作失败了，那就意味着至少存在一条线程与当前线程竞争获取该对象的锁。虚拟机首先会检查对象的MarkWord是否指向当前线程的栈帧，如果是，说明当前线程已经拥有了这个对象的锁，那直接进入同步块继续执行就可以了，否则就说明这个锁对象已经被其他线程抢占了。如果出现两条以上的线程争用同一个锁的情况，那轻量级锁就不再有效，必须要膨胀为重量级锁。
 
-<img src="https://picgo.6and.ltd/img/image-20210909142722259.png" alt="cas操作后" style="zoom: 33%;" />
+<img src="https://cdn.tkaid.com/img/image-20210909142722259.png" alt="cas操作后" style="zoom: 33%;" />
 
 它的解锁过程也同样是通过CAS操作来进行的，如果对象的MarkWord仍然指向线程的锁记录，那就用CAS操作把对象当前的MarkWord和线程中复制的DisplacedMarkWord替换回来。假如能够成功替换，那整个同步过程就顺利完成了；如果替换失败，则说明有其他线程尝试过获取该锁，就要在释放锁的同时，唤醒被挂起的线程。
 
@@ -92,7 +92,7 @@ HotSpot虚拟机的对象头（ObjectHeader）分为两部分，第一部分用�
 
   偏向锁的撤销在上述第四步骤中有提到。偏向锁只有遇到其他线程尝试竞争偏向锁时，持有偏向锁的线程才会释放锁，线程不会主动去释放偏向锁。偏向锁的撤销，需要等待全局安全点safepoint，它会首先暂停拥有偏向锁的线程A，然后判断这个线程A，此时有两种情况
 
-  ![偏向锁的释放](https://picgo.6and.ltd/img/20200411153633541-20210909141620242.png)
+  ![偏向锁的释放](https://cdn.tkaid.com/img/20200411153633541-20210909141620242.png)
 
 
 ## 参考

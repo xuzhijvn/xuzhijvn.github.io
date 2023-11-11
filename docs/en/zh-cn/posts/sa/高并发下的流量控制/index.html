@@ -261,14 +261,14 @@
 <h3 id="11-固定窗口计数器">1.1 固定窗口计数器<a class="anchor ms-1" href="#11-固定窗口计数器"><i class="fas fa-link"></i></a></h3>
 <p>优点：实现简单，容易理解。</p>
 <p>缺点：流量曲线可能不够平滑，有 <code>突刺现象</code> 并且 <code>一段时间内系统不可用</code>，如下图所示。这样会有两个问题：</p>
-<img src="https://picgo.6and.ltd/img/8d94d4b828bc461fb6eda80f76f18101~tplv-k3u1fbpfcp-watermark.awebp" alt="计数器固定窗口算法限流曲线" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/8d94d4b828bc461fb6eda80f76f18101~tplv-k3u1fbpfcp-watermark.awebp" alt="计数器固定窗口算法限流曲线" style="zoom:50%;" />
 <ol>
 <li>
 <p>一段时间内（不超过时间窗口）系统服务不可用。比如窗口大小为1s，限流大小为100，然后恰好在某个窗口的第1ms来了100个请求，然后第2ms-999ms的请求就都会被拒绝，这段时间用户会感觉系统服务不可用。</p>
 </li>
 <li>
 <p>窗口切换时可能会产生两倍于阈值流量的请求。比如窗口大小为1s，限流大小为100，然后恰好在某个窗口的第999ms来了100个请求，窗口前期没有请求，所以这100个请求都会通过。再恰好，下一个窗口的第1ms有来了100个请求，也全部通过了，那也就是在2ms之内通过了200个请求，而我们设定的阈值是100，通过的请求达到了阈值的两倍。</p>
-<img src="https://picgo.6and.ltd/img/642f43e54bc5480b9f64aed331d2ed97~tplv-k3u1fbpfcp-watermark.awebp" alt="计数器固定窗口限流算法产生两倍于阈值流量的请求" style="zoom:50%;" />
+<img src="https://cdn.tkaid.com/img/642f43e54bc5480b9f64aed331d2ed97~tplv-k3u1fbpfcp-watermark.awebp" alt="计数器固定窗口限流算法产生两倍于阈值流量的请求" style="zoom:50%;" />
 </li>
 </ol>
 <h3 id="12-滑动窗口计数器">1.2 滑动窗口计数器<a class="anchor ms-1" href="#12-滑动窗口计数器"><i class="fas fa-link"></i></a></h3>
@@ -280,7 +280,7 @@
 <li>统计每次请求的时间 至 往前推1秒这个时间窗口内请求数，并且 1 秒前的数据可以删除。</li>
 <li>统计的请求数小于阈值就记录这个请求的时间，并允许通过，反之拒绝。</li>
 </ul>
-<p><img class="img-fluid" alt="滑动窗口" src="https://picgo.6and.ltd/img/1460000023552192" loading="lazy"
+<p><img class="img-fluid" alt="滑动窗口" src="https://cdn.tkaid.com/img/1460000023552192" loading="lazy"
   
    />
 
@@ -292,7 +292,7 @@
 <li>当漏桶内的水满时(超过了限流阈值)则拒绝服务</li>
 </ul>
 <p>不管服务调用方多么不稳定，通过漏桶算法进行限流，每 <code>10</code> 毫秒处理一次请求。因为处理的速度是固定的，请求进来的速度是未知的，可能突然进来很多请求，没来得及处理的请求就先放在桶里，既然是个桶，肯定是有容量上限，如果桶满了，那么新进来的请求就丢弃。</p>
-<p><img class="img-fluid" alt="漏桶" src="https://picgo.6and.ltd/img/cee6a24bae2f1146d8f905a9ede12c23.png" loading="lazy"
+<p><img class="img-fluid" alt="漏桶" src="https://cdn.tkaid.com/img/cee6a24bae2f1146d8f905a9ede12c23.png" loading="lazy"
   
    />
 
@@ -306,7 +306,7 @@
 <li>请求过来时先到桶中拿令牌，拿到令牌则放行通过，否则拒绝请求</li>
 </ul>
 <p>令牌桶算法是对漏桶算法的一种改进，桶算法能够限制请求调用的速率，而令牌桶算法能够在 <code>限制调用的平均速率</code>的同时还能  <code>应对一定程度的突发调用</code>。</p>
-<img src="https://picgo.6and.ltd/img/cc2bf6c40bcccedb3e6bb2471ef36e53.png" alt="令牌桶" style="zoom: 50%;" />
+<img src="https://cdn.tkaid.com/img/cc2bf6c40bcccedb3e6bb2471ef36e53.png" alt="令牌桶" style="zoom: 50%;" />
 <p>实现思路： <strong>用有界队列来保存令牌，通过一个producer线程定期生成令牌放到队列中，请求来时，一个consumer线程去获取令牌，获取到令牌后把请求交给worker线程池去处理</strong>。</p>
 <p>令牌桶看起来和 <code>Semaphore</code> 很相似，是否可以利用它来实现？不过在Java里 <code>Semaphore</code> 本质是基于AQS的，AQS还是一个队列😔</p>
 <h2 id="2分布限流">2.分布限流<a class="anchor ms-1" href="#2分布限流"><i class="fas fa-link"></i></a></h2>

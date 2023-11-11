@@ -37,12 +37,12 @@ Trie树又称前缀树或字典树，是一种检索树，使用一个有序的�
 Trie树中，key是从树根到对应value得真实的路径。即从根节点开始，key中的每个字符会标识走那个子节点从而到达相应value。Value被存储在叶子节点，是每条路径的终止。假如key来自一个包含N个字符的字母表，那么树中的每个节点都可能会有多达N个孩子，树的最大深度是key的最大长度。看个例子画个图就了然了。
 例子：关键字集合{“a”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为
 
-![img](https://picgo.6and.ltd/img/trie.png) Trie树
+![img](https://cdn.tkaid.com/img/trie.png) Trie树
 
 不理想情况下，数据集中存在一个很长的key，而这个key与其它key又没有太多的公共前缀，这就造成整个树的深度会加大，需要存储多个节点，存储比较稀疏而且极不平衡。
 例子：关键字集合{“algori”, “to”, “tea”, “ted”, “i”, “in”, “inn”}，此集合转为Trie树为
 
-![img](https://picgo.6and.ltd/img/trie1-1024x796.png) 稀疏Trie树
+![img](https://cdn.tkaid.com/img/trie1-1024x796.png) 稀疏Trie树
 
 #### Patricia Trie树
 
@@ -53,7 +53,7 @@ Trie树中，key是从树根到对应value得真实的路径。即从根节点�
 Patricia Trie树是一种空间使用率经过优化的Trie树。与Trie树不同的是，Patricia Trie 里如果存在一个父节点只有一个子节点，那么这个父节点将与其子节点合并。这样压缩存储可以减少Trie树中不必要的深度，大大加快搜索节点速度。
 如下图所示
 
-![img](https://picgo.6and.ltd/img/patricia-1024x650.png) Patricia Trie树
+![img](https://cdn.tkaid.com/img/patricia-1024x650.png) Patricia Trie树
 
 #### Merkle树
 
@@ -72,7 +72,7 @@ Merkle树是由计算机科学家Ralph Merkle在很多年前提出的，并以�
 
 看下图的例子，首先将L1-L4四个单元数据散列化，然后将散列值存储至相应的叶子节点。这些节点是Hash0-0, Hash0-1, Hash1-0, Hash1-1，然后将相邻两个节点的散列值合并成一个字符串，然后计算这个字符串的散列，得到的就是这两个节点的父节点的散列值。
 
-![img](https://picgo.6and.ltd/img/merkle-1024x620.png) Merkle树
+![img](https://cdn.tkaid.com/img/merkle-1024x620.png) Merkle树
 
 在比特币网络中，merkle树被用来归纳一个区块中的所有交易，同时生成整个交易集合的数字指纹。此外，由于merkle树的存在，使得在比特币这种公链的场景下，扩展一种“轻节点”实现简单支付验证变成可能。
 
@@ -130,7 +130,7 @@ Merkle Patricia Tree结合了Merkle树和Patricia树的特点，并针对以太�
 
 下面看个以太坊中MPT树的官方示例
 
-![img](https://picgo.6and.ltd/img/e-mpt.png)
+![img](https://cdn.tkaid.com/img/e-mpt.png)
 
 #### 示例
 
@@ -216,7 +216,7 @@ HP编码: 16进制前缀编码，用于对数据库中树节点key进行编码�
 
 其构造MPT树如图：
 
-![img](https://picgo.6and.ltd/img/mpt-1024x972.png) MPT
+![img](https://cdn.tkaid.com/img/mpt-1024x972.png) MPT
 
 ```
 rootHash: [ <16>, hashA ]
@@ -233,19 +233,19 @@ hashG:    [ <35>, 'coin' ]
 
 1. 假设插入第一个kv对是do->verb，key根据Hex-Prefix编码为[‘0x20’, ‘0x64’, ‘0x6f’]，MPT树为：
 
-![img](https://picgo.6and.ltd/img/leafA.png) 叶子节点
+![img](https://cdn.tkaid.com/img/leafA.png) 叶子节点
 
 2. 接着插入第二个kv对dog->puppy，dog和do的公共前缀为[‘64’, ‘6f’]，do是叶子结点A，将*叶子结点替换成扩展节点A*，并将新key与叶子节点A的公共前缀(646f)作为扩展节点的key，*扩展节点的value是新分支节点B的hash值*，然后将do和dog剩余的key插入到分支节点中，由于do没有剩余的key，则将对应的value写入分支节点B的value中，dog剩余的key为67，则分支节点B中的路径为6，指向叶子结点C。7为dog剩下的最后一个key值，是奇数叶子结点则前缀为3，所有最终的MPT树为：
 
-![img](https://picgo.6and.ltd/img/two-1024x542.png) 叶子节点插入
+![img](https://cdn.tkaid.com/img/two-1024x542.png) 叶子节点插入
 
 3. 再插入第三个kv对doge->coin，按照上面的步骤生成的MPT树是：
 
-![img](https://picgo.6and.ltd/img/three-1024x745.png)
+![img](https://cdn.tkaid.com/img/three-1024x745.png)
 
 4. 最后插入第四个kv对horse->stallion，horse与其它key的公共前缀只有6，则将扩展节点A新增一个分支节点F作为其孩子节点，将新key与扩展节点A的公共前缀6作为扩展节点A的key，A是扩展节点并且key为奇数，所以前缀为1，value为新增分支节点F的hash。原扩展节点A变成新扩展节点之后剩余的key，与新key剩下的key，插入到分支节点F中，分别放入4和8中，4指向新的扩展节点G，8指向叶子节点H。最终的MPT树为：
 
-![img](https://picgo.6and.ltd/img/four-1024x659.png)
+![img](https://cdn.tkaid.com/img/four-1024x659.png)
 
 #### MPT在以太坊中的应用
 

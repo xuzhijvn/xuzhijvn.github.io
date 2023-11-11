@@ -304,11 +304,11 @@
 </ol>
 <p>后两种顺序也存在在多并发数据场景下数据不一致的情形，但是它们都可以通过 <code>异步延迟双删</code>+<code>失败删除重试机制</code> 解决，其中<code>更新db-&gt;删除缓存</code> 发生不一致的概率更低，所以应该首先最后一种顺序实施双写。</p>
 <p>首先，缓存由于其高并发和高性能的特性，已经在项目中被广泛使用。在读取缓存方面，大家没啥疑问，都是按照下图的流程来进行业务操作。</p>
-<p><img src="https://picgo.6and.ltd/img/img_600b87fb57b50.png" alt="img" style="zoom:67%;" />、</p>
+<p><img src="https://cdn.tkaid.com/img/img_600b87fb57b50.png" alt="img" style="zoom:67%;" />、</p>
 <p>双写可分为：<code>更新缓存-&gt;更新db</code>、<code>更新db-&gt;更新缓存</code>、<code>删除缓存-&gt;更新db</code>、<code>更新db-&gt;删除缓存</code> 四种策略。</p>
 <p>并发事务时，前两种策略不仅存在数据不一致的，而且在写多读少的场景下会白白消耗缓存的性能（因为数据还没被读就又被更新了，尤其是在更新的缓存需要通过复杂计算才能得到时，这种消耗更加严重）。后两种策略情况相似，只是<code>更新db-&gt;删除缓存</code>相较于<code>删除缓存-&gt;更新db</code>发生数据不一致的概率更低（因为只有在<code>写操作</code>先于<code>读操作</code>完成才会不一致，而一般来说一个<code>写操作</code>是要比<code>读操作</code>慢的），为防止不一致发生，它们都采用<code>异步延迟双删</code>+<code>删除重试机制</code>的策略，下面详述常见<code>删除重试机制</code>。</p>
 <h3 id="重试机制方案一">重试机制：方案一<a class="anchor ms-1" href="#重试机制方案一"><i class="fas fa-link"></i></a></h3>
-<img src="https://picgo.6and.ltd/img/img_600ceac4dfabc.png" alt="img" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/img_600ceac4dfabc.png" alt="img" style="zoom:67%;" />
 <p>流程如下所示
 （1）更新数据库数据；
 （2）缓存因为种种问题删除失败
@@ -317,7 +317,7 @@
 （5）继续重试删除操作，直到成功
 然而，该方案有一个缺点，对业务线代码造成大量的侵入。于是有了方案二，在方案二中，启动一个订阅程序去订阅数据库的binlog，获得需要操作的数据。在应用程序中，另起一段程序，获得这个订阅程序传来的信息，进行删除缓存操作。</p>
 <h3 id="重试机制方案二">重试机制：方案二<a class="anchor ms-1" href="#重试机制方案二"><i class="fas fa-link"></i></a></h3>
-<img src="https://picgo.6and.ltd/img/img_600ceae5885c7.png" alt="img" style="zoom:67%;" />
+<img src="https://cdn.tkaid.com/img/img_600ceae5885c7.png" alt="img" style="zoom:67%;" />
 <p>流程如下图所示：
 （1）更新数据库数据
 （2）数据库会将操作信息写入binlog日志当中
