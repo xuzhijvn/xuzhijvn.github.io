@@ -34,7 +34,7 @@ springboot利用@Async提升API接口并发能力</description>
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/beanfactorypostprocessor%E5%92%8Cbeanpostprocessor/</guid>
       <description>BeanFactoryPostProcessor工作在Bean实例化之前，BeanPostProcessor工作在Bean初始化方法前后。
 BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初始化bean时对外暴露的扩展点。两个接口名称看起来很相似，但作用及使用场景却不同，分析如下：
-1. BeanFactoryPostProcessor接口 该接口的定义如下：
+1. BeanFactoryPostProcessor接口该接口的定义如下：
 @FunctionalInterface public interface BeanFactoryPostProcessor { /** * Modify the application context&amp;#39;s internal bean factory after its standard * initialization. All bean definitions will have been loaded, but no beans * will have been instantiated yet. This allows for overriding or adding * properties even to eager-initializing beans. * @param beanFactory the bean factory used by the application context * @throws org.springframework.beans.BeansException in case of errors */ void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException; } 实现该接口，可以在spring的bean创建之前，修改bean的定义属性。也就是说，Spring允许BeanFactoryPostProcessor在容器实例化任何其它bean之前读取配置元数据，并可以根据需要进行修改，例如可以把bean的scope从singleton改为prototype，也可以把property的值给修改掉。可以同时配置多个BeanFactoryPostProcessor，并通过设置&amp;rsquo;order&amp;rsquo;属性来控制各个BeanFactoryPostProcessor的执行次序。</description>
     </item>
     
@@ -45,7 +45,7 @@ BeanFactoryPostProcessor和BeanPostProcessor，这两个接口，都是Spring初
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/bean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/</guid>
       <description>实例化 -&amp;gt; 属性赋值 -&amp;gt; 初始化 -&amp;gt; 销毁
-参考链接 请别再问Spring Bean的生命周期了！
+参考链接请别再问Spring Bean的生命周期了！
 Spring Bean的生命周期（非常详细）</description>
     </item>
     
@@ -57,7 +57,7 @@ Spring Bean的生命周期（非常详细）</description>
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/exception/spring-security%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%99%BB%E5%BD%95%E5%A4%B1%E8%B4%A5%E7%AC%AC%E4%BA%8C%E6%AC%A1%E7%99%BB%E5%BD%95%E6%88%90%E5%8A%9F/</guid>
       <description>当我第一次登录时我会得到{&amp;quot; timestamp&amp;quot;：1481719982036，&amp;quot; status&amp;quot;：999，&amp;quot; error&amp;quot;：&amp;quot; None&amp;quot;，&amp;quot; message&amp;quot;：&amp;quot;无可用消息&amp;quot;}，但第二次还可以。
 解决办法：填写如下配置到application.properties
-spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration 参考链接：java:Spring Security第一次登录失败，第二次登录成功</description>
+spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration参考链接：java:Spring Security第一次登录失败，第二次登录成功</description>
     </item>
     
     <item>
@@ -79,7 +79,7 @@ package demo.long; import org.aspectj.lang.annotation.Aspect; import org.aspectj
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/springmvc/</guid>
-      <description>SpringMVC执行流程 用户发送请求至前端控制器DispatcherServlet DispatcherServlet收到请求调用处理器映射器HandlerMapping。 处理器映射器根据请求url找到具体的处理器，生成处理器执行链HandlerExecutionChain(包括处理器对象和处理器拦截器)一并返回给DispatcherServlet。 DispatcherServlet根据处理器Handler获取处理器适配器HandlerAdapter执行HandlerAdapter处理一系列的操作，如：参数封装，数据格式转换，数据验证等操作 执行处理器Handler(Controller，也叫页面控制器)。 Handler执行完成返回ModelAndView HandlerAdapter将Handler执行结果ModelAndView返回到DispatcherServlet DispatcherServlet将ModelAndView传给ViewReslover视图解析器 ViewReslover解析后返回具体View DispatcherServlet对View进行渲染视图（即将模型数据model填充至视图中）。 DispatcherServlet响应用户。 组件说明 DispatcherServlet：前端控制器。用户请求到达前端控制器，它就相当于mvc模式中的c，dispatcherServlet是整个流程控制的中心，由它调用其它组件处理用户的请求，dispatcherServlet的存在降低了组件之间的耦合性,系统扩展性提高。由框架实现 HandlerMapping：处理器映射器。HandlerMapping负责根据用户请求的url找到Handler即处理器，springmvc提供了不同的映射器实现不同的映射方式，根据一定的规则去查找,例如：xml配置方式，实现接口方式，注解方式等。由框架实现 Handler：处理器。Handler 是继DispatcherServlet前端控制器的后端控制器，在DispatcherServlet的控制下Handler对具体的用户请求进行处理。由于Handler涉及到具体的用户业务请求，所以一般情况需要程序员根据业务需求开发Handler。 HandlAdapter：处理器适配器。通过HandlerAdapter对处理器进行执行，这是适配器模式的应用，通过扩展适配器可以对更多类型的处理器进行执行。由框架实现。 ModelAndView是springmvc的封装对象，将model和view封装在一起。 ViewResolver：视图解析器。ViewResolver负责将处理结果生成View视图，ViewResolver首先根据逻辑视图名解析成物理视图名即具体的页面地址，再生成View视图对象，最后对View进行渲染将处理结果通过页面展示给用户。 View: 是springmvc的封装对象，是一个接口, springmvc框架提供了很多的View视图类型，包括：jspview，pdfview,jstlView、freemarkerView、pdfView等。一般情况下需要通过页面标签或页面模版技术将模型数据通过页面展示给用户，需要由程序员根据业务需求开发具体的页面。 参考链接： SpringMVC执行流程及工作原理
+      <description>SpringMVC执行流程 用户发送请求至前端控制器DispatcherServlet DispatcherServlet收到请求调用处理器映射器HandlerMapping。 处理器映射器根据请求url找到具体的处理器，生成处理器执行链HandlerExecutionChain(包括处理器对象和处理器拦截器)一并返回给DispatcherServlet。 DispatcherServlet根据处理器Handler获取处理器适配器HandlerAdapter执行HandlerAdapter处理一系列的操作，如：参数封装，数据格式转换，数据验证等操作 执行处理器Handler(Controller，也叫页面控制器)。 Handler执行完成返回ModelAndView HandlerAdapter将Handler执行结果ModelAndView返回到DispatcherServlet DispatcherServlet将ModelAndView传给ViewReslover视图解析器 ViewReslover解析后返回具体View DispatcherServlet对View进行渲染视图（即将模型数据model填充至视图中）。 DispatcherServlet响应用户。  组件说明 DispatcherServlet：前端控制器。用户请求到达前端控制器，它就相当于mvc模式中的c，dispatcherServlet是整个流程控制的中心，由它调用其它组件处理用户的请求，dispatcherServlet的存在降低了组件之间的耦合性,系统扩展性提高。由框架实现 HandlerMapping：处理器映射器。HandlerMapping负责根据用户请求的url找到Handler即处理器，springmvc提供了不同的映射器实现不同的映射方式，根据一定的规则去查找,例如：xml配置方式，实现接口方式，注解方式等。由框架实现 Handler：处理器。Handler 是继DispatcherServlet前端控制器的后端控制器，在DispatcherServlet的控制下Handler对具体的用户请求进行处理。由于Handler涉及到具体的用户业务请求，所以一般情况需要程序员根据业务需求开发Handler。 HandlAdapter：处理器适配器。通过HandlerAdapter对处理器进行执行，这是适配器模式的应用，通过扩展适配器可以对更多类型的处理器进行执行。由框架实现。 ModelAndView是springmvc的封装对象，将model和view封装在一起。 ViewResolver：视图解析器。ViewResolver负责将处理结果生成View视图，ViewResolver首先根据逻辑视图名解析成物理视图名即具体的页面地址，再生成View视图对象，最后对View进行渲染将处理结果通过页面展示给用户。 View: 是springmvc的封装对象，是一个接口, springmvc框架提供了很多的View视图类型，包括：jspview，pdfview,jstlView、freemarkerView、pdfView等。一般情况下需要通过页面标签或页面模版技术将模型数据通过页面展示给用户，需要由程序员根据业务需求开发具体的页面。  参考链接：SpringMVC执行流程及工作原理
 Spring MVC【入门】就这一篇！</description>
     </item>
     
@@ -90,9 +90,8 @@ Spring MVC【入门】就这一篇！</description>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/spring%E4%BA%8B%E5%8A%A1/</guid>
       <description>Spring事务可简单的理解为由PlatformTransactionManager, TransactionDefinition, TransactionStatus 构成
-PlatformTransactionManager 其中 org.springframework.transaction.PlatformTransactionManager 接口定义如下：
-public interface PlatformTransactionManager extends TransactionManager { // Return a currently active transaction or create a new one, according to the specified propagation behavior（根据指定的传播行为，返回当前活动的事务或创建一个新事务。） TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException; // Commit the given transaction, with regard to its status（使用事务目前的状态提交事务） Void commit(TransactionStatus status) throws TransactionException; // Perform a rollback of the given transaction（对执行的事务进行回滚） Void rollback(TransactionStatus status) throws TransactionException; } Spring并不直接管理事务，它只提供接口抽象，事务管理器的具体实现由持久化框架自己实现，例如：DataSourceTransactionManager (JDBC / MyBatis),
-JpaTransactionManager, HibernateTransactionManager, JtaTransactionManager, KafkaTransactionManager, RedissonTransactionManager</description>
+PlatformTransactionManager其中 org.springframework.transaction.PlatformTransactionManager 接口定义如下：
+public interface PlatformTransactionManager extends TransactionManager { // Return a currently active transaction or create a new one, according to the specified propagation behavior（根据指定的传播行为，返回当前活动的事务或创建一个新事务。）  TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException; // Commit the given transaction, with regard to its status（使用事务目前的状态提交事务）  Void commit(TransactionStatus status) throws TransactionException; // Perform a rollback of the given transaction（对执行的事务进行回滚）  Void rollback(TransactionStatus status) throws TransactionException; } Spring并不直接管理事务，它只提供接口抽象，事务管理器的具体实现由持久化框架自己实现，例如：DataSourceTransactionManager (JDBC / MyBatis),</description>
     </item>
     
     <item>
@@ -102,11 +101,35 @@ JpaTransactionManager, HibernateTransactionManager, JtaTransactionManager, Kafka
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/spring%E4%BC%98%E9%9B%85%E7%9A%84%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/</guid>
       <description>SpringBoot的WEB异常捕获，如果是WEB项目的话，可以直接处理Controller中的异常。如果不是WEB项目的话，就需要使用AspectJ来做切面。
-1. web项目 package com.test.handler; import lombok.extern.log4j.Log4j2; import org.springframework.ui.Model; import org.springframework.web.bind.annotation.ControllerAdvice; import org.springframework.web.bind.annotation.ExceptionHandler; @ControllerAdvice @Log4j2 public class GlobalExceptionHandler { @ExceptionHandler(value = Exception.class) public String exception(Exception e, Model model){ log.error(&amp;#34;find exception:e={}&amp;#34;,e.getMessage()); model.addAttribute(&amp;#34;mes&amp;#34;,e.getMessage()); return &amp;#34;pages/500&amp;#34;; } } 参考链接：
+1. web项目package com.test.handler; import lombok.extern.log4j.Log4j2; import org.springframework.ui.Model; import org.springframework.web.bind.annotation.ControllerAdvice; import org.springframework.web.bind.annotation.ExceptionHandler; @ControllerAdvice @Log4j2 public class GlobalExceptionHandler { @ExceptionHandler(value = Exception.class) public String exception(Exception e, Model model){ log.error(&amp;#34;find exception:e={}&amp;#34;,e.getMessage()); model.addAttribute(&amp;#34;mes&amp;#34;,e.getMessage()); return &amp;#34;pages/500&amp;#34;; } } 参考链接：
 SpringBootWEB项目和非Web项目的全局异常捕获
 SpringBoot 处理异常的几种常见姿势
 使用枚举简单封装一个优雅的 Spring Boot 全局异常处理！
-2. 非web项目 package com.test.syncbackend.handler; import lombok.extern.log4j.Log4j2; import org.aspectj.lang.ProceedingJoinPoint; import org.aspectj.lang.annotation.Around; import org.aspectj.lang.annotation.Aspect; import org.aspectj.lang.annotation.Pointcut; import org.springframework.stereotype.Component; @Component @Aspect @Log4j2 public class GlobalExceptionHandler { @Pointcut(&amp;#34;execution(* com.test.syncbackend.scheduleds.*.*(..))&amp;#34;) public void pointCut() { } @Around(&amp;#34;pointCut()&amp;#34;) public Object handlerException(ProceedingJoinPoint proceedingJoinPoint) { try { return proceedingJoinPoint.</description>
+2. 非web项目package com.test.syncbackend.handler; import lombok.extern.log4j.Log4j2; import org.aspectj.lang.ProceedingJoinPoint; import org.aspectj.lang.annotation.Around; import org.aspectj.lang.annotation.Aspect; import org.aspectj.lang.annotation.Pointcut; import org.springframework.stereotype.Component; @Component @Aspect @Log4j2 public class GlobalExceptionHandler { @Pointcut(&amp;#34;execution(* com.test.syncbackend.scheduleds.*.*(..))&amp;#34;) public void pointCut() { } @Around(&amp;#34;pointCut()&amp;#34;) public Object handlerException(ProceedingJoinPoint proceedingJoinPoint) { try { return proceedingJoinPoint.</description>
+    </item>
+    
+    <item>
+      <title>事务传播实战</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E5%AE%9E%E6%88%98/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E5%AE%9E%E6%88%98/</guid>
+      <description>参考链接：手把手带你实战下Spring的七种事务传播行为
+Spring的PROPAGATION_NESTED和PROPAGATION_REQUIRES_NEW的区别？</description>
+    </item>
+    
+    <item>
+      <title>基于aspect实现注解</title>
+      <link>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E5%9F%BA%E4%BA%8Easpect%E5%AE%9E%E7%8E%B0%E6%B3%A8%E8%A7%A3/</link>
+      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
+      
+      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E5%9F%BA%E4%BA%8Easpect%E5%AE%9E%E7%8E%B0%E6%B3%A8%E8%A7%A3/</guid>
+      <description>在工作中，我们有时候需要将一些公共的功能封装，比如操作日志的存储，防重复提交等等。这些功能有些接口会用到，为了便于其他接口和方法的使用，做成自定义注解，侵入性更低一点。别人用的话直接注解就好。下面就来讲讲自定义注解这些事情。
+1. @Target、@Retention、@Documented简介java自定义注解的注解位于包：java.lang.annotation下。包含三个元注解@Target、@Retention、@Documented，即注解的注解。
+@Target@Target:注解的作用目标。和枚举ElementType共同起作用
+根据源码知道，可以配置多个作用目标。
+@Documented @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.ANNOTATION_TYPE) public @interface Target { /** * Returns an array of the kinds of elements an annotation type * can be applied to. * @return an array of the kinds of elements an annotation type * can be applied to */ ElementType[] value(); } 复制代码 ElementType的类型如下：
+* @author Joshua Bloch * @since 1.5 * @jls 9.6.4.1 @Target * @jls 4.1 The Kinds of Types and Values */ public enum ElementType { /** 类, 接口 (包括注解类型), 或 枚举 声明 */ TYPE, /** 字段声明（包括枚举常量） */ FIELD, /** 方法声明(Method declaration) */ METHOD, /** 正式的参数声明 */ PARAMETER, /** 构造函数声明 */ CONSTRUCTOR, /** 局部变量声明 */ LOCAL_VARIABLE, /** 注解类型声明 */ ANNOTATION_TYPE, /** 包声明 */ PACKAGE, /** * 类型参数声明 * * @since 1.</description>
     </item>
     
     <item>
@@ -119,30 +142,6 @@ SpringBoot 处理异常的几种常见姿势
 @RequestMapping(value = &amp;#34;/{name}/{version}&amp;#34;, method = {RequestMethod.POST, RequestMethod.GET}) public void rest3(@PathVariable(&amp;#34;name&amp;#34;) String name, @PathVariable(&amp;#34;version&amp;#34;) String version, HttpServletRequest request, HttpServletResponse response) { this.doRest(name, version, request, response); } 为了能正确匹配的静态资源，我们可以调整Spring HandlerMapping的顺序，让SimpleUrlHandlerMapping先于RequestMappingHandlerMapping去匹配请求，SimpleUrlHandlerMapping会返回一个用于加载静态资源的ResourceHttpRequestHandler
 默认情况下RequestMappingHandlerMapping 先于SimpleUrlHandlerMapping匹配请求，DispatcherServlet中初始化HandlerMapping的顺序源码如下所示：
 /** * Initialize the HandlerMappings used by this class. * &amp;lt;p&amp;gt;If no HandlerMapping beans are defined in the BeanFactory for this namespace, * we default to BeanNameUrlHandlerMapping. */ private void initHandlerMappings(ApplicationContext context) { this.handlerMappings = null; if (this.</description>
-    </item>
-    
-    <item>
-      <title>基于aspect实现注解</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E5%9F%BA%E4%BA%8Easpect%E5%AE%9E%E7%8E%B0%E6%B3%A8%E8%A7%A3/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E5%9F%BA%E4%BA%8Easpect%E5%AE%9E%E7%8E%B0%E6%B3%A8%E8%A7%A3/</guid>
-      <description>在工作中，我们有时候需要将一些公共的功能封装，比如操作日志的存储，防重复提交等等。这些功能有些接口会用到，为了便于其他接口和方法的使用，做成自定义注解，侵入性更低一点。别人用的话直接注解就好。下面就来讲讲自定义注解这些事情。
-1. @Target、@Retention、@Documented简介 java自定义注解的注解位于包：java.lang.annotation下。包含三个元注解@Target、@Retention、@Documented，即注解的注解。
-@Target @Target:注解的作用目标。和枚举ElementType共同起作用
-根据源码知道，可以配置多个作用目标。
-@Documented @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.ANNOTATION_TYPE) public @interface Target { /** * Returns an array of the kinds of elements an annotation type * can be applied to. * @return an array of the kinds of elements an annotation type * can be applied to */ ElementType[] value(); } 复制代码 ElementType的类型如下：
-* @author Joshua Bloch * @since 1.5 * @jls 9.6.4.1 @Target * @jls 4.1 The Kinds of Types and Values */ public enum ElementType { /** 类, 接口 (包括注解类型), 或 枚举 声明 */ TYPE, /** 字段声明（包括枚举常量） */ FIELD, /** 方法声明(Method declaration) */ METHOD, /** 正式的参数声明 */ PARAMETER, /** 构造函数声明 */ CONSTRUCTOR, /** 局部变量声明 */ LOCAL_VARIABLE, /** 注解类型声明 */ ANNOTATION_TYPE, /** 包声明 */ PACKAGE, /** * 类型参数声明 * * @since 1.</description>
-    </item>
-    
-    <item>
-      <title>事务传播实战</title>
-      <link>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E5%AE%9E%E6%88%98/</link>
-      <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
-      
-      <guid>https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E5%AE%9E%E6%88%98/</guid>
-      <description>参考链接： 手把手带你实战下Spring的七种事务传播行为
-Spring的PROPAGATION_NESTED和PROPAGATION_REQUIRES_NEW的区别？</description>
     </item>
     
   </channel>

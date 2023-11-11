@@ -26,8 +26,8 @@
 <meta name="twitter:description" content=""/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -318,21 +318,21 @@
 <p>如果虚拟机探测到有这样一串零碎的操作都对同一个对象加锁，将会把加锁同步的范围扩展（粗化）到整个操作序列的外部，以代码清单13-7为例，就是扩展到第一个append()操作之前直至最后一个append()操作之后，这样只需要加锁一次就可以了。（StringBuffer.append()例子）</p>
 <h3 id="对象头">对象头<a class="anchor ms-1" href="#对象头"><i class="fas fa-link"></i></a></h3>
 <p>HotSpot虚拟机的对象头（ObjectHeader）分为两部分，第一部分用于存储对象自身的运行时数据，如哈希码（HashCode）、GC分代年龄（GenerationalGCAge）等。这部分数据的长度在32位和64位的Java虚拟机中分别会占用32个或64个比特，官方称它为“MarkWord”。这部分是实现轻量级锁和偏向锁的关键。另外一部分用于存储指向方法区对象类型数据的指针，如果是数组对象，还会有一个额外的部分用于存储数组长度。官方称它为 “Klass Point”</p>
-<img src="https://picgo.6and.ltd/img/image-20210909142432896.png" alt="对象头" style="zoom:40%;" />
+<p><img src="https://picgo.6and.ltd/img/image-20210909142432896.png" alt="对象头" style="zoom:40%;" /></p>
 <h3 id="全局安全点">全局安全点<a class="anchor ms-1" href="#全局安全点"><i class="fas fa-link"></i></a></h3>
 <p>全局安全点（safepoint）这个词我们在GC中经常会提到，简单来说就是其代表了一个状态，在该状态下所有线程都是暂停的，在这个时间点上没有线程在执行字节码。</p>
 <h3 id="锁状态">锁状态<a class="anchor ms-1" href="#锁状态"><i class="fas fa-link"></i></a></h3>
 <p>锁的状态总共有四种：无锁状态、偏向锁、轻量级锁和重量级锁。随着锁的竞争，锁可以从偏向锁升级到轻量级锁，再升级的重量级锁（但是锁的升级是<code>单向的</code>，也就是说只能从低到高升级，不会出现锁的降级）</p>
 <p>偏向锁、轻量级锁的状态转化及对象MarkWord的关系如图</p>
-<img src="https://picgo.6and.ltd/img/image-20210909143332042-20210909143549967.png" alt="状态转化" style="zoom: 40%;" />
+<p><img src="https://picgo.6and.ltd/img/image-20210909143332042-20210909143549967.png" alt="状态转化" style="zoom: 40%;" /></p>
 <h3 id="重量级锁">重量级锁<a class="anchor ms-1" href="#重量级锁"><i class="fas fa-link"></i></a></h3>
 <p>基于monitor，monitor基于操作系统的互斥锁</p>
 <h3 id="轻量锁">轻量锁<a class="anchor ms-1" href="#轻量锁"><i class="fas fa-link"></i></a></h3>
 <p>在代码即将进入同步块的时候，如果此同步对象没有被锁定（锁标志位为“01”状态），虚拟机首先将在当前线程的栈帧中建立一个名为锁记录（LockRecord）的空间，用于存储锁对象目前的MarkWord的拷贝（官方为这份拷贝加了一个Displaced前缀，即DisplacedMarkWord）</p>
-<img src="https://picgo.6and.ltd/img/image-20210909142626364.png" alt="cas操作前" style="zoom: 33%;" />
+<p><img src="https://picgo.6and.ltd/img/image-20210909142626364.png" alt="cas操作前" style="zoom: 33%;" /></p>
 <p>虚拟机将使用CAS操作尝试把对象的MarkWord更新为指向LockRecord的指针。如果这个更新动作成功了，即代表该线程拥有了这个对象的锁，并且对象MarkWord的锁标志位（MarkWord的最后两个比特）将转变为“00”，表示此对象处于轻量级锁定状态。</p>
 <p>如果这个更新操作失败了，那就意味着至少存在一条线程与当前线程竞争获取该对象的锁。虚拟机首先会检查对象的MarkWord是否指向当前线程的栈帧，如果是，说明当前线程已经拥有了这个对象的锁，那直接进入同步块继续执行就可以了，否则就说明这个锁对象已经被其他线程抢占了。如果出现两条以上的线程争用同一个锁的情况，那轻量级锁就不再有效，必须要膨胀为重量级锁。</p>
-<img src="https://picgo.6and.ltd/img/image-20210909142722259.png" alt="cas操作后" style="zoom: 33%;" />
+<p><img src="https://picgo.6and.ltd/img/image-20210909142722259.png" alt="cas操作后" style="zoom: 33%;" /></p>
 <p>它的解锁过程也同样是通过CAS操作来进行的，如果对象的MarkWord仍然指向线程的锁记录，那就用CAS操作把对象当前的MarkWord和线程中复制的DisplacedMarkWord替换回来。假如能够成功替换，那整个同步过程就顺利完成了；如果替换失败，则说明有其他线程尝试过获取该锁，就要在释放锁的同时，唤醒被挂起的线程。</p>
 <h3 id="偏向锁">偏向锁<a class="anchor ms-1" href="#偏向锁"><i class="fas fa-link"></i></a></h3>
 <ul>
@@ -636,7 +636,7 @@
         <i class="fa-fw fa-2x fab fa-twitter"></i>
       </a></nav>
 <div class="copyright mb-2">
-  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+  Copyright © 2016-2023 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
   Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
@@ -647,8 +647,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.785fa4e86518eee08ad9f10fdbc7d3a34d7d772cfe2fbe8809dde82283d7b7c6.js" integrity="sha256-eF&#43;k6GUY7uCK2fEP28fTo019dyz&#43;L76ICd3oIoPXt8Y=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

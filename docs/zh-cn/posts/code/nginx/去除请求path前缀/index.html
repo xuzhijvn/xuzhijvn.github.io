@@ -9,20 +9,20 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
 <link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
 <meta name="keywords" content="" />
-<meta name="description" content="1. proxy_pass后面加根路径/ location ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; proxy_pass http://user/; } ^~/user/表示匹配前缀是user的请求，proxy_pass的结尾有/， 则会把/user/*后面的路径直接拼接到后面，即移除user。
-2. 使用rewrite location ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; rewrite ^/user/(.*)$ /$1 break; proxy_pass http://user; } 注意到proxy_pass结尾没有/， rewrite重写了url。
-参考链接： Nginx代理proxy pass配置去除前缀
+<meta name="description" content="1. proxy_pass后面加根路径/location ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; proxy_pass http://user/; } ^~/user/表示匹配前缀是user的请求，proxy_pass的结尾有/， 则会把/user/*后面的路径直接拼接到后面，即移除user。
+2. 使用rewritelocation ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; rewrite ^/user/(.*)$ /$1 break; proxy_pass http://user; } 注意到proxy_pass结尾没有/， rewrite重写了url。
+参考链接：Nginx代理proxy pass配置去除前缀
 Nginx 转发域名地址报 400 Bad Request" /><meta itemprop="name" content="去除请求path前缀">
-<meta itemprop="description" content="1. proxy_pass后面加根路径/ location ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; proxy_pass http://user/; } ^~/user/表示匹配前缀是user的请求，proxy_pass的结尾有/， 则会把/user/*后面的路径直接拼接到后面，即移除user。
-2. 使用rewrite location ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; rewrite ^/user/(.*)$ /$1 break; proxy_pass http://user; } 注意到proxy_pass结尾没有/， rewrite重写了url。
-参考链接： Nginx代理proxy pass配置去除前缀
+<meta itemprop="description" content="1. proxy_pass后面加根路径/location ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; proxy_pass http://user/; } ^~/user/表示匹配前缀是user的请求，proxy_pass的结尾有/， 则会把/user/*后面的路径直接拼接到后面，即移除user。
+2. 使用rewritelocation ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; rewrite ^/user/(.*)$ /$1 break; proxy_pass http://user; } 注意到proxy_pass结尾没有/， rewrite重写了url。
+参考链接：Nginx代理proxy pass配置去除前缀
 Nginx 转发域名地址报 400 Bad Request"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="56">
 <meta itemprop="keywords" content="nginx," /><meta property="og:title" content="去除请求path前缀" />
-<meta property="og:description" content="1. proxy_pass后面加根路径/ location ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; proxy_pass http://user/; } ^~/user/表示匹配前缀是user的请求，proxy_pass的结尾有/， 则会把/user/*后面的路径直接拼接到后面，即移除user。
-2. 使用rewrite location ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; rewrite ^/user/(.*)$ /$1 break; proxy_pass http://user; } 注意到proxy_pass结尾没有/， rewrite重写了url。
-参考链接： Nginx代理proxy pass配置去除前缀
+<meta property="og:description" content="1. proxy_pass后面加根路径/location ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; proxy_pass http://user/; } ^~/user/表示匹配前缀是user的请求，proxy_pass的结尾有/， 则会把/user/*后面的路径直接拼接到后面，即移除user。
+2. 使用rewritelocation ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; rewrite ^/user/(.*)$ /$1 break; proxy_pass http://user; } 注意到proxy_pass结尾没有/， rewrite重写了url。
+参考链接：Nginx代理proxy pass配置去除前缀
 Nginx 转发域名地址报 400 Bad Request" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/nginx/%E5%8E%BB%E9%99%A4%E8%AF%B7%E6%B1%82path%E5%89%8D%E7%BC%80/" /><meta property="article:section" content="posts" />
@@ -32,14 +32,14 @@ Nginx 转发域名地址报 400 Bad Request" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="去除请求path前缀"/>
-<meta name="twitter:description" content="1. proxy_pass后面加根路径/ location ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; proxy_pass http://user/; } ^~/user/表示匹配前缀是user的请求，proxy_pass的结尾有/， 则会把/user/*后面的路径直接拼接到后面，即移除user。
-2. 使用rewrite location ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; rewrite ^/user/(.*)$ /$1 break; proxy_pass http://user; } 注意到proxy_pass结尾没有/， rewrite重写了url。
-参考链接： Nginx代理proxy pass配置去除前缀
+<meta name="twitter:description" content="1. proxy_pass后面加根路径/location ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; proxy_pass http://user/; } ^~/user/表示匹配前缀是user的请求，proxy_pass的结尾有/， 则会把/user/*后面的路径直接拼接到后面，即移除user。
+2. 使用rewritelocation ^~/user/ { proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-NginX-Proxy true; rewrite ^/user/(.*)$ /$1 break; proxy_pass http://user; } 注意到proxy_pass结尾没有/， rewrite重写了url。
+参考链接：Nginx代理proxy pass配置去除前缀
 Nginx 转发域名地址报 400 Bad Request"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -321,26 +321,26 @@ Nginx 转发域名地址报 400 Bad Request"/>
   </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3/" class="badge post-taxonomy">编程思想</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/nginx/" class="badge post-taxonomy">nginx</a></span>
 </div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><h2 id="1-proxy_pass后面加根路径">1. proxy_pass后面加根路径/<a class="anchor ms-1" href="#1-proxy_pass后面加根路径"><i class="fas fa-link"></i></a></h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>location ^~/user/ <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    proxy_set_header Host $host;
-</span></span><span style="display:flex;"><span>    proxy_set_header  X-Real-IP        $remote_addr;
-</span></span><span style="display:flex;"><span>    proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
-</span></span><span style="display:flex;"><span>    proxy_set_header X-NginX-Proxy true;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    proxy_pass http://user/;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p><code>^~/user/</code>表示匹配前缀是<code>user</code>的请求，proxy_pass的结尾有<code>/</code>， 则会把<code>/user/*</code>后面的路径直接拼接到后面，即移除user。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">location ^~/user/ <span style="color:#f92672">{</span>
+    proxy_set_header Host $host;
+    proxy_set_header  X-Real-IP        $remote_addr;
+    proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
+    proxy_set_header X-NginX-Proxy true;
+
+    proxy_pass http://user/;
+<span style="color:#f92672">}</span>
+</code></pre></div><p><code>^~/user/</code>表示匹配前缀是<code>user</code>的请求，proxy_pass的结尾有<code>/</code>， 则会把<code>/user/*</code>后面的路径直接拼接到后面，即移除user。</p>
 <h2 id="2-使用rewrite">2. 使用rewrite<a class="anchor ms-1" href="#2-使用rewrite"><i class="fas fa-link"></i></a></h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>location ^~/user/ <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    proxy_set_header Host $host;
-</span></span><span style="display:flex;"><span>    proxy_set_header  X-Real-IP        $remote_addr;
-</span></span><span style="display:flex;"><span>    proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
-</span></span><span style="display:flex;"><span>    proxy_set_header X-NginX-Proxy true;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    rewrite ^/user/<span style="color:#f92672">(</span>.*<span style="color:#f92672">)</span>$ /$1 break;
-</span></span><span style="display:flex;"><span>    proxy_pass http://user;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>注意到proxy_pass结尾没有<code>/</code>， <code>rewrite</code>重写了url。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">location ^~/user/ <span style="color:#f92672">{</span>
+    proxy_set_header Host $host;
+    proxy_set_header  X-Real-IP        $remote_addr;
+    proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
+    proxy_set_header X-NginX-Proxy true;
+
+    rewrite ^/user/<span style="color:#f92672">(</span>.*<span style="color:#f92672">)</span>$ /$1 break;
+    proxy_pass http://user;
+<span style="color:#f92672">}</span>
+</code></pre></div><p>注意到proxy_pass结尾没有<code>/</code>， <code>rewrite</code>重写了url。</p>
 <h3 id="参考链接">参考链接：<a class="anchor ms-1" href="#参考链接"><i class="fas fa-link"></i></a></h3>
 <p><a href="https://www.cnblogs.com/woshimrf/p/nginx-proxy-rewrite-url.html" target="_blank" rel="noopener noreferrer">Nginx代理proxy pass配置去除前缀</a></p>
 <p><a href="https://priesttomb.github.io/%e6%8a%80%e6%9c%af/2020/05/05/nginx-400-error-about-host/" target="_blank" rel="noopener noreferrer">Nginx 转发域名地址报 400 Bad Request</a></p>
@@ -372,10 +372,10 @@ Nginx 转发域名地址报 400 Bad Request"/>
 </div></div>
   <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
     <i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/other/%E5%85%A8%E6%96%87%E7%B4%A2%E5%BC%95/">全文索引
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/ai/%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%ADbp/">反向传播
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/%E5%88%87%E6%8D%A2namespace/">切换namespace
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/ai/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9Ccnn/">卷积神经网络
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
@@ -596,7 +596,7 @@ Nginx 转发域名地址报 400 Bad Request"/>
         <i class="fa-fw fa-2x fab fa-twitter"></i>
       </a></nav>
 <div class="copyright mb-2">
-  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+  Copyright © 2016-2023 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
   Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
@@ -607,8 +607,8 @@ Nginx 转发域名地址报 400 Bad Request"/>
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.785fa4e86518eee08ad9f10fdbc7d3a34d7d772cfe2fbe8809dde82283d7b7c6.js" integrity="sha256-eF&#43;k6GUY7uCK2fEP28fTo019dyz&#43;L76ICd3oIoPXt8Y=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

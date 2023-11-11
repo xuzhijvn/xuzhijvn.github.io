@@ -10,7 +10,7 @@
 <link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
 <meta name="keywords" content="" />
 <meta name="description" content="绑定核心之后不存在线程的上下文切换，就可以更好的利用CPU缓存。
-不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。
+ 不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。
 而且它还是一个面试题。
 我懵逼倒不是因为我不知道答案，而是恰好我之前在非常机缘巧合的情况下知道了答案。
 我感觉非常的冷门，作为一个考察候选者的知识点出现在面试环节中不太合适，除非是候选者主动提起做过这样的优化。
@@ -20,30 +20,27 @@
 正常来说，其实应该是属于考察操作系统的知识点范畴。
 但是面试官呢又特定的加了“在 Java 中如何实现”。
 那我们就聊聊这个问题。
-Java线程 在聊如何绑定之前，先铺垫一个相关的背景知识：Java线程的实现。
+Java线程在聊如何绑定之前，先铺垫一个相关的背景知识：Java线程的实现。
 其实我们都知道 Thread 类的大部分方法都是 native 方法：
 在 Java 中一个方法被声明为 native 方法，绝大部分情况下说明这个方法没有或者不能使用平台无关的手段来实现。
 说明需要操作的是很底层的东西了，已经脱离了 Java 语言层面的范畴。
 抛开 Java 语言这个大前提，实现线程主要是有三种方式：
-1.使用内核线程实现（1:1实现） 2.使用用户线程实现（1:N实现） 3.使用用户线程加轻量级进程混合实现（N:M实现）
-这三种实现方案，在《深入理解Java虚拟机》的 12.4 小节有详细的描述，有兴趣的同学可以去仔细的翻阅一下。
+ 1.使用内核线程实现（1:1实现） 2.使用用户线程实现（1:N实现） 3.使用用户线程加轻量级进程混合实现（N:M实现）
+ 这三种实现方案，在《深入理解Java虚拟机》的 12.4 小节有详细的描述，有兴趣的同学可以去仔细的翻阅一下。
 总之，你要知道的是虽然有这三种不同的线程模型，但是 Java 作为上层应用，其实是感知不到这三种模型之间的区别的。
 JVM 规范里面也没有规定，必须使用哪一种模型。
 因为操作系统支持是怎样的线程模型，很大程度上决定了运行在上面的 Java 虚拟机的线程怎样去映射，但是这一点在不同的平台上很难达成一致。
 所以JVM 规范里面没有、也不好去规定 Java 线程需要使用哪种线程模型来实现。
 同时关于本文要讨论的话题，我在知乎上也找到了类似的问题：
-https://www.zhihu.com/question/64072646/answer/216184631
-这里面有一个R大的回答，大家可以看看一下。
+ https://www.zhihu.com/question/64072646/answer/216184631
+ 这里面有一个R大的回答，大家可以看看一下。
 他也是先从线程模型的角度铺垫了一下。
 我这里主要说一下使用内核线程实现（1:1实现）的这个模型。
 因为我们用的最多的 HotSpot 虚拟机，就是采用 1:1 模型来实现 Java 线程的。
 这是个啥意思呢？
-说人话就是一个 Java 线程是直接映射为一个操作系统原生线程的，中间没有额外的间接结构。HotSpot 虚拟机也不干涉线程的调度，这事全权交给底下的操作系统去做。
-顶多就是设置一个线程优先级，操作系统来调度的时候给个建议。
-但是何时挂起、唤醒、分配时间片、让那个处理器核心去执行等等这些关于线程生命周期、执行的东西都是操作系统干的。
-这话不是我说的，是R大和周佬都说过这样的话。" /><meta itemprop="name" content="Java如何绑定线程到指定CPU上执行">
+说人话就是一个 Java 线程是直接映射为一个操作系统原生线程的，中间没有额外的间接结构。HotSpot 虚拟机也不干涉线程的调度，这事全权交给底下的操作系统去做。" /><meta itemprop="name" content="Java如何绑定线程到指定CPU上执行">
 <meta itemprop="description" content="绑定核心之后不存在线程的上下文切换，就可以更好的利用CPU缓存。
-不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。
+ 不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。
 而且它还是一个面试题。
 我懵逼倒不是因为我不知道答案，而是恰好我之前在非常机缘巧合的情况下知道了答案。
 我感觉非常的冷门，作为一个考察候选者的知识点出现在面试环节中不太合适，除非是候选者主动提起做过这样的优化。
@@ -53,33 +50,30 @@ https://www.zhihu.com/question/64072646/answer/216184631
 正常来说，其实应该是属于考察操作系统的知识点范畴。
 但是面试官呢又特定的加了“在 Java 中如何实现”。
 那我们就聊聊这个问题。
-Java线程 在聊如何绑定之前，先铺垫一个相关的背景知识：Java线程的实现。
+Java线程在聊如何绑定之前，先铺垫一个相关的背景知识：Java线程的实现。
 其实我们都知道 Thread 类的大部分方法都是 native 方法：
 在 Java 中一个方法被声明为 native 方法，绝大部分情况下说明这个方法没有或者不能使用平台无关的手段来实现。
 说明需要操作的是很底层的东西了，已经脱离了 Java 语言层面的范畴。
 抛开 Java 语言这个大前提，实现线程主要是有三种方式：
-1.使用内核线程实现（1:1实现） 2.使用用户线程实现（1:N实现） 3.使用用户线程加轻量级进程混合实现（N:M实现）
-这三种实现方案，在《深入理解Java虚拟机》的 12.4 小节有详细的描述，有兴趣的同学可以去仔细的翻阅一下。
+ 1.使用内核线程实现（1:1实现） 2.使用用户线程实现（1:N实现） 3.使用用户线程加轻量级进程混合实现（N:M实现）
+ 这三种实现方案，在《深入理解Java虚拟机》的 12.4 小节有详细的描述，有兴趣的同学可以去仔细的翻阅一下。
 总之，你要知道的是虽然有这三种不同的线程模型，但是 Java 作为上层应用，其实是感知不到这三种模型之间的区别的。
 JVM 规范里面也没有规定，必须使用哪一种模型。
 因为操作系统支持是怎样的线程模型，很大程度上决定了运行在上面的 Java 虚拟机的线程怎样去映射，但是这一点在不同的平台上很难达成一致。
 所以JVM 规范里面没有、也不好去规定 Java 线程需要使用哪种线程模型来实现。
 同时关于本文要讨论的话题，我在知乎上也找到了类似的问题：
-https://www.zhihu.com/question/64072646/answer/216184631
-这里面有一个R大的回答，大家可以看看一下。
+ https://www.zhihu.com/question/64072646/answer/216184631
+ 这里面有一个R大的回答，大家可以看看一下。
 他也是先从线程模型的角度铺垫了一下。
 我这里主要说一下使用内核线程实现（1:1实现）的这个模型。
 因为我们用的最多的 HotSpot 虚拟机，就是采用 1:1 模型来实现 Java 线程的。
 这是个啥意思呢？
-说人话就是一个 Java 线程是直接映射为一个操作系统原生线程的，中间没有额外的间接结构。HotSpot 虚拟机也不干涉线程的调度，这事全权交给底下的操作系统去做。
-顶多就是设置一个线程优先级，操作系统来调度的时候给个建议。
-但是何时挂起、唤醒、分配时间片、让那个处理器核心去执行等等这些关于线程生命周期、执行的东西都是操作系统干的。
-这话不是我说的，是R大和周佬都说过这样的话。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+说人话就是一个 Java 线程是直接映射为一个操作系统原生线程的，中间没有额外的间接结构。HotSpot 虚拟机也不干涉线程的调度，这事全权交给底下的操作系统去做。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="323">
 <meta itemprop="keywords" content="Java," /><meta property="og:title" content="Java如何绑定线程到指定CPU上执行" />
 <meta property="og:description" content="绑定核心之后不存在线程的上下文切换，就可以更好的利用CPU缓存。
-不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。
+ 不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。
 而且它还是一个面试题。
 我懵逼倒不是因为我不知道答案，而是恰好我之前在非常机缘巧合的情况下知道了答案。
 我感觉非常的冷门，作为一个考察候选者的知识点出现在面试环节中不太合适，除非是候选者主动提起做过这样的优化。
@@ -89,28 +83,25 @@ https://www.zhihu.com/question/64072646/answer/216184631
 正常来说，其实应该是属于考察操作系统的知识点范畴。
 但是面试官呢又特定的加了“在 Java 中如何实现”。
 那我们就聊聊这个问题。
-Java线程 在聊如何绑定之前，先铺垫一个相关的背景知识：Java线程的实现。
+Java线程在聊如何绑定之前，先铺垫一个相关的背景知识：Java线程的实现。
 其实我们都知道 Thread 类的大部分方法都是 native 方法：
 在 Java 中一个方法被声明为 native 方法，绝大部分情况下说明这个方法没有或者不能使用平台无关的手段来实现。
 说明需要操作的是很底层的东西了，已经脱离了 Java 语言层面的范畴。
 抛开 Java 语言这个大前提，实现线程主要是有三种方式：
-1.使用内核线程实现（1:1实现） 2.使用用户线程实现（1:N实现） 3.使用用户线程加轻量级进程混合实现（N:M实现）
-这三种实现方案，在《深入理解Java虚拟机》的 12.4 小节有详细的描述，有兴趣的同学可以去仔细的翻阅一下。
+ 1.使用内核线程实现（1:1实现） 2.使用用户线程实现（1:N实现） 3.使用用户线程加轻量级进程混合实现（N:M实现）
+ 这三种实现方案，在《深入理解Java虚拟机》的 12.4 小节有详细的描述，有兴趣的同学可以去仔细的翻阅一下。
 总之，你要知道的是虽然有这三种不同的线程模型，但是 Java 作为上层应用，其实是感知不到这三种模型之间的区别的。
 JVM 规范里面也没有规定，必须使用哪一种模型。
 因为操作系统支持是怎样的线程模型，很大程度上决定了运行在上面的 Java 虚拟机的线程怎样去映射，但是这一点在不同的平台上很难达成一致。
 所以JVM 规范里面没有、也不好去规定 Java 线程需要使用哪种线程模型来实现。
 同时关于本文要讨论的话题，我在知乎上也找到了类似的问题：
-https://www.zhihu.com/question/64072646/answer/216184631
-这里面有一个R大的回答，大家可以看看一下。
+ https://www.zhihu.com/question/64072646/answer/216184631
+ 这里面有一个R大的回答，大家可以看看一下。
 他也是先从线程模型的角度铺垫了一下。
 我这里主要说一下使用内核线程实现（1:1实现）的这个模型。
 因为我们用的最多的 HotSpot 虚拟机，就是采用 1:1 模型来实现 Java 线程的。
 这是个啥意思呢？
-说人话就是一个 Java 线程是直接映射为一个操作系统原生线程的，中间没有额外的间接结构。HotSpot 虚拟机也不干涉线程的调度，这事全权交给底下的操作系统去做。
-顶多就是设置一个线程优先级，操作系统来调度的时候给个建议。
-但是何时挂起、唤醒、分配时间片、让那个处理器核心去执行等等这些关于线程生命周期、执行的东西都是操作系统干的。
-这话不是我说的，是R大和周佬都说过这样的话。" />
+说人话就是一个 Java 线程是直接映射为一个操作系统原生线程的，中间没有额外的间接结构。HotSpot 虚拟机也不干涉线程的调度，这事全权交给底下的操作系统去做。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%A6%82%E4%BD%95%E7%BB%91%E5%AE%9A%E7%BA%BF%E7%A8%8B%E5%88%B0%E6%8C%87%E5%AE%9Acpu%E4%B8%8A%E6%89%A7%E8%A1%8C/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -120,7 +111,7 @@ https://www.zhihu.com/question/64072646/answer/216184631
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Java如何绑定线程到指定CPU上执行"/>
 <meta name="twitter:description" content="绑定核心之后不存在线程的上下文切换，就可以更好的利用CPU缓存。
-不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。
+ 不知道你是啥感觉，但是我第一次看到这个问题的时候，我是懵逼的。
 而且它还是一个面试题。
 我懵逼倒不是因为我不知道答案，而是恰好我之前在非常机缘巧合的情况下知道了答案。
 我感觉非常的冷门，作为一个考察候选者的知识点出现在面试环节中不太合适，除非是候选者主动提起做过这样的优化。
@@ -130,32 +121,29 @@ https://www.zhihu.com/question/64072646/answer/216184631
 正常来说，其实应该是属于考察操作系统的知识点范畴。
 但是面试官呢又特定的加了“在 Java 中如何实现”。
 那我们就聊聊这个问题。
-Java线程 在聊如何绑定之前，先铺垫一个相关的背景知识：Java线程的实现。
+Java线程在聊如何绑定之前，先铺垫一个相关的背景知识：Java线程的实现。
 其实我们都知道 Thread 类的大部分方法都是 native 方法：
 在 Java 中一个方法被声明为 native 方法，绝大部分情况下说明这个方法没有或者不能使用平台无关的手段来实现。
 说明需要操作的是很底层的东西了，已经脱离了 Java 语言层面的范畴。
 抛开 Java 语言这个大前提，实现线程主要是有三种方式：
-1.使用内核线程实现（1:1实现） 2.使用用户线程实现（1:N实现） 3.使用用户线程加轻量级进程混合实现（N:M实现）
-这三种实现方案，在《深入理解Java虚拟机》的 12.4 小节有详细的描述，有兴趣的同学可以去仔细的翻阅一下。
+ 1.使用内核线程实现（1:1实现） 2.使用用户线程实现（1:N实现） 3.使用用户线程加轻量级进程混合实现（N:M实现）
+ 这三种实现方案，在《深入理解Java虚拟机》的 12.4 小节有详细的描述，有兴趣的同学可以去仔细的翻阅一下。
 总之，你要知道的是虽然有这三种不同的线程模型，但是 Java 作为上层应用，其实是感知不到这三种模型之间的区别的。
 JVM 规范里面也没有规定，必须使用哪一种模型。
 因为操作系统支持是怎样的线程模型，很大程度上决定了运行在上面的 Java 虚拟机的线程怎样去映射，但是这一点在不同的平台上很难达成一致。
 所以JVM 规范里面没有、也不好去规定 Java 线程需要使用哪种线程模型来实现。
 同时关于本文要讨论的话题，我在知乎上也找到了类似的问题：
-https://www.zhihu.com/question/64072646/answer/216184631
-这里面有一个R大的回答，大家可以看看一下。
+ https://www.zhihu.com/question/64072646/answer/216184631
+ 这里面有一个R大的回答，大家可以看看一下。
 他也是先从线程模型的角度铺垫了一下。
 我这里主要说一下使用内核线程实现（1:1实现）的这个模型。
 因为我们用的最多的 HotSpot 虚拟机，就是采用 1:1 模型来实现 Java 线程的。
 这是个啥意思呢？
-说人话就是一个 Java 线程是直接映射为一个操作系统原生线程的，中间没有额外的间接结构。HotSpot 虚拟机也不干涉线程的调度，这事全权交给底下的操作系统去做。
-顶多就是设置一个线程优先级，操作系统来调度的时候给个建议。
-但是何时挂起、唤醒、分配时间片、让那个处理器核心去执行等等这些关于线程生命周期、执行的东西都是操作系统干的。
-这话不是我说的，是R大和周佬都说过这样的话。"/>
+说人话就是一个 Java 线程是直接映射为一个操作系统原生线程的，中间没有额外的间接结构。HotSpot 虚拟机也不干涉线程的调度，这事全权交给底下的操作系统去做。"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -452,7 +440,7 @@ https://www.zhihu.com/question/64072646/answer/216184631
 <h2 id="java线程">Java线程<a class="anchor ms-1" href="#java线程"><i class="fas fa-link"></i></a></h2>
 <p>在聊如何绑定之前，先铺垫一个相关的背景知识：Java线程的实现。</p>
 <p>其实我们都知道 Thread 类的大部分方法都是 native 方法：</p>
-<img src="http://picgo.6and.ltd/img/1c4cc84e3f66490e9f6f9642c6aced18" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 50%;" />
+<p><img src="http://picgo.6and.ltd/img/1c4cc84e3f66490e9f6f9642c6aced18" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 50%;" /></p>
 <p>在 Java 中一个方法被声明为 native 方法，绝大部分情况下说明这个方法没有或者不能使用平台无关的手段来实现。</p>
 <p>说明需要操作的是很底层的东西了，已经脱离了 Java 语言层面的范畴。</p>
 <p>抛开 Java 语言这个大前提，实现线程主要是有三种方式：</p>
@@ -470,9 +458,9 @@ https://www.zhihu.com/question/64072646/answer/216184631
 <blockquote>
 <p><a href="https://www.zhihu.com/question/64072646/answer/216184631" target="_blank" rel="noopener noreferrer">https://www.zhihu.com/question/64072646/answer/216184631</a></p>
 </blockquote>
-<img src="http://picgo.6and.ltd/img/1f3a800354944d25b06cabd142c30331" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:50%;" />
+<p><img src="http://picgo.6and.ltd/img/1f3a800354944d25b06cabd142c30331" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:50%;" /></p>
 <p>这里面有一个R大的回答，大家可以看看一下。</p>
-<img src="http://picgo.6and.ltd/img/21b76e01d2de418b838e885448b585d0" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 67%;" />
+<p><img src="http://picgo.6and.ltd/img/21b76e01d2de418b838e885448b585d0" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 67%;" /></p>
 <p>他也是先从线程模型的角度铺垫了一下。</p>
 <p>我这里主要说一下使用内核线程实现（1:1实现）的这个模型。</p>
 <p>因为我们用的最多的 HotSpot 虚拟机，就是采用 1:1 模型来实现 Java 线程的。</p>
@@ -495,7 +483,7 @@ https://www.zhihu.com/question/64072646/answer/216184631
 <p>KLT：Kernal-Level Thread 内核线程</p>
 <p>UT：User Thread 用户线程</p>
 </blockquote>
-<img src="http://picgo.6and.ltd/img/7be3f0a574f14521acf2d54bb56879c7" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 33%;" />
+<p><img src="http://picgo.6and.ltd/img/7be3f0a574f14521acf2d54bb56879c7" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 33%;" /></p>
 <p>内核线程就是直接由操作系统内核支持的线程，这种线程由内核来完成线程切换，内核通过操纵调度器对线程进行调度，并负责将线程的任务映射到各个处理器上。</p>
 <p>然后你看上面的图片，KLT 线程上面都有一个 LWP 与之对应。</p>
 <p>啥是 LWP 呢？</p>
@@ -522,22 +510,22 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 <p><a href="https://github.com/OpenHFT/Java-Thread-Affinity" target="_blank" rel="noopener noreferrer">https://github.com/OpenHFT/Java-Thread-Affinity</a></p>
 </blockquote>
 <p>项目里面有个问答，解答了如何使用它去做绑核的操作：</p>
-<img src="http://picgo.6and.ltd/img/5dd8bfffd039430283aa88d687fbd21d" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 67%;" />
+<p><img src="http://picgo.6and.ltd/img/5dd8bfffd039430283aa88d687fbd21d" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 67%;" /></p>
 <p>话不多说，直接上效果演示吧。</p>
 <p>先把依赖搞到项目里面去：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;groupId&gt;</span>net.openhft<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;artifactId&gt;</span>affinity<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;version&gt;</span>3.2.3<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span></code></pre></div><p>然后来个 main 方法：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span> <span style="color:#f92672">(</span>AffinityLock affinityLock <span style="color:#f92672">=</span> AffinityLock<span style="color:#f92672">.</span><span style="color:#a6e22e">acquireLock</span><span style="color:#f92672">(</span>5<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// do some work while locked to a CPU.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">while</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">)</span> <span style="color:#f92672">{}</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>按照 git 上的描述，我在方法里面写了一个死循环，为的是更好的演示效果。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;dependency&gt;</span>
+    <span style="color:#f92672">&lt;groupId&gt;</span>net.openhft<span style="color:#f92672">&lt;/groupId&gt;</span>
+    <span style="color:#f92672">&lt;artifactId&gt;</span>affinity<span style="color:#f92672">&lt;/artifactId&gt;</span>
+    <span style="color:#f92672">&lt;version&gt;</span>3.2.3<span style="color:#f92672">&lt;/version&gt;</span>
+<span style="color:#f92672">&lt;/dependency&gt;</span>
+</code></pre></div><p>然后来个 main 方法：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">try</span> <span style="color:#f92672">(</span>AffinityLock affinityLock <span style="color:#f92672">=</span> AffinityLock<span style="color:#f92672">.</span><span style="color:#a6e22e">acquireLock</span><span style="color:#f92672">(</span>5<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// do some work while locked to a CPU.
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">while</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">)</span> <span style="color:#f92672">{}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>按照 git 上的描述，我在方法里面写了一个死循环，为的是更好的演示效果。</p>
 <p>上面的意思就是我要在第 5 个 CPU 线程执行死循环，把 CPU 利用率打到 100%。</p>
 <p>来看一下效果。</p>
 <p>这是没有程序启动之前：</p>
@@ -560,7 +548,7 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 
 </p>
 <p>另外，说明一下这个项目对应的 Maven 版本还是有好多个的：</p>
-<img src="http://picgo.6and.ltd/img/2c6f6dd3ba224728ad92273885f6e080" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 50%;" />
+<p><img src="http://picgo.6and.ltd/img/2c6f6dd3ba224728ad92273885f6e080" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 50%;" /></p>
 <p>在我的机器上，如果用高于 3.2.3 的版本就会出现这样的异常信息：</p>
 <p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/6256ec55de264bc2ac2794f3a93543d1" loading="lazy"
   
@@ -571,7 +559,7 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 <p>效果我们现在是看到了，可以说这个项目非常的溜，可以实现把线程绑定到指定核心上去。</p>
 <p>该功能也是有实际应用场景的，属于一直非常极致的性能优化手段吧。</p>
 <p>绑定核心之后就可以更好的利用缓存以及减少线程的上下文切换。</p>
-<img src="http://picgo.6and.ltd/img/ca4c14e2b9914361a83e855b43f66f36" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<p><img src="http://picgo.6and.ltd/img/ca4c14e2b9914361a83e855b43f66f36" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>说到这就不得不提起我第一次知道“绑核”这个骚操作的场景了。</p>
 <p>那是举行于 2018 年的首届数据库性能大赛，或者更加出名一点的名字叫做天池大赛。</p>
 <p>那一届比赛，我去打了个酱油，成绩非常拉胯就不提了。</p>
@@ -579,7 +567,7 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 <p>我又不得不小声的叨叨一句：那一届比赛打到最后已经变成了开发语言层面上、参数配置上的差距了。C++ 天然优势，所以可以看到排在前面的清一色的 C++ 选手。</p>
 <p>很多支队伍都提到了一个小细节，那就是绑核。</p>
 <p>而我第一次知道这个开源项目，就是通过这篇文章《PolarDB数据库性能大赛Java选手分享》</p>
-<img src="http://picgo.6and.ltd/img/62ca31873e0f46bab1233b9ba49315ca" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<p><img src="http://picgo.6and.ltd/img/62ca31873e0f46bab1233b9ba49315ca" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>当时把他的参赛代码拉下来看了一下，对于绑核操作有了一个基础认识，但是其实也没有深究实现。</p>
 <p>只是这样写就对了，就能绑上就完事了。</p>
 <p>再后来，我看 disruptor 这个框架的时候，看到它有一个这样的等待策略：</p>
@@ -599,11 +587,11 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 <p>就这样，奇怪的知识又被唤醒了。</p>
 <p>我知道怎么绑定啊，Java-Thread-Affinity 这个开源项目就做了。</p>
 <p>于是问题就变成了：它是怎么做呢？</p>
-<img src="http://picgo.6and.ltd/img/b7b71044b3734a038b6c428f1aff84b5" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:25%;" />
+<p><img src="http://picgo.6and.ltd/img/b7b71044b3734a038b6c428f1aff84b5" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:25%;" /></p>
 <h2 id="怎么做的">怎么做的<a class="anchor ms-1" href="#怎么做的"><i class="fas fa-link"></i></a></h2>
 <p>具体怎么做的，只写几个关键的点，简单的分析一下，大家有兴趣的可以把源码拉下看。</p>
 <p>首先第一个点：JNA 对于 Java-Thread-Affinity 非常重要：</p>
-<img src="http://picgo.6and.ltd/img/5566d1eefa5f4a9aaa9b8fccd4a9be70" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<p><img src="http://picgo.6and.ltd/img/5566d1eefa5f4a9aaa9b8fccd4a9be70" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>可以说其实 Java-Thread-Affinity 就是套了个 Java 皮，这种应该让操作系统来做的事，其实编写更加底层的 C++ 或者 C 语言来实现的。</p>
 <p>所以这个项目实质上是基于 JNA 调用了 DLL 文件，从而实现绑核的需求。</p>
 <p>具体对应的代码是这样的：</p>
@@ -621,7 +609,7 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 <p>net.openhft.affinity.IAffinity</p>
 </blockquote>
 <p>是一个接口，有各个平台的线程亲和性实现：</p>
-<img src="http://picgo.6and.ltd/img/a39f9a3623a14a6ab3fe678c0729ce6f" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 50%;" />
+<p><img src="http://picgo.6and.ltd/img/a39f9a3623a14a6ab3fe678c0729ce6f" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom: 50%;" /></p>
 <p>比如，在实现类 WindowsJNAAffinity 里面，你可以看到在它的静态代码块里面调用了这样的逻辑：</p>
 <blockquote>
 <p>net.openhft.affinity.impl.WindowsJNAAffinity.CLibrary</p>
@@ -645,7 +633,7 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 </p>
 <p>这里的入参，就是第几个 CPU 的意思，记得 CPU 编号是从 0 开始。</p>
 <p>但 0 不建议使用：</p>
-<img src="http://picgo.6and.ltd/img/671147237b17419985cee7c0b1d0b2e8" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<p><img src="http://picgo.6and.ltd/img/671147237b17419985cee7c0b1d0b2e8" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>所以程序里面也控制了不能绑定到 0 号 CPU 上。</p>
 <p>最终会走到这个方法中：</p>
 <blockquote>
@@ -665,10 +653,10 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 <blockquote>
 <p><a href="https://docs.microsoft.com/zh-cn/windows/win32/api/winbase/nf-winbase-setthreadaffinitymask?redirectedfrom=MSDN" target="_blank" rel="noopener noreferrer">https://docs.microsoft.com/zh-cn/windows/win32/api/winbase/nf-winbase-setthreadaffinitymask?redirectedfrom=MSDN</a></p>
 </blockquote>
-<img src="http://picgo.6and.ltd/img/b37611f0db5b4020b0f426bacf2368aa" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<p><img src="http://picgo.6and.ltd/img/b37611f0db5b4020b0f426bacf2368aa" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>第三个点：Solaris 平台怎么实现的？</p>
 <p>因为我们知道，在 Solaris 平台上的 HotSpot 虚拟机，同时支持 1:1 和 N:M 的线程模型。</p>
-<img src="http://picgo.6and.ltd/img/06cd55a8b08d46d1aba33d2eb865abe3" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<p><img src="http://picgo.6and.ltd/img/06cd55a8b08d46d1aba33d2eb865abe3" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>那么按理来说得提供两套绑定方案，于是我点进去一看，好家伙：</p>
 <p>大道至简，直接来一个不实现。</p>
 <p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/39ff3ff169c243e78f918442d73f7684" loading="lazy"
@@ -695,9 +683,9 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
    />
 
 </p>
-<img src="http://picgo.6and.ltd/img/22548b1703504b48b49534f0eac711a1" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<p><img src="http://picgo.6and.ltd/img/22548b1703504b48b49534f0eac711a1" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>然后我前面说到的比赛中也有这样的使用场景，在知乎也看到了这样的一个场景：</p>
-<img src="http://picgo.6and.ltd/img/314ec0e9a86d4f0990a45b6b02d0e343" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" />
+<p><img src="http://picgo.6and.ltd/img/314ec0e9a86d4f0990a45b6b02d0e343" alt="面试官：Java如何绑定线程到指定CPU上执行？" style="zoom:67%;" /></p>
 <p>好了，文章写到这里也就可以收尾了。</p>
 <p>你再想想这个面试题，如果面试官想要的真的是这个回答，你说合适吗？</p>
 <p><img class="img-fluid" alt="面试官：Java如何绑定线程到指定CPU上执行？" src="http://picgo.6and.ltd/img/c0a6a0fa9a3343a0a8a5443ae4d7a3ca" loading="lazy"
@@ -736,10 +724,10 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
 </div></div>
   <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
     <i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%8D%8F%E7%A8%8B/">Java协程
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/">Java安装指南
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%8F%8D%E5%B0%84/">Java反射
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/java%E5%A0%86%E5%A4%96%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA/">Java堆外内存溢出
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
@@ -967,7 +955,7 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
         <i class="fa-fw fa-2x fab fa-twitter"></i>
       </a></nav>
 <div class="copyright mb-2">
-  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+  Copyright © 2016-2023 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
   Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
@@ -978,8 +966,8 @@ OpenHFT/Java-Thread-Affinity 有兴趣的话可以参考一下。</p>
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.785fa4e86518eee08ad9f10fdbc7d3a34d7d772cfe2fbe8809dde82283d7b7c6.js" integrity="sha256-eF&#43;k6GUY7uCK2fEP28fTo019dyz&#43;L76ICd3oIoPXt8Y=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

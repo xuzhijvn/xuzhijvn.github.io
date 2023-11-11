@@ -10,41 +10,41 @@
 <link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
 <meta name="keywords" content="" />
 <meta name="description" content="使用 set key value ex/px 秒/毫秒 xx/nx 的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是多锁，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（RedissonPriorityDeque）和分布式同步工具（RedissonCountDownLatch, RedissonSemaphore）
-前言 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
-分布式锁概览 在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
+前言本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
+分布式锁概览在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
 实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
 比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
-分布式锁的特点 分布式锁一般有如下的特点：
-互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒 分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
-基于数据库 基于Redis 基于zookeeper 本篇文章主要介绍基于Redis如何实现分布式锁
-Redis的分布式锁实现 1. 利用setnx&#43;expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
+分布式锁的特点分布式锁一般有如下的特点：
+ 互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒  分布式锁的实现方式我们一般实现分布式锁有以下几种方式：
+ 基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
+Redis的分布式锁实现1. 利用setnx&#43;expire命令 (错误的做法)Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
 因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx&#43;expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.expire(key, timeout) == 1L; } else { return false; } } 复制代码 实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。" /><meta itemprop="name" content="基于Redis的分布式锁实现">
+public boolean tryLock(String key,String requset,int timeout) {Long result = jedis.setnx(key, requset);// result = 1时，设置成功，否则设置失败if (result == 1L) {return jedis." /><meta itemprop="name" content="基于Redis的分布式锁实现">
 <meta itemprop="description" content="使用 set key value ex/px 秒/毫秒 xx/nx 的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是多锁，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（RedissonPriorityDeque）和分布式同步工具（RedissonCountDownLatch, RedissonSemaphore）
-前言 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
-分布式锁概览 在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
+前言本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
+分布式锁概览在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
 实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
 比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
-分布式锁的特点 分布式锁一般有如下的特点：
-互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒 分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
-基于数据库 基于Redis 基于zookeeper 本篇文章主要介绍基于Redis如何实现分布式锁
-Redis的分布式锁实现 1. 利用setnx&#43;expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
+分布式锁的特点分布式锁一般有如下的特点：
+ 互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒  分布式锁的实现方式我们一般实现分布式锁有以下几种方式：
+ 基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
+Redis的分布式锁实现1. 利用setnx&#43;expire命令 (错误的做法)Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
 因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx&#43;expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.expire(key, timeout) == 1L; } else { return false; } } 复制代码 实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+public boolean tryLock(String key,String requset,int timeout) {Long result = jedis.setnx(key, requset);// result = 1时，设置成功，否则设置失败if (result == 1L) {return jedis."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="793">
 <meta itemprop="keywords" content="Redis," /><meta property="og:title" content="基于Redis的分布式锁实现" />
 <meta property="og:description" content="使用 set key value ex/px 秒/毫秒 xx/nx 的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是多锁，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（RedissonPriorityDeque）和分布式同步工具（RedissonCountDownLatch, RedissonSemaphore）
-前言 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
-分布式锁概览 在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
+前言本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
+分布式锁概览在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
 实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
 比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
-分布式锁的特点 分布式锁一般有如下的特点：
-互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒 分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
-基于数据库 基于Redis 基于zookeeper 本篇文章主要介绍基于Redis如何实现分布式锁
-Redis的分布式锁实现 1. 利用setnx&#43;expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
+分布式锁的特点分布式锁一般有如下的特点：
+ 互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒  分布式锁的实现方式我们一般实现分布式锁有以下几种方式：
+ 基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
+Redis的分布式锁实现1. 利用setnx&#43;expire命令 (错误的做法)Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
 因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx&#43;expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.expire(key, timeout) == 1L; } else { return false; } } 复制代码 实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。" />
+public boolean tryLock(String key,String requset,int timeout) {Long result = jedis.setnx(key, requset);// result = 1时，设置成功，否则设置失败if (result == 1L) {return jedis." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -54,20 +54,20 @@ public boolean tryLock(String key,String requset,int timeout) { Long result = je
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="基于Redis的分布式锁实现"/>
 <meta name="twitter:description" content="使用 set key value ex/px 秒/毫秒 xx/nx 的命令实现分布式锁，存在多个client端加锁成功的极端情况。Redisson使用RedLock可以避免这个问题，其原理是多锁，例如对多个哨兵集群加不同的锁，只有超半数以上的哨兵集群反馈加锁成功才算加锁成功。另外，Redisson还通过WatchDog实现了锁续租。还实现了很多有用的数据结构（RedissonPriorityDeque）和分布式同步工具（RedissonCountDownLatch, RedissonSemaphore）
-前言 本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
-分布式锁概览 在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
+前言本篇文章主要介绍基于Redis的分布式锁实现到底是怎么一回事，其中参考了许多大佬写的文章，算是对分布式锁做一个总结
+分布式锁概览在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？
 实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间互斥访问共享资源的一种方式。
 比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：
-分布式锁的特点 分布式锁一般有如下的特点：
-互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒 分布式锁的实现方式 我们一般实现分布式锁有以下几种方式：
-基于数据库 基于Redis 基于zookeeper 本篇文章主要介绍基于Redis如何实现分布式锁
-Redis的分布式锁实现 1. 利用setnx&#43;expire命令 (错误的做法) Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
+分布式锁的特点分布式锁一般有如下的特点：
+ 互斥性： 同一时刻只能有一个线程持有锁 可重入性： 同一节点上的同一个线程如果获取了锁之后能够再次获取锁 锁超时：和J.U.C中的锁一样支持锁超时，防止死锁 高性能和高可用： 加锁和解锁需要高效，同时也需要保证高可用，防止分布式锁失效 具备阻塞和非阻塞性：能够及时从阻塞状态中被唤醒  分布式锁的实现方式我们一般实现分布式锁有以下几种方式：
+ 基于数据库 基于Redis 基于zookeeper  本篇文章主要介绍基于Redis如何实现分布式锁
+Redis的分布式锁实现1. 利用setnx&#43;expire命令 (错误的做法)Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写
 因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx&#43;expire命令的核心代码如下：
-public boolean tryLock(String key,String requset,int timeout) { Long result = jedis.setnx(key, requset); // result = 1时，设置成功，否则设置失败 if (result == 1L) { return jedis.expire(key, timeout) == 1L; } else { return false; } } 复制代码 实际上上面的步骤是有问题的，setnx和expire是分开的两步操作，不具有原子性，如果执行完第一条指令应用异常或者重启了，锁将无法过期。"/>
+public boolean tryLock(String key,String requset,int timeout) {Long result = jedis.setnx(key, requset);// result = 1时，设置成功，否则设置失败if (result == 1L) {return jedis."/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -355,7 +355,7 @@ public boolean tryLock(String key,String requset,int timeout) { Long result = je
 <p>在多线程的环境下，为了保证一个代码块在同一时间只能由一个线程访问，Java中我们一般可以使用synchronized语法和ReetrantLock去保证，这实际上是本地锁的方式。但是现在公司都是流行分布式架构，在分布式环境下，如何保证不同节点的线程同步执行呢？</p>
 <p>实际上，对于分布式场景，我们可以使用分布式锁，它是控制分布式系统之间<strong>互斥访问共享资源</strong>的一种方式。</p>
 <p>比如说在一个分布式系统中，多台机器上部署了多个服务，当客户端一个用户发起一个数据插入请求时，如果没有分布式锁机制保证，那么那多台机器上的多个服务可能进行并发插入操作，导致数据重复插入，对于某些不允许有多余数据的业务来说，这就会造成问题。而分布式锁机制就是为了解决类似这类问题，保证多个服务之间互斥的访问共享资源，如果一个服务抢占了分布式锁，其他服务没获取到锁，就不进行后续操作。大致意思如下图所示（不一定准确）：</p>
-<img src="https://picgo.6and.ltd/img/16a53749547937bb~tplv-t2oaga2asx-watermark.awebp" alt="分布式锁" style="zoom:67%;" />
+<p><img src="https://picgo.6and.ltd/img/16a53749547937bb~tplv-t2oaga2asx-watermark.awebp" alt="分布式锁" style="zoom:67%;" /></p>
 <h3 id="分布式锁的特点">分布式锁的特点<a class="anchor ms-1" href="#分布式锁的特点"><i class="fas fa-link"></i></a></h3>
 <p>分布式锁一般有如下的特点：</p>
 <ul>
@@ -377,7 +377,7 @@ public boolean tryLock(String key,String requset,int timeout) { Long result = je
 <h3 id="1-利用setnxexpire命令-错误的做法">1. 利用setnx+expire命令 (错误的做法)<a class="anchor ms-1" href="#1-利用setnxexpire命令-错误的做法"><i class="fas fa-link"></i></a></h3>
 <p>Redis的SETNX命令，setnx key value，将key设置为value，当键不存在时，才能成功，若键存在，什么也不做，成功返回1，失败返回0 。 SETNX实际上就是SET IF NOT Exists的缩写</p>
 <p>因为分布式锁还需要超时机制，所以我们利用expire命令来设置，所以利用setnx+expire命令的核心代码如下：</p>
-<pre tabindex="0"><code>public boolean tryLock(String key,String requset,int timeout) {
+<pre><code>public boolean tryLock(String key,String requset,int timeout) {
     Long result = jedis.setnx(key, requset);
     // result = 1时，设置成功，否则设置失败
     if (result == 1L) {
@@ -391,32 +391,32 @@ public boolean tryLock(String key,String requset,int timeout) { Long result = je
 <p>一种改善方案就是使用Lua脚本来保证原子性（包含setnx和expire两条指令）</p>
 <h3 id="2-使用lua脚本包含setnx和expire两条指令">2. 使用Lua脚本（包含setnx和expire两条指令）<a class="anchor ms-1" href="#2-使用lua脚本包含setnx和expire两条指令"><i class="fas fa-link"></i></a></h3>
 <p>代码如下</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">tryLock_with_lua</span><span style="color:#f92672">(</span>String key<span style="color:#f92672">,</span> String UniqueId<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> seconds<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    String lua_scripts <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;if redis.call(&#39;setnx&#39;,KEYS[1],ARGV[1]) == 1 then&#34;</span> <span style="color:#f92672">+</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;redis.call(&#39;expire&#39;,KEYS[1],ARGV[2]) return 1 else return 0 end&#34;</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> keys <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
-</span></span><span style="display:flex;"><span>    List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> values <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
-</span></span><span style="display:flex;"><span>    keys<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>key<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    values<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>UniqueId<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    values<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">valueOf</span><span style="color:#f92672">(</span>seconds<span style="color:#f92672">));</span>
-</span></span><span style="display:flex;"><span>    Object result <span style="color:#f92672">=</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">eval</span><span style="color:#f92672">(</span>lua_scripts<span style="color:#f92672">,</span> keys<span style="color:#f92672">,</span> values<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//判断是否成功
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> result<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>1L<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><h3 id="3-使用-set-key-value-ex-secondspx-millisecondsnxxx-命令-正确做法">3. 使用 set key value [EX seconds][PX milliseconds][NX|XX] 命令 (正确做法)<a class="anchor ms-1" href="#3-使用-set-key-value-ex-secondspx-millisecondsnxxx-命令-正确做法"><i class="fas fa-link"></i></a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">tryLock_with_lua</span><span style="color:#f92672">(</span>String key<span style="color:#f92672">,</span> String UniqueId<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> seconds<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    String lua_scripts <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;if redis.call(&#39;setnx&#39;,KEYS[1],ARGV[1]) == 1 then&#34;</span> <span style="color:#f92672">+</span>
+            <span style="color:#e6db74">&#34;redis.call(&#39;expire&#39;,KEYS[1],ARGV[2]) return 1 else return 0 end&#34;</span><span style="color:#f92672">;</span>
+    List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> keys <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
+    List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> values <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
+    keys<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>key<span style="color:#f92672">);</span>
+    values<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>UniqueId<span style="color:#f92672">);</span>
+    values<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">valueOf</span><span style="color:#f92672">(</span>seconds<span style="color:#f92672">));</span>
+    Object result <span style="color:#f92672">=</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">eval</span><span style="color:#f92672">(</span>lua_scripts<span style="color:#f92672">,</span> keys<span style="color:#f92672">,</span> values<span style="color:#f92672">);</span>
+    <span style="color:#75715e">//判断是否成功
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> result<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>1L<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="3-使用-set-key-value-ex-secondspx-millisecondsnxxx-命令-正确做法">3. 使用 set key value [EX seconds][PX milliseconds][NX|XX] 命令 (正确做法)<a class="anchor ms-1" href="#3-使用-set-key-value-ex-secondspx-millisecondsnxxx-命令-正确做法"><i class="fas fa-link"></i></a></h3>
 <p>Redis在 2.6.12 版本开始，为 SET 命令增加一系列选项：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>SET key value<span style="color:#f92672">[</span>EX seconds<span style="color:#f92672">][</span>PX milliseconds<span style="color:#f92672">][</span>NX|XX<span style="color:#f92672">]</span>
-</span></span></code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">SET key value<span style="color:#f92672">[</span>EX seconds<span style="color:#f92672">][</span>PX milliseconds<span style="color:#f92672">][</span>NX|XX<span style="color:#f92672">]</span>
+</code></pre></div><ul>
 <li>EX seconds: 设定过期时间，单位为秒</li>
 <li>PX milliseconds: 设定过期时间，单位为毫秒</li>
 <li>NX: 仅当key不存在时设置值</li>
 <li>XX: 仅当key存在时设置值</li>
 </ul>
 <p>set命令的nx选项，就等同于setnx命令，代码过程如下：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>public boolean <span style="color:#a6e22e">tryLock_with_set</span>(String key, String UniqueId, <span style="color:#66d9ef">int</span> seconds) {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;OK&#34;</span>.equals(jedis.set(key, UniqueId, <span style="color:#e6db74">&#34;NX&#34;</span>, <span style="color:#e6db74">&#34;EX&#34;</span>, seconds));
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>value必须要具有唯一性，我们可以用UUID来做，设置随机字符串保证唯一性，至于为什么要保证唯一性？假如value不是随机字符串，而是一个固定值，那么就可能存在下面的问题：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">public boolean <span style="color:#a6e22e">tryLock_with_set</span>(String key, String UniqueId, <span style="color:#66d9ef">int</span> seconds) {
+    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;OK&#34;</span>.equals(jedis.set(key, UniqueId, <span style="color:#e6db74">&#34;NX&#34;</span>, <span style="color:#e6db74">&#34;EX&#34;</span>, seconds));
+}
+</code></pre></div><p>value必须要具有唯一性，我们可以用UUID来做，设置随机字符串保证唯一性，至于为什么要保证唯一性？假如value不是随机字符串，而是一个固定值，那么就可能存在下面的问题：</p>
 <ul>
 <li>1.客户端1获取锁成功</li>
 <li>2.客户端1在某个操作上阻塞了太长时间</li>
@@ -427,12 +427,12 @@ public boolean tryLock(String key,String requset,int timeout) { Long result = je
 <p>所以通常来说，在释放锁时，我们需要对value进行验证</p>
 <h4 id="释放锁的实现">释放锁的实现<a class="anchor ms-1" href="#释放锁的实现"><i class="fas fa-link"></i></a></h4>
 <p>释放锁时需要验证value值，也就是说我们在获取锁的时候需要设置一个value，不能直接用del key这种粗暴的方式，因为直接del key任何客户端都可以进行解锁了，所以<strong>解锁时，我们需要判断锁是否是自己的，基于value值来判断</strong>，代码如下：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>public boolean <span style="color:#a6e22e">releaseLock_with_lua</span>(String key,String value) {
-</span></span><span style="display:flex;"><span>    String luaScript <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;if redis.call(&#39;get&#39;,KEYS[1]) == ARGV[1] then &#34;</span> <span style="color:#f92672">+</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;return redis.call(&#39;del&#39;,KEYS[1]) else return 0 end&#34;</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> jedis.eval(luaScript, Collections.singletonList(key), Collections.singletonList(value)).equals(<span style="color:#ae81ff">1L</span>);
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>这里使用Lua脚本的方式，尽量保证原子性。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">public boolean <span style="color:#a6e22e">releaseLock_with_lua</span>(String key,String value) {
+    String luaScript <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;if redis.call(&#39;get&#39;,KEYS[1]) == ARGV[1] then &#34;</span> <span style="color:#f92672">+</span>
+            <span style="color:#e6db74">&#34;return redis.call(&#39;del&#39;,KEYS[1]) else return 0 end&#34;</span>;
+    <span style="color:#66d9ef">return</span> jedis.eval(luaScript, Collections.singletonList(key), Collections.singletonList(value)).equals(<span style="color:#ae81ff">1L</span>);
+}
+</code></pre></div><p>这里使用Lua脚本的方式，尽量保证原子性。</p>
 <p>使用 <code>set key value [EX seconds][PX milliseconds][NX|XX]</code> 命令 看上去很OK，实际上在Redis集群的时候也会出现问题，比如说A客户端在Redis的master节点上拿到了锁，但是这个加锁的key还没有同步到slave节点，master故障，发生故障转移，一个slave节点升级为master节点，B客户端也可以获取同个key的锁，但客户端A也已经拿到锁了，这就导致多个客户端都拿到锁。</p>
 <p>所以针对Redis集群这种情况，还有其他方案</p>
 <h3 id="4-redlock算法-与-redisson-实现">4. Redlock算法 与 Redisson 实现<a class="anchor ms-1" href="#4-redlock算法-与-redisson-实现"><i class="fas fa-link"></i></a></h3>
@@ -453,225 +453,225 @@ public boolean tryLock(String key,String requset,int timeout) { Long result = je
 <ol>
 <li>首先加入POM依赖</li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;groupId&gt;</span>org.redisson<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;artifactId&gt;</span>redisson<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;version&gt;</span>3.10.6<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span></code></pre></div><ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;dependency&gt;</span>
+    <span style="color:#f92672">&lt;groupId&gt;</span>org.redisson<span style="color:#f92672">&lt;/groupId&gt;</span>
+    <span style="color:#f92672">&lt;artifactId&gt;</span>redisson<span style="color:#f92672">&lt;/artifactId&gt;</span>
+    <span style="color:#f92672">&lt;version&gt;</span>3.10.6<span style="color:#f92672">&lt;/version&gt;</span>
+<span style="color:#f92672">&lt;/dependency&gt;</span>
+</code></pre></div><ol>
 <li>使用Redisson，代码如下(与使用ReentrantLock类似）</li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// 1. 配置文件
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>Config config <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Config<span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>config<span style="color:#f92672">.</span><span style="color:#a6e22e">useSingleServer</span><span style="color:#f92672">()</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span><span style="color:#a6e22e">setAddress</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;redis://127.0.0.1:6379&#34;</span><span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span><span style="color:#a6e22e">setPassword</span><span style="color:#f92672">(</span>RedisConfig<span style="color:#f92672">.</span><span style="color:#a6e22e">PASSWORD</span><span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span><span style="color:#a6e22e">setDatabase</span><span style="color:#f92672">(</span>0<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">//2. 构造RedissonClient
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>RedissonClient redissonClient <span style="color:#f92672">=</span> Redisson<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span>config<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">//3. 设置锁定资源名称
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>RLock lock <span style="color:#f92672">=</span> redissonClient<span style="color:#f92672">.</span><span style="color:#a6e22e">getLock</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;redlock&#34;</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>lock<span style="color:#f92672">.</span><span style="color:#a6e22e">lock</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;获取锁成功，实现业务逻辑&#34;</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">sleep</span><span style="color:#f92672">(</span>10000<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>InterruptedException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    lock<span style="color:#f92672">.</span><span style="color:#a6e22e">unlock</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>关于Redlock算法的实现，在Redisson中我们可以使用RedissonRedLock来完成，具体使用细节可以参考大佬的文章： <a href="https://link.juejin.cn/?target=https%3A%2F%2Fmp.weixin.qq.com%2Fs%2F8uhYult2h_YUHT7q7YCKYQ" target="_blank" rel="noopener noreferrer">mp.weixin.qq.com/s/8uhYult2h…</a></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 1. 配置文件
+</span><span style="color:#75715e"></span>Config config <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Config<span style="color:#f92672">();</span>
+config<span style="color:#f92672">.</span><span style="color:#a6e22e">useSingleServer</span><span style="color:#f92672">()</span>
+        <span style="color:#f92672">.</span><span style="color:#a6e22e">setAddress</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;redis://127.0.0.1:6379&#34;</span><span style="color:#f92672">)</span>
+        <span style="color:#f92672">.</span><span style="color:#a6e22e">setPassword</span><span style="color:#f92672">(</span>RedisConfig<span style="color:#f92672">.</span><span style="color:#a6e22e">PASSWORD</span><span style="color:#f92672">)</span>
+        <span style="color:#f92672">.</span><span style="color:#a6e22e">setDatabase</span><span style="color:#f92672">(</span>0<span style="color:#f92672">);</span>
+<span style="color:#75715e">//2. 构造RedissonClient
+</span><span style="color:#75715e"></span>RedissonClient redissonClient <span style="color:#f92672">=</span> Redisson<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span>config<span style="color:#f92672">);</span>
+
+<span style="color:#75715e">//3. 设置锁定资源名称
+</span><span style="color:#75715e"></span>RLock lock <span style="color:#f92672">=</span> redissonClient<span style="color:#f92672">.</span><span style="color:#a6e22e">getLock</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;redlock&#34;</span><span style="color:#f92672">);</span>
+lock<span style="color:#f92672">.</span><span style="color:#a6e22e">lock</span><span style="color:#f92672">();</span>
+<span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+    System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;获取锁成功，实现业务逻辑&#34;</span><span style="color:#f92672">);</span>
+    Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">sleep</span><span style="color:#f92672">(</span>10000<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>InterruptedException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+    lock<span style="color:#f92672">.</span><span style="color:#a6e22e">unlock</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>关于Redlock算法的实现，在Redisson中我们可以使用RedissonRedLock来完成，具体使用细节可以参考大佬的文章： <a href="https://link.juejin.cn/?target=https%3A%2F%2Fmp.weixin.qq.com%2Fs%2F8uhYult2h_YUHT7q7YCKYQ" target="_blank" rel="noopener noreferrer">mp.weixin.qq.com/s/8uhYult2h…</a></p>
 <h2 id="redis实现的分布式锁轮子">Redis实现的分布式锁轮子<a class="anchor ms-1" href="#redis实现的分布式锁轮子"><i class="fas fa-link"></i></a></h2>
 <p>下面利用SpringBoot + Jedis + AOP的组合来实现一个简易的分布式锁。</p>
 <h3 id="1-自定义注解">1. 自定义注解<a class="anchor ms-1" href="#1-自定义注解"><i class="fas fa-link"></i></a></h3>
 <p>自定义一个注解，被注解的方法会执行获取分布式锁的逻辑</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Target</span><span style="color:#f92672">(</span>ElementType<span style="color:#f92672">.</span><span style="color:#a6e22e">METHOD</span><span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@Retention</span><span style="color:#f92672">(</span>RetentionPolicy<span style="color:#f92672">.</span><span style="color:#a6e22e">RUNTIME</span><span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@Documented</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@Inherited</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> RedisLock <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 业务键
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     *
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @return
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
-</span></span><span style="display:flex;"><span>    String <span style="color:#a6e22e">key</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 锁的过期秒数,默认是5秒
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     *
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @return
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">expire</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> 5<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 尝试加锁，最多等待时间
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     *
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @return
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">waitTime</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> Long<span style="color:#f92672">.</span><span style="color:#a6e22e">MIN_VALUE</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 锁的超时时间单位
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     *
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @return
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
-</span></span><span style="display:flex;"><span>    TimeUnit <span style="color:#a6e22e">timeUnit</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> TimeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">SECONDS</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><h3 id="2-aop拦截器实现">2. AOP拦截器实现<a class="anchor ms-1" href="#2-aop拦截器实现"><i class="fas fa-link"></i></a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Target</span><span style="color:#f92672">(</span>ElementType<span style="color:#f92672">.</span><span style="color:#a6e22e">METHOD</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Retention</span><span style="color:#f92672">(</span>RetentionPolicy<span style="color:#f92672">.</span><span style="color:#a6e22e">RUNTIME</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Documented</span>
+<span style="color:#a6e22e">@Inherited</span>
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> RedisLock <span style="color:#f92672">{</span>
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 业务键
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    String <span style="color:#a6e22e">key</span><span style="color:#f92672">();</span>
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 锁的过期秒数,默认是5秒
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">expire</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> 5<span style="color:#f92672">;</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 尝试加锁，最多等待时间
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">waitTime</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> Long<span style="color:#f92672">.</span><span style="color:#a6e22e">MIN_VALUE</span><span style="color:#f92672">;</span>
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 锁的超时时间单位
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    TimeUnit <span style="color:#a6e22e">timeUnit</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> TimeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">SECONDS</span><span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="2-aop拦截器实现">2. AOP拦截器实现<a class="anchor ms-1" href="#2-aop拦截器实现"><i class="fas fa-link"></i></a></h3>
 <p>在AOP中我们去执行获取分布式锁和释放分布式锁的逻辑，代码如下：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Aspect</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@Component</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LockMethodAspect</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Autowired</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> RedisLockHelper redisLockHelper<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Autowired</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> JedisUtil jedisUtil<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> Logger logger <span style="color:#f92672">=</span> LoggerFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">getLogger</span><span style="color:#f92672">(</span>LockMethodAspect<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Around</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;@annotation(com.redis.lock.annotation.RedisLock)&#34;</span><span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Object <span style="color:#a6e22e">around</span><span style="color:#f92672">(</span>ProceedingJoinPoint joinPoint<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        Jedis jedis <span style="color:#f92672">=</span> jedisUtil<span style="color:#f92672">.</span><span style="color:#a6e22e">getJedis</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>        MethodSignature signature <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>MethodSignature<span style="color:#f92672">)</span> joinPoint<span style="color:#f92672">.</span><span style="color:#a6e22e">getSignature</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>        Method method <span style="color:#f92672">=</span> signature<span style="color:#f92672">.</span><span style="color:#a6e22e">getMethod</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        RedisLock redisLock <span style="color:#f92672">=</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">getAnnotation</span><span style="color:#f92672">(</span>RedisLock<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>        String value <span style="color:#f92672">=</span> UUID<span style="color:#f92672">.</span><span style="color:#a6e22e">randomUUID</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>        String key <span style="color:#f92672">=</span> redisLock<span style="color:#f92672">.</span><span style="color:#a6e22e">key</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">boolean</span> islock <span style="color:#f92672">=</span> redisLockHelper<span style="color:#f92672">.</span><span style="color:#a6e22e">lock</span><span style="color:#f92672">(</span>jedis<span style="color:#f92672">,</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">,</span> redisLock<span style="color:#f92672">.</span><span style="color:#a6e22e">expire</span><span style="color:#f92672">(),</span> redisLock<span style="color:#f92672">.</span><span style="color:#a6e22e">timeUnit</span><span style="color:#f92672">());</span>
-</span></span><span style="display:flex;"><span>            logger<span style="color:#f92672">.</span><span style="color:#a6e22e">info</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;isLock : {}&#34;</span><span style="color:#f92672">,</span>islock<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>islock<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>                logger<span style="color:#f92672">.</span><span style="color:#a6e22e">error</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;获取锁失败&#34;</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;获取锁失败&#34;</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> joinPoint<span style="color:#f92672">.</span><span style="color:#a6e22e">proceed</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Throwable throwable<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;系统异常&#34;</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>  <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>            logger<span style="color:#f92672">.</span><span style="color:#a6e22e">info</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;释放锁&#34;</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>            redisLockHelper<span style="color:#f92672">.</span><span style="color:#a6e22e">unlock</span><span style="color:#f92672">(</span>jedis<span style="color:#f92672">,</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>            jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><h3 id="3-redis实现分布式锁核心类">3. Redis实现分布式锁核心类<a class="anchor ms-1" href="#3-redis实现分布式锁核心类"><i class="fas fa-link"></i></a></h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@Component</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RedisLockHelper</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">long</span> sleepTime <span style="color:#f92672">=</span> 100<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 直接使用setnx + expire方式获取分布式锁
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 非原子性
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     *
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param key
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param value
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param timeout
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @return
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">lock_setnx</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">,</span> String value<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> timeout<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        Long result <span style="color:#f92672">=</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">setnx</span><span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// result = 1时，设置成功，否则设置失败
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>result <span style="color:#f92672">==</span> 1L<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">expire</span><span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> timeout<span style="color:#f92672">)</span> <span style="color:#f92672">==</span> 1L<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 使用Lua脚本，脚本中使用setnex+expire命令进行加锁操作
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     *
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param jedis
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param key
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param UniqueId
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param seconds
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @return
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">Lock_with_lua</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">,</span> String UniqueId<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> seconds<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        String lua_scripts <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;if redis.call(&#39;setnx&#39;,KEYS[1],ARGV[1]) == 1 then&#34;</span> <span style="color:#f92672">+</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;redis.call(&#39;expire&#39;,KEYS[1],ARGV[2]) return 1 else return 0 end&#34;</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>        List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> keys <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
-</span></span><span style="display:flex;"><span>        List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> values <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
-</span></span><span style="display:flex;"><span>        keys<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>key<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>        values<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>UniqueId<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>        values<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">valueOf</span><span style="color:#f92672">(</span>seconds<span style="color:#f92672">));</span>
-</span></span><span style="display:flex;"><span>        Object result <span style="color:#f92672">=</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">eval</span><span style="color:#f92672">(</span>lua_scripts<span style="color:#f92672">,</span> keys<span style="color:#f92672">,</span> values<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//判断是否成功
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> result<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>1L<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 在Redis的2.6.12及以后中,使用 set key value [NX] [EX] 命令
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     *
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param key
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param value
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param timeout
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @return
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">lock</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">,</span> String value<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> timeout<span style="color:#f92672">,</span> TimeUnit timeUnit<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">long</span> seconds <span style="color:#f92672">=</span> timeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">toSeconds</span><span style="color:#f92672">(</span>timeout<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;OK&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;NX&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;EX&#34;</span><span style="color:#f92672">,</span> seconds<span style="color:#f92672">));</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 自定义获取锁的超时时间
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     *
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param jedis
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param key
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param value
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param timeout
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param waitTime
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param timeUnit
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @return
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @throws InterruptedException
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">lock_with_waitTime</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">,</span> String value<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> timeout<span style="color:#f92672">,</span> <span style="color:#66d9ef">long</span> waitTime<span style="color:#f92672">,</span>TimeUnit timeUnit<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> InterruptedException <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">long</span> seconds <span style="color:#f92672">=</span> timeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">toSeconds</span><span style="color:#f92672">(</span>timeout<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>waitTime <span style="color:#f92672">&gt;=</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>            String result <span style="color:#f92672">=</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;nx&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;ex&#34;</span><span style="color:#f92672">,</span> seconds<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;OK&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>result<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>            waitTime <span style="color:#f92672">-=</span> sleepTime<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>            Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">sleep</span><span style="color:#f92672">(</span>sleepTime<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 错误的解锁方法—直接删除key
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     *
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param key
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">unlock_with_del</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">del</span><span style="color:#f92672">(</span>key<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 使用Lua脚本进行解锁操纵，解锁的时候验证value值
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     *
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param jedis
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param key
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @param value
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @return
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">unlock</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">,</span>String value<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        String luaScript <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;if redis.call(&#39;get&#39;,KEYS[1]) == ARGV[1] then &#34;</span> <span style="color:#f92672">+</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;return redis.call(&#39;del&#39;,KEYS[1]) else return 0 end&#34;</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">eval</span><span style="color:#f92672">(</span>luaScript<span style="color:#f92672">,</span> Collections<span style="color:#f92672">.</span><span style="color:#a6e22e">singletonList</span><span style="color:#f92672">(</span>key<span style="color:#f92672">),</span> Collections<span style="color:#f92672">.</span><span style="color:#a6e22e">singletonList</span><span style="color:#f92672">(</span>value<span style="color:#f92672">)).</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>1L<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><h3 id="4-controller层控制">4. Controller层控制<a class="anchor ms-1" href="#4-controller层控制"><i class="fas fa-link"></i></a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Aspect</span>
+<span style="color:#a6e22e">@Component</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LockMethodAspect</span> <span style="color:#f92672">{</span>
+    <span style="color:#a6e22e">@Autowired</span>
+    <span style="color:#66d9ef">private</span> RedisLockHelper redisLockHelper<span style="color:#f92672">;</span>
+    <span style="color:#a6e22e">@Autowired</span>
+    <span style="color:#66d9ef">private</span> JedisUtil jedisUtil<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> Logger logger <span style="color:#f92672">=</span> LoggerFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">getLogger</span><span style="color:#f92672">(</span>LockMethodAspect<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+
+    <span style="color:#a6e22e">@Around</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;@annotation(com.redis.lock.annotation.RedisLock)&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">public</span> Object <span style="color:#a6e22e">around</span><span style="color:#f92672">(</span>ProceedingJoinPoint joinPoint<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        Jedis jedis <span style="color:#f92672">=</span> jedisUtil<span style="color:#f92672">.</span><span style="color:#a6e22e">getJedis</span><span style="color:#f92672">();</span>
+        MethodSignature signature <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>MethodSignature<span style="color:#f92672">)</span> joinPoint<span style="color:#f92672">.</span><span style="color:#a6e22e">getSignature</span><span style="color:#f92672">();</span>
+        Method method <span style="color:#f92672">=</span> signature<span style="color:#f92672">.</span><span style="color:#a6e22e">getMethod</span><span style="color:#f92672">();</span>
+
+        RedisLock redisLock <span style="color:#f92672">=</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">getAnnotation</span><span style="color:#f92672">(</span>RedisLock<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        String value <span style="color:#f92672">=</span> UUID<span style="color:#f92672">.</span><span style="color:#a6e22e">randomUUID</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">();</span>
+        String key <span style="color:#f92672">=</span> redisLock<span style="color:#f92672">.</span><span style="color:#a6e22e">key</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">boolean</span> islock <span style="color:#f92672">=</span> redisLockHelper<span style="color:#f92672">.</span><span style="color:#a6e22e">lock</span><span style="color:#f92672">(</span>jedis<span style="color:#f92672">,</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">,</span> redisLock<span style="color:#f92672">.</span><span style="color:#a6e22e">expire</span><span style="color:#f92672">(),</span> redisLock<span style="color:#f92672">.</span><span style="color:#a6e22e">timeUnit</span><span style="color:#f92672">());</span>
+            logger<span style="color:#f92672">.</span><span style="color:#a6e22e">info</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;isLock : {}&#34;</span><span style="color:#f92672">,</span>islock<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>islock<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                logger<span style="color:#f92672">.</span><span style="color:#a6e22e">error</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;获取锁失败&#34;</span><span style="color:#f92672">);</span>
+                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;获取锁失败&#34;</span><span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+            <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">return</span> joinPoint<span style="color:#f92672">.</span><span style="color:#a6e22e">proceed</span><span style="color:#f92672">();</span>
+            <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Throwable throwable<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;系统异常&#34;</span><span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>  <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+            logger<span style="color:#f92672">.</span><span style="color:#a6e22e">info</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;释放锁&#34;</span><span style="color:#f92672">);</span>
+            redisLockHelper<span style="color:#f92672">.</span><span style="color:#a6e22e">unlock</span><span style="color:#f92672">(</span>jedis<span style="color:#f92672">,</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">);</span>
+            jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="3-redis实现分布式锁核心类">3. Redis实现分布式锁核心类<a class="anchor ms-1" href="#3-redis实现分布式锁核心类"><i class="fas fa-link"></i></a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Component</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RedisLockHelper</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">long</span> sleepTime <span style="color:#f92672">=</span> 100<span style="color:#f92672">;</span>
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 直接使用setnx + expire方式获取分布式锁
+</span><span style="color:#75715e">     * 非原子性
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @param key
+</span><span style="color:#75715e">     * @param value
+</span><span style="color:#75715e">     * @param timeout
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">lock_setnx</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">,</span> String value<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> timeout<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        Long result <span style="color:#f92672">=</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">setnx</span><span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">);</span>
+        <span style="color:#75715e">// result = 1时，设置成功，否则设置失败
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>result <span style="color:#f92672">==</span> 1L<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">expire</span><span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> timeout<span style="color:#f92672">)</span> <span style="color:#f92672">==</span> 1L<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 使用Lua脚本，脚本中使用setnex+expire命令进行加锁操作
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @param jedis
+</span><span style="color:#75715e">     * @param key
+</span><span style="color:#75715e">     * @param UniqueId
+</span><span style="color:#75715e">     * @param seconds
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">Lock_with_lua</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">,</span> String UniqueId<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> seconds<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        String lua_scripts <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;if redis.call(&#39;setnx&#39;,KEYS[1],ARGV[1]) == 1 then&#34;</span> <span style="color:#f92672">+</span>
+                <span style="color:#e6db74">&#34;redis.call(&#39;expire&#39;,KEYS[1],ARGV[2]) return 1 else return 0 end&#34;</span><span style="color:#f92672">;</span>
+        List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> keys <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
+        List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> values <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
+        keys<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>key<span style="color:#f92672">);</span>
+        values<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>UniqueId<span style="color:#f92672">);</span>
+        values<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">valueOf</span><span style="color:#f92672">(</span>seconds<span style="color:#f92672">));</span>
+        Object result <span style="color:#f92672">=</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">eval</span><span style="color:#f92672">(</span>lua_scripts<span style="color:#f92672">,</span> keys<span style="color:#f92672">,</span> values<span style="color:#f92672">);</span>
+        <span style="color:#75715e">//判断是否成功
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> result<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>1L<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 在Redis的2.6.12及以后中,使用 set key value [NX] [EX] 命令
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @param key
+</span><span style="color:#75715e">     * @param value
+</span><span style="color:#75715e">     * @param timeout
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">lock</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">,</span> String value<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> timeout<span style="color:#f92672">,</span> TimeUnit timeUnit<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">long</span> seconds <span style="color:#f92672">=</span> timeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">toSeconds</span><span style="color:#f92672">(</span>timeout<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;OK&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;NX&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;EX&#34;</span><span style="color:#f92672">,</span> seconds<span style="color:#f92672">));</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 自定义获取锁的超时时间
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @param jedis
+</span><span style="color:#75715e">     * @param key
+</span><span style="color:#75715e">     * @param value
+</span><span style="color:#75715e">     * @param timeout
+</span><span style="color:#75715e">     * @param waitTime
+</span><span style="color:#75715e">     * @param timeUnit
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     * @throws InterruptedException
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">lock_with_waitTime</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">,</span> String value<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> timeout<span style="color:#f92672">,</span> <span style="color:#66d9ef">long</span> waitTime<span style="color:#f92672">,</span>TimeUnit timeUnit<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> InterruptedException <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">long</span> seconds <span style="color:#f92672">=</span> timeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">toSeconds</span><span style="color:#f92672">(</span>timeout<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>waitTime <span style="color:#f92672">&gt;=</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            String result <span style="color:#f92672">=</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;nx&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;ex&#34;</span><span style="color:#f92672">,</span> seconds<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;OK&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>result<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+            <span style="color:#f92672">}</span>
+            waitTime <span style="color:#f92672">-=</span> sleepTime<span style="color:#f92672">;</span>
+            Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">sleep</span><span style="color:#f92672">(</span>sleepTime<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 错误的解锁方法—直接删除key
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @param key
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">unlock_with_del</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">del</span><span style="color:#f92672">(</span>key<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 使用Lua脚本进行解锁操纵，解锁的时候验证value值
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * @param jedis
+</span><span style="color:#75715e">     * @param key
+</span><span style="color:#75715e">     * @param value
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">unlock</span><span style="color:#f92672">(</span>Jedis jedis<span style="color:#f92672">,</span>String key<span style="color:#f92672">,</span>String value<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        String luaScript <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;if redis.call(&#39;get&#39;,KEYS[1]) == ARGV[1] then &#34;</span> <span style="color:#f92672">+</span>
+                <span style="color:#e6db74">&#34;return redis.call(&#39;del&#39;,KEYS[1]) else return 0 end&#34;</span><span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">return</span> jedis<span style="color:#f92672">.</span><span style="color:#a6e22e">eval</span><span style="color:#f92672">(</span>luaScript<span style="color:#f92672">,</span> Collections<span style="color:#f92672">.</span><span style="color:#a6e22e">singletonList</span><span style="color:#f92672">(</span>key<span style="color:#f92672">),</span> Collections<span style="color:#f92672">.</span><span style="color:#a6e22e">singletonList</span><span style="color:#f92672">(</span>value<span style="color:#f92672">)).</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>1L<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="4-controller层控制">4. Controller层控制<a class="anchor ms-1" href="#4-controller层控制"><i class="fas fa-link"></i></a></h3>
 <p>定义一个TestController来测试我们实现的分布式锁</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@RestController</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TestController</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@RedisLock</span><span style="color:#f92672">(</span>key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;redis_lock&#34;</span><span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@GetMapping</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/index&#34;</span><span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">index</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;index&#34;</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><h2 id="小结">小结<a class="anchor ms-1" href="#小结"><i class="fas fa-link"></i></a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@RestController</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TestController</span> <span style="color:#f92672">{</span>
+    <span style="color:#a6e22e">@RedisLock</span><span style="color:#f92672">(</span>key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;redis_lock&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#a6e22e">@GetMapping</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/index&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">index</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;index&#34;</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h2 id="小结">小结<a class="anchor ms-1" href="#小结"><i class="fas fa-link"></i></a></h2>
 <p>分布式锁重点在于互斥性，在任意一个时刻，只有一个客户端获取了锁。在实际的生产环境中，分布式锁的实现可能会更复杂，而我这里的讲述主要针对的是单机环境下的基于Redis的分布式锁实现，至于Redis集群环境并没有过多涉及，有兴趣的朋友可以查阅相关资料。</p>
 <p>项目源码地址：<a href="https://link.juejin.cn/?target=https%3A%2F%2Fgithub.com%2Fpjmike%2Fredis-distributed-lock" target="_blank" rel="noopener noreferrer">github.com/pjmike/redi…</a></p>
 <h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
@@ -704,7 +704,7 @@ public boolean tryLock(String key,String requset,int timeout) { Long result = je
 </div></div>
   <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
     <i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/sa/%E5%87%A0%E7%A7%8D%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%AF%B9%E6%AF%94/">几种注册中心对比
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/%E5%A4%9Apod%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/">多Pod实现灰度
 </a>
   </div><div class="post-nav post-next">
     <a href="https://xuzhijvn.github.io/zh-cn/posts/code/spring/%E5%9F%BA%E4%BA%8Easpect%E5%AE%9E%E7%8E%B0%E6%B3%A8%E8%A7%A3/">基于aspect实现注解
@@ -957,7 +957,7 @@ public boolean tryLock(String key,String requset,int timeout) { Long result = je
         <i class="fa-fw fa-2x fab fa-twitter"></i>
       </a></nav>
 <div class="copyright mb-2">
-  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+  Copyright © 2016-2023 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
   Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
@@ -968,8 +968,8 @@ public boolean tryLock(String key,String requset,int timeout) { Long result = je
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.785fa4e86518eee08ad9f10fdbc7d3a34d7d772cfe2fbe8809dde82283d7b7c6.js" integrity="sha256-eF&#43;k6GUY7uCK2fEP28fTo019dyz&#43;L76ICd3oIoPXt8Y=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

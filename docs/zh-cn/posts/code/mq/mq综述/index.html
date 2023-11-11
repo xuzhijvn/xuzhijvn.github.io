@@ -9,36 +9,36 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
 <link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
 <meta name="keywords" content="" />
-<meta name="description" content="1. 概念 Broker Producer Consumer Topic Queue Message 2. 模式 2.1. 点对点 PTP 点对点: 使用 Queue 作为通信载体
+<meta name="description" content="1. 概念 Broker Producer Consumer Topic Queue Message  2. 模式2.1. 点对点PTP 点对点: 使用 Queue 作为通信载体
 消息生产者生产消息发送到 Queue 中，然后消息消费者从 Queue 中取出并且消费消息。消息被消费以后，Queue 中不再存储，所以消息消费者不可能消费到已经被消费的消息。Queue 支持存在多个消费者，但是对一个消息而言，只会有一个消费者可以消费
-2.2. 发布/订阅 Pub/Sub 发布订阅(广播): 使用 Topic 作为通信载体
+2.2. 发布/订阅Pub/Sub 发布订阅(广播): 使用 Topic 作为通信载体
 消息生产者(发布)将消息发布到 Topic 中，同时有多个消息消费者(订阅)消费该消息。和点对点方式不同，发布到 Topic 的消息会被所有订阅者消费
-总结 Queue 实现了负载均衡，将 Producer 生产的消息发送到消息队列中，由多个消费者消费。但一个消息只能被一个消费者接受，当没有消费者可用时，这个消息会被保存直到有一个可用的消费者
+总结Queue 实现了负载均衡，将 Producer 生产的消息发送到消息队列中，由多个消费者消费。但一个消息只能被一个消费者接受，当没有消费者可用时，这个消息会被保存直到有一个可用的消费者
 Topic 实现了发布和订阅，当你发布一个消息，所有订阅这个 Topic 的服务都能得到这个消息，所以从1到N个订阅者都能得到一个消息的拷贝
-3. 协议 3.1. AMQP协议 AMQP 即 Advanced Message Queuing Protocol ，一个提供统一消息服务的应用层标准高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计。基于此协议的客户端与消息中间件可传递消息，并不受客户端/中间件不同产品，不同开发语言等条件的限制。兼容 JMS。RabbitMQ 就是基于 AMQP 协议实现的。
+3. 协议3.1. AMQP协议AMQP 即 Advanced Message Queuing Protocol ，一个提供统一消息服务的应用层标准高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计。基于此协议的客户端与消息中间件可传递消息，并不受客户端/中间件不同产品，不同开发语言等条件的限制。兼容 JMS。RabbitMQ 就是基于 AMQP 协议实现的。
 优点：可靠、通用
-JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS 的客户端之间可以通过 JMS 服务进行异步的消息传输。JMS（JAVA Message Service，Java 消息服务）API 是一个消息服务的标准或者说是规范，允许应用程序组件基于 JavaEE 平台创建、发送、接收和读取消息。它使分布式通信耦合度更低，消息服务更加可靠以及异步性。" /><meta itemprop="name" content="MQ综述">
-<meta itemprop="description" content="1. 概念 Broker Producer Consumer Topic Queue Message 2. 模式 2.1. 点对点 PTP 点对点: 使用 Queue 作为通信载体
+ JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS 的客户端之间可以通过 JMS 服务进行异步的消息传输。JMS（JAVA Message Service，Java 消息服务）API 是一个消息服务的标准或者说是规范，允许应用程序组件基于 JavaEE 平台创建、发送、接收和读取消息。它使分布式通信耦合度更低，消息服务更加可靠以及异步性。" /><meta itemprop="name" content="MQ综述">
+<meta itemprop="description" content="1. 概念 Broker Producer Consumer Topic Queue Message  2. 模式2.1. 点对点PTP 点对点: 使用 Queue 作为通信载体
 消息生产者生产消息发送到 Queue 中，然后消息消费者从 Queue 中取出并且消费消息。消息被消费以后，Queue 中不再存储，所以消息消费者不可能消费到已经被消费的消息。Queue 支持存在多个消费者，但是对一个消息而言，只会有一个消费者可以消费
-2.2. 发布/订阅 Pub/Sub 发布订阅(广播): 使用 Topic 作为通信载体
+2.2. 发布/订阅Pub/Sub 发布订阅(广播): 使用 Topic 作为通信载体
 消息生产者(发布)将消息发布到 Topic 中，同时有多个消息消费者(订阅)消费该消息。和点对点方式不同，发布到 Topic 的消息会被所有订阅者消费
-总结 Queue 实现了负载均衡，将 Producer 生产的消息发送到消息队列中，由多个消费者消费。但一个消息只能被一个消费者接受，当没有消费者可用时，这个消息会被保存直到有一个可用的消费者
+总结Queue 实现了负载均衡，将 Producer 生产的消息发送到消息队列中，由多个消费者消费。但一个消息只能被一个消费者接受，当没有消费者可用时，这个消息会被保存直到有一个可用的消费者
 Topic 实现了发布和订阅，当你发布一个消息，所有订阅这个 Topic 的服务都能得到这个消息，所以从1到N个订阅者都能得到一个消息的拷贝
-3. 协议 3.1. AMQP协议 AMQP 即 Advanced Message Queuing Protocol ，一个提供统一消息服务的应用层标准高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计。基于此协议的客户端与消息中间件可传递消息，并不受客户端/中间件不同产品，不同开发语言等条件的限制。兼容 JMS。RabbitMQ 就是基于 AMQP 协议实现的。
+3. 协议3.1. AMQP协议AMQP 即 Advanced Message Queuing Protocol ，一个提供统一消息服务的应用层标准高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计。基于此协议的客户端与消息中间件可传递消息，并不受客户端/中间件不同产品，不同开发语言等条件的限制。兼容 JMS。RabbitMQ 就是基于 AMQP 协议实现的。
 优点：可靠、通用
-JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS 的客户端之间可以通过 JMS 服务进行异步的消息传输。JMS（JAVA Message Service，Java 消息服务）API 是一个消息服务的标准或者说是规范，允许应用程序组件基于 JavaEE 平台创建、发送、接收和读取消息。它使分布式通信耦合度更低，消息服务更加可靠以及异步性。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+ JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS 的客户端之间可以通过 JMS 服务进行异步的消息传输。JMS（JAVA Message Service，Java 消息服务）API 是一个消息服务的标准或者说是规范，允许应用程序组件基于 JavaEE 平台创建、发送、接收和读取消息。它使分布式通信耦合度更低，消息服务更加可靠以及异步性。"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="684">
 <meta itemprop="keywords" content="MQ," /><meta property="og:title" content="MQ综述" />
-<meta property="og:description" content="1. 概念 Broker Producer Consumer Topic Queue Message 2. 模式 2.1. 点对点 PTP 点对点: 使用 Queue 作为通信载体
+<meta property="og:description" content="1. 概念 Broker Producer Consumer Topic Queue Message  2. 模式2.1. 点对点PTP 点对点: 使用 Queue 作为通信载体
 消息生产者生产消息发送到 Queue 中，然后消息消费者从 Queue 中取出并且消费消息。消息被消费以后，Queue 中不再存储，所以消息消费者不可能消费到已经被消费的消息。Queue 支持存在多个消费者，但是对一个消息而言，只会有一个消费者可以消费
-2.2. 发布/订阅 Pub/Sub 发布订阅(广播): 使用 Topic 作为通信载体
+2.2. 发布/订阅Pub/Sub 发布订阅(广播): 使用 Topic 作为通信载体
 消息生产者(发布)将消息发布到 Topic 中，同时有多个消息消费者(订阅)消费该消息。和点对点方式不同，发布到 Topic 的消息会被所有订阅者消费
-总结 Queue 实现了负载均衡，将 Producer 生产的消息发送到消息队列中，由多个消费者消费。但一个消息只能被一个消费者接受，当没有消费者可用时，这个消息会被保存直到有一个可用的消费者
+总结Queue 实现了负载均衡，将 Producer 生产的消息发送到消息队列中，由多个消费者消费。但一个消息只能被一个消费者接受，当没有消费者可用时，这个消息会被保存直到有一个可用的消费者
 Topic 实现了发布和订阅，当你发布一个消息，所有订阅这个 Topic 的服务都能得到这个消息，所以从1到N个订阅者都能得到一个消息的拷贝
-3. 协议 3.1. AMQP协议 AMQP 即 Advanced Message Queuing Protocol ，一个提供统一消息服务的应用层标准高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计。基于此协议的客户端与消息中间件可传递消息，并不受客户端/中间件不同产品，不同开发语言等条件的限制。兼容 JMS。RabbitMQ 就是基于 AMQP 协议实现的。
+3. 协议3.1. AMQP协议AMQP 即 Advanced Message Queuing Protocol ，一个提供统一消息服务的应用层标准高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计。基于此协议的客户端与消息中间件可传递消息，并不受客户端/中间件不同产品，不同开发语言等条件的限制。兼容 JMS。RabbitMQ 就是基于 AMQP 协议实现的。
 优点：可靠、通用
-JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS 的客户端之间可以通过 JMS 服务进行异步的消息传输。JMS（JAVA Message Service，Java 消息服务）API 是一个消息服务的标准或者说是规范，允许应用程序组件基于 JavaEE 平台创建、发送、接收和读取消息。它使分布式通信耦合度更低，消息服务更加可靠以及异步性。" />
+ JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS 的客户端之间可以通过 JMS 服务进行异步的消息传输。JMS（JAVA Message Service，Java 消息服务）API 是一个消息服务的标准或者说是规范，允许应用程序组件基于 JavaEE 平台创建、发送、接收和读取消息。它使分布式通信耦合度更低，消息服务更加可靠以及异步性。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/mq/mq%E7%BB%BC%E8%BF%B0/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -47,19 +47,19 @@ JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS �
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="MQ综述"/>
-<meta name="twitter:description" content="1. 概念 Broker Producer Consumer Topic Queue Message 2. 模式 2.1. 点对点 PTP 点对点: 使用 Queue 作为通信载体
+<meta name="twitter:description" content="1. 概念 Broker Producer Consumer Topic Queue Message  2. 模式2.1. 点对点PTP 点对点: 使用 Queue 作为通信载体
 消息生产者生产消息发送到 Queue 中，然后消息消费者从 Queue 中取出并且消费消息。消息被消费以后，Queue 中不再存储，所以消息消费者不可能消费到已经被消费的消息。Queue 支持存在多个消费者，但是对一个消息而言，只会有一个消费者可以消费
-2.2. 发布/订阅 Pub/Sub 发布订阅(广播): 使用 Topic 作为通信载体
+2.2. 发布/订阅Pub/Sub 发布订阅(广播): 使用 Topic 作为通信载体
 消息生产者(发布)将消息发布到 Topic 中，同时有多个消息消费者(订阅)消费该消息。和点对点方式不同，发布到 Topic 的消息会被所有订阅者消费
-总结 Queue 实现了负载均衡，将 Producer 生产的消息发送到消息队列中，由多个消费者消费。但一个消息只能被一个消费者接受，当没有消费者可用时，这个消息会被保存直到有一个可用的消费者
+总结Queue 实现了负载均衡，将 Producer 生产的消息发送到消息队列中，由多个消费者消费。但一个消息只能被一个消费者接受，当没有消费者可用时，这个消息会被保存直到有一个可用的消费者
 Topic 实现了发布和订阅，当你发布一个消息，所有订阅这个 Topic 的服务都能得到这个消息，所以从1到N个订阅者都能得到一个消息的拷贝
-3. 协议 3.1. AMQP协议 AMQP 即 Advanced Message Queuing Protocol ，一个提供统一消息服务的应用层标准高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计。基于此协议的客户端与消息中间件可传递消息，并不受客户端/中间件不同产品，不同开发语言等条件的限制。兼容 JMS。RabbitMQ 就是基于 AMQP 协议实现的。
+3. 协议3.1. AMQP协议AMQP 即 Advanced Message Queuing Protocol ，一个提供统一消息服务的应用层标准高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计。基于此协议的客户端与消息中间件可传递消息，并不受客户端/中间件不同产品，不同开发语言等条件的限制。兼容 JMS。RabbitMQ 就是基于 AMQP 协议实现的。
 优点：可靠、通用
-JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS 的客户端之间可以通过 JMS 服务进行异步的消息传输。JMS（JAVA Message Service，Java 消息服务）API 是一个消息服务的标准或者说是规范，允许应用程序组件基于 JavaEE 平台创建、发送、接收和读取消息。它使分布式通信耦合度更低，消息服务更加可靠以及异步性。"/>
+ JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS 的客户端之间可以通过 JMS 服务进行异步的消息传输。JMS（JAVA Message Service，Java 消息服务）API 是一个消息服务的标准或者说是规范，允许应用程序组件基于 JavaEE 平台创建、发送、接收和读取消息。它使分布式通信耦合度更低，消息服务更加可靠以及异步性。"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -352,11 +352,11 @@ JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS �
 <h2 id="2-模式">2. 模式<a class="anchor ms-1" href="#2-模式"><i class="fas fa-link"></i></a></h2>
 <h3 id="21-点对点">2.1. 点对点<a class="anchor ms-1" href="#21-点对点"><i class="fas fa-link"></i></a></h3>
 <p>PTP 点对点: 使用 Queue 作为通信载体</p>
-<img src="https://picgo.6and.ltd/img/20200116001.png" alt="点对点" style="zoom: 33%;" />
+<p><img src="https://picgo.6and.ltd/img/20200116001.png" alt="点对点" style="zoom: 33%;" /></p>
 <p>消息生产者生产消息发送到 Queue 中，然后消息消费者从 Queue 中取出并且消费消息。消息被消费以后，Queue 中不再存储，所以消息消费者不可能消费到已经被消费的消息。Queue 支持存在多个消费者，但是对一个消息而言，只会有一个消费者可以消费</p>
 <h3 id="22-发布订阅">2.2. 发布/订阅<a class="anchor ms-1" href="#22-发布订阅"><i class="fas fa-link"></i></a></h3>
 <p>Pub/Sub 发布订阅(广播): 使用 Topic 作为通信载体</p>
-<img src="https://picgo.6and.ltd/img/20200116002.png" alt="发布订阅" style="zoom:33%;" />
+<p><img src="https://picgo.6and.ltd/img/20200116002.png" alt="发布订阅" style="zoom:33%;" /></p>
 <p>消息生产者(发布)将消息发布到 Topic 中，同时有多个消息消费者(订阅)消费该消息。和点对点方式不同，发布到 Topic 的消息会被所有订阅者消费</p>
 <h3 id="总结">总结<a class="anchor ms-1" href="#总结"><i class="fas fa-link"></i></a></h3>
 <p>Queue 实现了负载均衡，将 Producer 生产的消息发送到消息队列中，由多个消费者消费。但一个消息只能被一个消费者接受，当没有消费者可用时，这个消息会被保存直到有一个可用的消费者</p>
@@ -436,14 +436,14 @@ JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS �
 <h5 id="2-普通集群模式">2. 普通集群模式<a class="anchor ms-1" href="#2-普通集群模式"><i class="fas fa-link"></i></a></h5>
 <p>无高可用性。</p>
 <p>普通集群模式，意思就是在多台机器上启动多个 RabbitMQ 实例，每个机器启动一个。你<strong>创建的 queue，只会放在一个 RabbitMQ 实例上</strong>，但是每个实例都同步 queue 的元数据（元数据可以认为是 queue 的一些配置信息，通过元数据，可以找到 queue 所在实例）。你消费的时候，实际上如果连接到了另外一个实例，那么那个实例会从 queue 所在实例上拉取数据过来。</p>
-<img src="https://picgo.6and.ltd/img/mq-7.png" alt="RabbitMQ-普通集群模式" style="zoom:67%;" />
+<p><img src="https://picgo.6and.ltd/img/mq-7.png" alt="RabbitMQ-普通集群模式" style="zoom:67%;" /></p>
 <p>这种方式确实很麻烦，也不怎么好，<strong>没做到所谓的分布式</strong>，就是个普通集群。因为这导致你要么消费者每次随机连接一个实例然后拉取数据，要么固定连接那个 queue 所在实例消费数据，前者有<strong>数据拉取的开销</strong>，后者导致<strong>单实例性能瓶颈</strong>。</p>
 <p>而且如果那个放 queue 的实例宕机了，会导致接下来其他实例就无法从那个实例拉取，如果你<strong>开启了消息持久化</strong>，让 RabbitMQ 落地存储消息的话，<strong>消息不一定会丢</strong>，得等这个实例恢复了，然后才可以继续从这个 queue 拉取数据。</p>
 <p>所以这个事儿就比较尴尬了，这就<strong>没有什么所谓的高可用性</strong>，<strong>这方案主要是提高吞吐量的</strong>，就是说让集群中多个节点来服务某个 queue 的读写操作。</p>
 <h5 id="3-镜像集群模式">3. 镜像集群模式<a class="anchor ms-1" href="#3-镜像集群模式"><i class="fas fa-link"></i></a></h5>
 <p>有高可用性。</p>
 <p>这种模式，才是所谓的 RabbitMQ 的高可用模式。跟普通集群模式不一样的是，在镜像集群模式下，你创建的 queue，无论元数据还是 queue 里的消息都会<strong>存在于多个实例上</strong>，就是说，每个 RabbitMQ 节点都有这个 queue 的一个<strong>完整镜像</strong>，包含 queue 的全部数据的意思。然后每次你写消息到 queue 的时候，都会自动把<strong>消息同步</strong>到多个实例的 queue 上。</p>
-<img src="https://picgo.6and.ltd/img/mq-8.png" alt="RabbitMQ-镜像集群模式" style="zoom:67%;" />
+<p><img src="https://picgo.6and.ltd/img/mq-8.png" alt="RabbitMQ-镜像集群模式" style="zoom:67%;" /></p>
 <p>这样的话，好处在于，你任何一个机器宕机了，没事儿，其它机器（节点）还包含了这个 queue 的完整数据，别的 consumer 都可以到其它节点上去消费数据。坏处在于，第一，这个性能开销也太大了吧，消息需要同步到所有机器上，导致网络带宽压力和消耗很重！第二，这么玩儿，不是分布式的，就<strong>没有扩展性可言</strong>了，如果某个 queue 负载很重，你加机器，新增的机器也包含了这个 queue 的所有数据，并<strong>没有办法线性扩展</strong>你的 queue。你想，如果这个 queue 的数据量很大，大到这个机器上的容量无法容纳了，此时该怎么办呢？</p>
 <h4 id="612-kafka-的高可用性">6.1.2 Kafka 的高可用性<a class="anchor ms-1" href="#612-kafka-的高可用性"><i class="fas fa-link"></i></a></h4>
 <p>Kafka有partition的概念，每个topic可以划分为多个partition。每个 partition 的数据都会同步到指定数量的其它机器上，形成自己的多个 replica 副本。</p>
@@ -464,24 +464,24 @@ JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS �
 <h3 id="63-如何保证消息的可靠性传输">6.3 如何保证消息的可靠性传输？<a class="anchor ms-1" href="#63-如何保证消息的可靠性传输"><i class="fas fa-link"></i></a></h3>
 <p>如何保证消息的可靠性传输？或者说，如何处理消息丢失的问题？</p>
 <h4 id="631-rabbitmq">6.3.1 RabbitMQ<a class="anchor ms-1" href="#631-rabbitmq"><i class="fas fa-link"></i></a></h4>
-<img src="https://picgo.6and.ltd/img/rabbitmq-message-lose.png" alt="rabbitmq-message-lose" style="zoom:67%;" />
+<p><img src="https://picgo.6and.ltd/img/rabbitmq-message-lose.png" alt="rabbitmq-message-lose" style="zoom:67%;" /></p>
 <h5 id="1-生产者弄丢了数据">1. 生产者弄丢了数据<a class="anchor ms-1" href="#1-生产者弄丢了数据"><i class="fas fa-link"></i></a></h5>
 <p><code>事务</code> 或者 <code>confirm</code>机制</p>
 <p>生产者将数据发送到 RabbitMQ 的时候，可能数据就在半路给搞丢了，因为网络问题啥的，都有可能。</p>
 <p>此时可以选择用 RabbitMQ 提供的事务功能，就是生产者<strong>发送数据之前</strong>开启 RabbitMQ 事务 <code>channel.txSelect</code> ，然后发送消息，如果消息没有成功被 RabbitMQ 接收到，那么生产者会收到异常报错，此时就可以回滚事务 <code>channel.txRollback</code> ，然后重试发送消息；如果收到了消息，那么可以提交事务 <code>channel.txCommit</code> 。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// 开启事务
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>channel<span style="color:#f92672">.</span><span style="color:#a6e22e">txSelect</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 这里发送消息
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    channel<span style="color:#f92672">.</span><span style="color:#a6e22e">txRollback</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 这里再次重发这条消息
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// 提交事务
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>channel<span style="color:#f92672">.</span><span style="color:#a6e22e">txCommit</span>
-</span></span></code></pre></div><p>但是问题是，RabbitMQ 事务机制（同步）一搞，基本上<strong>吞吐量会下来，因为太耗性能</strong>。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 开启事务
+</span><span style="color:#75715e"></span>channel<span style="color:#f92672">.</span><span style="color:#a6e22e">txSelect</span>
+<span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// 这里发送消息
+</span><span style="color:#75715e"></span><span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    channel<span style="color:#f92672">.</span><span style="color:#a6e22e">txRollback</span>
+
+    <span style="color:#75715e">// 这里再次重发这条消息
+</span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
+
+<span style="color:#75715e">// 提交事务
+</span><span style="color:#75715e"></span>channel<span style="color:#f92672">.</span><span style="color:#a6e22e">txCommit</span>
+</code></pre></div><p>但是问题是，RabbitMQ 事务机制（同步）一搞，基本上<strong>吞吐量会下来，因为太耗性能</strong>。</p>
 <p>所以一般来说，如果你要确保说写 RabbitMQ 的消息别丢，可以开启 <code>confirm</code> 模式，在生产者那里设置开启 <code>confirm</code> 模式之后，你每次写的消息都会分配一个唯一的 id，然后如果写入了 RabbitMQ 中，RabbitMQ 会给你回传一个 <code>ack</code> 消息，告诉你说这个消息 ok 了。如果 RabbitMQ 没能处理这个消息，会回调你的一个 <code>nack</code> 接口，告诉你这个消息接收失败，你可以重试。而且你可以结合这个机制自己在内存里维护每个消息 id 的状态，如果超过一定时间还没接收到这个消息的回调，那么你可以重发。</p>
 <p>事务机制和 <code>confirm</code> 机制最大的不同在于，<strong>事务机制是同步的</strong>，你提交一个事务之后会<strong>阻塞</strong>在那儿，但是 <code>confirm</code> 机制是<strong>异步</strong>的，你发送个消息之后就可以发送下一个消息，然后那个消息 RabbitMQ 接收了之后会异步回调你的一个接口通知你这个消息接收到了。</p>
 <p>所以一般在生产者这块<strong>避免数据丢失</strong>，都是用 <code>confirm</code> 机制的。</p>
@@ -489,7 +489,7 @@ JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS �
 <p>开启 RabbitMQ 的持久化，持久化可以跟生产者那边的 <code>confirm</code> 机制配合起来，只有消息被持久化到磁盘之后，才会通知生产者 <code>ack</code> 了，所以哪怕是在持久化到磁盘之前，RabbitMQ 挂了，数据丢了，生产者收不到 <code>ack</code> ，你也是可以自己重发的。</p>
 <h5 id="3-消费端弄丢了数据">3. 消费端弄丢了数据<a class="anchor ms-1" href="#3-消费端弄丢了数据"><i class="fas fa-link"></i></a></h5>
 <p>关闭 RabbitMQ 的自动 <code>ack</code> ，然后每次你自己代码里确保处理完的时候，再在程序里 <code>ack</code> 一把。这样的话，如果你还没处理完，不就没有 <code>ack</code> 了？那 RabbitMQ 就认为你还没处理完，这个时候 RabbitMQ 会把这个消费分配给别的 consumer 去处理，消息是不会丢的。</p>
-<img src="https://picgo.6and.ltd/img/rabbitmq-message-lose-solution.png" alt="rabbitmq-message-lose-solution" style="zoom:67%;" />
+<p><img src="https://picgo.6and.ltd/img/rabbitmq-message-lose-solution.png" alt="rabbitmq-message-lose-solution" style="zoom:67%;" /></p>
 <h4 id="632-kafka">6.3.2 Kafka<a class="anchor ms-1" href="#632-kafka"><i class="fas fa-link"></i></a></h4>
 <h5 id="1-消费端弄丢了数据">1. 消费端弄丢了数据<a class="anchor ms-1" href="#1-消费端弄丢了数据"><i class="fas fa-link"></i></a></h5>
 <p>跟RabbitMQ 差不多，关闭自动提交offset。</p>
@@ -891,7 +891,7 @@ JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS �
         <i class="fa-fw fa-2x fab fa-twitter"></i>
       </a></nav>
 <div class="copyright mb-2">
-  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+  Copyright © 2016-2023 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
   Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
@@ -902,8 +902,8 @@ JMS（JAVA Message Service,java 消息服务）是 java 的消息服务，JMS �
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.785fa4e86518eee08ad9f10fdbc7d3a34d7d772cfe2fbe8809dde82283d7b7c6.js" integrity="sha256-eF&#43;k6GUY7uCK2fEP28fTo019dyz&#43;L76ICd3oIoPXt8Y=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

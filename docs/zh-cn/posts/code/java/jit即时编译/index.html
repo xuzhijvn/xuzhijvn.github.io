@@ -13,28 +13,26 @@
 有的JVM全程都是JIT编译运行，例如：JRockit；有的JVM是解释器 &#43; JIT运行，例如：HotSpot, J9（也支持AOT）；有的JVM没有解释器，只支持AOT&#43;JIT或者纯AOT，例如：Excelsior JET
 以HotSpot JVM举例，JIT还可以分为C1, C2等。C1编译快，执行效率低；C2编译慢，效率高。可以通过 -XX:&#43;TieredCompilation 开启分层编译，对热点代码先C1编译以尽快进入到编译执行模式；随着应用继续运行，收集到足够多的指标后，再进行C2编译，以期获得最好的执行效率。
 JIT在编译过程中会采用一些优化手段，包括：公共子表达式消除、数组范围检查消除、方法内联、逃逸分析（目的是栈上分配、同步消除、标量替换、循环变型、窥孔优化与寄存器分配）
-1. 编译器与解释器 不做特别说明的话，我们讲的，
+1. 编译器与解释器不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
-特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
-无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
+ 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
+ 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
-编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
-解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果 特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：
-至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行； 兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。 为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？" /><meta itemprop="name" content="JIT即时编译">
+编译流程：源码 [字符流]- 词法分析 -&gt; 单词（token）流- 语法分析 -&gt; 语法树 / 抽象语法树- 语义分析 -&gt; 标注了属性的抽象语法树- 代码生成 -&gt; 目标代码执行流程：目标代码- 操作系统/硬件 -&gt; 执行结果狭义的解释器处理步骤看起来：
+解释执行流程：源码 [字符流]- 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果 特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：" /><meta itemprop="name" content="JIT即时编译">
 <meta itemprop="description" content="JIT (just-in-time compilation) 是指程序在运行过程中对热点代码进行编译的过程，编译后的机器码存入CodeCache，下次再遇到这段代码，就会从CodeCache中读取机器码，直接执行，以此来提升程序运行的性能。
 有的JVM全程都是JIT编译运行，例如：JRockit；有的JVM是解释器 &#43; JIT运行，例如：HotSpot, J9（也支持AOT）；有的JVM没有解释器，只支持AOT&#43;JIT或者纯AOT，例如：Excelsior JET
 以HotSpot JVM举例，JIT还可以分为C1, C2等。C1编译快，执行效率低；C2编译慢，效率高。可以通过 -XX:&#43;TieredCompilation 开启分层编译，对热点代码先C1编译以尽快进入到编译执行模式；随着应用继续运行，收集到足够多的指标后，再进行C2编译，以期获得最好的执行效率。
 JIT在编译过程中会采用一些优化手段，包括：公共子表达式消除、数组范围检查消除、方法内联、逃逸分析（目的是栈上分配、同步消除、标量替换、循环变型、窥孔优化与寄存器分配）
-1. 编译器与解释器 不做特别说明的话，我们讲的，
+1. 编译器与解释器不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
-特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
-无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
+ 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
+ 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
-编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
-解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果 特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：
-至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行； 兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。 为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+编译流程：源码 [字符流]- 词法分析 -&gt; 单词（token）流- 语法分析 -&gt; 语法树 / 抽象语法树- 语义分析 -&gt; 标注了属性的抽象语法树- 代码生成 -&gt; 目标代码执行流程：目标代码- 操作系统/硬件 -&gt; 执行结果狭义的解释器处理步骤看起来：
+解释执行流程：源码 [字符流]- 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果 特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常："><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="644">
 <meta itemprop="keywords" content="Java,JVM," /><meta property="og:title" content="JIT即时编译" />
@@ -42,15 +40,14 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 有的JVM全程都是JIT编译运行，例如：JRockit；有的JVM是解释器 &#43; JIT运行，例如：HotSpot, J9（也支持AOT）；有的JVM没有解释器，只支持AOT&#43;JIT或者纯AOT，例如：Excelsior JET
 以HotSpot JVM举例，JIT还可以分为C1, C2等。C1编译快，执行效率低；C2编译慢，效率高。可以通过 -XX:&#43;TieredCompilation 开启分层编译，对热点代码先C1编译以尽快进入到编译执行模式；随着应用继续运行，收集到足够多的指标后，再进行C2编译，以期获得最好的执行效率。
 JIT在编译过程中会采用一些优化手段，包括：公共子表达式消除、数组范围检查消除、方法内联、逃逸分析（目的是栈上分配、同步消除、标量替换、循环变型、窥孔优化与寄存器分配）
-1. 编译器与解释器 不做特别说明的话，我们讲的，
+1. 编译器与解释器不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
-特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
-无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
+ 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
+ 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
-编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
-解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果 特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：
-至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行； 兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。 为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？" />
+编译流程：源码 [字符流]- 词法分析 -&gt; 单词（token）流- 语法分析 -&gt; 语法树 / 抽象语法树- 语义分析 -&gt; 标注了属性的抽象语法树- 代码生成 -&gt; 目标代码执行流程：目标代码- 操作系统/硬件 -&gt; 执行结果狭义的解释器处理步骤看起来：
+解释执行流程：源码 [字符流]- 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果 特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/jit%E5%8D%B3%E6%97%B6%E7%BC%96%E8%AF%91/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -63,19 +60,18 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 有的JVM全程都是JIT编译运行，例如：JRockit；有的JVM是解释器 &#43; JIT运行，例如：HotSpot, J9（也支持AOT）；有的JVM没有解释器，只支持AOT&#43;JIT或者纯AOT，例如：Excelsior JET
 以HotSpot JVM举例，JIT还可以分为C1, C2等。C1编译快，执行效率低；C2编译慢，效率高。可以通过 -XX:&#43;TieredCompilation 开启分层编译，对热点代码先C1编译以尽快进入到编译执行模式；随着应用继续运行，收集到足够多的指标后，再进行C2编译，以期获得最好的执行效率。
 JIT在编译过程中会采用一些优化手段，包括：公共子表达式消除、数组范围检查消除、方法内联、逃逸分析（目的是栈上分配、同步消除、标量替换、循环变型、窥孔优化与寄存器分配）
-1. 编译器与解释器 不做特别说明的话，我们讲的，
+1. 编译器与解释器不做特别说明的话，我们讲的，
 编译器：程序运行前将其编译成机器码的程序
 解释器：程序运作中逐行解释源码得到结果的程序
-特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
-无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
+ 特别注意的是，解释器也是一个程序，输入源码，输出结果，并没有显示的将源码转换成机器码的过程 解释器与 JIT
+ 无论是编译器还是解释器，从 源码 到结果都需要将源码经过：词法分析 -&gt; 语法分析 -&gt; 语义分析 处理，
 一个比较简单的编译器的处理步骤看起来：
-编译流程： 源码 [字符流] - 词法分析 -&gt; 单词（token）流 - 语法分析 -&gt; 语法树 / 抽象语法树 - 语义分析 -&gt; 标注了属性的抽象语法树 - 代码生成 -&gt; 目标代码 执行流程： 目标代码 - 操作系统/硬件 -&gt; 执行结果 狭义的解释器处理步骤看起来：
-解释执行流程： 源码 [字符流] - 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果 特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常：
-至少会在解释执行前做完语法分析，然后通过树解释器来实现解释执行； 兼顾易于实现、跨平台、执行效率这几点，会选择使用字节码解释器实现解释执行。 为什么大多数解释器都将AST转化成字节码再用虚拟机执行，而不是直接解释AST？"/>
+编译流程：源码 [字符流]- 词法分析 -&gt; 单词（token）流- 语法分析 -&gt; 语法树 / 抽象语法树- 语义分析 -&gt; 标注了属性的抽象语法树- 代码生成 -&gt; 目标代码执行流程：目标代码- 操作系统/硬件 -&gt; 执行结果狭义的解释器处理步骤看起来：
+解释执行流程：源码 [字符流]- 需要做词法分析&#43;语法分析&#43;类型检查的字符流解释器 -&gt; 执行结果 特别注意的是，解释器真正的输入往往并直接是源码，使用解释器实现的编程语言实现里，通常："/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -369,7 +365,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 </blockquote>
 <p>无论是编译器还是解释器，从 <code>源码</code> 到<code>结果</code>都需要将源码经过：<code>词法分析 -&gt; 语法分析 -&gt; 语义分析</code>  处理，</p>
 <p>一个比较简单的编译器的处理步骤看起来：</p>
-<pre tabindex="0"><code>编译流程：
+<pre><code>编译流程：
   源码 [字符流]
 - 词法分析 -&gt; 单词（token）流
 - 语法分析 -&gt; 语法树 / 抽象语法树
@@ -380,7 +376,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
   目标代码
 - 操作系统/硬件 -&gt; 执行结果
 </code></pre><p>狭义的解释器处理步骤看起来：</p>
-<pre tabindex="0"><code>解释执行流程：
+<pre><code>解释执行流程：
   源码 [字符流]
 - 需要做词法分析+语法分析+类型检查的字符流解释器 -&gt; 执行结果
 </code></pre><blockquote>
@@ -406,10 +402,10 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <h2 id="4-为什么有些jvm会选择不总是做jit编译而是选择用解释器jit编译器的混合执行引擎">4. 为什么有些JVM会选择不总是做JIT编译，而是选择用解释器+JIT编译器的混合执行引擎<a class="anchor ms-1" href="#4-为什么有些jvm会选择不总是做jit编译而是选择用解释器jit编译器的混合执行引擎"><i class="fas fa-link"></i></a></h2>
 <h3 id="1-编译的时间开销">1. 编译的时间开销<a class="anchor ms-1" href="#1-编译的时间开销"><i class="fas fa-link"></i></a></h3>
 <p>解释器的执行，抽象的看是这样的：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>输入的代码 -&gt; [ 解释器 解释执行 ] -&gt; 执行结果
-</span></span></code></pre></div><p>而要JIT编译然后再执行的话，抽象的看则是：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>输入的代码 -&gt; [ 编译器 编译 ] -&gt; 编译后的代码 -&gt; [ 执行 ] -&gt; 执行结果
-</span></span></code></pre></div><p>说JIT比解释快，其实说的是“执行编译后的代码”比“解释器解释执行”要快，并不是说“编译”这个动作比“解释”这个动作快。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">输入的代码 -&gt; [ 解释器 解释执行 ] -&gt; 执行结果
+</code></pre></div><p>而要JIT编译然后再执行的话，抽象的看则是：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">输入的代码 -&gt; [ 编译器 编译 ] -&gt; 编译后的代码 -&gt; [ 执行 ] -&gt; 执行结果
+</code></pre></div><p>说JIT比解释快，其实说的是“执行编译后的代码”比“解释器解释执行”要快，并不是说“编译”这个动作比“解释”这个动作快。</p>
 <p>然而这JIT编译再怎么快，至少也比解释执行一次略慢一些，而要得到最后的执行结果还得再经过一个“执行编译后的代码”的过程。</p>
 <p>所以，对“只执行一次”的代码而言，解释执行其实总是比JIT编译执行要快。
 怎么算是“只执行一次的代码”呢？粗略说，下面两个条件同时满足时就是严格的“只执行一次”</p>
@@ -424,42 +420,42 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 有个很经典的例子：LuaJIT 2里有一个实现得非常优化的解释器，它解释执行的速度甚至比LuaJIT 1的JIT编译后的代码的速度还要快。</p>
 <h3 id="2-编译的空间开销">2. 编译的空间开销<a class="anchor ms-1" href="#2-编译的空间开销"><i class="fas fa-link"></i></a></h3>
 <p>举个最简单的例子：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">foo</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> 42<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>其字节码大小只有3字节：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>  public static int foo();
-</span></span><span style="display:flex;"><span>    Code:
-</span></span><span style="display:flex;"><span>      stack=1, locals=0, args_size=0
-</span></span><span style="display:flex;"><span>         0: bipush        42
-</span></span><span style="display:flex;"><span>         2: ireturn
-</span></span></code></pre></div><p>而由Linux/x86-64上的HotSpot VM的Server Compiler将其编译为机器码后，则膨胀到了56字节：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>  # {method} &#39;foo&#39; &#39;()I&#39; in &#39;XX&#39;
-</span></span><span style="display:flex;"><span>  #           [sp+0x20]  (sp of caller)
-</span></span><span style="display:flex;"><span>  0x00000001017b8200: sub    $0x18,%rsp
-</span></span><span style="display:flex;"><span>  0x00000001017b8207: mov    %rbp,0x10(%rsp)    ;*synchronization entry
-</span></span><span style="display:flex;"><span>                                                ; - XX::foo@-1 (line 3)
-</span></span><span style="display:flex;"><span>  0x00000001017b820c: mov    $0x2a,%eax
-</span></span><span style="display:flex;"><span>  0x00000001017b8211: add    $0x10,%rsp
-</span></span><span style="display:flex;"><span>  0x00000001017b8215: pop    %rbp
-</span></span><span style="display:flex;"><span>  0x00000001017b8216: test   %eax,-0x146021c(%rip)        # 0x0000000100358000
-</span></span><span style="display:flex;"><span>                                                ;   {poll_return}
-</span></span><span style="display:flex;"><span>  0x00000001017b821c: retq   
-</span></span><span style="display:flex;"><span>  0x00000001017b821d: hlt    
-</span></span><span style="display:flex;"><span>  0x00000001017b821e: hlt    
-</span></span><span style="display:flex;"><span>  0x00000001017b821f: hlt    
-</span></span><span style="display:flex;"><span>[Exception Handler]
-</span></span><span style="display:flex;"><span>[Stub Code]
-</span></span><span style="display:flex;"><span>  0x00000001017b8220: jmpq   0x00000001017b50a0  ;   {no_reloc}
-</span></span><span style="display:flex;"><span>[Deopt Handler Code]
-</span></span><span style="display:flex;"><span>  0x00000001017b8225: callq  0x00000001017b822a
-</span></span><span style="display:flex;"><span>  0x00000001017b822a: subq   $0x5,(%rsp)
-</span></span><span style="display:flex;"><span>  0x00000001017b822f: jmpq   0x000000010178eb00  ;   {runtime_call}
-</span></span><span style="display:flex;"><span>  0x00000001017b8234: hlt    
-</span></span><span style="display:flex;"><span>  0x00000001017b8235: hlt    
-</span></span><span style="display:flex;"><span>  0x00000001017b8236: hlt    
-</span></span><span style="display:flex;"><span>  0x00000001017b8237: hlt    
-</span></span></code></pre></div><p>对一般的Java方法而言，编译后代码的大小相对于字节码的大小，膨胀比达到10x是很正常的。上面的例子比较极端一些，但还是很能反映现实状况的。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">foo</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">return</span> 42<span style="color:#f92672">;</span>
+  <span style="color:#f92672">}</span>
+</code></pre></div><p>其字节码大小只有3字节：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">  public static int foo();
+    Code:
+      stack=1, locals=0, args_size=0
+         0: bipush        42
+         2: ireturn
+</code></pre></div><p>而由Linux/x86-64上的HotSpot VM的Server Compiler将其编译为机器码后，则膨胀到了56字节：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">  # {method} &#39;foo&#39; &#39;()I&#39; in &#39;XX&#39;
+  #           [sp+0x20]  (sp of caller)
+  0x00000001017b8200: sub    $0x18,%rsp
+  0x00000001017b8207: mov    %rbp,0x10(%rsp)    ;*synchronization entry
+                                                ; - XX::foo@-1 (line 3)
+  0x00000001017b820c: mov    $0x2a,%eax
+  0x00000001017b8211: add    $0x10,%rsp
+  0x00000001017b8215: pop    %rbp
+  0x00000001017b8216: test   %eax,-0x146021c(%rip)        # 0x0000000100358000
+                                                ;   {poll_return}
+  0x00000001017b821c: retq   
+  0x00000001017b821d: hlt    
+  0x00000001017b821e: hlt    
+  0x00000001017b821f: hlt    
+[Exception Handler]
+[Stub Code]
+  0x00000001017b8220: jmpq   0x00000001017b50a0  ;   {no_reloc}
+[Deopt Handler Code]
+  0x00000001017b8225: callq  0x00000001017b822a
+  0x00000001017b822a: subq   $0x5,(%rsp)
+  0x00000001017b822f: jmpq   0x000000010178eb00  ;   {runtime_call}
+  0x00000001017b8234: hlt    
+  0x00000001017b8235: hlt    
+  0x00000001017b8236: hlt    
+  0x00000001017b8237: hlt    
+</code></pre></div><p>对一般的Java方法而言，编译后代码的大小相对于字节码的大小，膨胀比达到10x是很正常的。上面的例子比较极端一些，但还是很能反映现实状况的。</p>
 <p>同上面说的时间开销一样，这里的空间开销也是，只有对执行频繁的代码才值得编译，如果把所有代码都编译则会显著增加代码所占空间，导致“代码爆炸”（code size explosion）。</p>
 <h3 id="3-编译时机对优化的影响">3. 编译时机对优化的影响<a class="anchor ms-1" href="#3-编译时机对优化的影响"><i class="fas fa-link"></i></a></h3>
 <p>有些JIT编译器非常简单，基本上不做啥优化，也倒也没啥影响。</p>
@@ -545,26 +541,26 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <p>方法内联，是指在编译过程中遇到方法调用时，将目标方法的方法体纳入编译范围之中，并取代原方法调用的优化手段。JIT大部分的优化都是在内联的基础上进行的，方法内联是即时编译器中非常重要的一环。</p>
 <p>Java服务中存在大量getter/setter方法，如果没有方法内联，在调用getter/setter时，程序执行时<strong>需要保存当前方法的执行位置，创建并压入用于getter/setter的栈帧、访问字段、弹出栈帧，最后再恢复当前方法的执行</strong>。内联了对 getter/setter的方法调用后，上述操作仅剩字段访问。在C2编译器 中，方法内联在解析字节码的过程中完成。当遇到方法调用字节码时，编译器将根据一些阈值参数决定是否需要内联当前方法的调用。如果需要内联，则开始解析目标方法的字节码。比如下面这个示例（来源于网络）：</p>
 <p>方法内联的过程</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">boolean</span> flag <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> value0 <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> value1 <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">foo</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> value<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> result <span style="color:#f92672">=</span> bar<span style="color:#f92672">(</span>flag<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>result <span style="color:#f92672">!=</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> result<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> value<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">bar</span><span style="color:#f92672">(</span><span style="color:#66d9ef">boolean</span> flag<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> flag <span style="color:#f92672">?</span> value0 <span style="color:#f92672">:</span> value1<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>bar方法的IR图：</p>
-<img src="https://picgo.6and.ltd/img/857398429cf23f82f291a9cbaceecea122617.png@794w_480h_80q" alt="img" style="zoom:67%;" />
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">boolean</span> flag <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> value0 <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> value1 <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">foo</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> value<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">int</span> result <span style="color:#f92672">=</span> bar<span style="color:#f92672">(</span>flag<span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>result <span style="color:#f92672">!=</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> result<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> value<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">bar</span><span style="color:#f92672">(</span><span style="color:#66d9ef">boolean</span> flag<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">return</span> flag <span style="color:#f92672">?</span> value0 <span style="color:#f92672">:</span> value1<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>bar方法的IR图：</p>
+<p><img src="https://picgo.6and.ltd/img/857398429cf23f82f291a9cbaceecea122617.png@794w_480h_80q" alt="img" style="zoom:67%;" /></p>
 <p>内联后的IR图：</p>
-<img src="https://picgo.6and.ltd/img/524631fb0c1db243b5b1fd08b185c23f59399.png@802w_1202h_80q" alt="img" style="zoom:67%;" />
+<p><img src="https://picgo.6and.ltd/img/524631fb0c1db243b5b1fd08b185c23f59399.png@802w_1202h_80q" alt="img" style="zoom:67%;" /></p>
 <h3 id="4-最前沿的优化技术之一逃逸分析">4. 最前沿的优化技术之一：逃逸分析<a class="anchor ms-1" href="#4-最前沿的优化技术之一逃逸分析"><i class="fas fa-link"></i></a></h3>
 <p>逃逸分析的基本行为就是分析对象动态作用域：当一个对象在方法中杯定义后，它可能被外部方法所引用，例如作为调用参数传递到其他方法中，称为<strong>方法逃逸。<strong>甚至可能被外部线程访问到，譬如赋值给类变量或可以在其他线程中访问的实例变量，称为</strong>线程逃逸。</strong></p>
 <p>如果能证明一个对象不会逃逸到方法或线程之外，也就是别的方法或线程无法通过任何途径访问到这个对象，则可以为这个变量进行一些高效的优化：</p>
@@ -574,68 +570,68 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 <li>标量替换：标量是指无法在分解的数据类型，比如原始数据类型以及reference类型。而聚合量就是可继续分解的，比如 Java 中的对象。标量替换如果一个对象不会被外部访问，并且对象可以被拆散的话，真正执行时可能不创建这个对象，而是直接创建它的若干个被这个方法使用到的成员变量来代替。这种方式不仅可以让对象的成员变量在栈上分配和读写，还可以为后后续进一步的优化手段创建条件。</li>
 </ul>
 <p>下面是一个标量替换的例子：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Example</span><span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">@AllArgsConstructor</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Cat</span><span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> age<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> weight<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">example</span><span style="color:#f92672">(){</span>
-</span></span><span style="display:flex;"><span>    Cat cat <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Cat<span style="color:#f92672">(</span>1<span style="color:#f92672">,</span>10<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    addAgeAndWeight<span style="color:#f92672">(</span>cat<span style="color:#f92672">.</span><span style="color:#a6e22e">age</span><span style="color:#f92672">,</span>Cat<span style="color:#f92672">.</span><span style="color:#a6e22e">weight</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>经过逃逸分析，cat对象未逃逸出example()的调用，因此可以对聚合量cat进行分解，得到两个标量age和weight，进行标量替换后的伪代码：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Example</span><span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">@AllArgsConstructor</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Cat</span><span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> age<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> weight<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">example</span><span style="color:#f92672">(){</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> age <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> weight <span style="color:#f92672">=</span> 10<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    addAgeAndWeight<span style="color:#f92672">(</span>age<span style="color:#f92672">,</span>weight<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><h3 id="5--loop-transformations">5.  Loop Transformations<a class="anchor ms-1" href="#5--loop-transformations"><i class="fas fa-link"></i></a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Example</span><span style="color:#f92672">{</span>
+  <span style="color:#a6e22e">@AllArgsConstructor</span>
+  <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Cat</span><span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">int</span> age<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">int</span> weight<span style="color:#f92672">;</span>
+  <span style="color:#f92672">}</span>
+  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">example</span><span style="color:#f92672">(){</span>
+    Cat cat <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Cat<span style="color:#f92672">(</span>1<span style="color:#f92672">,</span>10<span style="color:#f92672">);</span>
+    addAgeAndWeight<span style="color:#f92672">(</span>cat<span style="color:#f92672">.</span><span style="color:#a6e22e">age</span><span style="color:#f92672">,</span>Cat<span style="color:#f92672">.</span><span style="color:#a6e22e">weight</span><span style="color:#f92672">);</span>
+  <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>经过逃逸分析，cat对象未逃逸出example()的调用，因此可以对聚合量cat进行分解，得到两个标量age和weight，进行标量替换后的伪代码：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Example</span><span style="color:#f92672">{</span>
+  <span style="color:#a6e22e">@AllArgsConstructor</span>
+  <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Cat</span><span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">int</span> age<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">int</span> weight<span style="color:#f92672">;</span>
+  <span style="color:#f92672">}</span>
+  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">example</span><span style="color:#f92672">(){</span>
+    <span style="color:#66d9ef">int</span> age <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">int</span> weight <span style="color:#f92672">=</span> 10<span style="color:#f92672">;</span>
+    addAgeAndWeight<span style="color:#f92672">(</span>age<span style="color:#f92672">,</span>weight<span style="color:#f92672">);</span>
+  <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="5--loop-transformations">5.  Loop Transformations<a class="anchor ms-1" href="#5--loop-transformations"><i class="fas fa-link"></i></a></h3>
 <p>C2编译器在构建Ideal Graph后会进行很多的全局优化，其中就包括对循环的转换，最重要的两种转换就是循环展开和循环分离。</p>
 <h4 id="1-循环展开">1. 循环展开<a class="anchor ms-1" href="#1-循环展开"><i class="fas fa-link"></i></a></h4>
 <p>循环展开是一种循环转换技术，它试图以牺牲程序二进制码大小为代价来优化程序的执行速度，是一种用空间换时间的优化手段。</p>
 <p>循环展开通过减少或消除控制程序循环的指令，来减少计算开销，这种开销包括增加指向数组中下一个索引或者指令的指针算数等。如果编译器可以提前计算这些索引，并且构建到机器代码指令中，那么程序运行时就可以不必进行这种计算。也就是说有些循环可以写成一些重复独立的代码。比如下面这个循环：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">loopRolling</span><span style="color:#f92672">(){</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>i<span style="color:#f92672">&lt;</span>200<span style="color:#f92672">;</span>i<span style="color:#f92672">++){</span>
-</span></span><span style="display:flex;"><span>    delete<span style="color:#f92672">(</span>i<span style="color:#f92672">);</span>  
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>上面的代码需要循环删除200次，通过循环展开可以得到下面这段代码：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">loopRolling</span><span style="color:#f92672">(){</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>i<span style="color:#f92672">&lt;</span>200<span style="color:#f92672">;</span>i<span style="color:#f92672">+=</span>5<span style="color:#f92672">){</span>
-</span></span><span style="display:flex;"><span>    delete<span style="color:#f92672">(</span>i<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    delete<span style="color:#f92672">(</span>i<span style="color:#f92672">+</span>1<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    delete<span style="color:#f92672">(</span>i<span style="color:#f92672">+</span>2<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    delete<span style="color:#f92672">(</span>i<span style="color:#f92672">+</span>3<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    delete<span style="color:#f92672">(</span>i<span style="color:#f92672">+</span>4<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>这样展开就可以减少循环的次数，每次循环内的计算也可以利用CPU的流水线提升效率。当然这只是一个示例，实际进行展开时，JVM会去评估展开带来的收益，再决定是否进行展开。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">loopRolling</span><span style="color:#f92672">(){</span>
+  <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>i<span style="color:#f92672">&lt;</span>200<span style="color:#f92672">;</span>i<span style="color:#f92672">++){</span>
+    delete<span style="color:#f92672">(</span>i<span style="color:#f92672">);</span>  
+  <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>上面的代码需要循环删除200次，通过循环展开可以得到下面这段代码：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">loopRolling</span><span style="color:#f92672">(){</span>
+  <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>i<span style="color:#f92672">&lt;</span>200<span style="color:#f92672">;</span>i<span style="color:#f92672">+=</span>5<span style="color:#f92672">){</span>
+    delete<span style="color:#f92672">(</span>i<span style="color:#f92672">);</span>
+    delete<span style="color:#f92672">(</span>i<span style="color:#f92672">+</span>1<span style="color:#f92672">);</span>
+    delete<span style="color:#f92672">(</span>i<span style="color:#f92672">+</span>2<span style="color:#f92672">);</span>
+    delete<span style="color:#f92672">(</span>i<span style="color:#f92672">+</span>3<span style="color:#f92672">);</span>
+    delete<span style="color:#f92672">(</span>i<span style="color:#f92672">+</span>4<span style="color:#f92672">);</span>
+  <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>这样展开就可以减少循环的次数，每次循环内的计算也可以利用CPU的流水线提升效率。当然这只是一个示例，实际进行展开时，JVM会去评估展开带来的收益，再决定是否进行展开。</p>
 <h4 id="2-循环分离">2. 循环分离<a class="anchor ms-1" href="#2-循环分离"><i class="fas fa-link"></i></a></h4>
 <p>循环分离也是循环转换的一种手段。它把循环中一次或多次的特殊迭代分离出来，在循环外执行。举个例子，下面这段代码：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> a <span style="color:#f92672">=</span> 10<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>i<span style="color:#f92672">&lt;</span>10<span style="color:#f92672">;</span>i<span style="color:#f92672">++){</span>
-</span></span><span style="display:flex;"><span>  b<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> x<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> x<span style="color:#f92672">[</span>a<span style="color:#f92672">];</span>
-</span></span><span style="display:flex;"><span>  a <span style="color:#f92672">=</span> i<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>可以看出这段代码除了第一次循环a = 10以外，其他的情况a都等于i-1。所以可以把特殊情况分离出去，变成下面这段代码：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>b<span style="color:#f92672">[</span>0<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> x<span style="color:#f92672">[</span>0<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> 10<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span>i<span style="color:#f92672">&lt;</span>10<span style="color:#f92672">;</span>i<span style="color:#f92672">++){</span>
-</span></span><span style="display:flex;"><span>  b<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> x<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> x<span style="color:#f92672">[</span>i<span style="color:#f92672">-</span>1<span style="color:#f92672">];</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>这种等效的转换消除了在循环中对a变量的需求，从而减少了开销。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">int</span> a <span style="color:#f92672">=</span> 10<span style="color:#f92672">;</span>
+<span style="color:#66d9ef">for</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>i<span style="color:#f92672">&lt;</span>10<span style="color:#f92672">;</span>i<span style="color:#f92672">++){</span>
+  b<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> x<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> x<span style="color:#f92672">[</span>a<span style="color:#f92672">];</span>
+  a <span style="color:#f92672">=</span> i<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>可以看出这段代码除了第一次循环a = 10以外，其他的情况a都等于i-1。所以可以把特殊情况分离出去，变成下面这段代码：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">b<span style="color:#f92672">[</span>0<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> x<span style="color:#f92672">[</span>0<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> 10<span style="color:#f92672">;</span>
+<span style="color:#66d9ef">for</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span>i<span style="color:#f92672">&lt;</span>10<span style="color:#f92672">;</span>i<span style="color:#f92672">++){</span>
+  b<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> x<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> x<span style="color:#f92672">[</span>i<span style="color:#f92672">-</span>1<span style="color:#f92672">];</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>这种等效的转换消除了在循环中对a变量的需求，从而减少了开销。</p>
 <h3 id="6-窥孔优化与寄存器分配">6. 窥孔优化与寄存器分配<a class="anchor ms-1" href="#6-窥孔优化与寄存器分配"><i class="fas fa-link"></i></a></h3>
 <p>前文提到的窥孔优化是优化的最后一步，这之后就会程序就会转换成机器码，窥孔优化就是将编译器所生成的中间代码（或目标代码）中相邻指令，将其中的某些组合替换为效率更高的指令组，常见的比如强度削减、常数合并等，看下面这个例子就是一个强度削减的例子：</p>
 <p>强度削减</p>
-<pre tabindex="0"><code>y1=x1*3  经过强度削减后得到  y1=(x1&lt;&lt;1)+x1
+<pre><code>y1=x1*3  经过强度削减后得到  y1=(x1&lt;&lt;1)+x1
 </code></pre><p>编译器使用移位和加法削减乘法的强度，使用更高效率的指令组。</p>
 <p>寄存器分配也是一种编译的优化手段，在C2编译器中普遍的使用。它是通过把频繁使用的变量保存在寄存器中，CPU访问寄存器的速度比内存快得多，可以提升程序的运行速度。</p>
 <p>寄存器分配和窥孔优化是程序优化的最后一步。经过寄存器分配和窥孔优化之后，程序就会被转换成机器码保存在codeCache中。</p>
@@ -675,10 +671,10 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
 </div></div>
   <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
     <i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/k8s%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81/">k8s部署应用(前端静态)
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%8A%9F%E8%83%BD/">k8s功能
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/cicd/jenkins%E4%BD%BF%E7%94%A8%E4%BD%BF%E7%94%A8%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">Jenkins使用使用注意事项
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/cicd/jenkins%E5%AE%89%E8%A3%85%E6%8F%92%E4%BB%B6%E6%8F%90%E9%80%9F/">Jenkins安装插件提速
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
@@ -935,7 +931,7 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
         <i class="fa-fw fa-2x fab fa-twitter"></i>
       </a></nav>
 <div class="copyright mb-2">
-  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+  Copyright © 2016-2023 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
   Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
@@ -946,8 +942,8 @@ JIT在编译过程中会采用一些优化手段，包括：公共子表达式�
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.785fa4e86518eee08ad9f10fdbc7d3a34d7d772cfe2fbe8809dde82283d7b7c6.js" integrity="sha256-eF&#43;k6GUY7uCK2fEP28fTo019dyz&#43;L76ICd3oIoPXt8Y=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

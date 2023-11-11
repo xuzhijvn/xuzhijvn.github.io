@@ -9,53 +9,53 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
 <link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
 <meta name="keywords" content="" />
-<meta name="description" content="简介 零拷贝的“零”是指用户态和内核态间copy数据的次数为零。
+<meta name="description" content="简介零拷贝的“零”是指用户态和内核态间copy数据的次数为零。
 传统的数据copy（文件到文件、client到server等）涉及到四次用户态内核态切换、四次copy。四次copy中，两次在用户态和内核态间copy需要CPU参与、两次在内核态与IO设备间copy为DMA方式不需要CPU参与。零拷贝避免了用户态和内核态间的copy、减少了Java零拷贝机制解析核态间的切换。
-DMA(Direct Memory Access，直接内存存取) 是所有现代电脑的重要特色，它允许不同速度的硬件装置来沟通，而不需要依赖于CPU 的大量中断负载。 DMA控制器，接管了数据读写请求，减少CPU的负担。这样一来，CPU能高效工作了。 现代硬盘基本都支持DMA。
-使用Zero Copy前后对比：
+ DMA(Direct Memory Access，直接内存存取) 是所有现代电脑的重要特色，它允许不同速度的硬件装置来沟通，而不需要依赖于CPU 的大量中断负载。 DMA控制器，接管了数据读写请求，减少CPU的负担。这样一来，CPU能高效工作了。 现代硬盘基本都支持DMA。
+ 使用Zero Copy前后对比：
 使用前：
 使用后：
-Linux支持的(常见)零拷贝 mmap内存映射 sendfile Sendfile With DMA Scatter/Gather Copy splice
+Linux支持的(常见)零拷贝mmap内存映射 sendfile Sendfile With DMA Scatter/Gather Copy splice
 无论是传统IO方式，还是引入零拷贝之后，2次DMA copy 是都少不了的。因为两次DMA都是依赖硬件完成的。
 实际上，零拷贝时有广义和狭义之分的。 广义零拷贝： 能减少拷贝次数，减少不必要的数据拷贝，就算作“零拷贝”。 这是目前，对零拷贝最为广泛的定义，我们需要知道的是，这是广义上的零拷贝，并不是操作系统 意义上的零拷贝。
-Java零拷贝机制解析 Linux提供的领拷贝技术 Java并不是全支持，支持2种(内存映射mmap、sendfile)；
+Java零拷贝机制解析Linux提供的领拷贝技术 Java并不是全支持，支持2种(内存映射mmap、sendfile)；
 NIO提供的内存映射：MappedByteBuffer
 NIO提供的sendfile：FileChannel.transferTo() FileChannel.transferFrom()
-适用场景 数据不需要应用程序计算处理的场景，例如：访问静态资源
-参考 Java中的零拷贝
+适用场景数据不需要应用程序计算处理的场景，例如：访问静态资源
+参考Java中的零拷贝
 Java零拷贝" /><meta itemprop="name" content="零拷贝">
-<meta itemprop="description" content="简介 零拷贝的“零”是指用户态和内核态间copy数据的次数为零。
+<meta itemprop="description" content="简介零拷贝的“零”是指用户态和内核态间copy数据的次数为零。
 传统的数据copy（文件到文件、client到server等）涉及到四次用户态内核态切换、四次copy。四次copy中，两次在用户态和内核态间copy需要CPU参与、两次在内核态与IO设备间copy为DMA方式不需要CPU参与。零拷贝避免了用户态和内核态间的copy、减少了Java零拷贝机制解析核态间的切换。
-DMA(Direct Memory Access，直接内存存取) 是所有现代电脑的重要特色，它允许不同速度的硬件装置来沟通，而不需要依赖于CPU 的大量中断负载。 DMA控制器，接管了数据读写请求，减少CPU的负担。这样一来，CPU能高效工作了。 现代硬盘基本都支持DMA。
-使用Zero Copy前后对比：
+ DMA(Direct Memory Access，直接内存存取) 是所有现代电脑的重要特色，它允许不同速度的硬件装置来沟通，而不需要依赖于CPU 的大量中断负载。 DMA控制器，接管了数据读写请求，减少CPU的负担。这样一来，CPU能高效工作了。 现代硬盘基本都支持DMA。
+ 使用Zero Copy前后对比：
 使用前：
 使用后：
-Linux支持的(常见)零拷贝 mmap内存映射 sendfile Sendfile With DMA Scatter/Gather Copy splice
+Linux支持的(常见)零拷贝mmap内存映射 sendfile Sendfile With DMA Scatter/Gather Copy splice
 无论是传统IO方式，还是引入零拷贝之后，2次DMA copy 是都少不了的。因为两次DMA都是依赖硬件完成的。
 实际上，零拷贝时有广义和狭义之分的。 广义零拷贝： 能减少拷贝次数，减少不必要的数据拷贝，就算作“零拷贝”。 这是目前，对零拷贝最为广泛的定义，我们需要知道的是，这是广义上的零拷贝，并不是操作系统 意义上的零拷贝。
-Java零拷贝机制解析 Linux提供的领拷贝技术 Java并不是全支持，支持2种(内存映射mmap、sendfile)；
+Java零拷贝机制解析Linux提供的领拷贝技术 Java并不是全支持，支持2种(内存映射mmap、sendfile)；
 NIO提供的内存映射：MappedByteBuffer
 NIO提供的sendfile：FileChannel.transferTo() FileChannel.transferFrom()
-适用场景 数据不需要应用程序计算处理的场景，例如：访问静态资源
-参考 Java中的零拷贝
+适用场景数据不需要应用程序计算处理的场景，例如：访问静态资源
+参考Java中的零拷贝
 Java零拷贝"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="42">
 <meta itemprop="keywords" content="Java," /><meta property="og:title" content="零拷贝" />
-<meta property="og:description" content="简介 零拷贝的“零”是指用户态和内核态间copy数据的次数为零。
+<meta property="og:description" content="简介零拷贝的“零”是指用户态和内核态间copy数据的次数为零。
 传统的数据copy（文件到文件、client到server等）涉及到四次用户态内核态切换、四次copy。四次copy中，两次在用户态和内核态间copy需要CPU参与、两次在内核态与IO设备间copy为DMA方式不需要CPU参与。零拷贝避免了用户态和内核态间的copy、减少了Java零拷贝机制解析核态间的切换。
-DMA(Direct Memory Access，直接内存存取) 是所有现代电脑的重要特色，它允许不同速度的硬件装置来沟通，而不需要依赖于CPU 的大量中断负载。 DMA控制器，接管了数据读写请求，减少CPU的负担。这样一来，CPU能高效工作了。 现代硬盘基本都支持DMA。
-使用Zero Copy前后对比：
+ DMA(Direct Memory Access，直接内存存取) 是所有现代电脑的重要特色，它允许不同速度的硬件装置来沟通，而不需要依赖于CPU 的大量中断负载。 DMA控制器，接管了数据读写请求，减少CPU的负担。这样一来，CPU能高效工作了。 现代硬盘基本都支持DMA。
+ 使用Zero Copy前后对比：
 使用前：
 使用后：
-Linux支持的(常见)零拷贝 mmap内存映射 sendfile Sendfile With DMA Scatter/Gather Copy splice
+Linux支持的(常见)零拷贝mmap内存映射 sendfile Sendfile With DMA Scatter/Gather Copy splice
 无论是传统IO方式，还是引入零拷贝之后，2次DMA copy 是都少不了的。因为两次DMA都是依赖硬件完成的。
 实际上，零拷贝时有广义和狭义之分的。 广义零拷贝： 能减少拷贝次数，减少不必要的数据拷贝，就算作“零拷贝”。 这是目前，对零拷贝最为广泛的定义，我们需要知道的是，这是广义上的零拷贝，并不是操作系统 意义上的零拷贝。
-Java零拷贝机制解析 Linux提供的领拷贝技术 Java并不是全支持，支持2种(内存映射mmap、sendfile)；
+Java零拷贝机制解析Linux提供的领拷贝技术 Java并不是全支持，支持2种(内存映射mmap、sendfile)；
 NIO提供的内存映射：MappedByteBuffer
 NIO提供的sendfile：FileChannel.transferTo() FileChannel.transferFrom()
-适用场景 数据不需要应用程序计算处理的场景，例如：访问静态资源
-参考 Java中的零拷贝
+适用场景数据不需要应用程序计算处理的场景，例如：访问静态资源
+参考Java中的零拷贝
 Java零拷贝" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E9%9B%B6%E6%8B%B7%E8%B4%9D/" /><meta property="article:section" content="posts" />
@@ -65,25 +65,25 @@ Java零拷贝" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="零拷贝"/>
-<meta name="twitter:description" content="简介 零拷贝的“零”是指用户态和内核态间copy数据的次数为零。
+<meta name="twitter:description" content="简介零拷贝的“零”是指用户态和内核态间copy数据的次数为零。
 传统的数据copy（文件到文件、client到server等）涉及到四次用户态内核态切换、四次copy。四次copy中，两次在用户态和内核态间copy需要CPU参与、两次在内核态与IO设备间copy为DMA方式不需要CPU参与。零拷贝避免了用户态和内核态间的copy、减少了Java零拷贝机制解析核态间的切换。
-DMA(Direct Memory Access，直接内存存取) 是所有现代电脑的重要特色，它允许不同速度的硬件装置来沟通，而不需要依赖于CPU 的大量中断负载。 DMA控制器，接管了数据读写请求，减少CPU的负担。这样一来，CPU能高效工作了。 现代硬盘基本都支持DMA。
-使用Zero Copy前后对比：
+ DMA(Direct Memory Access，直接内存存取) 是所有现代电脑的重要特色，它允许不同速度的硬件装置来沟通，而不需要依赖于CPU 的大量中断负载。 DMA控制器，接管了数据读写请求，减少CPU的负担。这样一来，CPU能高效工作了。 现代硬盘基本都支持DMA。
+ 使用Zero Copy前后对比：
 使用前：
 使用后：
-Linux支持的(常见)零拷贝 mmap内存映射 sendfile Sendfile With DMA Scatter/Gather Copy splice
+Linux支持的(常见)零拷贝mmap内存映射 sendfile Sendfile With DMA Scatter/Gather Copy splice
 无论是传统IO方式，还是引入零拷贝之后，2次DMA copy 是都少不了的。因为两次DMA都是依赖硬件完成的。
 实际上，零拷贝时有广义和狭义之分的。 广义零拷贝： 能减少拷贝次数，减少不必要的数据拷贝，就算作“零拷贝”。 这是目前，对零拷贝最为广泛的定义，我们需要知道的是，这是广义上的零拷贝，并不是操作系统 意义上的零拷贝。
-Java零拷贝机制解析 Linux提供的领拷贝技术 Java并不是全支持，支持2种(内存映射mmap、sendfile)；
+Java零拷贝机制解析Linux提供的领拷贝技术 Java并不是全支持，支持2种(内存映射mmap、sendfile)；
 NIO提供的内存映射：MappedByteBuffer
 NIO提供的sendfile：FileChannel.transferTo() FileChannel.transferFrom()
-适用场景 数据不需要应用程序计算处理的场景，例如：访问静态资源
-参考 Java中的零拷贝
+适用场景数据不需要应用程序计算处理的场景，例如：访问静态资源
+参考Java中的零拷贝
 Java零拷贝"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -374,9 +374,9 @@ DMA控制器，接管了数据读写请求，减少CPU的负担。这样一来�
 </blockquote>
 <p>使用Zero Copy前后对比：</p>
 <p>使用前：</p>
-<img src="https://picgo.6and.ltd/img/img_6004188927378-20210621164418998.png" alt="img" style="zoom: 67%;" />
+<p><img src="https://picgo.6and.ltd/img/img_6004188927378-20210621164418998.png" alt="img" style="zoom: 67%;" /></p>
 <p>使用后：</p>
-<img src="https://picgo.6and.ltd/img/img_6004189a09b2f-20210621164426842.png" alt="img" style="zoom:67%;" />
+<p><img src="https://picgo.6and.ltd/img/img_6004189a09b2f-20210621164426842.png" alt="img" style="zoom:67%;" /></p>
 <h2 id="linux支持的常见零拷贝">Linux支持的(常见)零拷贝<a class="anchor ms-1" href="#linux支持的常见零拷贝"><i class="fas fa-link"></i></a></h2>
 <p><code>mmap内存映射</code>    <code>sendfile</code>    <code>Sendfile With DMA Scatter/Gather Copy</code>    <code>splice</code></p>
 <p>无论是传统IO方式，还是引入零拷贝之后，2次DMA copy 是都少不了的。因为两次DMA都是依赖硬件完成的。</p>
@@ -425,10 +425,10 @@ DMA控制器，接管了数据读写请求，减少CPU的负担。这样一来�
 </div></div>
   <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
     <i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A/">名词解释
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/other/%E9%AB%98%E6%80%A7%E8%83%BD%E6%97%A0%E9%94%81%E9%98%9F%E5%88%97disruptor/">高性能无锁队列Disruptor
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/ai/%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9Ccnn/">卷积神经网络
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/other/%E9%98%BF%E9%87%8C%E4%BA%91%E4%B8%8B%E9%85%8D%E7%BD%AEmysql%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/">阿里云下配置MySQL远程连接
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
@@ -658,7 +658,7 @@ DMA控制器，接管了数据读写请求，减少CPU的负担。这样一来�
         <i class="fa-fw fa-2x fab fa-twitter"></i>
       </a></nav>
 <div class="copyright mb-2">
-  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+  Copyright © 2016-2023 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
   Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
@@ -669,8 +669,8 @@ DMA控制器，接管了数据读写请求，减少CPU的负担。这样一来�
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.785fa4e86518eee08ad9f10fdbc7d3a34d7d772cfe2fbe8809dde82283d7b7c6.js" integrity="sha256-eF&#43;k6GUY7uCK2fEP28fTo019dyz&#43;L76ICd3oIoPXt8Y=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

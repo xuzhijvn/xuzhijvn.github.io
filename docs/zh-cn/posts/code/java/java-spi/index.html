@@ -26,8 +26,8 @@
 <meta name="twitter:description" content="本文不回答SPI是什么？而是结合源码深入剖析SPI该怎么使用。"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -315,65 +315,65 @@
 <p>在JDBC4.0之前，我们开发有连接数据库的时候，通常会用<code>Class.forName(&quot;com.mysql.jdbc.Driver&quot;)</code>这句先加载数据库相关的驱动，然后再进行获取连接等的操作。而JDBC4.0之后不需要用<code>Class.forName(&quot;com.mysql.jdbc.Driver&quot;)</code>来加载驱动，直接获取连接就可以了，现在这种方式就是使用了Java的SPI扩展机制来实现。</p>
 </blockquote>
 <p>直接使用如下代码：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>String url <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;jdbc:xxxx://xxxx:xxxx/xxxx&#34;</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>Connection conn <span style="color:#f92672">=</span> DriverManager<span style="color:#f92672">.</span><span style="color:#a6e22e">getConnection</span><span style="color:#f92672">(</span>url<span style="color:#f92672">,</span>username<span style="color:#f92672">,</span>password<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">.....</span>
-</span></span></code></pre></div><p>这里并没有涉及到spi的使用，接着看下面的解析。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">String url <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;jdbc:xxxx://xxxx:xxxx/xxxx&#34;</span><span style="color:#f92672">;</span>
+Connection conn <span style="color:#f92672">=</span> DriverManager<span style="color:#f92672">.</span><span style="color:#a6e22e">getConnection</span><span style="color:#f92672">(</span>url<span style="color:#f92672">,</span>username<span style="color:#f92672">,</span>password<span style="color:#f92672">);</span>
+<span style="color:#f92672">.....</span>
+</code></pre></div><p>这里并没有涉及到spi的使用，接着看下面的解析。</p>
 <p><code>java.sql.DriverManager</code> 中有一个静态代码块如下：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    loadInitialDrivers<span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>    println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;JDBC DriverManager initialized&#34;</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>可以看到是加载实例化驱动的，接着看loadInitialDrivers方法：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">loadInitialDrivers</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>  	<span style="color:#75715e">//1. 从系统变量中获取有关驱动的定义
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    String drivers<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        drivers <span style="color:#f92672">=</span> AccessController<span style="color:#f92672">.</span><span style="color:#a6e22e">doPrivileged</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> PrivilegedAction<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> System<span style="color:#f92672">.</span><span style="color:#a6e22e">getProperty</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;jdbc.drivers&#34;</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">});</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception ex<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        drivers <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    AccessController<span style="color:#f92672">.</span><span style="color:#a6e22e">doPrivileged</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> PrivilegedAction<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> Void <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>						<span style="color:#75715e">//3. 使用SPI来获取驱动的实现。
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            ServiceLoader<span style="color:#f92672">&lt;</span>Driver<span style="color:#f92672">&gt;</span> loadedDrivers <span style="color:#f92672">=</span> ServiceLoader<span style="color:#f92672">.</span><span style="color:#a6e22e">load</span><span style="color:#f92672">(</span>Driver<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>            Iterator<span style="color:#f92672">&lt;</span>Driver<span style="color:#f92672">&gt;</span> driversIterator <span style="color:#f92672">=</span> loadedDrivers<span style="color:#f92672">.</span><span style="color:#a6e22e">iterator</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">try</span><span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>              	<span style="color:#75715e">//4. 遍历使用SPI获取到的具体实现，实例化各个实现类。
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                <span style="color:#66d9ef">while</span><span style="color:#f92672">(</span>driversIterator<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNext</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>                    driversIterator<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span><span style="color:#f92672">(</span>Throwable t<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Do nothing
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">});</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;DriverManager.initialize: jdbc.drivers = &#34;</span> <span style="color:#f92672">+</span> drivers<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//4. 根据第一步获取到的驱动列表来实例化具体实现类
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>drivers <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> drivers<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>    String<span style="color:#f92672">[]</span> driversList <span style="color:#f92672">=</span> drivers<span style="color:#f92672">.</span><span style="color:#a6e22e">split</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;:&#34;</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;number of Drivers:&#34;</span> <span style="color:#f92672">+</span> driversList<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>String aDriver <span style="color:#f92672">:</span> driversList<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>            println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;DriverManager.Initialize: loading &#34;</span> <span style="color:#f92672">+</span> aDriver<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>            Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span>aDriver<span style="color:#f92672">,</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">,</span>
-</span></span><span style="display:flex;"><span>                    ClassLoader<span style="color:#f92672">.</span><span style="color:#a6e22e">getSystemClassLoader</span><span style="color:#f92672">());</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception ex<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>            println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;DriverManager.Initialize: load failed: &#34;</span> <span style="color:#f92672">+</span> ex<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>   
-</span></span></code></pre></div><p>上面的代码主要步骤是：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">static</span> <span style="color:#f92672">{</span>
+    loadInitialDrivers<span style="color:#f92672">();</span>
+    println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;JDBC DriverManager initialized&#34;</span><span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>可以看到是加载实例化驱动的，接着看loadInitialDrivers方法：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">loadInitialDrivers</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+  	<span style="color:#75715e">//1. 从系统变量中获取有关驱动的定义
+</span><span style="color:#75715e"></span>    String drivers<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+        drivers <span style="color:#f92672">=</span> AccessController<span style="color:#f92672">.</span><span style="color:#a6e22e">doPrivileged</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> PrivilegedAction<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">return</span> System<span style="color:#f92672">.</span><span style="color:#a6e22e">getProperty</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;jdbc.drivers&#34;</span><span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">});</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception ex<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        drivers <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    AccessController<span style="color:#f92672">.</span><span style="color:#a6e22e">doPrivileged</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> PrivilegedAction<span style="color:#f92672">&lt;</span>Void<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">public</span> Void <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+						<span style="color:#75715e">//3. 使用SPI来获取驱动的实现。
+</span><span style="color:#75715e"></span>            ServiceLoader<span style="color:#f92672">&lt;</span>Driver<span style="color:#f92672">&gt;</span> loadedDrivers <span style="color:#f92672">=</span> ServiceLoader<span style="color:#f92672">.</span><span style="color:#a6e22e">load</span><span style="color:#f92672">(</span>Driver<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+            Iterator<span style="color:#f92672">&lt;</span>Driver<span style="color:#f92672">&gt;</span> driversIterator <span style="color:#f92672">=</span> loadedDrivers<span style="color:#f92672">.</span><span style="color:#a6e22e">iterator</span><span style="color:#f92672">();</span>
+            <span style="color:#66d9ef">try</span><span style="color:#f92672">{</span>
+              	<span style="color:#75715e">//4. 遍历使用SPI获取到的具体实现，实例化各个实现类。
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">while</span><span style="color:#f92672">(</span>driversIterator<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNext</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+                    driversIterator<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span><span style="color:#f92672">(</span>Throwable t<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// Do nothing
+</span><span style="color:#75715e"></span>            <span style="color:#f92672">}</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">});</span>
+
+    println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;DriverManager.initialize: jdbc.drivers = &#34;</span> <span style="color:#f92672">+</span> drivers<span style="color:#f92672">);</span>
+
+    <span style="color:#75715e">//4. 根据第一步获取到的驱动列表来实例化具体实现类
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>drivers <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> drivers<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    String<span style="color:#f92672">[]</span> driversList <span style="color:#f92672">=</span> drivers<span style="color:#f92672">.</span><span style="color:#a6e22e">split</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;:&#34;</span><span style="color:#f92672">);</span>
+    println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;number of Drivers:&#34;</span> <span style="color:#f92672">+</span> driversList<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>String aDriver <span style="color:#f92672">:</span> driversList<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;DriverManager.Initialize: loading &#34;</span> <span style="color:#f92672">+</span> aDriver<span style="color:#f92672">);</span>
+            Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span>aDriver<span style="color:#f92672">,</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">,</span>
+                    ClassLoader<span style="color:#f92672">.</span><span style="color:#a6e22e">getSystemClassLoader</span><span style="color:#f92672">());</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception ex<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;DriverManager.Initialize: load failed: &#34;</span> <span style="color:#f92672">+</span> ex<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>   
+</code></pre></div><p>上面的代码主要步骤是：</p>
 <ul>
 <li>从系统变量中获取有关驱动的定义。</li>
 <li>使用SPI来获取驱动的实现。</li>
@@ -381,118 +381,118 @@
 <li>根据第一步获取到的驱动列表来实例化具体实现类。</li>
 </ul>
 <p>我们主要关注2,3步，这两步是SPI的用法，首先看第二步，使用SPI来获取驱动的实现，对应的代码是：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ServiceLoader<span style="color:#f92672">&lt;</span>Driver<span style="color:#f92672">&gt;</span> loadedDrivers <span style="color:#f92672">=</span> ServiceLoader<span style="color:#f92672">.</span><span style="color:#a6e22e">load</span><span style="color:#f92672">(</span>Driver<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
-</span></span></code></pre></div><p>这里没有去<code>META-INF/services</code>目录下查找配置文件，也没有加载具体实现类，做的事情就是封装了我们的接口类型和类加载器，并初始化了一个迭代器。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">ServiceLoader<span style="color:#f92672">&lt;</span>Driver<span style="color:#f92672">&gt;</span> loadedDrivers <span style="color:#f92672">=</span> ServiceLoader<span style="color:#f92672">.</span><span style="color:#a6e22e">load</span><span style="color:#f92672">(</span>Driver<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+</code></pre></div><p>这里没有去<code>META-INF/services</code>目录下查找配置文件，也没有加载具体实现类，做的事情就是封装了我们的接口类型和类加载器，并初始化了一个迭代器。</p>
 <p>接着看第三步，遍历使用SPI获取到的具体实现，实例化各个实现类，对应的代码如下：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">//获取迭代器
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>Iterator<span style="color:#f92672">&lt;</span>Driver<span style="color:#f92672">&gt;</span> driversIterator <span style="color:#f92672">=</span> loadedDrivers<span style="color:#f92672">.</span><span style="color:#a6e22e">iterator</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">//遍历所有的驱动实现
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">while</span><span style="color:#f92672">(</span>driversIterator<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNext</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    driversIterator<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>在遍历的时候，首先调用<code>driversIterator.hasNext()</code>方法，这里会搜索classpath下以及jar包中所有的<code>META-INF/services</code>目录下的<code>java.sql.Driver</code>文件，并找到文件中的实现类的名字。然后是调用<code>driversIterator.next();</code>方法，此时就会根据驱动名字具体实例化各个实现类了。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//获取迭代器
+</span><span style="color:#75715e"></span>Iterator<span style="color:#f92672">&lt;</span>Driver<span style="color:#f92672">&gt;</span> driversIterator <span style="color:#f92672">=</span> loadedDrivers<span style="color:#f92672">.</span><span style="color:#a6e22e">iterator</span><span style="color:#f92672">();</span>
+<span style="color:#75715e">//遍历所有的驱动实现
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">while</span><span style="color:#f92672">(</span>driversIterator<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNext</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+    driversIterator<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>在遍历的时候，首先调用<code>driversIterator.hasNext()</code>方法，这里会搜索classpath下以及jar包中所有的<code>META-INF/services</code>目录下的<code>java.sql.Driver</code>文件，并找到文件中的实现类的名字。然后是调用<code>driversIterator.next();</code>方法，此时就会根据驱动名字具体实例化各个实现类了。</p>
 <p>让我们看下<code>driversIterator.next();</code>方法</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> S <span style="color:#a6e22e">next</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>acc <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> nextService<span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        PrivilegedAction<span style="color:#f92672">&lt;</span>S<span style="color:#f92672">&gt;</span> action <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> PrivilegedAction<span style="color:#f92672">&lt;</span>S<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">public</span> S <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span> <span style="color:#66d9ef">return</span> nextService<span style="color:#f92672">();</span> <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">};</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> AccessController<span style="color:#f92672">.</span><span style="color:#a6e22e">doPrivileged</span><span style="color:#f92672">(</span>action<span style="color:#f92672">,</span> acc<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>继续看 <code>nextService</code> 方法</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> S <span style="color:#a6e22e">nextService</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>hasNextService<span style="color:#f92672">())</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> NoSuchElementException<span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>    String cn <span style="color:#f92672">=</span> nextName<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    nextName <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    Class<span style="color:#f92672">&lt;?&gt;</span> c <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        c <span style="color:#f92672">=</span> Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span>cn<span style="color:#f92672">,</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">,</span> loader<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>ClassNotFoundException x<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        fail<span style="color:#f92672">(</span>service<span style="color:#f92672">,</span>
-</span></span><span style="display:flex;"><span>             <span style="color:#e6db74">&#34;Provider &#34;</span> <span style="color:#f92672">+</span> cn <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; not found&#34;</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>service<span style="color:#f92672">.</span><span style="color:#a6e22e">isAssignableFrom</span><span style="color:#f92672">(</span>c<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        fail<span style="color:#f92672">(</span>service<span style="color:#f92672">,</span>
-</span></span><span style="display:flex;"><span>             <span style="color:#e6db74">&#34;Provider &#34;</span> <span style="color:#f92672">+</span> cn  <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; not a subtype&#34;</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        S p <span style="color:#f92672">=</span> service<span style="color:#f92672">.</span><span style="color:#a6e22e">cast</span><span style="color:#f92672">(</span>c<span style="color:#f92672">.</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">());</span>
-</span></span><span style="display:flex;"><span>        providers<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>cn<span style="color:#f92672">,</span> p<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> p<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Throwable x<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        fail<span style="color:#f92672">(</span>service<span style="color:#f92672">,</span>
-</span></span><span style="display:flex;"><span>             <span style="color:#e6db74">&#34;Provider &#34;</span> <span style="color:#f92672">+</span> cn <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; could not be instantiated&#34;</span><span style="color:#f92672">,</span>
-</span></span><span style="display:flex;"><span>             x<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> Error<span style="color:#f92672">();</span>          <span style="color:#75715e">// This cannot happen
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>直到这里都没看到哪里有实例化，只看到 <code>Class.forName(cn, false, loader);</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> S <span style="color:#a6e22e">next</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>acc <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> nextService<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+        PrivilegedAction<span style="color:#f92672">&lt;</span>S<span style="color:#f92672">&gt;</span> action <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> PrivilegedAction<span style="color:#f92672">&lt;</span>S<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">public</span> S <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span> <span style="color:#66d9ef">return</span> nextService<span style="color:#f92672">();</span> <span style="color:#f92672">}</span>
+        <span style="color:#f92672">};</span>
+        <span style="color:#66d9ef">return</span> AccessController<span style="color:#f92672">.</span><span style="color:#a6e22e">doPrivileged</span><span style="color:#f92672">(</span>action<span style="color:#f92672">,</span> acc<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>继续看 <code>nextService</code> 方法</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> S <span style="color:#a6e22e">nextService</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>hasNextService<span style="color:#f92672">())</span>
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> NoSuchElementException<span style="color:#f92672">();</span>
+    String cn <span style="color:#f92672">=</span> nextName<span style="color:#f92672">;</span>
+    nextName <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+    Class<span style="color:#f92672">&lt;?&gt;</span> c <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+        c <span style="color:#f92672">=</span> Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span>cn<span style="color:#f92672">,</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">,</span> loader<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>ClassNotFoundException x<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        fail<span style="color:#f92672">(</span>service<span style="color:#f92672">,</span>
+             <span style="color:#e6db74">&#34;Provider &#34;</span> <span style="color:#f92672">+</span> cn <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; not found&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>service<span style="color:#f92672">.</span><span style="color:#a6e22e">isAssignableFrom</span><span style="color:#f92672">(</span>c<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+        fail<span style="color:#f92672">(</span>service<span style="color:#f92672">,</span>
+             <span style="color:#e6db74">&#34;Provider &#34;</span> <span style="color:#f92672">+</span> cn  <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; not a subtype&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+        S p <span style="color:#f92672">=</span> service<span style="color:#f92672">.</span><span style="color:#a6e22e">cast</span><span style="color:#f92672">(</span>c<span style="color:#f92672">.</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">());</span>
+        providers<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>cn<span style="color:#f92672">,</span> p<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">return</span> p<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Throwable x<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        fail<span style="color:#f92672">(</span>service<span style="color:#f92672">,</span>
+             <span style="color:#e6db74">&#34;Provider &#34;</span> <span style="color:#f92672">+</span> cn <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; could not be instantiated&#34;</span><span style="color:#f92672">,</span>
+             x<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> Error<span style="color:#f92672">();</span>          <span style="color:#75715e">// This cannot happen
+</span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
+</code></pre></div><p>直到这里都没看到哪里有实例化，只看到 <code>Class.forName(cn, false, loader);</code></p>
 <p>其实，就是在执行类加载的时候实例化的。这是 <code>java.sql.Driver</code> 强制要求的：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">/**
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> *
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * &lt;P&gt;When a Driver class is loaded, it should create an instance of
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * itself and register it with the DriverManager. This means that a
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * user can load and register a driver by calling:
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * &lt;p&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * {@code Class.forName(&#34;foo.bah.Driver&#34;)}
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * &lt;p&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> */</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Driver</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>		<span style="color:#75715e">//...
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>注释提到，在执行 <code>Class.forName(&quot;foo.bah.Driver&quot;)</code> 的时候必须 <code>实例化</code> 并且向DriverManager <code>注册</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">/**
+</span><span style="color:#75715e"> *
+</span><span style="color:#75715e"> * &lt;P&gt;When a Driver class is loaded, it should create an instance of
+</span><span style="color:#75715e"> * itself and register it with the DriverManager. This means that a
+</span><span style="color:#75715e"> * user can load and register a driver by calling:
+</span><span style="color:#75715e"> * &lt;p&gt;
+</span><span style="color:#75715e"> * {@code Class.forName(&#34;foo.bah.Driver&#34;)}
+</span><span style="color:#75715e"> * &lt;p&gt;
+</span><span style="color:#75715e"> */</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Driver</span> <span style="color:#f92672">{</span>
+		<span style="color:#75715e">//...
+</span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
+</code></pre></div><p>注释提到，在执行 <code>Class.forName(&quot;foo.bah.Driver&quot;)</code> 的时候必须 <code>实例化</code> 并且向DriverManager <code>注册</code></p>
 <p>让我们一起验证一下MySQL有没有遵循Java的强制要求：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Driver</span> <span style="color:#66d9ef">extends</span> NonRegisteringDriver <span style="color:#66d9ef">implements</span> java<span style="color:#f92672">.</span><span style="color:#a6e22e">sql</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Driver</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Driver</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> SQLException <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>            DriverManager<span style="color:#f92672">.</span><span style="color:#a6e22e">registerDriver</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Driver<span style="color:#f92672">());</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>SQLException var1<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Can&#39;t register driver!&#34;</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>现在驱动就被找到并实例化了。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Driver</span> <span style="color:#66d9ef">extends</span> NonRegisteringDriver <span style="color:#66d9ef">implements</span> java<span style="color:#f92672">.</span><span style="color:#a6e22e">sql</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Driver</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Driver</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> SQLException <span style="color:#f92672">{</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">static</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            DriverManager<span style="color:#f92672">.</span><span style="color:#a6e22e">registerDriver</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Driver<span style="color:#f92672">());</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>SQLException var1<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Can&#39;t register driver!&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>现在驱动就被找到并实例化了。</p>
 <p>如果同时存在多个驱动（多个SPI实现），那DriverManager又该选择用哪个驱动呢？</p>
 <p>源码面前无秘密㊙️，让我们看下存在多个驱动的情况下，DriverManager选择哪个驱动获得连接呢？</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">//  Worker method called by the public getConnection() methods.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Connection <span style="color:#a6e22e">getConnection</span><span style="color:#f92672">(</span>
-</span></span><span style="display:flex;"><span>    String url<span style="color:#f92672">,</span> java<span style="color:#f92672">.</span><span style="color:#a6e22e">util</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Properties</span> info<span style="color:#f92672">,</span> Class<span style="color:#f92672">&lt;?&gt;</span> caller<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> SQLException <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//省略...
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>DriverInfo aDriver <span style="color:#f92672">:</span> registeredDrivers<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// If the caller does not have permission to load the driver then
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">// skip it.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>isDriverAllowed<span style="color:#f92672">(</span>aDriver<span style="color:#f92672">.</span><span style="color:#a6e22e">driver</span><span style="color:#f92672">,</span> callerCL<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>                println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;    trying &#34;</span> <span style="color:#f92672">+</span> aDriver<span style="color:#f92672">.</span><span style="color:#a6e22e">driver</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">());</span>
-</span></span><span style="display:flex;"><span>                Connection con <span style="color:#f92672">=</span> aDriver<span style="color:#f92672">.</span><span style="color:#a6e22e">driver</span><span style="color:#f92672">.</span><span style="color:#a6e22e">connect</span><span style="color:#f92672">(</span>url<span style="color:#f92672">,</span> info<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>con <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>                    <span style="color:#75715e">// Success!
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                    println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;getConnection returning &#34;</span> <span style="color:#f92672">+</span> aDriver<span style="color:#f92672">.</span><span style="color:#a6e22e">driver</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">());</span>
-</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">return</span> <span style="color:#f92672">(</span>con<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>SQLException ex<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>reason <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>                    reason <span style="color:#f92672">=</span> ex<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>            println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;    skipping: &#34;</span> <span style="color:#f92672">+</span> aDriver<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">());</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>     <span style="color:#75715e">//省略...
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>遍历驱动注册链表 <code>registeredDrivers</code> ，有一个驱动获得连接成功就返回。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//  Worker method called by the public getConnection() methods.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Connection <span style="color:#a6e22e">getConnection</span><span style="color:#f92672">(</span>
+    String url<span style="color:#f92672">,</span> java<span style="color:#f92672">.</span><span style="color:#a6e22e">util</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Properties</span> info<span style="color:#f92672">,</span> Class<span style="color:#f92672">&lt;?&gt;</span> caller<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> SQLException <span style="color:#f92672">{</span>
+    
+    <span style="color:#75715e">//省略...
+</span><span style="color:#75715e"></span>
+    <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>DriverInfo aDriver <span style="color:#f92672">:</span> registeredDrivers<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// If the caller does not have permission to load the driver then
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// skip it.
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>isDriverAllowed<span style="color:#f92672">(</span>aDriver<span style="color:#f92672">.</span><span style="color:#a6e22e">driver</span><span style="color:#f92672">,</span> callerCL<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+                println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;    trying &#34;</span> <span style="color:#f92672">+</span> aDriver<span style="color:#f92672">.</span><span style="color:#a6e22e">driver</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">());</span>
+                Connection con <span style="color:#f92672">=</span> aDriver<span style="color:#f92672">.</span><span style="color:#a6e22e">driver</span><span style="color:#f92672">.</span><span style="color:#a6e22e">connect</span><span style="color:#f92672">(</span>url<span style="color:#f92672">,</span> info<span style="color:#f92672">);</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>con <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#75715e">// Success!
+</span><span style="color:#75715e"></span>                    println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;getConnection returning &#34;</span> <span style="color:#f92672">+</span> aDriver<span style="color:#f92672">.</span><span style="color:#a6e22e">driver</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">());</span>
+                    <span style="color:#66d9ef">return</span> <span style="color:#f92672">(</span>con<span style="color:#f92672">);</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>SQLException ex<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>reason <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    reason <span style="color:#f92672">=</span> ex<span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;    skipping: &#34;</span> <span style="color:#f92672">+</span> aDriver<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">());</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+    
+     <span style="color:#75715e">//省略...
+</span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
+</code></pre></div><p>遍历驱动注册链表 <code>registeredDrivers</code> ，有一个驱动获得连接成功就返回。</p>
 <h2 id="参考">参考<a class="anchor ms-1" href="#参考"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://www.jianshu.com/p/46b42f7f593c" target="_blank" rel="noopener noreferrer">高级开发必须理解的Java中SPI机制</a></p>
 <p><a href="https://pdai.tech/md/java/advanced/java-advanced-spi.html" target="_blank" rel="noopener noreferrer">Java常用机制 - SPI机制详解</a></p>
@@ -754,7 +754,7 @@
         <i class="fa-fw fa-2x fab fa-twitter"></i>
       </a></nav>
 <div class="copyright mb-2">
-  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+  Copyright © 2016-2023 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
   Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
@@ -765,8 +765,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.785fa4e86518eee08ad9f10fdbc7d3a34d7d772cfe2fbe8809dde82283d7b7c6.js" integrity="sha256-eF&#43;k6GUY7uCK2fEP28fTo019dyz&#43;L76ICd3oIoPXt8Y=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

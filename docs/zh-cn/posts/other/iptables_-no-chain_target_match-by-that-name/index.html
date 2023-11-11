@@ -54,8 +54,8 @@ systemctl restart docker 重启docker服务，之后，正确的iptables规则�
 Docker 启动时报错：iptables:No chain/target/match by the name"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -336,8 +336,8 @@ Docker 启动时报错：iptables:No chain/target/match by the name"/>
 </div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>iptables: No chain/target/match by that name.</p>
 <p>重启redis镜像的时候报错如下：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>ERROR: <span style="color:#66d9ef">for</span> redis Cannot start service redis: driver failed programming external connectivity on endpoint redis <span style="color:#f92672">(</span>f5211771e5a0ee705edb72f8a8dfbca2503456ab0e8330a32932b029a7c0568d<span style="color:#f92672">)</span>: <span style="color:#f92672">(</span>iptables failed: iptables --wait -t nat -A DOCKER -p tcp -d 0/0 --dport <span style="color:#ae81ff">6379</span> -j DNAT --to-destination 192.168.80.2:6379 ! -i br-fbefac0273aa: iptables: No chain/target/match by that name.
-</span></span></code></pre></div><p>原因：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">ERROR: <span style="color:#66d9ef">for</span> redis Cannot start service redis: driver failed programming external connectivity on endpoint redis <span style="color:#f92672">(</span>f5211771e5a0ee705edb72f8a8dfbca2503456ab0e8330a32932b029a7c0568d<span style="color:#f92672">)</span>: <span style="color:#f92672">(</span>iptables failed: iptables --wait -t nat -A DOCKER -p tcp -d 0/0 --dport <span style="color:#ae81ff">6379</span> -j DNAT --to-destination 192.168.80.2:6379 ! -i br-fbefac0273aa: iptables: No chain/target/match by that name.
+</code></pre></div><p>原因：</p>
 <p>docker 服务启动的时候，docker服务会向iptables注册一个链，以便让docker服务管理的containner所暴露的端口之间进行通信。通过命令<code>iptables -L</code>可以查看iptables 链。如果你删除了iptables中的docker链，或者iptables的规则被丢失了（例如重启firewalld，我就是使用了<code>systemctl stop iptables</code>导致链丢失），docker就会报这个错误。</p>
 <p>解决办法：</p>
 <p><code>systemctl restart docker </code>重启docker服务，之后，正确的iptables规则就会被创建出来。</p>
@@ -371,7 +371,7 @@ Docker 启动时报错：iptables:No chain/target/match by the name"/>
 </div></div>
   <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
     <i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%AE%9E%E6%88%98/istio%E5%AE%89%E8%A3%85/">istio安装
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/istio/istio%E5%9F%BA%E7%A1%80/istio%E5%8E%9F%E7%90%86/">istio原理
 </a>
   </div><div class="post-nav post-next">
     <a href="https://xuzhijvn.github.io/zh-cn/posts/code/exception/io.lettuce.core.rediscommandtimeoutexception_-comm/">io.lettuce.core.RedisCommandTimeoutException: Command timed out after 5 second(s)
@@ -589,7 +589,7 @@ Docker 启动时报错：iptables:No chain/target/match by the name"/>
         <i class="fa-fw fa-2x fab fa-twitter"></i>
       </a></nav>
 <div class="copyright mb-2">
-  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+  Copyright © 2016-2023 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
   Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
@@ -600,8 +600,8 @@ Docker 启动时报错：iptables:No chain/target/match by the name"/>
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.785fa4e86518eee08ad9f10fdbc7d3a34d7d772cfe2fbe8809dde82283d7b7c6.js" integrity="sha256-eF&#43;k6GUY7uCK2fEP28fTo019dyz&#43;L76ICd3oIoPXt8Y=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

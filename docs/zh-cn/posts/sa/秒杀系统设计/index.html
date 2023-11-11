@@ -26,8 +26,8 @@
 <meta name="twitter:description" content=""/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -319,7 +319,7 @@
 <p>在高并发下，同一时刻会有大量的请求，都在秒杀同一件商品，这些请求同时去查缓存中没有数据，然后又同时访问数据库。结果悲剧了，数据库可能扛不住压力，直接挂掉。</p>
 <p>如何解决这个问题呢？</p>
 <p>这就需要加锁，最好使用<code>分布式锁</code>。</p>
-<img src="https://picgo.6and.ltd/img/acasr-romy9-20210908154939911.jpg" alt="缓存击穿" style="zoom: 50%;" />
+<p><img src="https://picgo.6and.ltd/img/acasr-romy9-20210908154939911.jpg" alt="缓存击穿" style="zoom: 50%;" /></p>
 <p>当然，针对这种情况，最好在项目启动之前，先把缓存进行<code>预热</code>。即事先把所有的商品，同步到缓存中，这样商品基本都能直接从缓存中获取到，就不会出现缓存击穿的问题了。</p>
 <p>是不是上面加锁这一步可以不需要了？</p>
 <p>表面上看起来，确实可以不需要。但如果缓存中设置的过期时间不对，缓存提前过期了，或者缓存被不小心删除了，如果不加速同样可能出现缓存击穿。</p>
@@ -329,17 +329,17 @@
 <p>由于前面已经加了锁，所以即使这里的并发量很大，也不会导致数据库直接挂掉。</p>
 <p>但很显然这些请求的处理性能并不好，有没有更好的解决方案？</p>
 <p>这时可以想到<code>布隆过滤器</code>。</p>
-<img src="https://picgo.6and.ltd/img/布隆过滤器.webp" alt="布隆过滤器" style="zoom:50%;" />
+<p><img src="https://picgo.6and.ltd/img/布隆过滤器.webp" alt="布隆过滤器" style="zoom:50%;" /></p>
 <p>秒杀开始前，将所有商品id初始化到布隆过滤器，不存在需要更新布隆过滤器的情况，如果前端请求传来不存在的id的，那么请求大概率会被布隆过滤器拦截（被布隆过滤器命中的id不一定是真的存在，但是没命中的id一定不存在）。</p>
 <h2 id="3-库存问题">3. 库存问题<a class="anchor ms-1" href="#3-库存问题"><i class="fas fa-link"></i></a></h2>
 <p>真正的秒杀商品的场景，不是说扣完库存，就完事了，如果用户在一段时间内，还没完成支付，扣减的库存是要加回去的。</p>
 <p>所以，在这里引出了一个<code>预扣库存</code>的概念，预扣库存的主要流程如下：</p>
-<img src="https://picgo.6and.ltd/img/预扣库存.webp" alt="预扣库存" style="zoom:50%;" />
+<p><img src="https://picgo.6and.ltd/img/预扣库存.webp" alt="预扣库存" style="zoom:50%;" /></p>
 <p>扣减库存中除了上面说到的<code>预扣库存</code>和<code>回退库存</code>之外，还需要特别注意的是库存不足和库存超卖问题。</p>
 <h3 id="31-预扣库存">3.1 预扣库存<a class="anchor ms-1" href="#31-预扣库存"><i class="fas fa-link"></i></a></h3>
 <p>虽然前面我们我做了分布式锁、缓存等措施，防止过多查询请求直接去到数据库，但是这些措施都是针对查询请求的，扣减库存的时候仍然可能有大量请求并发去到数据库，例如：同时有10万个请求查询缓存得到当前库存量不等于0，它们接下来全都要去数据库扣减库存。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">update</span> product <span style="color:#66d9ef">set</span> stock<span style="color:#f92672">=</span>stock<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#66d9ef">where</span> id<span style="color:#f92672">=</span>product <span style="color:#66d9ef">and</span> stock <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>;
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">update</span> product <span style="color:#66d9ef">set</span> stock<span style="color:#f92672">=</span>stock<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#66d9ef">where</span> id<span style="color:#f92672">=</span>product <span style="color:#66d9ef">and</span> stock <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>;
+</code></pre></div><blockquote>
 <p>上面的sql有点类似数据库乐观锁的思想，保证不会超卖。</p>
 </blockquote>
 <p>这里我们可以采取<code>限流</code>措施（可以用sentinel等），例如：虽然有10万个请求将要扣减库存，但是我们只分配1000个数据库扣减名额（sentinel令牌桶🪣），甚至都不用分配1000个名额，因为秒杀商品数量肯定是已知的，假设秒杀商品数量为10个，那我们只需要放行10个扣减库存的请求去到数据库即可。</p>
@@ -356,17 +356,17 @@
 <p>还有更好的方案？</p>
 <p>答：使用<code>延迟队列</code>。</p>
 <p>我们都知道rocketmq，自带了延迟队列的功能。</p>
-<img src="https://picgo.6and.ltd/img/库存回退.jpg" alt="库存回退" style="zoom:50%;" />
+<p><img src="https://picgo.6and.ltd/img/库存回退.jpg" alt="库存回退" style="zoom:50%;" /></p>
 <p>下单时消息生产者会先生成订单，此时状态为待支付，然后会向延迟队列中发一条消息。达到了延迟时间，消息消费者读取消息之后，会查询该订单的状态是否为待支付。如果是待支付状态，则会更新订单状态为取消状态。如果不是待支付状态，说明该订单已经支付过了，则直接返回。</p>
 <p>当然需要完成上述功能，需要用户完成支付之后，修改订单状态为已支付。具体来说，支付系统完成支付之后，回调秒杀系统这边提供的<code>回调接口</code>去修改订单支付状态。</p>
-<img src="https://picgo.6and.ltd/img/已支付.webp" alt="已支付" style="zoom:50%;" />
+<p><img src="https://picgo.6and.ltd/img/已支付.webp" alt="已支付" style="zoom:50%;" /></p>
 <h2 id="4-接口限流">4. 接口限流<a class="anchor ms-1" href="#4-接口限流"><i class="fas fa-link"></i></a></h2>
 <p>通过秒杀活动，如果我们运气爆棚，可能会用非常低的价格买到不错的商品（这种概率堪比买福利彩票中大奖）。</p>
 <p>但有些高手，并不会像我们一样老老实实，通过秒杀页面点击秒杀按钮，抢购商品。他们可能在自己的服务器上，模拟正常用户登录系统，跳过秒杀页面，直接调用秒杀接口。</p>
 <p>如果是我们手动操作，一般情况下，一秒钟只能点击一次秒杀按钮。</p>
-<img src="https://picgo.6and.ltd/img/手动操作.png" alt="手动操作" style="zoom:50%;" />
+<p><img src="https://picgo.6and.ltd/img/手动操作.png" alt="手动操作" style="zoom:50%;" /></p>
 <p>但是如果是服务器，一秒钟可以请求成上千接口。</p>
-<img src="https://picgo.6and.ltd/img/非法操作.webp" alt="非法操作" style="zoom:50%;" />
+<p><img src="https://picgo.6and.ltd/img/非法操作.webp" alt="非法操作" style="zoom:50%;" /></p>
 <p>这种差距实在太明显了，如果不做任何限制，绝大部分商品可能是被机器抢到，而非正常的用户，有点不太公平。</p>
 <p>所以，我们有必要识别这些非法请求，做一些限制。那么，我们该如何现在这些非法请求呢？</p>
 <p>目前有两种常用的限流方式：</p>
@@ -666,7 +666,7 @@
         <i class="fa-fw fa-2x fab fa-twitter"></i>
       </a></nav>
 <div class="copyright mb-2">
-  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+  Copyright © 2016-2023 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
   Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
@@ -677,8 +677,8 @@
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.785fa4e86518eee08ad9f10fdbc7d3a34d7d772cfe2fbe8809dde82283d7b7c6.js" integrity="sha256-eF&#43;k6GUY7uCK2fEP28fTo019dyz&#43;L76ICd3oIoPXt8Y=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

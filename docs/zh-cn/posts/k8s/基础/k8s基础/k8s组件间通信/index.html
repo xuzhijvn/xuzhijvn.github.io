@@ -10,40 +10,36 @@
 <link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
 <meta name="keywords" content="" />
 <meta name="description" content="Kubernetes 多组件之间的通信原理：
-apiserver 负责 etcd 存储的所有操作，且只有 apiserver 才直接操作 etcd 集群 apiserver 对内（集群中的其他组件）和对外（用户）提供统一的 REST API，其他组件均通过 apiserver 进行通信 controller manager、scheduler、kube-proxy 和 kubelet 等均通过 apiserver watch API 监测资源变化情况，并对资源作相应的操作 所有需要更新资源状态的操作均通过 apiserver 的 REST API 进行 apiserver 也会直接调用 kubelet API（如 logs, exec, attach 等），默认不校验 kubelet 证书，但可以通过 --kubelet-certificate-authority 开启（而 GKE 通过 SSH 隧道保护它们之间的通信） 比如最典型的创建 Pod 的流程：
-通过 CLI 或者 UI 提交 Pod 部署请求给 Kubernetes API Server
-API Server 会把这个信息写入到它的存储系统 etcd
-Scheduler 会通过 API Server 的 watch 或者叫做 notification 机制得到这个信息：有一个 Pod 需要被调度" /><meta itemprop="name" content="k8s组件间通信">
+ apiserver 负责 etcd 存储的所有操作，且只有 apiserver 才直接操作 etcd 集群 apiserver 对内（集群中的其他组件）和对外（用户）提供统一的 REST API，其他组件均通过 apiserver 进行通信  controller manager、scheduler、kube-proxy 和 kubelet 等均通过 apiserver watch API 监测资源变化情况，并对资源作相应的操作 所有需要更新资源状态的操作均通过 apiserver 的 REST API 进行   apiserver 也会直接调用 kubelet API（如 logs, exec, attach 等），默认不校验 kubelet 证书，但可以通过 --kubelet-certificate-authority 开启（而 GKE 通过 SSH 隧道保护它们之间的通信）  比如最典型的创建 Pod 的流程：
+  通过 CLI 或者 UI 提交 Pod 部署请求给 Kubernetes API Server
+  API Server 会把这个信息写入到它的存储系统 etcd" /><meta itemprop="name" content="k8s组件间通信">
 <meta itemprop="description" content="Kubernetes 多组件之间的通信原理：
-apiserver 负责 etcd 存储的所有操作，且只有 apiserver 才直接操作 etcd 集群 apiserver 对内（集群中的其他组件）和对外（用户）提供统一的 REST API，其他组件均通过 apiserver 进行通信 controller manager、scheduler、kube-proxy 和 kubelet 等均通过 apiserver watch API 监测资源变化情况，并对资源作相应的操作 所有需要更新资源状态的操作均通过 apiserver 的 REST API 进行 apiserver 也会直接调用 kubelet API（如 logs, exec, attach 等），默认不校验 kubelet 证书，但可以通过 --kubelet-certificate-authority 开启（而 GKE 通过 SSH 隧道保护它们之间的通信） 比如最典型的创建 Pod 的流程：
-通过 CLI 或者 UI 提交 Pod 部署请求给 Kubernetes API Server
-API Server 会把这个信息写入到它的存储系统 etcd
-Scheduler 会通过 API Server 的 watch 或者叫做 notification 机制得到这个信息：有一个 Pod 需要被调度"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+ apiserver 负责 etcd 存储的所有操作，且只有 apiserver 才直接操作 etcd 集群 apiserver 对内（集群中的其他组件）和对外（用户）提供统一的 REST API，其他组件均通过 apiserver 进行通信  controller manager、scheduler、kube-proxy 和 kubelet 等均通过 apiserver watch API 监测资源变化情况，并对资源作相应的操作 所有需要更新资源状态的操作均通过 apiserver 的 REST API 进行   apiserver 也会直接调用 kubelet API（如 logs, exec, attach 等），默认不校验 kubelet 证书，但可以通过 --kubelet-certificate-authority 开启（而 GKE 通过 SSH 隧道保护它们之间的通信）  比如最典型的创建 Pod 的流程：
+  通过 CLI 或者 UI 提交 Pod 部署请求给 Kubernetes API Server
+  API Server 会把这个信息写入到它的存储系统 etcd"><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="100">
 <meta itemprop="keywords" content="云原生,k8s," /><meta property="og:title" content="k8s组件间通信" />
 <meta property="og:description" content="Kubernetes 多组件之间的通信原理：
-apiserver 负责 etcd 存储的所有操作，且只有 apiserver 才直接操作 etcd 集群 apiserver 对内（集群中的其他组件）和对外（用户）提供统一的 REST API，其他组件均通过 apiserver 进行通信 controller manager、scheduler、kube-proxy 和 kubelet 等均通过 apiserver watch API 监测资源变化情况，并对资源作相应的操作 所有需要更新资源状态的操作均通过 apiserver 的 REST API 进行 apiserver 也会直接调用 kubelet API（如 logs, exec, attach 等），默认不校验 kubelet 证书，但可以通过 --kubelet-certificate-authority 开启（而 GKE 通过 SSH 隧道保护它们之间的通信） 比如最典型的创建 Pod 的流程：
-通过 CLI 或者 UI 提交 Pod 部署请求给 Kubernetes API Server
-API Server 会把这个信息写入到它的存储系统 etcd
-Scheduler 会通过 API Server 的 watch 或者叫做 notification 机制得到这个信息：有一个 Pod 需要被调度" />
+ apiserver 负责 etcd 存储的所有操作，且只有 apiserver 才直接操作 etcd 集群 apiserver 对内（集群中的其他组件）和对外（用户）提供统一的 REST API，其他组件均通过 apiserver 进行通信  controller manager、scheduler、kube-proxy 和 kubelet 等均通过 apiserver watch API 监测资源变化情况，并对资源作相应的操作 所有需要更新资源状态的操作均通过 apiserver 的 REST API 进行   apiserver 也会直接调用 kubelet API（如 logs, exec, attach 等），默认不校验 kubelet 证书，但可以通过 --kubelet-certificate-authority 开启（而 GKE 通过 SSH 隧道保护它们之间的通信）  比如最典型的创建 Pod 的流程：
+  通过 CLI 或者 UI 提交 Pod 部署请求给 Kubernetes API Server
+  API Server 会把这个信息写入到它的存储系统 etcd" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E7%BB%84%E4%BB%B6%E9%97%B4%E9%80%9A%E4%BF%A1/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
 <meta property="article:modified_time" content="2021-08-27T11:15:10+08:00" />
-<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/ingress%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%8A%9F%E8%83%BD/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/k8s%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%9E%B6%E6%9E%84/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%8E%A5%E5%8F%A3/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E7%BB%84%E4%BB%B6/" />
+<meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/ingress%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%8A%9F%E8%83%BD/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80%E6%89%AB%E7%9B%B2/k8s%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%8E%A5%E5%8F%A3/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E6%9E%B6%E6%9E%84/" /><meta property="og:see_also" content="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E7%BB%84%E4%BB%B6/" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="k8s组件间通信"/>
 <meta name="twitter:description" content="Kubernetes 多组件之间的通信原理：
-apiserver 负责 etcd 存储的所有操作，且只有 apiserver 才直接操作 etcd 集群 apiserver 对内（集群中的其他组件）和对外（用户）提供统一的 REST API，其他组件均通过 apiserver 进行通信 controller manager、scheduler、kube-proxy 和 kubelet 等均通过 apiserver watch API 监测资源变化情况，并对资源作相应的操作 所有需要更新资源状态的操作均通过 apiserver 的 REST API 进行 apiserver 也会直接调用 kubelet API（如 logs, exec, attach 等），默认不校验 kubelet 证书，但可以通过 --kubelet-certificate-authority 开启（而 GKE 通过 SSH 隧道保护它们之间的通信） 比如最典型的创建 Pod 的流程：
-通过 CLI 或者 UI 提交 Pod 部署请求给 Kubernetes API Server
-API Server 会把这个信息写入到它的存储系统 etcd
-Scheduler 会通过 API Server 的 watch 或者叫做 notification 机制得到这个信息：有一个 Pod 需要被调度"/>
+ apiserver 负责 etcd 存储的所有操作，且只有 apiserver 才直接操作 etcd 集群 apiserver 对内（集群中的其他组件）和对外（用户）提供统一的 REST API，其他组件均通过 apiserver 进行通信  controller manager、scheduler、kube-proxy 和 kubelet 等均通过 apiserver watch API 监测资源变化情况，并对资源作相应的操作 所有需要更新资源状态的操作均通过 apiserver 的 REST API 进行   apiserver 也会直接调用 kubelet API（如 logs, exec, attach 等），默认不校验 kubelet 证书，但可以通过 --kubelet-certificate-authority 开启（而 GKE 通过 SSH 隧道保护它们之间的通信）  比如最典型的创建 Pod 的流程：
+  通过 CLI 或者 UI 提交 Pod 部署请求给 Kubernetes API Server
+  API Server 会把这个信息写入到它的存储系统 etcd"/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -334,7 +330,7 @@ Scheduler 会通过 API Server 的 watch 或者叫做 notification 机制得到�
 <li>apiserver 也会直接调用 kubelet API（如 logs, exec, attach 等），默认不校验 kubelet 证书，但可以通过 <code>--kubelet-certificate-authority</code> 开启（而 GKE 通过 SSH 隧道保护它们之间的通信）</li>
 </ul>
 <p>比如最典型的创建 Pod 的流程：</p>
-<img src="http://picgo.6and.ltd/img/k8s-pod-process.png" alt="k8s pod" style="zoom:67%;" />
+<p><img src="http://picgo.6and.ltd/img/k8s-pod-process.png" alt="k8s pod" style="zoom:67%;" /></p>
 <ol>
 <li>
 <p>通过 <code>CLI 或者 UI</code> 提交 Pod 部署请求给 Kubernetes API Server</p>
@@ -394,7 +390,7 @@ Scheduler 会通过 API Server 的 watch 或者叫做 notification 机制得到�
 </div></div>
   <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
     <i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/other/linux%E9%85%8D%E7%BD%AEgit%E8%B4%A6%E5%8F%B7%E5%AF%86%E7%A0%81/">Linux配置git账号密码
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%AE%9E%E6%88%98/k8s%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8%E5%89%8D%E7%AB%AF%E9%9D%99%E6%80%81/">k8s部署应用(前端静态)
 </a>
   </div><div class="post-nav post-next">
     <a href="https://xuzhijvn.github.io/zh-cn/posts/k8s/%E5%9F%BA%E7%A1%80/k8s%E5%9F%BA%E7%A1%80/k8s%E7%BB%84%E4%BB%B6/">k8s组件
@@ -612,7 +608,7 @@ Scheduler 会通过 API Server 的 watch 或者叫做 notification 机制得到�
         <i class="fa-fw fa-2x fab fa-twitter"></i>
       </a></nav>
 <div class="copyright mb-2">
-  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+  Copyright © 2016-2023 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
   Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
@@ -623,8 +619,8 @@ Scheduler 会通过 API Server 的 watch 或者叫做 notification 机制得到�
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.785fa4e86518eee08ad9f10fdbc7d3a34d7d772cfe2fbe8809dde82283d7b7c6.js" integrity="sha256-eF&#43;k6GUY7uCK2fEP28fTo019dyz&#43;L76ICd3oIoPXt8Y=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

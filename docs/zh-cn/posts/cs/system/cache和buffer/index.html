@@ -11,28 +11,25 @@
 <meta name="keywords" content="" />
 <meta name="description" content="首先我们使用 free -m 查看系统内存的使用情况：
 可以看出，系统内存为 16G，Swap 内存 16G，mem free 虽然显示为 1118，因缓存的存在，不能认为系统目前内剩下这么多内存。而应该把 buffers、cached 的也算上，即 free&#43;cached&#43;buffers=1118&#43;7110&#43;430＝8658，总内存再减去 8658＝7314，与 buffers/cache 行中对应 free 列的 7312 和 8659 基本一致。
-这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念
-Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
-从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
-[root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0 使用 hostnamectl 或者 cat /proc/version 可以查看内核版本：
-[root@k8s-node3 ~]# hostnamectl Static hostname: k8s-node3 Pretty hostname: VM-0-4-centos Icon name: computer-vm Chassis: vm Machine ID: 8a248d59684442b3a2edd315013b7d1f Boot ID: c14dd5b3b84646a58a98db62d5379832 Virtualization: kvm Operating System: CentOS Linux 7 (Core) CPE OS Name: cpe:/o:centos:centos:7 Kernel: Linux 3." /><meta itemprop="name" content="cache和buffer">
+ 这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念
+  Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
+ 从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
+[root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0  使用 hostnamectl 或者 cat /proc/version 可以查看内核版本：" /><meta itemprop="name" content="cache和buffer">
 <meta itemprop="description" content="首先我们使用 free -m 查看系统内存的使用情况：
 可以看出，系统内存为 16G，Swap 内存 16G，mem free 虽然显示为 1118，因缓存的存在，不能认为系统目前内剩下这么多内存。而应该把 buffers、cached 的也算上，即 free&#43;cached&#43;buffers=1118&#43;7110&#43;430＝8658，总内存再减去 8658＝7314，与 buffers/cache 行中对应 free 列的 7312 和 8659 基本一致。
-这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念
-Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
-从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
-[root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0 使用 hostnamectl 或者 cat /proc/version 可以查看内核版本：
-[root@k8s-node3 ~]# hostnamectl Static hostname: k8s-node3 Pretty hostname: VM-0-4-centos Icon name: computer-vm Chassis: vm Machine ID: 8a248d59684442b3a2edd315013b7d1f Boot ID: c14dd5b3b84646a58a98db62d5379832 Virtualization: kvm Operating System: CentOS Linux 7 (Core) CPE OS Name: cpe:/o:centos:centos:7 Kernel: Linux 3."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+ 这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念
+  Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
+ 从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
+[root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0  使用 hostnamectl 或者 cat /proc/version 可以查看内核版本："><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="192">
 <meta itemprop="keywords" content="CS,System," /><meta property="og:title" content="cache和buffer" />
 <meta property="og:description" content="首先我们使用 free -m 查看系统内存的使用情况：
 可以看出，系统内存为 16G，Swap 内存 16G，mem free 虽然显示为 1118，因缓存的存在，不能认为系统目前内剩下这么多内存。而应该把 buffers、cached 的也算上，即 free&#43;cached&#43;buffers=1118&#43;7110&#43;430＝8658，总内存再减去 8658＝7314，与 buffers/cache 行中对应 free 列的 7312 和 8659 基本一致。
-这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念
-Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
-从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
-[root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0 使用 hostnamectl 或者 cat /proc/version 可以查看内核版本：
-[root@k8s-node3 ~]# hostnamectl Static hostname: k8s-node3 Pretty hostname: VM-0-4-centos Icon name: computer-vm Chassis: vm Machine ID: 8a248d59684442b3a2edd315013b7d1f Boot ID: c14dd5b3b84646a58a98db62d5379832 Virtualization: kvm Operating System: CentOS Linux 7 (Core) CPE OS Name: cpe:/o:centos:centos:7 Kernel: Linux 3." />
+ 这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念
+  Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
+ 从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
+[root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0  使用 hostnamectl 或者 cat /proc/version 可以查看内核版本：" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/cs/system/cache%E5%92%8Cbuffer/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -43,15 +40,14 @@ Linux内核为了提高读写效率与速度，会将文件在内存中进行缓
 <meta name="twitter:title" content="cache和buffer"/>
 <meta name="twitter:description" content="首先我们使用 free -m 查看系统内存的使用情况：
 可以看出，系统内存为 16G，Swap 内存 16G，mem free 虽然显示为 1118，因缓存的存在，不能认为系统目前内剩下这么多内存。而应该把 buffers、cached 的也算上，即 free&#43;cached&#43;buffers=1118&#43;7110&#43;430＝8658，总内存再减去 8658＝7314，与 buffers/cache 行中对应 free 列的 7312 和 8659 基本一致。
-这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念
-Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
-从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
-[root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0 使用 hostnamectl 或者 cat /proc/version 可以查看内核版本：
-[root@k8s-node3 ~]# hostnamectl Static hostname: k8s-node3 Pretty hostname: VM-0-4-centos Icon name: computer-vm Chassis: vm Machine ID: 8a248d59684442b3a2edd315013b7d1f Boot ID: c14dd5b3b84646a58a98db62d5379832 Virtualization: kvm Operating System: CentOS Linux 7 (Core) CPE OS Name: cpe:/o:centos:centos:7 Kernel: Linux 3."/>
+ 这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 Swap交换分区概念
+  Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
+ 从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 Linux IO的buffer cache和page cache合并的原因），所以同样使用 free -m 看到的是：
+[root@k8s-node3 ~]# free -m total used free shared buff/cache available Mem: 7820 6577 147 30 1095 907 Swap: 0 0 0  使用 hostnamectl 或者 cat /proc/version 可以查看内核版本："/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -333,7 +329,7 @@ Linux内核为了提高读写效率与速度，会将文件在内存中进行缓
   </span><span class="post-taxonomies"><a href="https://xuzhijvn.github.io/zh-cn/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6/" class="badge post-taxonomy">计算机科学</a><a href="https://xuzhijvn.github.io/zh-cn/series/manual/" class="badge post-taxonomy">Manual</a><a href="https://xuzhijvn.github.io/zh-cn/tags/cs/" class="badge post-taxonomy">CS</a><a href="https://xuzhijvn.github.io/zh-cn/tags/system/" class="badge post-taxonomy">System</a></span>
 </div>
 <div class="post-share mb-3"><div class="addthis_inline_share_toolbox"></div></div><div class="post-content mb-3"><p>首先我们使用 <code>free -m</code> 查看系统内存的使用情况：</p>
-<img src="https://picgo.6and.ltd/img/20200502221926518.png" alt="老版本linux内核" style="zoom:50%;" />
+<p><img src="https://picgo.6and.ltd/img/20200502221926518.png" alt="老版本linux内核" style="zoom:50%;" /></p>
 <p>可以看出，系统内存为 16G，Swap 内存 16G，mem free 虽然显示为 1118，因缓存的存在，不能认为系统目前内剩下这么多内存。而应该把 buffers、cached 的也算上，即 free+cached+buffers=1118+7110+430＝8658，总内存再减去 8658＝7314，与 buffers/cache 行中对应 free 列的 7312 和 8659 基本一致。</p>
 <blockquote>
 <p>这里顺便介绍一下Swap，了解Swap更多详情请移步 👉 <a href="https://www.cnblogs.com/kerrycode/p/5246383.html" target="_blank" rel="noopener noreferrer">Swap交换分区概念</a></p>
@@ -342,29 +338,29 @@ Linux内核为了提高读写效率与速度，会将文件在内存中进行缓
 <p>Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。</p>
 </blockquote>
 <p>从Linux kernel version 2.4开始，buffer/cache合并（详情见 👉 <a href="https://blog.csdn.net/jasonchen_gbd/article/details/80151328" target="_blank" rel="noopener noreferrer">Linux IO的buffer cache和page cache合并的原因</a>），所以同样使用 <code>free -m</code> 看到的是：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-node3 ~<span style="color:#f92672">]</span><span style="color:#75715e"># free -m</span>
-</span></span><span style="display:flex;"><span>              total        used        free      shared  buff/cache   available
-</span></span><span style="display:flex;"><span>Mem:           <span style="color:#ae81ff">7820</span>        <span style="color:#ae81ff">6577</span>         <span style="color:#ae81ff">147</span>          <span style="color:#ae81ff">30</span>        <span style="color:#ae81ff">1095</span>         <span style="color:#ae81ff">907</span>
-</span></span><span style="display:flex;"><span>Swap:             <span style="color:#ae81ff">0</span>           <span style="color:#ae81ff">0</span>           <span style="color:#ae81ff">0</span>
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#f92672">[</span>root@k8s-node3 ~<span style="color:#f92672">]</span><span style="color:#75715e"># free -m</span>
+              total        used        free      shared  buff/cache   available
+Mem:           <span style="color:#ae81ff">7820</span>        <span style="color:#ae81ff">6577</span>         <span style="color:#ae81ff">147</span>          <span style="color:#ae81ff">30</span>        <span style="color:#ae81ff">1095</span>         <span style="color:#ae81ff">907</span>
+Swap:             <span style="color:#ae81ff">0</span>           <span style="color:#ae81ff">0</span>           <span style="color:#ae81ff">0</span>
+</code></pre></div><blockquote>
 <p>使用 <code>hostnamectl</code> 或者 <code>cat /proc/version</code> 可以查看内核版本：</p>
 </blockquote>
 <blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-node3 ~<span style="color:#f92672">]</span><span style="color:#75715e"># hostnamectl</span>
-</span></span><span style="display:flex;"><span>Static hostname: k8s-node3
-</span></span><span style="display:flex;"><span>Pretty hostname: VM-0-4-centos
-</span></span><span style="display:flex;"><span>      Icon name: computer-vm
-</span></span><span style="display:flex;"><span>        Chassis: vm
-</span></span><span style="display:flex;"><span>     Machine ID: 8a248d59684442b3a2edd315013b7d1f
-</span></span><span style="display:flex;"><span>        Boot ID: c14dd5b3b84646a58a98db62d5379832
-</span></span><span style="display:flex;"><span> Virtualization: kvm
-</span></span><span style="display:flex;"><span>Operating System: CentOS Linux <span style="color:#ae81ff">7</span> <span style="color:#f92672">(</span>Core<span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span>    CPE OS Name: cpe:/o:centos:centos:7
-</span></span><span style="display:flex;"><span>         Kernel: Linux 3.10.0-1127.19.1.el7.x86_64
-</span></span><span style="display:flex;"><span>   Architecture: x86-64
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-node3 ~<span style="color:#f92672">]</span><span style="color:#75715e"># cat /proc/version</span>
-</span></span><span style="display:flex;"><span>Linux version 3.10.0-1127.19.1.el7.x86_64 <span style="color:#f92672">(</span>mockbuild@kbuilder.bsys.centos.org<span style="color:#f92672">)</span> <span style="color:#f92672">(</span>gcc version 4.8.5 <span style="color:#ae81ff">20150623</span> <span style="color:#f92672">(</span>Red Hat 4.8.5-39<span style="color:#f92672">)</span> <span style="color:#f92672">(</span>GCC<span style="color:#f92672">)</span> <span style="color:#f92672">)</span> <span style="color:#75715e">#1 SMP Tue Aug 25 17:23:54 UTC 2020</span>
-</span></span></code></pre></div></blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#f92672">[</span>root@k8s-node3 ~<span style="color:#f92672">]</span><span style="color:#75715e"># hostnamectl</span>
+Static hostname: k8s-node3
+Pretty hostname: VM-0-4-centos
+      Icon name: computer-vm
+        Chassis: vm
+     Machine ID: 8a248d59684442b3a2edd315013b7d1f
+        Boot ID: c14dd5b3b84646a58a98db62d5379832
+ Virtualization: kvm
+Operating System: CentOS Linux <span style="color:#ae81ff">7</span> <span style="color:#f92672">(</span>Core<span style="color:#f92672">)</span>
+    CPE OS Name: cpe:/o:centos:centos:7
+         Kernel: Linux 3.10.0-1127.19.1.el7.x86_64
+   Architecture: x86-64
+<span style="color:#f92672">[</span>root@k8s-node3 ~<span style="color:#f92672">]</span><span style="color:#75715e"># cat /proc/version</span>
+Linux version 3.10.0-1127.19.1.el7.x86_64 <span style="color:#f92672">(</span>mockbuild@kbuilder.bsys.centos.org<span style="color:#f92672">)</span> <span style="color:#f92672">(</span>gcc version 4.8.5 <span style="color:#ae81ff">20150623</span> <span style="color:#f92672">(</span>Red Hat 4.8.5-39<span style="color:#f92672">)</span> <span style="color:#f92672">(</span>GCC<span style="color:#f92672">)</span> <span style="color:#f92672">)</span> <span style="color:#75715e">#1 SMP Tue Aug 25 17:23:54 UTC 2020</span>
+</code></pre></div></blockquote>
 <p>我们假设buffer/cache还没发生合并，那它们之间的区别是什么呢？</p>
 <p>这里罗列几个高赞👍知乎回答：</p>
 <p><a href="https://www.zhihu.com/question/26190832" target="_blank" rel="noopener noreferrer">Cache 和 Buffer 都是缓存，主要区别是什么？</a></p>
@@ -647,7 +643,7 @@ Linux内核为了提高读写效率与速度，会将文件在内存中进行缓
         <i class="fa-fw fa-2x fab fa-twitter"></i>
       </a></nav>
 <div class="copyright mb-2">
-  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+  Copyright © 2016-2023 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
   Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
@@ -658,8 +654,8 @@ Linux内核为了提高读写效率与速度，会将文件在内存中进行缓
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.785fa4e86518eee08ad9f10fdbc7d3a34d7d772cfe2fbe8809dde82283d7b7c6.js" integrity="sha256-eF&#43;k6GUY7uCK2fEP28fTo019dyz&#43;L76ICd3oIoPXt8Y=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

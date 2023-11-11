@@ -9,75 +9,75 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
 <link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
 <meta name="keywords" content="" />
-<meta name="description" content="前言 服务注册中心本质上是为了解耦服务提供者和服务消费者。对于任何一个微服务，原则上都应存在或者支持多个提供者，这是由微服务的分布式属性决定的。更进一步，为了支持弹性扩缩容特性，一个微服务的提供者的数量和分布往往是动态变化的，也是无法预先确定的。因此，原本在单体应用阶段常用的静态LB机制就不再适用了，需要引入额外的组件来管理微服务提供者的注册与发现，而这个组件就是服务注册中心。
-CAP理论 CAP理论是分布式架构中重要理论
-一致性(Consistency) (所有节点在同一时间具有相同的数据) 可用性(Availability) (保证每个请求不管成功或者失败都有响应) 分隔容忍(Partition tolerance) (系统中任意信息的丢失或失败不会影响系统的继续运作) 关于
+<meta name="description" content="前言服务注册中心本质上是为了解耦服务提供者和服务消费者。对于任何一个微服务，原则上都应存在或者支持多个提供者，这是由微服务的分布式属性决定的。更进一步，为了支持弹性扩缩容特性，一个微服务的提供者的数量和分布往往是动态变化的，也是无法预先确定的。因此，原本在单体应用阶段常用的静态LB机制就不再适用了，需要引入额外的组件来管理微服务提供者的注册与发现，而这个组件就是服务注册中心。
+CAP理论CAP理论是分布式架构中重要理论
+ 一致性(Consistency) (所有节点在同一时间具有相同的数据) 可用性(Availability) (保证每个请求不管成功或者失败都有响应) 分隔容忍(Partition tolerance) (系统中任意信息的丢失或失败不会影响系统的继续运作)  关于
 P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕机了，并不影响整个系统的运作或者说使用，而可用性是，某个系统的某个节点挂了，但是并不影响系统的接受或者发出请求，CAP 不可能都取，只能取其中2个
 原因是
 如果C是第一需求的话，那么会影响A的性能，因为要数据同步，不然请求结果会有差异，但是数据同步会消耗时间，期间可用性就会降低。
 如果A是第一需求，那么只要有一个服务在，就能正常接受请求，但是对与返回结果变不能保证，原因是，在分布式部署的时候，数据一致的过程不可能想切线路那么快。
 再如果，同事满足一致性和可用性，那么分区容错就很难保证了，也就是单点，也是分布式的基本核心，好了，明白这些理论，就可以在相应的场景选取服务注册与发现了
-服务注册中心解决方案 设计或者选型一个服务注册中心，首先要考虑的就是服务注册与发现机制。纵观当下各种主流的服务注册中心解决方案，大致可归为三类：
-应用内：直接集成到应用中，依赖于应用自身完成服务的注册与发现，最典型的是Netflix提供的Eureka
-应用外：把应用当成黑盒，通过应用外的某种机制将服务注册到注册中心，最小化对应用的侵入性，比如Airbnb的SmartStack，HashiCorp的Consul
-DNS：将服务注册为DNS的SRV记录，严格来说，是一种特殊的应用外注册方式，SkyDNS是其中的代表
-注1：对于第一类注册方式，除了Eureka这种一站式解决方案，还可以基于ZooKeeper或者Etcd自行实现一套服务注册机制，这在大公司比较常见，但对于小公司而言显然性价比太低。
+服务注册中心解决方案设计或者选型一个服务注册中心，首先要考虑的就是服务注册与发现机制。纵观当下各种主流的服务注册中心解决方案，大致可归为三类：
+  应用内：直接集成到应用中，依赖于应用自身完成服务的注册与发现，最典型的是Netflix提供的Eureka
+  应用外：把应用当成黑盒，通过应用外的某种机制将服务注册到注册中心，最小化对应用的侵入性，比如Airbnb的SmartStack，HashiCorp的Consul
+  DNS：将服务注册为DNS的SRV记录，严格来说，是一种特殊的应用外注册方式，SkyDNS是其中的代表
+   注1：对于第一类注册方式，除了Eureka这种一站式解决方案，还可以基于ZooKeeper或者Etcd自行实现一套服务注册机制，这在大公司比较常见，但对于小公司而言显然性价比太低。
 注2：由于DNS固有的缓存缺陷，本文不对第三类注册方式作深入探讨。
-除了基本的服务注册与发现机制，从开发和运维角度，至少还要考虑如下五个方面：
-测活：服务注册之后，如何对服务进行测活以保证服务的可用性？
-负载均衡：当存在多个服务提供者时，如何均衡各个提供者的负载？
-集成：在服务提供端或者调用端，如何集成注册中心？
-运行时依赖：引入注册中心之后，对应用的运行时环境有何影响？
-可用性：如何保证注册中心本身的可用性，特别是消除单点故障？
-主流注册中心产品 软件产品特性并非一成不变，如果发现功能特性有变更，欢迎评论指正
-Nacos Eureka Consul CoreDNS Zookeeper 一致性协议 CP&#43;AP AP CP — CP 健康检查 TCP/HTTP/MYSQL/Client Beat Client Beat TCP/HTTP/gRPC/Cmd — Keep Alive 负载均衡策略 权重/ metadata/Selector Ribbon Fabio RoundRobin — 雪崩保护 有 有 无 无 无 自动注销实例 支持 支持 支持 不支持 支持 访问协议 HTTP/DNS HTTP HTTP/DNS DNS TCP 监听支持 支持 支持 支持 不支持 支持 多数据中心 支持 支持 支持 不支持 不支持 跨注册中心同步 支持 不支持 支持 不支持 不支持 SpringCloud集成 支持 支持 支持 不支持 支持 Dubbo集成 支持 不支持 支持 不支持 支持 K8S集成 支持 不支持 支持 支持 不支持 Consul是支持自动注销服务实例， 请见文档： https://www." /><meta itemprop="name" content="几种注册中心对比">
-<meta itemprop="description" content="前言 服务注册中心本质上是为了解耦服务提供者和服务消费者。对于任何一个微服务，原则上都应存在或者支持多个提供者，这是由微服务的分布式属性决定的。更进一步，为了支持弹性扩缩容特性，一个微服务的提供者的数量和分布往往是动态变化的，也是无法预先确定的。因此，原本在单体应用阶段常用的静态LB机制就不再适用了，需要引入额外的组件来管理微服务提供者的注册与发现，而这个组件就是服务注册中心。
-CAP理论 CAP理论是分布式架构中重要理论
-一致性(Consistency) (所有节点在同一时间具有相同的数据) 可用性(Availability) (保证每个请求不管成功或者失败都有响应) 分隔容忍(Partition tolerance) (系统中任意信息的丢失或失败不会影响系统的继续运作) 关于
+ 除了基本的服务注册与发现机制，从开发和运维角度，至少还要考虑如下五个方面：
+  测活：服务注册之后，如何对服务进行测活以保证服务的可用性？
+  负载均衡：当存在多个服务提供者时，如何均衡各个提供者的负载？
+  集成：在服务提供端或者调用端，如何集成注册中心？
+  运行时依赖：引入注册中心之后，对应用的运行时环境有何影响？
+  可用性：如何保证注册中心本身的可用性，特别是消除单点故障？
+  主流注册中心产品 软件产品特性并非一成不变，如果发现功能特性有变更，欢迎评论指正
+     Nacos Eureka Consul CoreDNS Zookeeper     一致性协议 CP&#43;AP AP CP — CP   健康检查 TCP/HTTP/MYSQL/Client Beat Client Beat TCP/HTTP/gRPC/Cmd — Keep Alive   负载均衡策略 权重/ metadata/Selector Ribbon Fabio RoundRobin —   雪崩保护 有 有 无 无 无   自动注销实例 支持 支持 支持 不支持 支持   访问协议 HTTP/DNS HTTP HTTP/DNS DNS TCP   监听支持 支持 支持 支持 不支持 支持   多数据中心 支持 支持 支持 不支持 不支持   跨注册中心同步 支持 不支持 支持 不支持 不支持   SpringCloud集成 支持 支持 支持 不支持 支持   Dubbo集成 支持 不支持 支持 不支持 支持   K8S集成 支持 不支持 支持 支持 不支持      Consul是支持自动注销服务实例， 请见文档： https://www." /><meta itemprop="name" content="几种注册中心对比">
+<meta itemprop="description" content="前言服务注册中心本质上是为了解耦服务提供者和服务消费者。对于任何一个微服务，原则上都应存在或者支持多个提供者，这是由微服务的分布式属性决定的。更进一步，为了支持弹性扩缩容特性，一个微服务的提供者的数量和分布往往是动态变化的，也是无法预先确定的。因此，原本在单体应用阶段常用的静态LB机制就不再适用了，需要引入额外的组件来管理微服务提供者的注册与发现，而这个组件就是服务注册中心。
+CAP理论CAP理论是分布式架构中重要理论
+ 一致性(Consistency) (所有节点在同一时间具有相同的数据) 可用性(Availability) (保证每个请求不管成功或者失败都有响应) 分隔容忍(Partition tolerance) (系统中任意信息的丢失或失败不会影响系统的继续运作)  关于
 P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕机了，并不影响整个系统的运作或者说使用，而可用性是，某个系统的某个节点挂了，但是并不影响系统的接受或者发出请求，CAP 不可能都取，只能取其中2个
 原因是
 如果C是第一需求的话，那么会影响A的性能，因为要数据同步，不然请求结果会有差异，但是数据同步会消耗时间，期间可用性就会降低。
 如果A是第一需求，那么只要有一个服务在，就能正常接受请求，但是对与返回结果变不能保证，原因是，在分布式部署的时候，数据一致的过程不可能想切线路那么快。
 再如果，同事满足一致性和可用性，那么分区容错就很难保证了，也就是单点，也是分布式的基本核心，好了，明白这些理论，就可以在相应的场景选取服务注册与发现了
-服务注册中心解决方案 设计或者选型一个服务注册中心，首先要考虑的就是服务注册与发现机制。纵观当下各种主流的服务注册中心解决方案，大致可归为三类：
-应用内：直接集成到应用中，依赖于应用自身完成服务的注册与发现，最典型的是Netflix提供的Eureka
-应用外：把应用当成黑盒，通过应用外的某种机制将服务注册到注册中心，最小化对应用的侵入性，比如Airbnb的SmartStack，HashiCorp的Consul
-DNS：将服务注册为DNS的SRV记录，严格来说，是一种特殊的应用外注册方式，SkyDNS是其中的代表
-注1：对于第一类注册方式，除了Eureka这种一站式解决方案，还可以基于ZooKeeper或者Etcd自行实现一套服务注册机制，这在大公司比较常见，但对于小公司而言显然性价比太低。
+服务注册中心解决方案设计或者选型一个服务注册中心，首先要考虑的就是服务注册与发现机制。纵观当下各种主流的服务注册中心解决方案，大致可归为三类：
+  应用内：直接集成到应用中，依赖于应用自身完成服务的注册与发现，最典型的是Netflix提供的Eureka
+  应用外：把应用当成黑盒，通过应用外的某种机制将服务注册到注册中心，最小化对应用的侵入性，比如Airbnb的SmartStack，HashiCorp的Consul
+  DNS：将服务注册为DNS的SRV记录，严格来说，是一种特殊的应用外注册方式，SkyDNS是其中的代表
+   注1：对于第一类注册方式，除了Eureka这种一站式解决方案，还可以基于ZooKeeper或者Etcd自行实现一套服务注册机制，这在大公司比较常见，但对于小公司而言显然性价比太低。
 注2：由于DNS固有的缓存缺陷，本文不对第三类注册方式作深入探讨。
-除了基本的服务注册与发现机制，从开发和运维角度，至少还要考虑如下五个方面：
-测活：服务注册之后，如何对服务进行测活以保证服务的可用性？
-负载均衡：当存在多个服务提供者时，如何均衡各个提供者的负载？
-集成：在服务提供端或者调用端，如何集成注册中心？
-运行时依赖：引入注册中心之后，对应用的运行时环境有何影响？
-可用性：如何保证注册中心本身的可用性，特别是消除单点故障？
-主流注册中心产品 软件产品特性并非一成不变，如果发现功能特性有变更，欢迎评论指正
-Nacos Eureka Consul CoreDNS Zookeeper 一致性协议 CP&#43;AP AP CP — CP 健康检查 TCP/HTTP/MYSQL/Client Beat Client Beat TCP/HTTP/gRPC/Cmd — Keep Alive 负载均衡策略 权重/ metadata/Selector Ribbon Fabio RoundRobin — 雪崩保护 有 有 无 无 无 自动注销实例 支持 支持 支持 不支持 支持 访问协议 HTTP/DNS HTTP HTTP/DNS DNS TCP 监听支持 支持 支持 支持 不支持 支持 多数据中心 支持 支持 支持 不支持 不支持 跨注册中心同步 支持 不支持 支持 不支持 不支持 SpringCloud集成 支持 支持 支持 不支持 支持 Dubbo集成 支持 不支持 支持 不支持 支持 K8S集成 支持 不支持 支持 支持 不支持 Consul是支持自动注销服务实例， 请见文档： https://www."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+ 除了基本的服务注册与发现机制，从开发和运维角度，至少还要考虑如下五个方面：
+  测活：服务注册之后，如何对服务进行测活以保证服务的可用性？
+  负载均衡：当存在多个服务提供者时，如何均衡各个提供者的负载？
+  集成：在服务提供端或者调用端，如何集成注册中心？
+  运行时依赖：引入注册中心之后，对应用的运行时环境有何影响？
+  可用性：如何保证注册中心本身的可用性，特别是消除单点故障？
+  主流注册中心产品 软件产品特性并非一成不变，如果发现功能特性有变更，欢迎评论指正
+     Nacos Eureka Consul CoreDNS Zookeeper     一致性协议 CP&#43;AP AP CP — CP   健康检查 TCP/HTTP/MYSQL/Client Beat Client Beat TCP/HTTP/gRPC/Cmd — Keep Alive   负载均衡策略 权重/ metadata/Selector Ribbon Fabio RoundRobin —   雪崩保护 有 有 无 无 无   自动注销实例 支持 支持 支持 不支持 支持   访问协议 HTTP/DNS HTTP HTTP/DNS DNS TCP   监听支持 支持 支持 支持 不支持 支持   多数据中心 支持 支持 支持 不支持 不支持   跨注册中心同步 支持 不支持 支持 不支持 不支持   SpringCloud集成 支持 支持 支持 不支持 支持   Dubbo集成 支持 不支持 支持 不支持 支持   K8S集成 支持 不支持 支持 支持 不支持      Consul是支持自动注销服务实例， 请见文档： https://www."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="325">
 <meta itemprop="keywords" content="SA," /><meta property="og:title" content="几种注册中心对比" />
-<meta property="og:description" content="前言 服务注册中心本质上是为了解耦服务提供者和服务消费者。对于任何一个微服务，原则上都应存在或者支持多个提供者，这是由微服务的分布式属性决定的。更进一步，为了支持弹性扩缩容特性，一个微服务的提供者的数量和分布往往是动态变化的，也是无法预先确定的。因此，原本在单体应用阶段常用的静态LB机制就不再适用了，需要引入额外的组件来管理微服务提供者的注册与发现，而这个组件就是服务注册中心。
-CAP理论 CAP理论是分布式架构中重要理论
-一致性(Consistency) (所有节点在同一时间具有相同的数据) 可用性(Availability) (保证每个请求不管成功或者失败都有响应) 分隔容忍(Partition tolerance) (系统中任意信息的丢失或失败不会影响系统的继续运作) 关于
+<meta property="og:description" content="前言服务注册中心本质上是为了解耦服务提供者和服务消费者。对于任何一个微服务，原则上都应存在或者支持多个提供者，这是由微服务的分布式属性决定的。更进一步，为了支持弹性扩缩容特性，一个微服务的提供者的数量和分布往往是动态变化的，也是无法预先确定的。因此，原本在单体应用阶段常用的静态LB机制就不再适用了，需要引入额外的组件来管理微服务提供者的注册与发现，而这个组件就是服务注册中心。
+CAP理论CAP理论是分布式架构中重要理论
+ 一致性(Consistency) (所有节点在同一时间具有相同的数据) 可用性(Availability) (保证每个请求不管成功或者失败都有响应) 分隔容忍(Partition tolerance) (系统中任意信息的丢失或失败不会影响系统的继续运作)  关于
 P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕机了，并不影响整个系统的运作或者说使用，而可用性是，某个系统的某个节点挂了，但是并不影响系统的接受或者发出请求，CAP 不可能都取，只能取其中2个
 原因是
 如果C是第一需求的话，那么会影响A的性能，因为要数据同步，不然请求结果会有差异，但是数据同步会消耗时间，期间可用性就会降低。
 如果A是第一需求，那么只要有一个服务在，就能正常接受请求，但是对与返回结果变不能保证，原因是，在分布式部署的时候，数据一致的过程不可能想切线路那么快。
 再如果，同事满足一致性和可用性，那么分区容错就很难保证了，也就是单点，也是分布式的基本核心，好了，明白这些理论，就可以在相应的场景选取服务注册与发现了
-服务注册中心解决方案 设计或者选型一个服务注册中心，首先要考虑的就是服务注册与发现机制。纵观当下各种主流的服务注册中心解决方案，大致可归为三类：
-应用内：直接集成到应用中，依赖于应用自身完成服务的注册与发现，最典型的是Netflix提供的Eureka
-应用外：把应用当成黑盒，通过应用外的某种机制将服务注册到注册中心，最小化对应用的侵入性，比如Airbnb的SmartStack，HashiCorp的Consul
-DNS：将服务注册为DNS的SRV记录，严格来说，是一种特殊的应用外注册方式，SkyDNS是其中的代表
-注1：对于第一类注册方式，除了Eureka这种一站式解决方案，还可以基于ZooKeeper或者Etcd自行实现一套服务注册机制，这在大公司比较常见，但对于小公司而言显然性价比太低。
+服务注册中心解决方案设计或者选型一个服务注册中心，首先要考虑的就是服务注册与发现机制。纵观当下各种主流的服务注册中心解决方案，大致可归为三类：
+  应用内：直接集成到应用中，依赖于应用自身完成服务的注册与发现，最典型的是Netflix提供的Eureka
+  应用外：把应用当成黑盒，通过应用外的某种机制将服务注册到注册中心，最小化对应用的侵入性，比如Airbnb的SmartStack，HashiCorp的Consul
+  DNS：将服务注册为DNS的SRV记录，严格来说，是一种特殊的应用外注册方式，SkyDNS是其中的代表
+   注1：对于第一类注册方式，除了Eureka这种一站式解决方案，还可以基于ZooKeeper或者Etcd自行实现一套服务注册机制，这在大公司比较常见，但对于小公司而言显然性价比太低。
 注2：由于DNS固有的缓存缺陷，本文不对第三类注册方式作深入探讨。
-除了基本的服务注册与发现机制，从开发和运维角度，至少还要考虑如下五个方面：
-测活：服务注册之后，如何对服务进行测活以保证服务的可用性？
-负载均衡：当存在多个服务提供者时，如何均衡各个提供者的负载？
-集成：在服务提供端或者调用端，如何集成注册中心？
-运行时依赖：引入注册中心之后，对应用的运行时环境有何影响？
-可用性：如何保证注册中心本身的可用性，特别是消除单点故障？
-主流注册中心产品 软件产品特性并非一成不变，如果发现功能特性有变更，欢迎评论指正
-Nacos Eureka Consul CoreDNS Zookeeper 一致性协议 CP&#43;AP AP CP — CP 健康检查 TCP/HTTP/MYSQL/Client Beat Client Beat TCP/HTTP/gRPC/Cmd — Keep Alive 负载均衡策略 权重/ metadata/Selector Ribbon Fabio RoundRobin — 雪崩保护 有 有 无 无 无 自动注销实例 支持 支持 支持 不支持 支持 访问协议 HTTP/DNS HTTP HTTP/DNS DNS TCP 监听支持 支持 支持 支持 不支持 支持 多数据中心 支持 支持 支持 不支持 不支持 跨注册中心同步 支持 不支持 支持 不支持 不支持 SpringCloud集成 支持 支持 支持 不支持 支持 Dubbo集成 支持 不支持 支持 不支持 支持 K8S集成 支持 不支持 支持 支持 不支持 Consul是支持自动注销服务实例， 请见文档： https://www." />
+ 除了基本的服务注册与发现机制，从开发和运维角度，至少还要考虑如下五个方面：
+  测活：服务注册之后，如何对服务进行测活以保证服务的可用性？
+  负载均衡：当存在多个服务提供者时，如何均衡各个提供者的负载？
+  集成：在服务提供端或者调用端，如何集成注册中心？
+  运行时依赖：引入注册中心之后，对应用的运行时环境有何影响？
+  可用性：如何保证注册中心本身的可用性，特别是消除单点故障？
+  主流注册中心产品 软件产品特性并非一成不变，如果发现功能特性有变更，欢迎评论指正
+     Nacos Eureka Consul CoreDNS Zookeeper     一致性协议 CP&#43;AP AP CP — CP   健康检查 TCP/HTTP/MYSQL/Client Beat Client Beat TCP/HTTP/gRPC/Cmd — Keep Alive   负载均衡策略 权重/ metadata/Selector Ribbon Fabio RoundRobin —   雪崩保护 有 有 无 无 无   自动注销实例 支持 支持 支持 不支持 支持   访问协议 HTTP/DNS HTTP HTTP/DNS DNS TCP   监听支持 支持 支持 支持 不支持 支持   多数据中心 支持 支持 支持 不支持 不支持   跨注册中心同步 支持 不支持 支持 不支持 不支持   SpringCloud集成 支持 支持 支持 不支持 支持   Dubbo集成 支持 不支持 支持 不支持 支持   K8S集成 支持 不支持 支持 支持 不支持      Consul是支持自动注销服务实例， 请见文档： https://www." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/sa/%E5%87%A0%E7%A7%8D%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%AF%B9%E6%AF%94/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -86,32 +86,32 @@ Nacos Eureka Consul CoreDNS Zookeeper 一致性协议 CP&#43;AP AP CP — CP 健
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="几种注册中心对比"/>
-<meta name="twitter:description" content="前言 服务注册中心本质上是为了解耦服务提供者和服务消费者。对于任何一个微服务，原则上都应存在或者支持多个提供者，这是由微服务的分布式属性决定的。更进一步，为了支持弹性扩缩容特性，一个微服务的提供者的数量和分布往往是动态变化的，也是无法预先确定的。因此，原本在单体应用阶段常用的静态LB机制就不再适用了，需要引入额外的组件来管理微服务提供者的注册与发现，而这个组件就是服务注册中心。
-CAP理论 CAP理论是分布式架构中重要理论
-一致性(Consistency) (所有节点在同一时间具有相同的数据) 可用性(Availability) (保证每个请求不管成功或者失败都有响应) 分隔容忍(Partition tolerance) (系统中任意信息的丢失或失败不会影响系统的继续运作) 关于
+<meta name="twitter:description" content="前言服务注册中心本质上是为了解耦服务提供者和服务消费者。对于任何一个微服务，原则上都应存在或者支持多个提供者，这是由微服务的分布式属性决定的。更进一步，为了支持弹性扩缩容特性，一个微服务的提供者的数量和分布往往是动态变化的，也是无法预先确定的。因此，原本在单体应用阶段常用的静态LB机制就不再适用了，需要引入额外的组件来管理微服务提供者的注册与发现，而这个组件就是服务注册中心。
+CAP理论CAP理论是分布式架构中重要理论
+ 一致性(Consistency) (所有节点在同一时间具有相同的数据) 可用性(Availability) (保证每个请求不管成功或者失败都有响应) 分隔容忍(Partition tolerance) (系统中任意信息的丢失或失败不会影响系统的继续运作)  关于
 P的理解，我觉得是在整个系统中某个部分，挂掉了，或者宕机了，并不影响整个系统的运作或者说使用，而可用性是，某个系统的某个节点挂了，但是并不影响系统的接受或者发出请求，CAP 不可能都取，只能取其中2个
 原因是
 如果C是第一需求的话，那么会影响A的性能，因为要数据同步，不然请求结果会有差异，但是数据同步会消耗时间，期间可用性就会降低。
 如果A是第一需求，那么只要有一个服务在，就能正常接受请求，但是对与返回结果变不能保证，原因是，在分布式部署的时候，数据一致的过程不可能想切线路那么快。
 再如果，同事满足一致性和可用性，那么分区容错就很难保证了，也就是单点，也是分布式的基本核心，好了，明白这些理论，就可以在相应的场景选取服务注册与发现了
-服务注册中心解决方案 设计或者选型一个服务注册中心，首先要考虑的就是服务注册与发现机制。纵观当下各种主流的服务注册中心解决方案，大致可归为三类：
-应用内：直接集成到应用中，依赖于应用自身完成服务的注册与发现，最典型的是Netflix提供的Eureka
-应用外：把应用当成黑盒，通过应用外的某种机制将服务注册到注册中心，最小化对应用的侵入性，比如Airbnb的SmartStack，HashiCorp的Consul
-DNS：将服务注册为DNS的SRV记录，严格来说，是一种特殊的应用外注册方式，SkyDNS是其中的代表
-注1：对于第一类注册方式，除了Eureka这种一站式解决方案，还可以基于ZooKeeper或者Etcd自行实现一套服务注册机制，这在大公司比较常见，但对于小公司而言显然性价比太低。
+服务注册中心解决方案设计或者选型一个服务注册中心，首先要考虑的就是服务注册与发现机制。纵观当下各种主流的服务注册中心解决方案，大致可归为三类：
+  应用内：直接集成到应用中，依赖于应用自身完成服务的注册与发现，最典型的是Netflix提供的Eureka
+  应用外：把应用当成黑盒，通过应用外的某种机制将服务注册到注册中心，最小化对应用的侵入性，比如Airbnb的SmartStack，HashiCorp的Consul
+  DNS：将服务注册为DNS的SRV记录，严格来说，是一种特殊的应用外注册方式，SkyDNS是其中的代表
+   注1：对于第一类注册方式，除了Eureka这种一站式解决方案，还可以基于ZooKeeper或者Etcd自行实现一套服务注册机制，这在大公司比较常见，但对于小公司而言显然性价比太低。
 注2：由于DNS固有的缓存缺陷，本文不对第三类注册方式作深入探讨。
-除了基本的服务注册与发现机制，从开发和运维角度，至少还要考虑如下五个方面：
-测活：服务注册之后，如何对服务进行测活以保证服务的可用性？
-负载均衡：当存在多个服务提供者时，如何均衡各个提供者的负载？
-集成：在服务提供端或者调用端，如何集成注册中心？
-运行时依赖：引入注册中心之后，对应用的运行时环境有何影响？
-可用性：如何保证注册中心本身的可用性，特别是消除单点故障？
-主流注册中心产品 软件产品特性并非一成不变，如果发现功能特性有变更，欢迎评论指正
-Nacos Eureka Consul CoreDNS Zookeeper 一致性协议 CP&#43;AP AP CP — CP 健康检查 TCP/HTTP/MYSQL/Client Beat Client Beat TCP/HTTP/gRPC/Cmd — Keep Alive 负载均衡策略 权重/ metadata/Selector Ribbon Fabio RoundRobin — 雪崩保护 有 有 无 无 无 自动注销实例 支持 支持 支持 不支持 支持 访问协议 HTTP/DNS HTTP HTTP/DNS DNS TCP 监听支持 支持 支持 支持 不支持 支持 多数据中心 支持 支持 支持 不支持 不支持 跨注册中心同步 支持 不支持 支持 不支持 不支持 SpringCloud集成 支持 支持 支持 不支持 支持 Dubbo集成 支持 不支持 支持 不支持 支持 K8S集成 支持 不支持 支持 支持 不支持 Consul是支持自动注销服务实例， 请见文档： https://www."/>
+ 除了基本的服务注册与发现机制，从开发和运维角度，至少还要考虑如下五个方面：
+  测活：服务注册之后，如何对服务进行测活以保证服务的可用性？
+  负载均衡：当存在多个服务提供者时，如何均衡各个提供者的负载？
+  集成：在服务提供端或者调用端，如何集成注册中心？
+  运行时依赖：引入注册中心之后，对应用的运行时环境有何影响？
+  可用性：如何保证注册中心本身的可用性，特别是消除单点故障？
+  主流注册中心产品 软件产品特性并非一成不变，如果发现功能特性有变更，欢迎评论指正
+     Nacos Eureka Consul CoreDNS Zookeeper     一致性协议 CP&#43;AP AP CP — CP   健康检查 TCP/HTTP/MYSQL/Client Beat Client Beat TCP/HTTP/gRPC/Cmd — Keep Alive   负载均衡策略 权重/ metadata/Selector Ribbon Fabio RoundRobin —   雪崩保护 有 有 无 无 无   自动注销实例 支持 支持 支持 不支持 支持   访问协议 HTTP/DNS HTTP HTTP/DNS DNS TCP   监听支持 支持 支持 支持 不支持 支持   多数据中心 支持 支持 支持 不支持 不支持   跨注册中心同步 支持 不支持 支持 不支持 不支持   SpringCloud集成 支持 支持 支持 不支持 支持   Dubbo集成 支持 不支持 支持 不支持 支持   K8S集成 支持 不支持 支持 支持 不支持      Consul是支持自动注销服务实例， 请见文档： https://www."/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -556,7 +556,7 @@ Nacos Eureka Consul CoreDNS Zookeeper 一致性协议 CP&#43;AP AP CP — CP 健
 </tr>
 </tbody>
 </table>
-<img src="https://picgo.6and.ltd/img/p1.png" alt="img" style="zoom: 33%;" />
+<p><img src="https://picgo.6and.ltd/img/p1.png" alt="img" style="zoom: 33%;" /></p>
 <blockquote>
 <ul>
 <li>Consul是支持自动注销服务实例， 请见文档： <a href="https://www.consul.io/api-docs/agent/service" target="_blank" rel="noopener noreferrer">https://www.consul.io/api-docs/agent/service</a>，在check的 DeregisterCriticalServiceAfter 这个参数&ndash; 感谢@超帅的菜鸟博主提供最新信息</li>
@@ -578,7 +578,7 @@ Nacos Eureka Consul CoreDNS Zookeeper 一致性协议 CP&#43;AP AP CP — CP 健
 <p>当master节点因为网络故障与其他节点失去联系时，剩余节点会重新进行leader选举。问题在于，选举leader的时间太长，30~120s，而且选举期间整个zk集群都是不可用的，这就导致在选举期间注册服务瘫痪。</p>
 <p>在云部署环境下， 因为网络问题使得zk集群失去master节点是大概率事件，虽然服务能最终恢复，但是漫长的选举事件导致注册长期不可用是不能容忍的。</p>
 <h2 id="spring-cloud-eureka----ap">Spring Cloud Eureka  -> AP<a class="anchor ms-1" href="#spring-cloud-eureka----ap"><i class="fas fa-link"></i></a></h2>
-<img src="https://picgo.6and.ltd/img/20190823093426246.png" alt="img" style="zoom:90%;" />
+<p><img src="https://picgo.6and.ltd/img/20190823093426246.png" alt="img" style="zoom:90%;" /></p>
 <p>Spring Cloud Netflix 在设计 Eureka 时就紧遵AP原则（尽管现在2.0发布了，但是由于其闭源的原因 ，但是目前 Ereka 1.x 任然是比较活跃的）。</p>
 <p>Eureka Server 也可以运行多个实例来构建集群，解决单点问题，但不同于 ZooKeeper 的选举 leader 的过程，Eureka Server 采用的是Peer to Peer 对等通信。这是一种去中心化的架构，无 master/slave 之分，每一个 Peer 都是对等的。在这种架构风格中，节点通过彼此互相注册来提高可用性，每个节点需要添加一个或多个有效的 serviceUrl 指向其他节点。每个节点都可被视为其他节点的副本。</p>
 <p>在集群环境中如果某台 Eureka Server 宕机，Eureka Client 的请求会自动切换到新的 Eureka Server 节点上，当宕机的服务器重新恢复后，Eureka 会再次将其纳入到服务器集群管理之中。当节点开始接受客户端请求时，所有的操作都会在节点间进行复制（replicate To Peer）操作，将请求复制到该 Eureka Server 当前所知的其它所有节点中。</p>
@@ -596,9 +596,9 @@ Nacos Eureka Consul CoreDNS Zookeeper 一致性协议 CP&#43;AP AP CP — CP 健
 <p>Consul 是 HashiCorp 公司推出的开源工具，用于实现分布式系统的服务发现与配置。Consul 使用 Go 语言编写，因此具有天然可移植性（支持Linux、windows和Mac OS X）。</p>
 <p>Consul 内置了服务注册与发现框架、分布一致性协议实现、健康检查、Key/Value 存储、多数据中心方案，不再需要依赖其他工具（比如 ZooKeeper 等），使用起来也较为简单。</p>
 <p>Consul 遵循CAP原理中的CP原则，保证了强一致性和分区容错性，且使用的是Raft算法，比zookeeper使用的Paxos算法更加简单。虽然保证了强一致性，但是可用性就相应下降了，例如服务注册的时间会稍长一些，因为 Consul 的 raft 协议要求必须过半数的节点都写入成功才认为注册成功 ；在leader挂掉了之后，重新选举出leader之前会导致Consul 服务不可用。</p>
-<img src="https://picgo.6and.ltd/img/20190823093438619.png" alt="默认依赖于SDK" style="zoom: 67%;" />
+<p><img src="https://picgo.6and.ltd/img/20190823093438619.png" alt="默认依赖于SDK" style="zoom: 67%;" /></p>
 <p>Consul本质上属于应用外的注册方式，但可以通过SDK简化注册流程。而服务发现恰好相反，默认依赖于SDK，但可以通过Consul Template（下文会提到）去除SDK依赖。</p>
-<img src="https://picgo.6and.ltd/img/20190823093459885.png" alt="Consul Template" style="zoom:67%;" />
+<p><img src="https://picgo.6and.ltd/img/20190823093459885.png" alt="Consul Template" style="zoom:67%;" /></p>
 <h3 id="consul-template">Consul Template<a class="anchor ms-1" href="#consul-template"><i class="fas fa-link"></i></a></h3>
 <p>Consul，默认服务调用者需要依赖Consul SDK来发现服务，这就无法保证对应用的零侵入性。</p>
 <p>所幸通过<a href="https://github.com/hashicorp/consul-template" target="_blank" rel="noopener noreferrer">Consul Template</a>，可以定时从Consul集群获取最新的服务提供者列表并刷新LB配置（比如nginx的upstream），这样对于服务调用者而言，只需要配置一个统一的服务调用地址即可。</p>
@@ -649,10 +649,10 @@ Nacos Eureka Consul CoreDNS Zookeeper 一致性协议 CP&#43;AP AP CP — CP 健
 </div></div>
   <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
     <i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/algorithm/leetcode/%E5%89%91%E6%8C%87-offer-09.-%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/">剑指 Offer 09. 用两个栈实现队列
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E5%88%86%E5%B8%83%E5%BC%8Fid%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/">分布式ID生成方式
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/redis/%E5%9F%BA%E4%BA%8Eredis%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/">基于Redis的分布式锁实现
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/other/%E5%85%A8%E6%96%87%E7%B4%A2%E5%BC%95/">全文索引
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
@@ -880,7 +880,7 @@ Nacos Eureka Consul CoreDNS Zookeeper 一致性协议 CP&#43;AP AP CP — CP 健
         <i class="fa-fw fa-2x fab fa-twitter"></i>
       </a></nav>
 <div class="copyright mb-2">
-  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+  Copyright © 2016-2023 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
   Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
@@ -891,8 +891,8 @@ Nacos Eureka Consul CoreDNS Zookeeper 一致性协议 CP&#43;AP AP CP — CP 健
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.785fa4e86518eee08ad9f10fdbc7d3a34d7d772cfe2fbe8809dde82283d7b7c6.js" integrity="sha256-eF&#43;k6GUY7uCK2fEP28fTo019dyz&#43;L76ICd3oIoPXt8Y=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {

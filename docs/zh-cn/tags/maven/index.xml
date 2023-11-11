@@ -13,8 +13,8 @@
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/maven/dockerfile-maven-plugin%E4%BD%BF%E7%94%A8/</guid>
-      <description>&amp;lt;properties&amp;gt; &amp;lt;docker.image.prefix&amp;gt;anaham-docker.pkg.coding.net/cereshop/ceres&amp;lt;/docker.image.prefix&amp;gt; &amp;lt;anaham-docker.username&amp;gt;用户名&amp;lt;/anaham-docker.username&amp;gt; &amp;lt;anaham-docker.password&amp;gt;密码&amp;lt;/anaham-docker.password&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;build&amp;gt; &amp;lt;plugins&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;executions&amp;gt; &amp;lt;execution&amp;gt; &amp;lt;goals&amp;gt; &amp;lt;goal&amp;gt;repackage&amp;lt;/goal&amp;gt; &amp;lt;/goals&amp;gt; &amp;lt;/execution&amp;gt; &amp;lt;/executions&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;!-- docker打包插件 --&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;com.spotify&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;dockerfile-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${dockerfile-maven-plugin.version}&amp;lt;/version&amp;gt; &amp;lt;configuration&amp;gt; &amp;lt;username&amp;gt;${anaham-docker.username}&amp;lt;/username&amp;gt; &amp;lt;password&amp;gt;${anaham-docker.password}&amp;lt;/password&amp;gt; &amp;lt;repository&amp;gt;${docker.image.prefix}/${project.artifactId}&amp;lt;/repository&amp;gt; &amp;lt;tag&amp;gt;${ceres.version}&amp;lt;/tag&amp;gt; &amp;lt;!-- 不指定tag默认为latest --&amp;gt; &amp;lt;buildArgs&amp;gt; &amp;lt;JAR_FILE&amp;gt;target/${project.build.finalName}.jar&amp;lt;/JAR_FILE&amp;gt; &amp;lt;/buildArgs&amp;gt; &amp;lt;/configuration&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;/plugins&amp;gt; &amp;lt;/build&amp;gt; 构建镜像 mvn clean package -Dmaven.计算机科学.skip=true dockerfile:build -Ddockerfile.tag=latest 因为上面pom.xml已经指定了tag，也可以直接使用：mvn dockerfile:build 会优先选择pom.xml配置的tag
-上传镜像 mvn dockerfile:push -Ddockerfile.username=[镜像仓库账号] -Ddockerfile.password=[镜像仓库密码] 因为上面pom.xml已经指定了username和password，也可以直接使用：mvn dockerfile:push</description>
+      <description>&amp;lt;properties&amp;gt; &amp;lt;docker.image.prefix&amp;gt;anaham-docker.pkg.coding.net/cereshop/ceres&amp;lt;/docker.image.prefix&amp;gt; &amp;lt;anaham-docker.username&amp;gt;用户名&amp;lt;/anaham-docker.username&amp;gt; &amp;lt;anaham-docker.password&amp;gt;密码&amp;lt;/anaham-docker.password&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;build&amp;gt; &amp;lt;plugins&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;executions&amp;gt; &amp;lt;execution&amp;gt; &amp;lt;goals&amp;gt; &amp;lt;goal&amp;gt;repackage&amp;lt;/goal&amp;gt; &amp;lt;/goals&amp;gt; &amp;lt;/execution&amp;gt; &amp;lt;/executions&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;!-- docker打包插件 --&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;com.spotify&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;dockerfile-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${dockerfile-maven-plugin.version}&amp;lt;/version&amp;gt; &amp;lt;configuration&amp;gt; &amp;lt;username&amp;gt;${anaham-docker.username}&amp;lt;/username&amp;gt; &amp;lt;password&amp;gt;${anaham-docker.password}&amp;lt;/password&amp;gt; &amp;lt;repository&amp;gt;${docker.image.prefix}/${project.artifactId}&amp;lt;/repository&amp;gt; &amp;lt;tag&amp;gt;${ceres.version}&amp;lt;/tag&amp;gt; &amp;lt;!-- 不指定tag默认为latest --&amp;gt; &amp;lt;buildArgs&amp;gt; &amp;lt;JAR_FILE&amp;gt;target/${project.build.finalName}.jar&amp;lt;/JAR_FILE&amp;gt; &amp;lt;/buildArgs&amp;gt; &amp;lt;/configuration&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;/plugins&amp;gt; &amp;lt;/build&amp;gt;  构建镜像  mvn clean package -Dmaven.计算机科学.skip=true dockerfile:build -Ddockerfile.tag=latest 因为上面pom.xml已经指定了tag，也可以直接使用：mvn dockerfile:build 会优先选择pom.xml配置的tag
+上传镜像  mvn dockerfile:push -Ddockerfile.username=[镜像仓库账号] -Ddockerfile.password=[镜像仓库密码] 因为上面pom.xml已经指定了username和password，也可以直接使用：mvn dockerfile:push</description>
     </item>
     
     <item>
@@ -23,27 +23,27 @@
       <pubDate>Fri, 27 Aug 2021 11:15:10 +0800</pubDate>
       
       <guid>https://xuzhijvn.github.io/zh-cn/posts/code/maven/maven%E5%9F%BA%E7%A1%80/</guid>
-      <description>1. 问题 项目开发过程中，经常会遇到jar冲突，然后maven根据自己的规则进行冲突解决，导致项目在运行的过程中报错。
+      <description>1. 问题项目开发过程中，经常会遇到jar冲突，然后maven根据自己的规则进行冲突解决，导致项目在运行的过程中报错。
 1、maven自动解决依赖冲突的规则是什么？
 2、如何查看当前项目的maven的依赖树？
 3、如何从依赖树中找到自己预期的版本，是被那个jar给覆盖了？
 4、如何人工进行依赖冲突解决，达到使用目的？
-2. 解决问题 2.1 maven自动解决依赖冲突的规则是什么？ 2.1.1 第一原则：路径最近者优先 项目A有如下的依赖关系：
+2. 解决问题2.1 maven自动解决依赖冲突的规则是什么？2.1.1 第一原则：路径最近者优先项目A有如下的依赖关系：
 A-&amp;gt;B-&amp;gt;C-&amp;gt;X(1.0)
 A-&amp;gt;D-&amp;gt;X(2.0)
 则该例子中，X的版本是2.0
-2.1.2 第二原则：路径相等，先声明者优先 项目A有如下的依赖关系：
+2.1.2 第二原则：路径相等，先声明者优先项目A有如下的依赖关系：
 A-&amp;gt;B-&amp;gt;Y(1.0)
 A-&amp;gt;C-&amp;gt;Y(2.0)
 若pom文件中B的依赖坐标先于C进行声明，则最终Y的版本为1.0
-2.2 如何查看当前项目的maven依赖树？ //进入项目的pom.xml文件的目录下，运行如下命令 //这个是正常依赖的树 mvn dependency:tree //这个命令是查看maven是如何解决依赖冲突的依赖树 mvn -Dverbose dependency:tree //如果想将依赖树打印到指定文件中，则命令如下 mvn -Dverbose dependency:tree -Doutput=/Users/shangxiaofei/sxfoutput.txt 3. 如何从依赖树中找到自己预期的版本，是被那个jar给覆盖了？ 例子：
+2.2 如何查看当前项目的maven依赖树？//进入项目的pom.xml文件的目录下，运行如下命令 //这个是正常依赖的树 mvn dependency:tree //这个命令是查看maven是如何解决依赖冲突的依赖树 mvn -Dverbose dependency:tree //如果想将依赖树打印到指定文件中，则命令如下 mvn -Dverbose dependency:tree -Doutput=/Users/shangxiaofei/sxfoutput.txt 3. 如何从依赖树中找到自己预期的版本，是被那个jar给覆盖了？例子：
 递归依赖的关系列的算是比较清楚了，每行都是一个jar包，根据缩进可以看到依赖的关系。
 最后写着compile的就是编译成功的。
 最后写着omitted for duplicate的就是有jar包被重复依赖了，但是jar包的版本是一样的。
-最后写着omitted for conflict with xxxx的，说明和别的jar包版本冲突了，而该行的jar包不会被引入。比如上面有一行最后写着omitted for conflict with 3.4.6，那么该行的zookeeper🫙3.4.8不会被引入，会引入3.4.6版本
+最后写着omitted for conflict with xxxx的，说明和别的jar包版本冲突了，而该行的jar包不会被引入。比如上面有一行最后写着omitted for conflict with 3.4.6，那么该行的zookeeper:jar:3.4.8不会被引入，会引入3.4.6版本
 最后写着version managed from 2.3 ;omitted for duplicate ,表示最终使用commons-pool2最终会使用2.4.2，拒绝使用中声明的2.3版本
-最后写着version managed from 1.16.8 ;表示最终使用lombok🫙1.16.22版本
-4. 如何人工进行依赖冲突解决，达到使用目的？ 解决重复依赖和冲突的方法：</description>
+最后写着version managed from 1.16.8 ;表示最终使用lombok:jar:1.16.22版本
+4. 如何人工进行依赖冲突解决，达到使用目的？解决重复依赖和冲突的方法：</description>
     </item>
     
   </channel>

@@ -9,39 +9,39 @@
 <link rel="icon" href="https://xuzhijvn.github.io/images/icons/favicon.ico">
 <link rel="manifest" href="https://xuzhijvn.github.io/zh-cn/manifest.json">
 <meta name="keywords" content="" />
-<meta name="description" content="泛型的好处 提供了一种类型安全检测机制 提升程序可读性 通配符 通配符的出现是为了指定泛型中的类型范围。
+<meta name="description" content="泛型的好处 提供了一种类型安全检测机制 提升程序可读性  通配符通配符的出现是为了指定泛型中的类型范围。
 通配符有 3 种形式。
-&lt;?&gt;被称作无限定的通配符。 &lt;? extends T&gt;被称作有上限的通配符。 &lt;? super T&gt;被称作有下限的通配符。 ? 其实代表的是未知类型，所以涉及到 ? 时的操作，一定与具体类型无关。
+ &lt;?&gt;被称作无限定的通配符。 &lt;? extends T&gt;被称作有上限的通配符。 &lt;? super T&gt;被称作有下限的通配符。   ? 其实代表的是未知类型，所以涉及到 ? 时的操作，一定与具体类型无关。
 有人说，&lt;?&gt;提供了只读的功能，也就是它删减了增加具体类型元素的能力，只保留与具体类型无关的功能。它不管装载在这个容器内的元素是什么类型，它只关心元素的数量、容器是否为空？我想这种需求还是很常见的吧。
 有同学可能会想，&lt;?&gt;既然作用这么渺小，那么为什么还要引用它呢？ 
 个人认为，提高了代码的可读性，程序员看到这段代码时，就能够迅速对此建立极简洁的印象，能够快速推断源码作者的意图。
-类型擦除 在泛型类被类型擦除的时候，之前泛型类中的类型参数部分如果没有指定上限，如 &lt;T&gt;则会被转译成普通的 Object 类型，如果指定了上限如 &lt;T extends String&gt;则类型参数就被替换成类型上限。
-类型擦除带来的局限性 正常情况下，因为泛型的限制，编译器不让最后一行代码编译通过，因为类似不匹配，但是，基于对类型擦除的了解，利用反射，我们可以绕过这个限制。
+类型擦除在泛型类被类型擦除的时候，之前泛型类中的类型参数部分如果没有指定上限，如 &lt;T&gt;则会被转译成普通的 Object 类型，如果指定了上限如 &lt;T extends String&gt;则类型参数就被替换成类型上限。
+类型擦除带来的局限性正常情况下，因为泛型的限制，编译器不让最后一行代码编译通过，因为类似不匹配，但是，基于对类型擦除的了解，利用反射，我们可以绕过这个限制。
 那么，利用反射，我们绕过编译器去调用 add 方法。
-public class ToolTest { public static void main(String[] args) { List&lt;Integer&gt; ls = new ArrayList&lt;&gt;(); ls.add(23); //	ls.add(&#34;text&#34;); try { Method method = ls.getClass().getDeclaredMethod(&#34;add&#34;,Object.class); method.invoke(ls,&#34;test&#34;); method.invoke(ls,42.9f); } catch (NoSuchMethodException e) { // TODO Auto-generated catch block e." /><meta itemprop="name" content="泛型">
-<meta itemprop="description" content="泛型的好处 提供了一种类型安全检测机制 提升程序可读性 通配符 通配符的出现是为了指定泛型中的类型范围。
+public class ToolTest { public static void main(String[] args) { List&lt;Integer&gt; ls = new ArrayList&lt;&gt;(); ls.add(23); //	ls.add(&#34;text&#34;);  try { Method method = ls.getClass().getDeclaredMethod(&#34;add&#34;,Object.class); method.invoke(ls,&#34;test&#34;); method.invoke(ls,42.9f); } catch (NoSuchMethodException e) { // TODO Auto-generated catch block  e." /><meta itemprop="name" content="泛型">
+<meta itemprop="description" content="泛型的好处 提供了一种类型安全检测机制 提升程序可读性  通配符通配符的出现是为了指定泛型中的类型范围。
 通配符有 3 种形式。
-&lt;?&gt;被称作无限定的通配符。 &lt;? extends T&gt;被称作有上限的通配符。 &lt;? super T&gt;被称作有下限的通配符。 ? 其实代表的是未知类型，所以涉及到 ? 时的操作，一定与具体类型无关。
+ &lt;?&gt;被称作无限定的通配符。 &lt;? extends T&gt;被称作有上限的通配符。 &lt;? super T&gt;被称作有下限的通配符。   ? 其实代表的是未知类型，所以涉及到 ? 时的操作，一定与具体类型无关。
 有人说，&lt;?&gt;提供了只读的功能，也就是它删减了增加具体类型元素的能力，只保留与具体类型无关的功能。它不管装载在这个容器内的元素是什么类型，它只关心元素的数量、容器是否为空？我想这种需求还是很常见的吧。
 有同学可能会想，&lt;?&gt;既然作用这么渺小，那么为什么还要引用它呢？ 
 个人认为，提高了代码的可读性，程序员看到这段代码时，就能够迅速对此建立极简洁的印象，能够快速推断源码作者的意图。
-类型擦除 在泛型类被类型擦除的时候，之前泛型类中的类型参数部分如果没有指定上限，如 &lt;T&gt;则会被转译成普通的 Object 类型，如果指定了上限如 &lt;T extends String&gt;则类型参数就被替换成类型上限。
-类型擦除带来的局限性 正常情况下，因为泛型的限制，编译器不让最后一行代码编译通过，因为类似不匹配，但是，基于对类型擦除的了解，利用反射，我们可以绕过这个限制。
+类型擦除在泛型类被类型擦除的时候，之前泛型类中的类型参数部分如果没有指定上限，如 &lt;T&gt;则会被转译成普通的 Object 类型，如果指定了上限如 &lt;T extends String&gt;则类型参数就被替换成类型上限。
+类型擦除带来的局限性正常情况下，因为泛型的限制，编译器不让最后一行代码编译通过，因为类似不匹配，但是，基于对类型擦除的了解，利用反射，我们可以绕过这个限制。
 那么，利用反射，我们绕过编译器去调用 add 方法。
-public class ToolTest { public static void main(String[] args) { List&lt;Integer&gt; ls = new ArrayList&lt;&gt;(); ls.add(23); //	ls.add(&#34;text&#34;); try { Method method = ls.getClass().getDeclaredMethod(&#34;add&#34;,Object.class); method.invoke(ls,&#34;test&#34;); method.invoke(ls,42.9f); } catch (NoSuchMethodException e) { // TODO Auto-generated catch block e."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
+public class ToolTest { public static void main(String[] args) { List&lt;Integer&gt; ls = new ArrayList&lt;&gt;(); ls.add(23); //	ls.add(&#34;text&#34;);  try { Method method = ls.getClass().getDeclaredMethod(&#34;add&#34;,Object.class); method.invoke(ls,&#34;test&#34;); method.invoke(ls,42.9f); } catch (NoSuchMethodException e) { // TODO Auto-generated catch block  e."><meta itemprop="datePublished" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="dateModified" content="2021-08-27T11:15:10+08:00" />
 <meta itemprop="wordCount" content="130">
 <meta itemprop="keywords" content="Java," /><meta property="og:title" content="泛型" />
-<meta property="og:description" content="泛型的好处 提供了一种类型安全检测机制 提升程序可读性 通配符 通配符的出现是为了指定泛型中的类型范围。
+<meta property="og:description" content="泛型的好处 提供了一种类型安全检测机制 提升程序可读性  通配符通配符的出现是为了指定泛型中的类型范围。
 通配符有 3 种形式。
-&lt;?&gt;被称作无限定的通配符。 &lt;? extends T&gt;被称作有上限的通配符。 &lt;? super T&gt;被称作有下限的通配符。 ? 其实代表的是未知类型，所以涉及到 ? 时的操作，一定与具体类型无关。
+ &lt;?&gt;被称作无限定的通配符。 &lt;? extends T&gt;被称作有上限的通配符。 &lt;? super T&gt;被称作有下限的通配符。   ? 其实代表的是未知类型，所以涉及到 ? 时的操作，一定与具体类型无关。
 有人说，&lt;?&gt;提供了只读的功能，也就是它删减了增加具体类型元素的能力，只保留与具体类型无关的功能。它不管装载在这个容器内的元素是什么类型，它只关心元素的数量、容器是否为空？我想这种需求还是很常见的吧。
 有同学可能会想，&lt;?&gt;既然作用这么渺小，那么为什么还要引用它呢？ 
 个人认为，提高了代码的可读性，程序员看到这段代码时，就能够迅速对此建立极简洁的印象，能够快速推断源码作者的意图。
-类型擦除 在泛型类被类型擦除的时候，之前泛型类中的类型参数部分如果没有指定上限，如 &lt;T&gt;则会被转译成普通的 Object 类型，如果指定了上限如 &lt;T extends String&gt;则类型参数就被替换成类型上限。
-类型擦除带来的局限性 正常情况下，因为泛型的限制，编译器不让最后一行代码编译通过，因为类似不匹配，但是，基于对类型擦除的了解，利用反射，我们可以绕过这个限制。
+类型擦除在泛型类被类型擦除的时候，之前泛型类中的类型参数部分如果没有指定上限，如 &lt;T&gt;则会被转译成普通的 Object 类型，如果指定了上限如 &lt;T extends String&gt;则类型参数就被替换成类型上限。
+类型擦除带来的局限性正常情况下，因为泛型的限制，编译器不让最后一行代码编译通过，因为类似不匹配，但是，基于对类型擦除的了解，利用反射，我们可以绕过这个限制。
 那么，利用反射，我们绕过编译器去调用 add 方法。
-public class ToolTest { public static void main(String[] args) { List&lt;Integer&gt; ls = new ArrayList&lt;&gt;(); ls.add(23); //	ls.add(&#34;text&#34;); try { Method method = ls.getClass().getDeclaredMethod(&#34;add&#34;,Object.class); method.invoke(ls,&#34;test&#34;); method.invoke(ls,42.9f); } catch (NoSuchMethodException e) { // TODO Auto-generated catch block e." />
+public class ToolTest { public static void main(String[] args) { List&lt;Integer&gt; ls = new ArrayList&lt;&gt;(); ls.add(23); //	ls.add(&#34;text&#34;);  try { Method method = ls.getClass().getDeclaredMethod(&#34;add&#34;,Object.class); method.invoke(ls,&#34;test&#34;); method.invoke(ls,42.9f); } catch (NoSuchMethodException e) { // TODO Auto-generated catch block  e." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E6%B3%9B%E5%9E%8B/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-27T11:15:10+08:00" />
@@ -50,20 +50,20 @@ public class ToolTest { public static void main(String[] args) { List&lt;Integer
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="泛型"/>
-<meta name="twitter:description" content="泛型的好处 提供了一种类型安全检测机制 提升程序可读性 通配符 通配符的出现是为了指定泛型中的类型范围。
+<meta name="twitter:description" content="泛型的好处 提供了一种类型安全检测机制 提升程序可读性  通配符通配符的出现是为了指定泛型中的类型范围。
 通配符有 3 种形式。
-&lt;?&gt;被称作无限定的通配符。 &lt;? extends T&gt;被称作有上限的通配符。 &lt;? super T&gt;被称作有下限的通配符。 ? 其实代表的是未知类型，所以涉及到 ? 时的操作，一定与具体类型无关。
+ &lt;?&gt;被称作无限定的通配符。 &lt;? extends T&gt;被称作有上限的通配符。 &lt;? super T&gt;被称作有下限的通配符。   ? 其实代表的是未知类型，所以涉及到 ? 时的操作，一定与具体类型无关。
 有人说，&lt;?&gt;提供了只读的功能，也就是它删减了增加具体类型元素的能力，只保留与具体类型无关的功能。它不管装载在这个容器内的元素是什么类型，它只关心元素的数量、容器是否为空？我想这种需求还是很常见的吧。
 有同学可能会想，&lt;?&gt;既然作用这么渺小，那么为什么还要引用它呢？ 
 个人认为，提高了代码的可读性，程序员看到这段代码时，就能够迅速对此建立极简洁的印象，能够快速推断源码作者的意图。
-类型擦除 在泛型类被类型擦除的时候，之前泛型类中的类型参数部分如果没有指定上限，如 &lt;T&gt;则会被转译成普通的 Object 类型，如果指定了上限如 &lt;T extends String&gt;则类型参数就被替换成类型上限。
-类型擦除带来的局限性 正常情况下，因为泛型的限制，编译器不让最后一行代码编译通过，因为类似不匹配，但是，基于对类型擦除的了解，利用反射，我们可以绕过这个限制。
+类型擦除在泛型类被类型擦除的时候，之前泛型类中的类型参数部分如果没有指定上限，如 &lt;T&gt;则会被转译成普通的 Object 类型，如果指定了上限如 &lt;T extends String&gt;则类型参数就被替换成类型上限。
+类型擦除带来的局限性正常情况下，因为泛型的限制，编译器不让最后一行代码编译通过，因为类似不匹配，但是，基于对类型擦除的了解，利用反射，我们可以绕过这个限制。
 那么，利用反射，我们绕过编译器去调用 add 方法。
-public class ToolTest { public static void main(String[] args) { List&lt;Integer&gt; ls = new ArrayList&lt;&gt;(); ls.add(23); //	ls.add(&#34;text&#34;); try { Method method = ls.getClass().getDeclaredMethod(&#34;add&#34;,Object.class); method.invoke(ls,&#34;test&#34;); method.invoke(ls,42.9f); } catch (NoSuchMethodException e) { // TODO Auto-generated catch block e."/>
+public class ToolTest { public static void main(String[] args) { List&lt;Integer&gt; ls = new ArrayList&lt;&gt;(); ls.add(23); //	ls.add(&#34;text&#34;);  try { Method method = ls.getClass().getDeclaredMethod(&#34;add&#34;,Object.class); method.invoke(ls,&#34;test&#34;); method.invoke(ls,42.9f); } catch (NoSuchMethodException e) { // TODO Auto-generated catch block  e."/>
 <meta name="twitter:site" content="@razonyang"/>
 <meta property="og:image" content="https://xuzhijvn.github.io/images/logo.png"/>
-  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.b981f795e95faf12cf063f0faef9d047dcaaa2744ff49a9183313c82f6ca42ef.css" integrity="sha256-uYH3lelfrxLPBj8PrvnQR9yqonRP9JqRgzE8gvbKQu8=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
-  <body><script>const items=["mode","palette"];items.forEach(function(e){const t=localStorage.getItem("hbs-"+e);t&&document.body.parentElement.setAttribute("data-"+e,t)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <meta name="twitter:image" content="https://xuzhijvn.github.io/images/logo.png"/><link rel="stylesheet" href="https://xuzhijvn.github.io/css/main.min.5fae26b2e91aa4c0c3bd1231f2fbe0e7f519b86c7d83651a5935b30d75a0fb01.css" integrity="sha256-X64msukapMDDvRIx8vvg5/UZuGx9g2UaWTWzDXWg&#43;wE=" crossorigin="anonymous"><link rel="stylesheet" href="https://xuzhijvn.github.io/css/viewer.min.3d228794bcedbbfa0412beb8fbc1ec6973202945e42af7004f742a4d7bd620ab.css" integrity="sha256-PSKHlLztu/oEEr64&#43;8HsaXMgKUXkKvcAT3QqTXvWIKs=" crossorigin="anonymous"></head>
+  <body><script>const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})</script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -376,44 +376,44 @@ public class ToolTest { public static void main(String[] args) { List&lt;Integer
 </p>
 <p>正常情况下，因为泛型的限制，编译器不让最后一行代码编译通过，因为类似不匹配，但是，基于对类型擦除的了解，利用反射，我们可以绕过这个限制。</p>
 <p>那么，利用反射，我们绕过编译器去调用 add 方法。</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ToolTest</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> ls <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
-</span></span><span style="display:flex;"><span>    ls<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>23<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">//		ls.add(&#34;text&#34;);
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>      Method method <span style="color:#f92672">=</span> ls<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getDeclaredMethod</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;add&#34;</span><span style="color:#f92672">,</span>Object<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>      
-</span></span><span style="display:flex;"><span>      
-</span></span><span style="display:flex;"><span>      method<span style="color:#f92672">.</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>ls<span style="color:#f92672">,</span><span style="color:#e6db74">&#34;test&#34;</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>      method<span style="color:#f92672">.</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>ls<span style="color:#f92672">,</span>42<span style="color:#f92672">.</span><span style="color:#a6e22e">9f</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>NoSuchMethodException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#75715e">// TODO Auto-generated catch block
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>SecurityException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#75715e">// TODO Auto-generated catch block
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>IllegalAccessException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#75715e">// TODO Auto-generated catch block
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>IllegalArgumentException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#75715e">// TODO Auto-generated catch block
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>InvocationTargetException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#75715e">// TODO Auto-generated catch block
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span> Object o<span style="color:#f92672">:</span> ls<span style="color:#f92672">){</span>
-</span></span><span style="display:flex;"><span>      System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>o<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><h2 id="参考链接">参考链接<a class="anchor ms-1" href="#参考链接"><i class="fas fa-link"></i></a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ToolTest</span> <span style="color:#f92672">{</span>
+
+
+  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> ls <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
+    ls<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>23<span style="color:#f92672">);</span>
+<span style="color:#75715e">//		ls.add(&#34;text&#34;);
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+      Method method <span style="color:#f92672">=</span> ls<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getDeclaredMethod</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;add&#34;</span><span style="color:#f92672">,</span>Object<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+      
+      
+      method<span style="color:#f92672">.</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>ls<span style="color:#f92672">,</span><span style="color:#e6db74">&#34;test&#34;</span><span style="color:#f92672">);</span>
+      method<span style="color:#f92672">.</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>ls<span style="color:#f92672">,</span>42<span style="color:#f92672">.</span><span style="color:#a6e22e">9f</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>NoSuchMethodException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#75715e">// TODO Auto-generated catch block
+</span><span style="color:#75715e"></span>      e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>SecurityException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#75715e">// TODO Auto-generated catch block
+</span><span style="color:#75715e"></span>      e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>IllegalAccessException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#75715e">// TODO Auto-generated catch block
+</span><span style="color:#75715e"></span>      e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>IllegalArgumentException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#75715e">// TODO Auto-generated catch block
+</span><span style="color:#75715e"></span>      e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>InvocationTargetException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#75715e">// TODO Auto-generated catch block
+</span><span style="color:#75715e"></span>      e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+    
+    <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span> Object o<span style="color:#f92672">:</span> ls<span style="color:#f92672">){</span>
+      System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>o<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+  
+  <span style="color:#f92672">}</span>
+
+<span style="color:#f92672">}</span>
+</code></pre></div><h2 id="参考链接">参考链接<a class="anchor ms-1" href="#参考链接"><i class="fas fa-link"></i></a></h2>
 <p><a href="https://blog.csdn.net/briblue/article/details/76736356" target="_blank" rel="noopener noreferrer">Java 泛型，你了解类型擦除吗？</a></p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -443,10 +443,10 @@ public class ToolTest { public static void main(String[] args) { List&lt;Integer
 </div></div>
   <div class="card-footer"><div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-prev">
     <i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/distributed/%E5%88%86%E5%B8%83%E5%BC%8Fid%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/">分布式ID生成方式
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/code/java/%E6%B5%AE%E7%82%B9%E6%95%B0%E8%BF%90%E7%AE%97/">浮点数运算
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://xuzhijvn.github.io/zh-cn/posts/ai/%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%ADbp/">反向传播
+    <a href="https://xuzhijvn.github.io/zh-cn/posts/cs/other/%E6%AD%BB%E8%AE%B0%E7%A1%AC%E8%83%8C/">死记硬背
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div></div>
@@ -676,7 +676,7 @@ public class ToolTest { public static void main(String[] args) { List&lt;Integer
         <i class="fa-fw fa-2x fab fa-twitter"></i>
       </a></nav>
 <div class="copyright mb-2">
-  Copyright © 2016-2022 Razon Yang. All Rights Reserved.
+  Copyright © 2016-2023 Razon Yang. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
   Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
@@ -687,8 +687,8 @@ public class ToolTest { public static void main(String[] args) { List&lt;Integer
   <a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20043980号</a>
 </div>
 </footer>
-<script src="https://xuzhijvn.github.io/js/main.db9a2bb322c86f3ce576a8a52234f858011db58e47cf71c0a0a9a55bf64433d1.js" integrity="sha256-25orsyLIbzzldqilIjT4WAEdtY5Hz3HAoKmlW/ZEM9E=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.c19ac3520e32ce116fd85694380d6bb708d6a573c3b5230e257205f3247503c6.js" integrity="sha256-wZrDUg4yzhFv2FaUOA1rtwjWpXPDtSMOJXIF8yR1A8Y=" crossorigin="anonymous" defer></script>
-<script src="https://xuzhijvn.github.io/js/viewer.min.5ed22a495d1573f2c744c2d1e3a0b66b55fb8f3d00a29a698a080bd41b27bd4d.js" integrity="sha256-XtIqSV0Vc/LHRMLR46C2a1X7jz0AopppiggL1BsnvU0=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
+<script src="https://xuzhijvn.github.io/js/main.785fa4e86518eee08ad9f10fdbc7d3a34d7d772cfe2fbe8809dde82283d7b7c6.js" integrity="sha256-eF&#43;k6GUY7uCK2fEP28fTo019dyz&#43;L76ICd3oIoPXt8Y=" crossorigin="anonymous" defer></script><script src="https://xuzhijvn.github.io/js/icons.min.8ddcaafc364ff0296c2209c5495287f0de039b852da9b24847f94c198b7639b6.js" integrity="sha256-jdyq/DZP8ClsIgnFSVKH8N4Dm4UtqbJIR/lMGYt2ObY=" crossorigin="anonymous" defer></script>
+<script src="https://xuzhijvn.github.io/js/viewer.min.652118a9fbf3403cdfde4026209f97ace22f9e334f0b45a33431a221b3db46a8.js" integrity="sha256-ZSEYqfvzQDzf3kAmIJ&#43;XrOIvnjNPC0WjNDGiIbPbRqg=" crossorigin="anonymous" defer></script><script async src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5fb19b4fde14befc"></script>
 <script>
   var _hmt = _hmt || [];
   (function() {
